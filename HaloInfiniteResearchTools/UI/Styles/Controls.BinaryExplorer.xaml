@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:conv="clr-namespace:WpfHexaEditor.Core.Converters;assembly=WPFHexaEditor"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <conv:PathToFilenameConverter x:Key="FilenameConverter" />
+    <conv:VisibilityToBooleanConverter x:Key="VisibilityToBoolConverter" />
+
+</ResourceDictionary>
