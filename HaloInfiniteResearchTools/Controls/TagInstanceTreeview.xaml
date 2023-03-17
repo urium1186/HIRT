@@ -1,0 +1,262 @@
+﻿<UserControl x:Class="HaloInfiniteResearchTools.Controls.TagInstanceTreeview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
+             xmlns:model="clr-namespace:HaloInfiniteResearchTools.Models"
+             xmlns:tags="clr-namespace:LibHIRT.TagReader;assembly=LibHIRT" xmlns:muxc1="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <TreeView x:Name="treeView" Grid.Row="1"
+                          VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  VirtualizingPanel.IsContainerVirtualizable="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  ItemsSource="{Binding TagRoot}" 
+                          >
+            <TreeView.Resources>
+                <ContextMenu x:Key="ScaleCollectionPopup">
+                    <MenuItem Header="New Scale..."/>
+                </ContextMenu>
+                <ContextMenu x:Key="ScaleItemPopup">
+                    <MenuItem Header="Remove Scale"/>
+                </ContextMenu>
+                <ContextMenu x:Key="FolderContext"  StaysOpen="true">
+                    <MenuItem Header="Add..." />
+                    <MenuItem Header="Rename"/>
+                    <MenuItem Header="Remove"/>
+                    <Separator/>
+                    <MenuItem Header="Copy"/>
+                    <MenuItem Header="Cut"/>
+                    <MenuItem Header="Paste"/>
+                    <MenuItem Header="Move"/>
+                </ContextMenu>
+                <HierarchicalDataTemplate DataType="{x:Type tags:CompoundTagInstance}" ItemsSource="{Binding Childrens}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
+                        <Label Content=" childs"  Grid.Column="3"></Label>
+                    </Grid>
+                </HierarchicalDataTemplate>
+
+                <HierarchicalDataTemplate DataType="{x:Type model:TagInstanceModel}" ItemsSource="{Binding Childrens}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding Header}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding StrValue , Mode=OneWay}"  Grid.Column="2"></Label>
+                    </Grid>
+                </HierarchicalDataTemplate>
+                <DataTemplate DataType="{x:Type model:TagRefInstaceModel}" >
+                    <Label Content="{Binding TagGroup}"></Label>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:TagRef}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <TreeView  Grid.Column="2" BorderThickness="0" >
+                            
+                            <TreeViewItem >
+                                <TreeViewItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Ref_id}"></TextBlock>
+                                        <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="18" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click"
+                                    IsEnabled="{Binding Ref_id_int, 
+                                                   Converter={StaticResource InequalityBoolConverter}, 
+                                                   ConverterParameter ={StaticResource IntOneMinus}}" Margin="10,0,0,0"
+                                    >
+                                            <Button.Resources>
+
+                                                <!-- 
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="IsEnabled">
+                                            <Setter.Value>
+                                                <Binding >
+                                                    <Binding.Source>
+                                                        Ref_id_int
+                                                    </Binding.Source>
+                                                    <Binding.Converter>
+                                                        <StaticResource ResourceKey="InequalityBoolConverter" />
+                                                    </Binding.Converter>
+                                                    <Binding.ConverterParameter>
+                                                        <sys:Int32>-1</sys:Int32>
+                                                    </Binding.ConverterParameter>
+                                                </Binding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                -->
+                                            </Button.Resources>
+                                        </Button>
+                                    </StackPanel>
+                                </TreeViewItem.Header>
+                                <Grid Grid.Column="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Label Content="{Binding TagGroupRev , Mode=OneWay}"  Grid.Column="0" Grid.Row="0"></Label>
+                                    <Label Content="{Binding Path , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
+                                    <Label Content="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1"></Label>
+                                    
+                                </Grid>
+
+                            </TreeViewItem>
+                        </TreeView>
+                       
+                    </Grid>
+
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:TagInstance}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2"></Label>
+                    </Grid>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type tags:EnumGroup}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=OneWay}"  Grid.Column="2"></ComboBox>
+                    </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:FlagGroup}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <TreeView ItemsSource="{Binding Flags}" Grid.Column="2"
+                                   VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  VirtualizingPanel.IsContainerVirtualizable="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                                  BorderThickness="0" 
+                                  >
+                            <TreeView.Resources >
+
+                                <HierarchicalDataTemplate DataType="{x:Type tags:Flag}" ItemsSource="{Binding Childrens}">
+                                    <Grid ShowGridLines="False" >
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="{Binding Label}" Grid.Column="0" FontFamily="Calibri Light"></Label>
+                                        <Label Content=": " Grid.Column="1" FontFamily="Calibri Light"></Label>
+                                        <Label Content="{Binding Value}" Grid.Column="2" FontFamily="Calibri Light"></Label>
+                                    </Grid>
+
+
+
+                                </HierarchicalDataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:ARGB}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <TreeView  Grid.Column="2" BorderThickness="0" >
+                            <TreeViewItem Header="{Binding AccessValue}" >
+                                <Grid HorizontalAlignment="Stretch" Height="75" Width="75"  Grid.Column="2">
+                                    <Grid.Background >
+                                        <SolidColorBrush Color="{Binding Self, Converter={StaticResource ColorConverter}, Mode=OneWay}" />
+                                    </Grid.Background>
+                                    <!--
+                                    <muxc1:ColorCanvas SelectedColor="AliceBlue" Grid.Column="3">
+
+                                    </muxc1:ColorCanvas>
+                                    -->
+                                </Grid>
+                            </TreeViewItem>
+                        </TreeView>
+                    </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:RGB}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <TreeView  Grid.Column="2" BorderThickness="0" >
+                            <TreeViewItem Header="{Binding AccessValue}" >
+                                    <Grid HorizontalAlignment="Stretch" Height="75" Width="75"  Grid.Column="2">
+                                        <Grid.Background >
+                                            <SolidColorBrush Color="{Binding Self, Converter={StaticResource ColorConverter}, Mode=OneWay}" />
+                                        </Grid.Background>
+                                    </Grid>
+                            </TreeViewItem>
+                        </TreeView>
+                        
+                        <!--
+                        <muxc1:ColorCanvas SelectedColor="{Binding Self, Converter={StaticResource ColorConverter}, Mode=OneWay}" Grid.Column="3"
+                                           Visibility="Hidden">
+
+                        </muxc1:ColorCanvas>
+                        -->
+
+                    </Grid>
+                </DataTemplate>
+            </TreeView.Resources>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="False"/>
+                    <!--<Setter Property="ContextMenu" Value="{StaticResource FolderContext}" />-->
+                </Style>
+
+            </TreeView.ItemContainerStyle>
+        </TreeView>
+    </Grid>
+</UserControl>
