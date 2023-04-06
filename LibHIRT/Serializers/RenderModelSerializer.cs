@@ -23,7 +23,7 @@ namespace LibHIRT.Serializers
 
         public static RenderModelDefinition Deserialize(Stream stream, RenderModelFile file)
         {
-            _file = file;   
+            _file = file;
             _filePath = file.Path_string;
             var reader = new BinaryReader(stream);
             return new RenderModelSerializer().Deserialize(reader);
@@ -46,7 +46,8 @@ namespace LibHIRT.Serializers
 
             }
         }
-        void ReadRenderModelDefinition(RenderModelDefinition obj) {
+        void ReadRenderModelDefinition(RenderModelDefinition obj)
+        {
             var g_h_id = (TagParse.RootTagInst["parent model"] as TagRef).Ref_id_int;
             var g_h_mid = (TagParse.RootTagInst["parent model"] as TagRef).Ref_id_center_int;
             var g_h_sub = (TagParse.RootTagInst["parent model"] as TagRef).Ref_id_sub_int;
@@ -58,7 +59,7 @@ namespace LibHIRT.Serializers
             ReadBoneNodes(obj);
             ReadMarkerGroups(obj);
             obj.Render_geometry = new RenderGeometry();
-            
+
             ReadRenderGeometry(obj.Render_geometry);
         }
 
@@ -68,9 +69,11 @@ namespace LibHIRT.Serializers
             if (temp == null)
                 return;
             _obj.Nodes = new ModelBone[temp.Count];
-            for (int i = 0; i < temp.Count; i++) {
+            for (int i = 0; i < temp.Count; i++)
+            {
                 var obj = temp[i];
-                if (_obj.Nodes[i] == null) {
+                if (_obj.Nodes[i] == null)
+                {
                     _obj.Nodes[i] = new ModelBone();
                 }
                 ReadBoneNode(_obj.Nodes[i], temp[i]);
@@ -78,7 +81,8 @@ namespace LibHIRT.Serializers
                 if (_obj.Nodes[i].ParentIndex != -1)
                     _obj.Nodes[i].Parent = _obj.Nodes[_obj.Nodes[i].ParentIndex];
 
-                if (_obj.Nodes[i].FirstChildIndex != -1) {
+                if (_obj.Nodes[i].FirstChildIndex != -1)
+                {
                     if (_obj.Nodes[_obj.Nodes[i].FirstChildIndex] == null)
                     {
                         _obj.Nodes[_obj.Nodes[i].FirstChildIndex] = new ModelBone();
@@ -96,7 +100,8 @@ namespace LibHIRT.Serializers
             }
         }
 
-        private void ReadMarkerGroups(RenderModelDefinition _obj) {
+        private void ReadMarkerGroups(RenderModelDefinition _obj)
+        {
             ListTagInstance markerGroups = TagParse.RootTagInst["marker groups"] as ListTagInstance;
             if (markerGroups == null)
             { return; }
@@ -106,7 +111,8 @@ namespace LibHIRT.Serializers
                 _obj.Marker_groups[i] = new RenderModelMarkerGroup();
                 _obj.Marker_groups[i].Name = (markerGroups[i]["name"] as Mmr3Hash).Str_value;
                 ListTagInstance markers = markerGroups[i]["markers"] as ListTagInstance;
-                if (markers == null) {
+                if (markers == null)
+                {
                     _obj.Marker_groups[i].Markers = new RenderModelMarker[0];
                     continue;
                 }
@@ -125,17 +131,30 @@ namespace LibHIRT.Serializers
                         PermutationIndex = (Int32)marker["permutation index"].AccessValue,
                         NodeIndex = (Int16)marker["node index"].AccessValue,
                         HasNodeRelativeDirection = (marker["flags"] as FlagGroup).Options_v[0],
-                        Translation = new System.Numerics.Vector3 {
-                            X = trs.X, Y = trs.Y, Z = trs.Z,
+                        Translation = new System.Numerics.Vector3
+                        {
+                            X = trs.X,
+                            Y = trs.Y,
+                            Z = trs.Z,
                         },
-                        Rotation = new System.Numerics.Quaternion { 
-                            X = rts.X, Y = rts.Y, Z = rts.Z, W = rts.W        
+                        Rotation = new System.Numerics.Quaternion
+                        {
+                            X = rts.X,
+                            Y = rts.Y,
+                            Z = rts.Z,
+                            W = rts.W
                         },
-                        Scale = new System.Numerics.Vector3 { 
-                            X = scl, Y = scl, Z = scl
+                        Scale = new System.Numerics.Vector3
+                        {
+                            X = scl,
+                            Y = scl,
+                            Z = scl
                         },
-                        Direction = new System.Numerics.Vector3 { 
-                            X = dir.X, Y = dir.Y, Z = dir.Z,
+                        Direction = new System.Numerics.Vector3
+                        {
+                            X = dir.X,
+                            Y = dir.Y,
+                            Z = dir.Z,
                         },
                     };
                 }
@@ -143,7 +162,8 @@ namespace LibHIRT.Serializers
             }
         }
 
-        private void ReadBoneNode(ModelBone bone, TagInstance obj) {
+        private void ReadBoneNode(ModelBone bone, TagInstance obj)
+        {
             bone.Name = (obj["name"] as Mmr3Hash).Str_value;
             bone.ParentIndex = (Int16)obj["parent node"].AccessValue;
             bone.FirstChildIndex = (Int16)obj["first child node"].AccessValue;
@@ -152,13 +172,19 @@ namespace LibHIRT.Serializers
             var trsFP = obj["distance from parent"] as Float;
             var rts = obj["default rotation"] as TagReader.Quaternion;
 
-            bone.Traslation = new System.Numerics.Vector3 {
-                X = trs.X, Y = trs.Y, Z = trs.Z,
+            bone.Traslation = new System.Numerics.Vector3
+            {
+                X = trs.X,
+                Y = trs.Y,
+                Z = trs.Z,
             };
 
             bone.Rotation = new System.Numerics.Quaternion
             {
-                X = rts.X, Y = rts.Y, Z = rts.Z,W = rts.W
+                X = rts.X,
+                Y = rts.Y,
+                Z = rts.Z,
+                W = rts.W
             };
 
             bone.Scale = new System.Numerics.Vector3
@@ -170,7 +196,8 @@ namespace LibHIRT.Serializers
 
             bone.DistanceFromParent = trsFP.Value;
         }
-        void ReadRegions(RenderModelDefinition obj) {
+        void ReadRegions(RenderModelDefinition obj)
+        {
             ListTagInstance temp = TagParse.RootTagInst["regions"] as ListTagInstance;
             if (temp == null)
                 return;
@@ -181,7 +208,7 @@ namespace LibHIRT.Serializers
                 ListTagInstance perms = temp[i]["permutations"] as ListTagInstance;
                 if (perms != null)
                 {
-                    obj.Regions[i].permutations =  new render_model_permutation[perms.Count];
+                    obj.Regions[i].permutations = new render_model_permutation[perms.Count];
                     for (int j = 0; j < perms.Count; j++)
                     {
                         obj.Regions[i].permutations[j].name_id = (int)perms[j]["name"].AccessValue;
@@ -208,9 +235,9 @@ namespace LibHIRT.Serializers
             string file_name = Path.GetFileNameWithoutExtension(_filePath);
             for (int i = 0; i < temp.Childs.Count; i++)
             {
-                ObjMesh t_m = processMeshInst(temp.Childs[i], obj,tempMP, i);
+                ObjMesh t_m = processMeshInst(temp.Childs[i], obj, tempMP, i);
                 t_m.Name = file_name + "_mesh_" + i.ToString().PadLeft(pad, '0');
-                obj.Meshes.Add(t_m);    
+                obj.Meshes.Add(t_m);
             }
         }
 
@@ -218,7 +245,7 @@ namespace LibHIRT.Serializers
         {
 
             ObjMesh obj_mesh = new ObjMesh();
-            
+
             obj_mesh.CloneIndex = (Int16)mesh["clone index"].AccessValue;
             obj_mesh.RigidNodeIndex = (sbyte)mesh["rigid node index"].AccessValue;
             obj_mesh.VertType = (VertType)((EnumGroup)mesh["vertex type"]).SelectedIndex;
@@ -232,40 +259,60 @@ namespace LibHIRT.Serializers
             HashSet<short[]> indices = new HashSet<short[]>();
             for (int w = 0; w < str_mesh.MeshLodChunks.Length; w++)
             {
-                
-                var l_chun =  str_mesh.MeshLodChunks[w];
+
+                var l_chun = str_mesh.MeshLodChunks[w];
                 if (l_chun.Chunks.Length == 0)
                     continue;
                 count_nz++;
                 var b = InterpretChunkParameterInfo(l_chun.Chunks);
                 indices.Add(b);
             }
-            
-            if (lod_render_data != null)
+
+            if (lod_render_data != null && lod_render_data.Count > 0)
             {
                 //Debug.Assert(indices.Contains(0) || indices.Count == 1);
-                for (int i = 0; i < lod_render_data.Count; i++)
+
+                //for (int i = 0; i < lod_render_data.Count; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     var lod = lod_render_data[i];
                     // if not (self.minLOD <= lod_i <= self.maxLOD):
                     var obj_lod = new MeshLOD(obj_mesh);
+                    obj_lod.IndexBufferIndex.Clear();
                     short index_i = (short)lod["index buffer index"].AccessValue;
                     var index_buff = mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers[index_i];
                     if (index_buff.d3dbuffer.D3dBuffer == null)
+                    {
                         index_buff.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], index_buff.offset, index_buff.d3dbuffer.ByteWidth);
-                    obj_lod.IndexBufferIndex.Clear();
+                        if (index_buff.d3dbuffer.D3dBuffer == null)
+                            continue;
+                    }
+                    if (index_buff.Stride == 4)
+                    {
+
+                    }
                     for (int o = 0; o < index_buff.count; o++)
                     {
-                        obj_lod.IndexBufferIndex.Add(BitConverter.ToInt16(index_buff.d3dbuffer.D3dBuffer,o*2));
+                        uint index = uint.MaxValue;
+                        if (index_buff.Stride == 2)
+                            index = BitConverter.ToUInt16(index_buff.d3dbuffer.D3dBuffer, o * 2);
+                        else if (index_buff.Stride == 4)
+                        {
+                            index = BitConverter.ToUInt32(index_buff.d3dbuffer.D3dBuffer, o * 4);
+                        }
+                        else
+                            Debug.Assert(false);
+                        Debug.Assert(index != uint.MaxValue);
+                        obj_lod.IndexBufferIndex.Add(index);
                     }
 
 
                     //Debug.Assert(index_buff.offset >= min && index_buff.offset + index_buff.d3dbuffer.ByteWidth <= max);
-            ListTagInstance vert_buffer_indices = lod["vertex buffer indices"] as ListTagInstance;
+                    ListTagInstance vert_buffer_indices = lod["vertex buffer indices"] as ListTagInstance;
                     Dictionary<PcVertexBuffersUsage, RasterizerVertexBuffer> vert_buffers = new Dictionary<PcVertexBuffersUsage, RasterizerVertexBuffer>();
                     if (vert_buffer_indices != null)
                     {
-                        
+
                         for (int j = 0; j < vert_buffer_indices.Count; j++)
                         {
                             int temp_vert_index_block = (Int16)vert_buffer_indices[j]["vertex buffer index"].AccessValue;
@@ -277,29 +324,43 @@ namespace LibHIRT.Serializers
                         }
 
                     }
-                    if (vert_buffers.ContainsKey(PcVertexBuffersUsage.Position)) {
+                    if (vert_buffers.ContainsKey(PcVertexBuffersUsage.Position))
+                    {
                         RasterizerVertexBuffer tempPosition = vert_buffers[PcVertexBuffersUsage.Position];
                         if (tempPosition.d3dbuffer.D3dBuffer == null)
                             tempPosition.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempPosition.offset, tempPosition.d3dbuffer.ByteWidth);
                         MemoryStream msPosition = new MemoryStream(tempPosition.d3dbuffer.D3dBuffer);
                         RasterizerVertexBuffer tempUV0 = null;
-                        MemoryStream msUV0 = null;
                         RasterizerVertexBuffer tempUV1 = null;
                         RasterizerVertexBuffer tempUV2 = null;
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV0)) {
+                        MemoryStream msUV0 = null;
+                        MemoryStream msUV1 = null;
+                        MemoryStream msUV2 = null;
+                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV0))
+                        {
                             tempUV0 = vert_buffers[PcVertexBuffersUsage.UV0];
                             if (tempUV0.d3dbuffer.D3dBuffer == null)
                                 tempUV0.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempUV0.offset, tempUV0.d3dbuffer.ByteWidth);
                             msUV0 = new MemoryStream(tempUV0.d3dbuffer.D3dBuffer);
                             Debug.Assert(tempUV0.count == tempPosition.count);
                         }
-                        /*if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV1))
+                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV1))
                         {
                             tempUV1 = vert_buffers[PcVertexBuffersUsage.UV1];
-                            tempUV1.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingChunks, tempUV1.offset, tempUV1.d3dbuffer.ByteWidth);
+                            if (tempUV1.d3dbuffer.D3dBuffer == null)
+                                tempUV1.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempUV1.offset, tempUV1.d3dbuffer.ByteWidth);
+                            msUV1 = new MemoryStream(tempUV1.d3dbuffer.D3dBuffer);
                             Debug.Assert(tempUV1.count == tempPosition.count);
-                        }*/
-                        obj_lod.Vertexs  = new Domain.Geometry.SSPVertex[tempPosition.count];
+                        }
+                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV2))
+                        {
+                            tempUV2 = vert_buffers[PcVertexBuffersUsage.UV2];
+                            if (tempUV2.d3dbuffer.D3dBuffer == null)
+                                tempUV2.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempUV2.offset, tempUV2.d3dbuffer.ByteWidth);
+                            msUV2 = new MemoryStream(tempUV2.d3dbuffer.D3dBuffer);
+                            Debug.Assert(tempUV2.count == tempPosition.count);
+                        }
+                        obj_lod.Vertexs = new SSPVertex[tempPosition.count];
                         for (int j = 0; j < tempPosition.count; j++)
                         {
                             SSPVertex temp = new SSPVertexStatic();
@@ -307,11 +368,12 @@ namespace LibHIRT.Serializers
                             msPosition.Read(buffer, 0, tempPosition.stride);
                             var vals = FormatReader.ReadWordVector4DNormalized(buffer);
                             temp.Position = new System.Numerics.Vector4(
-                                vals.Item1 * obj.CompressionInfo.ModelScale.M13+ obj.CompressionInfo.ModelScale.M11,
+                                vals.Item1 * obj.CompressionInfo.ModelScale.M13 + obj.CompressionInfo.ModelScale.M11,
                                 vals.Item2 * obj.CompressionInfo.ModelScale.M23 + obj.CompressionInfo.ModelScale.M21,
-                                vals.Item3 * obj.CompressionInfo.ModelScale.M33 + obj.CompressionInfo.ModelScale.M31, 
-                                vals.Item4) ;
-                            if (tempUV0!=null) {
+                                vals.Item3 * obj.CompressionInfo.ModelScale.M33 + obj.CompressionInfo.ModelScale.M31,
+                                vals.Item4);
+                            if (tempUV0 != null)
+                            {
                                 buffer = new byte[tempUV0.stride];
                                 msUV0.Read(buffer, 0, tempUV0.stride);
                                 var valsUV = FormatReader.ReadWordVector2DNormalized(buffer);
@@ -319,6 +381,28 @@ namespace LibHIRT.Serializers
                                 temp.UV0 = new System.Numerics.Vector2(
                                     valsUV.Item1 * uv0_scale.M13 + uv0_scale.M11,
                                     valsUV.Item2 * uv0_scale.M23 + uv0_scale.M21
+                                    );
+                            }
+                            if (tempUV1 != null)
+                            {
+                                buffer = new byte[tempUV1.stride];
+                                msUV1.Read(buffer, 0, tempUV1.stride);
+                                var valsUV = FormatReader.ReadWordVector2DNormalized(buffer);
+                                var uv1_scale = obj.CompressionInfo.Uv1Scale;
+                                temp.UV1 = new System.Numerics.Vector2(
+                                    valsUV.Item1 * uv1_scale.M13 + uv1_scale.M11,
+                                    valsUV.Item2 * uv1_scale.M23 + uv1_scale.M21
+                                    );
+                            }
+                            if (tempUV2 != null)
+                            {
+                                buffer = new byte[tempUV2.stride];
+                                msUV2.Read(buffer, 0, tempUV2.stride);
+                                var valsUV = FormatReader.ReadWordVector2DNormalized(buffer);
+                                var uv2_scale = obj.CompressionInfo.Uv2Scale;
+                                temp.UV2 = new System.Numerics.Vector2(
+                                    valsUV.Item1 * uv2_scale.M13 + uv2_scale.M11,
+                                    valsUV.Item2 * uv2_scale.M23 + uv2_scale.M21
                                     );
                             }
                             obj_lod.Vertexs[j] = temp;
@@ -340,7 +424,7 @@ namespace LibHIRT.Serializers
                     }*/
                     obj_mesh.LODRenderData.Add(obj_lod);
                 }
-                
+
             }
 
             return obj_mesh;
@@ -353,20 +437,23 @@ namespace LibHIRT.Serializers
             {
                 ReadBufferInDiskChuncks(ref mesh_package);
             }
-            else {
+            else
+            {
                 ReadBufferInMemChuncks(ref mesh_package);
             }
         }
-        void ReadBufferInDiskChuncks(ref RenderGeometryMeshPackage mesh_package) {
+        void ReadBufferInDiskChuncks(ref RenderGeometryMeshPackage mesh_package)
+        {
             var mesh_R = mesh_package.MeshResourceGroups[0].MeshResource[0];
             int chunk_i = 0;
             foreach (var item in mesh_R.StreamingBuffers)
             {
-                if (item.BufferSize != 0 && item.TempBufferForPipeline == null) {
+                if (item.BufferSize != 0 && item.TempBufferForPipeline == null)
+                {
                     item.TempBufferForPipeline = new byte[item.BufferSize];
                     string pathFile = _file.InDiskPath;
-                    
-                    while (mesh_R.StreamingChunks[chunk_i].BufferEnd<= item.BufferSize && mesh_R.StreamingChunks[chunk_i].BufferEnd!=0)
+
+                    while (mesh_R.StreamingChunks[chunk_i].BufferEnd <= item.BufferSize && mesh_R.StreamingChunks[chunk_i].BufferEnd != 0)
                     {
                         if (chunk_i == 1591)
                         {
@@ -376,29 +463,31 @@ namespace LibHIRT.Serializers
                         if (File.Exists(chunkPath))
                         {
                             FileStream fileStream = new FileStream(chunkPath, FileMode.Open);
-                            fileStream.Read(item.TempBufferForPipeline,chunk.BufferStart,chunk.BufferEnd-chunk.BufferStart);
+                            fileStream.Read(item.TempBufferForPipeline, chunk.BufferStart, chunk.BufferEnd - chunk.BufferStart);
                             fileStream.Close();
                         }
                         else
-                            throw new Exception("No exist the file: "+ chunkPath );
+                            throw new Exception("No exist the file: " + chunkPath);
                         chunk_i++;
                     }
-                    
+
                 }
             }
-            
-            
+
+
         }
-        void ReadBufferInMemChuncks(ref RenderGeometryMeshPackage mesh_package) {
+        void ReadBufferInMemChuncks(ref RenderGeometryMeshPackage mesh_package)
+        {
             var mesh_R = mesh_package.MeshResourceGroups[0].MeshResource[0];
             int chunk_i = 0;
             foreach (var item in mesh_R.StreamingBuffers)
             {
-                if (item.BufferSize != 0 && item.TempBufferForPipeline == null) {
+                if (item.BufferSize != 0 && item.TempBufferForPipeline == null)
+                {
                     item.TempBufferForPipeline = new byte[item.BufferSize];
                     string pathFile = _file.Path_string;
-                    
-                    while (chunk_i< mesh_R.StreamingChunks.Length && mesh_R.StreamingChunks[chunk_i].BufferEnd<= item.BufferSize && mesh_R.StreamingChunks[chunk_i].BufferEnd!=0)
+
+                    while (chunk_i < mesh_R.StreamingChunks.Length && mesh_R.StreamingChunks[chunk_i].BufferEnd <= item.BufferSize && mesh_R.StreamingChunks[chunk_i].BufferEnd != 0)
                     {
                         string chunkPath = "";
                         if (_file.FileMemDescriptor.ResourceFiles.Count > chunk_i)
@@ -424,19 +513,38 @@ namespace LibHIRT.Serializers
                         }
                         else
                             throw new Exception("No exist the file: " + chunkPath);
-                            
-                        
+
+
                         chunk_i++;
                     }
-                    
+
                 }
             }
         }
 
-        byte[] ReadBufferInChuncks(HashSet<short[]> indices, s_render_geometry_api_resource api_resource, int offset,int byteSize) {
+        byte[] ReadBufferInChuncks(HashSet<short[]> indices, s_render_geometry_api_resource api_resource, int offset, int byteSize)
+        {
             bool found = false;
-            FileStream fileStream= null;
-            return api_resource.StreamingBuffers[0].TempBufferForPipeline.Skip(offset).Take(byteSize).ToArray();
+            int totalSize = 0;
+            foreach (var item in api_resource.StreamingBuffers)
+            {
+                totalSize += item.BufferSize;
+            }
+            if (offset + byteSize > totalSize)
+                return null;
+            if (api_resource.StreamingBuffers.Length > 1)
+            {
+                Debug.Assert(api_resource.StreamingBuffers[1].BufferSize == 0);
+            }
+            MemoryStream fileStream = new MemoryStream(api_resource.StreamingBuffers[0].TempBufferForPipeline);
+            byte[] buffer = new byte[byteSize];
+            fileStream.Seek(offset, SeekOrigin.Begin);
+            fileStream.Read(buffer, 0, byteSize);
+
+            fileStream.Close();
+            fileStream.Dispose();
+            //return api_resource.StreamingBuffers[0].TempBufferForPipeline.Skip(offset).Take(byteSize).ToArray();
+            return buffer;
 
             /*
             StreamingGeometryChunk[] listChunck = api_resource.StreamingChunks;
@@ -446,10 +554,10 @@ namespace LibHIRT.Serializers
                 if (chunck1.BufferStart <= offset && chunck1.BufferEnd >= offset + byteSize)
                 {
                     found = true;
-                    string path = _filePath + string.Format("[{0}:mesh resource.chunk{0}]", b.Item1);
-                    //fileStream = new FileStream(new File(path), FileAccess.Read);
+                    string _path = _filePath + string.Format("[{0}:mesh resource.chunk{0}]", b.Item1);
+                    //fileStream = new FileStream(new File(_path), FileAccess.Read);
                         
-                    FileDirModel file = HIFileContext.RootDir.GetChildByPath(path) as FileDirModel;
+                    FileDirModel file = HIFileContext.RootDir.GetChildByPath(_path) as FileDirModel;
                     if (file != null && file.File != null)
                     {
                         var stream = file.File.GetStream();
@@ -469,10 +577,10 @@ namespace LibHIRT.Serializers
                 {
                     var chunck2 = listChunck[b.Item2];
                     if (chunck2.BufferStart <= offset && chunck2.BufferEnd >= offset + byteSize) {
-                        string path = _filePath + string.Format("[{0}:mesh resource.chunk{0}]", b.Item2);
-                        //fileStream = new FileStream(new File(path), FileAccess.Read);
+                        string _path = _filePath + string.Format("[{0}:mesh resource.chunk{0}]", b.Item2);
+                        //fileStream = new FileStream(new File(_path), FileAccess.Read);
 
-                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(path) as FileDirModel;
+                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(_path) as FileDirModel;
                         if (file != null && file.File != null)
                         {
                             var stream = file.File.GetStream();
@@ -494,10 +602,10 @@ namespace LibHIRT.Serializers
                         int bytesItem1 = chunck1.BufferEnd - offset;
                         int bytesItem2 = byteSize - bytesItem1;
                         byte[] array = new byte[byteSize];
-                        string path = _filePath + string.Format("[{0}:mesh resource.chunk{0}]", b.Item1);
+                        string _path = _filePath + string.Format("[{0}:mesh resource.chunk{0}]", b.Item1);
                         
                         
-                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(path) as FileDirModel; 
+                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(_path) as FileDirModel; 
                         
                         if (file != null && file.File != null)
                         {
@@ -540,7 +648,7 @@ namespace LibHIRT.Serializers
             return new byte[0];
         }
 
-        
+
         private RenderGeometryMeshPackage GetRenderGeometryMeshPackage(TagInstance value)
         {
             RenderGeometryMeshPackage meshPackage = new RenderGeometryMeshPackage();
@@ -738,8 +846,8 @@ namespace LibHIRT.Serializers
 
         private static Int16[] InterpretChunkParameterInfo(byte[]? Chunks)
         {
-            Debug.Assert(Chunks != null && Chunks.Length % 2 ==0);   
-            Int16[] salida = new Int16[Chunks.Length/2];
+            Debug.Assert(Chunks != null && Chunks.Length % 2 == 0);
+            Int16[] salida = new Int16[Chunks.Length / 2];
             for (int i = 0; i < salida.Length; i++)
             {
                 salida[i] = BitConverter.ToInt16(Chunks, i * 2);

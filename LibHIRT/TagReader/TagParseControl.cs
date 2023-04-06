@@ -48,7 +48,8 @@ namespace LibHIRT.TagReader
                     _tagLayout = TagXmlParse.parse_the_mfing_xmls(_tagLayoutTemplate);
                 }
 
-                C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
+                //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
+                C root_tag = _tagLayout[0] ;
                 
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 
@@ -220,10 +221,14 @@ namespace LibHIRT.TagReader
                 {
                     _tagLayout = TagXmlParse.parse_the_mfing_xmls(_tagLayoutTemplate);
                 }
+                if (_tagLayoutTemplate == "����")
+                { 
 
+                }
                 _tagFile = new TagFile();
                 _tagFile.readIn(_f);
-                C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
+                //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
+                C root_tag = _tagLayout[0];
                 //_rootTagInst = new RootTagInstance(root_tag, _tagFile.TagStructTable.Entries[0].Field_data_block.OffsetPlus,0);
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 _rootTagInst.Content_entry = _tagFile.TagStructTable.Entries[0];
@@ -233,8 +238,11 @@ namespace LibHIRT.TagReader
             }
             catch (Exception e)
             {
+                if (_tagLayoutTemplate == "����")
+                {
 
-                throw e;
+                }else
+                    throw e;
             }
 
         }
@@ -251,6 +259,14 @@ namespace LibHIRT.TagReader
             { 
             }
             instance_parent.Content_entry.Field_name = instance_parent.TagDef.N;
+            if (instance_parent.TagDef.E != null && instance_parent.TagDef.E.ContainsKey("hash"))
+            {
+                Debug.Assert(instance_parent.Content_entry.UID == instance_parent.TagDef.E["hash"].ToString());
+            }
+            else {
+                if (instance_parent.TagDef.T != TagElemntType.RootTagInstance) { 
+                }
+            }
             if (instance_parent.Content_entry.Field_data_block == null)
             {
                 OnInstanceLoad(instance_parent);

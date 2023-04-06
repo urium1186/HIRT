@@ -30,7 +30,9 @@ namespace LibHIRT.TagReader
         public object AccessValue { get; }
         public string FieldName { get; set; }
 
-        
+        public TagLayouts.C TagDef { get; }
+
+
     }
     public class TagInstance : ITagInstance
     {
@@ -57,7 +59,7 @@ namespace LibHIRT.TagReader
         }
 
         public HeaderTableEntry? Entry { get => entry; set => entry = value; }
-        public TagLayouts.C TagDef { get => tagDef; set => tagDef = value; }
+        public TagLayouts.C TagDef { get => tagDef;}
         public TagStruct? Content_entry { get => content_entry; set => content_entry = value; }
         public long Offset { get => offset; set => offset = value; }
         public TagInstance? Parent { get => parent; set { parent = value;} }
@@ -192,7 +194,7 @@ namespace LibHIRT.TagReader
         }
     }
 
-    public class GenericBlock : ValueTagInstace<List<byte>>
+    public class GenericBlock : ValueTagInstace<string>
     {
         public GenericBlock(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
@@ -201,8 +203,8 @@ namespace LibHIRT.TagReader
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
-        
-            value = new List<byte>(f.ReadBytes((int)TagDef.S));
+            // get the hex representation of the readed bytes
+            value = BitConverter.ToString(f.ReadBytes((int)TagDef.S)).Replace("-", "");
             ExeTagInstance();
         }
 
@@ -1206,6 +1208,12 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
     }
+    public class RenderGeometryTag : TagStructData
+    {
+        public RenderGeometryTag(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+    }
     public class TagStructData : ParentTagInstance
     {
         //bool generateEntry = false;
@@ -1523,6 +1531,8 @@ namespace LibHIRT.TagReader
                 case TagElemntType.GenericBlock:
                     return new GenericBlock(tagDef, addressStart, offset);
                 case TagElemntType.TagStructData:
+                    if (tagDef.E != null && tagDef.E.ContainsKey("hash") && tagDef.E["hash"].ToString() == "E423D497BA42B08FA925E0B06C3C363A")
+                        return new RenderGeometryTag(tagDef, addressStart, offset);
                     return new TagStructData(tagDef, addressStart, offset);
                 case TagElemntType.FUNCTION:
                     return new FUNCTION(tagDef, addressStart, offset);

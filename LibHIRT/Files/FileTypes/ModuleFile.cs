@@ -1,14 +1,9 @@
 ﻿using LibHIRT.Files.Base;
 using LibHIRT.ModuleUnpacker;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection.PortableExecutable;
 using LibHIRT.Common;
 using static LibHIRT.Assertions;
-using System.Drawing;
-using System.Xml.Linq;
 using Oodle;
-using System.Reflection.Metadata;
 using LibHIRT.TagReader;
 
 namespace LibHIRT.Files.FileTypes
@@ -288,18 +283,23 @@ namespace LibHIRT.Files.FileTypes
             else {
                 if (entry.GlobalTagId1 == -1)
                 {
-                    if (entry.Unk0x44 != -1)
+                    if (entry.ParentOffResource != -1)
                     {
                         ISSpaceFile tempP;
-                        if (_filesIndexLookup.TryGetValue(entry.Unk0x44,out tempP)){
+                        if (_filesIndexLookup.TryGetValue(entry.ParentOffResource, out tempP))
+                        {
                             var tempFD = ((SSpaceFile)tempP).FileMemDescriptor;
                             var i_n = tempFD.ResourceFiles.Count;
-                            entry.Path_string = tempFD.Path_string +  "["+i_n.ToString()+"_resource_chunk_"+ i_n.ToString() + "]";
+                            entry.Path_string = tempFD.Path_string + "[" + i_n.ToString() + "_resource_chunk_" + i_n.ToString() + "]";
                             ((SSpaceFile)tempP).FileMemDescriptor.ResourceFiles.Add(entry);
                         };
                     }
+                    else {
+                        entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleId + "-index-"+index.ToString();
+                    }
                 }
                 else {
+
                     entry.Path_string = entry.TagGroupRev + "\\" + VarNames.getMmr3HashFromInt(entry.GlobalTagId1) +"_"+entry.GlobalTagId1 + "." + entry.TagGroupRev;
                 }
                 
@@ -401,6 +401,7 @@ namespace LibHIRT.Files.FileTypes
 
                 }
             }
+         
             //module.ReadInFilesEntrys(this.Reader, fileProcessor);
             // Create entries
             /*

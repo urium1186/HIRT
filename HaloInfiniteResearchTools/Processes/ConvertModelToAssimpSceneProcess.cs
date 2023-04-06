@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,11 +7,13 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Assimp;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Extensions;
 using HaloInfiniteResearchTools.Processes;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using LibHIRT.Common;
 using LibHIRT.Data;
 using LibHIRT.Data.Geometry;
 using LibHIRT.Domain;
@@ -20,7 +23,9 @@ using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.Serializers.Geometry;
 using LibHIRT.TagReader;
+using SharpDX.Animation;
 using SharpDX.DirectManipulation;
+
 
 namespace LibHIRT.Processes
 {
@@ -37,6 +42,8 @@ namespace LibHIRT.Processes
         private Scene _parentScene;
         private Assimp.Matrix4x4 _initialTransform;
         private Node skl_nodes;
+        
+        private Dictionary<string, Node> _marker_lookup;
 
         #endregion
 
@@ -47,6 +54,8 @@ namespace LibHIRT.Processes
         public RenderModelDefinition RenderModelDef => _context.Tpl;
 
         public CancellationToken GetCancelToken => CancellationToken;
+
+        public Dictionary<string, Node> Marker_lookup { get => _marker_lookup; set => _marker_lookup = value; }
 
         #endregion
 
@@ -122,16 +131,50 @@ namespace LibHIRT.Processes
                 {
                     _context.Scene.RootNode = _context.RootNode = rootNode;
                 }
-                AddMeshNodes(_context.Tpl.Render_geometry.Meshes);
                 AddSklNodes(_context.Tpl.Nodes, _context.Tpl.TagInstance["nodes"] as ListTagInstance);
+                AddGroupMarkers(_context.Tpl.Nodes, _context.Tpl.Marker_groups, _context.Tpl.TagInstance["marker groups"] as ListTagInstance);
 
-
+                AddMeshNodes(_context.Tpl.Render_geometry.Meshes);
             }
             catch (Exception ex)
             {
                 StatusList.AddError(_file.Name, "Encountered an error attempting to convert model.", ex);
             }
         }
+
+        private void AddGroupMarkers(ModelBone[] nodes1, RenderModelMarkerGroup[] marker_groups, ListTagInstance? listTagInstance)
+        {
+            Status = "Initializing MarkerGroups";
+            UnitName = "MarkerGroup Initialized";
+            CompletedUnits = 0;
+            TotalUnits = marker_groups.Length;
+            _marker_lookup = new Dictionary<string, Node>();
+            foreach (var group in marker_groups) {
+                foreach (var marker in group.Markers)
+                {
+                    if (!_context.NodeNames.ContainsKey(nodes1[marker.NodeIndex].Name))
+                    {
+                        continue;
+                    }
+                    var parent = _context.NodeNames[nodes1[marker.NodeIndex].Name];
+                    var marker_node = new Node($"{group.Name}_{marker.Index}_{marker.RegionIndex}_{marker.PermutationIndex}_{marker.NodeIndex}", parent);
+                    marker_node.Transform = NumericExtensions.TRS(marker.Translation, marker.Rotation, marker.Scale).ToAssimp();
+                    parent.Children.Add(marker_node);
+                    _marker_lookup[marker_node.Name] = marker_node;
+                    var mesh_1 = MeshBuilderNew.CreatePiramide(0.01f, $"{marker_node.Name}_marker");
+
+                    lock (_context)
+                    {
+                        _context.Scene.Meshes.Add(mesh_1);
+                        var meshId = _context.Scene.Meshes.Count - 1;
+                        marker_node.MeshIndices.Add(meshId);
+
+                    }
+                }
+            }
+
+        }
+
         //new method to create a 3D cube mesh from a entry length
 
 
@@ -179,73 +222,11 @@ namespace LibHIRT.Processes
             UnitName = "Nodes Initialized";
             CompletedUnits = 0;
             TotalUnits = nodes.Count;
-             skl_nodes = new Node("skl_nodes", _context.Scene.RootNode);
+            skl_nodes = new Node("skl_nodes", _context.Scene.RootNode);
             _context.RootNode.Children.Add(skl_nodes);
             AddSklNodesRecursive(nodes1, nodes, nodes1[0], skl_nodes);
         }
-        private void AddSklNodesOld(ModelBone[] nodes1, ListTagInstance nodes)
-        {
-            Status = "Initializing Nodes";
-            UnitName = "Nodes Initialized";
-            CompletedUnits = 0;
-            TotalUnits = nodes.Count;
-
-            var rootNode = new Node("skl_nodes", _context.Scene.RootNode);
-            _context.RootNode.Children.Add(rootNode);
-            //rootNode.Transform = _initialTransform;
-            int i = 0;
-            foreach (var obj in nodes)
-            {
-                var parentNode = rootNode;
-                int parent_index = nodes1[i].ParentIndex;
-                int first_child_node_index = nodes1[i].FirstChildIndex;
-                int next_sibling_node_index = nodes1[i].NextSiblingIndex;
-                if (parent_index != -1)
-                {
-                    string parent_name = (nodes[parent_index]["name"] as Mmr3Hash)?.Str_value;
-                    if (!_context.NodeNames.TryGetValue(parent_name, out parentNode))
-                    {
-                        continue;
-                    }
-                }
-                string node_name = (obj["name"] as Mmr3Hash)?.Str_value;
-                int node_id = (obj["name"] as Mmr3Hash).Value;
-
-                Node newNode = null;
-
-                if (!_context.NodeNames.ContainsKey(node_name))
-                {
-                    newNode = new Node(node_name, parentNode);
-                    parentNode.Children.Add(newNode);
-                    _context.NodeNames.Add(node_name, newNode);
-                }
-
-
-
-
-                var node = _context.NodeNames[node_name];
-                ModelBone.calculateLocalTransformation(nodes1[i]);
-                node.Transform = nodes1[i].LocalTransform.ToAssimp();
-                //foreach (var submesh in obj.SubMeshes)
-                //{
-                var mesh = MeshBuilderNew.CreateCubeMesh(0.01f, $"node_mesh_{node_name}");
-
-                lock (_context)
-                {
-                    _context.Scene.Meshes.Add(mesh);
-                    var meshId = _context.Scene.Meshes.Count - 1;
-                    node.MeshIndices.Add(meshId);
-
-                }
-                //}
-                //node.Transform. = obj.MatrixModel.ToAssimp();
-
-                CompletedUnits++;
-                i++;
-            }
-        }
-
-
+        
         private void AddSklNodesRecursive(ModelBone[] nodes1, ListTagInstance nodes, ModelBone rootBone, Node parentNode)
         {
 
@@ -269,8 +250,10 @@ namespace LibHIRT.Processes
             if (!_context.NodeNames.ContainsKey(node_name))
             {
                 newNode = new Node(node_name, parentNode);
+                newNode.Metadata["isBoneMesh"] = new Metadata.Entry(MetaDataType.Bool, true);
                 parentNode.Children.Add(newNode);
                 _context.NodeNames.Add(node_name, newNode);
+
             }
 
 
@@ -301,12 +284,12 @@ namespace LibHIRT.Processes
 
             }
 
-            /*var node1 = new Node("p_"+node_name, skl_nodes);
+            /*
+            var node1 = new Node("p_"+node_name, skl_nodes);
             skl_nodes.Children.Add(node1);
             node1.Transform = rootBone.GlobalTransform.ToAssimp();
-            node1.Transform.Inverse();
-            if (rootBone.Name == "F1C52FFB") { 
-            }
+            
+            
             var mesh_1 = MeshBuilderNew.CreatePiramide(0.01f, $"node_mesh_p_{node_name}");
 
             lock (_context)
@@ -315,8 +298,8 @@ namespace LibHIRT.Processes
                 var meshId = _context.Scene.Meshes.Count - 1;
                 node1.MeshIndices.Add(meshId);
 
-            }*/
-
+            }
+            */
 
             CompletedUnits++;
             if (next_sibling_node_index!=-1)
@@ -456,6 +439,68 @@ namespace LibHIRT.Processes
         }
 
         #endregion
+        private void AddSklNodesOld(ModelBone[] nodes1, ListTagInstance nodes)
+        {
+            Status = "Initializing Nodes";
+            UnitName = "Nodes Initialized";
+            CompletedUnits = 0;
+            TotalUnits = nodes.Count;
+
+            var rootNode = new Node("skl_nodes", _context.Scene.RootNode);
+            _context.RootNode.Children.Add(rootNode);
+            //rootNode.Transform = _initialTransform;
+            int i = 0;
+            foreach (var obj in nodes)
+            {
+                var parentNode = rootNode;
+                int parent_index = nodes1[i].ParentIndex;
+                int first_child_node_index = nodes1[i].FirstChildIndex;
+                int next_sibling_node_index = nodes1[i].NextSiblingIndex;
+                if (parent_index != -1)
+                {
+                    string parent_name = (nodes[parent_index]["name"] as Mmr3Hash)?.Str_value;
+                    if (!_context.NodeNames.TryGetValue(parent_name, out parentNode))
+                    {
+                        continue;
+                    }
+                }
+                string node_name = (obj["name"] as Mmr3Hash)?.Str_value;
+                int node_id = (obj["name"] as Mmr3Hash).Value;
+
+                Node newNode = null;
+
+                if (!_context.NodeNames.ContainsKey(node_name))
+                {
+                    newNode = new Node(node_name, parentNode);
+                    parentNode.Children.Add(newNode);
+                    _context.NodeNames.Add(node_name, newNode);
+                }
+
+
+
+
+                var node = _context.NodeNames[node_name];
+                ModelBone.calculateLocalTransformation(nodes1[i]);
+                node.Transform = nodes1[i].LocalTransform.ToAssimp();
+                //foreach (var submesh in obj.SubMeshes)
+                //{
+                var mesh = MeshBuilderNew.CreateCubeMesh(0.01f, $"node_mesh_{node_name}");
+
+                lock (_context)
+                {
+                    _context.Scene.Meshes.Add(mesh);
+                    var meshId = _context.Scene.Meshes.Count - 1;
+                    node.MeshIndices.Add(meshId);
+
+                }
+                //}
+                //node.Transform. = obj.MatrixModel.ToAssimp();
+
+                CompletedUnits++;
+                i++;
+            }
+        }
+
 
     }
 
@@ -552,7 +597,7 @@ namespace LibHIRT.Processes
         public Mesh Mesh { get; }
         public Dictionary<short, Bone> Bones { get; }
         public Dictionary<string, Bone> BoneNames { get; }
-        public Dictionary<int, int> VertexLookup { get; }
+        public Dictionary<uint, uint> VertexLookup { get; }
         public short SkinCompoundId { get; }
         private readonly ObjMesh _object;
         public MeshBuilderNew(SceneContextNew context, ObjMesh obj, S3DGeometrySubMesh submesh)
@@ -566,7 +611,7 @@ namespace LibHIRT.Processes
 
             Bones = new Dictionary<short, Bone>();
             BoneNames = new Dictionary<string, Bone>();
-            VertexLookup = new Dictionary<int, int>();
+            VertexLookup = new Dictionary<uint, uint>();
         }
         public Mesh Build()
         {
@@ -620,22 +665,22 @@ namespace LibHIRT.Processes
 
         private void AddVertices(MeshLOD meshLOD)
         {
-            int offset = 0;
+            uint offset = 0;
             foreach (var vertex in meshLOD.Vertexs)
             {
                 Mesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
 
-                VertexLookup.Add(offset++, VertexLookup.Count);
+                VertexLookup.Add(offset++, (uint)VertexLookup.Count);
             }
         }
-        private S3DFace[] DeserializeFaces(List<int> vert_index)
+        private S3DFace[] DeserializeFaces(List<uint> vert_index)
         {
             S3DFace[] salida = new S3DFace[vert_index.Count / 3];
             int nFace = 0;
             for (int i = 0; i < vert_index.Count; i += 3)
             {
 
-                salida[nFace++] = S3DFace.Create(new ushort[3] { (ushort)vert_index[i], (ushort)vert_index[i + 1], (ushort)vert_index[i + 2] });
+                salida[nFace++] = S3DFace.Create(new uint[3] { vert_index[i], vert_index[i + 1], vert_index[i + 2] });
             }
             return salida;
         }
@@ -645,9 +690,9 @@ namespace LibHIRT.Processes
             foreach (var face in faces)
             {
                 var assimpFace = new Face();
-                assimpFace.Indices.Add(VertexLookup[face[0]]);
-                assimpFace.Indices.Add(VertexLookup[face[1]]);
-                assimpFace.Indices.Add(VertexLookup[face[2]]);
+                assimpFace.Indices.Add((int)VertexLookup[face[0]]);
+                assimpFace.Indices.Add((int)VertexLookup[face[1]]);
+                assimpFace.Indices.Add((int)VertexLookup[face[2]]);
 
                 Mesh.Faces.Add(assimpFace);
             }
@@ -660,6 +705,20 @@ namespace LibHIRT.Processes
                 uvVector.X = vertex.UV0.Value.X;
                 uvVector.Y = vertex.UV0.Value.Y;
                 AddVertexUV(0, uvVector);
+                if (vertex.UV1 != null)
+                {
+                    Vector4 uvVector1 = default;
+                    uvVector.X = vertex.UV1.Value.X;
+                    uvVector.Y = vertex.UV1.Value.Y;
+                    AddVertexUV(1, uvVector1);
+                }
+                if (vertex.UV2 != null) {
+                    Vector4 uvVector2 = default;
+                    uvVector.X = vertex.UV2.Value.X;
+                    uvVector.Y = vertex.UV2.Value.Y;
+                    AddVertexUV(2, uvVector2);
+                }
+                
             }
         }
 
@@ -699,7 +758,7 @@ namespace LibHIRT.Processes
         public Mesh Mesh { get; }
         public Dictionary<short, Bone> Bones { get; }
         public Dictionary<string, Bone> BoneNames { get; }
-        public Dictionary<int, int> VertexLookup { get; }
+        public Dictionary<uint, uint> VertexLookup { get; }
         public short SkinCompoundId { get; }
 
         private HIRTStream Stream => _context.Stream;
@@ -723,7 +782,7 @@ namespace LibHIRT.Processes
 
             Bones = new Dictionary<short, Bone>();
             BoneNames = new Dictionary<string, Bone>();
-            VertexLookup = new Dictionary<int, int>();
+            VertexLookup = new Dictionary< uint, uint>();
         }
 
         #endregion
@@ -793,9 +852,9 @@ namespace LibHIRT.Processes
             foreach (var face in faces)
             {
                 var assimpFace = new Face();
-                assimpFace.Indices.Add(VertexLookup[face[0]]);
-                assimpFace.Indices.Add(VertexLookup[face[1]]);
-                assimpFace.Indices.Add(VertexLookup[face[2]]);
+                assimpFace.Indices.Add((int)VertexLookup[face[0]]);
+                assimpFace.Indices.Add((int)VertexLookup[face[1]]);
+                assimpFace.Indices.Add((int)VertexLookup[face[2]]);
 
                 Mesh.Faces.Add(assimpFace);
             }
@@ -841,7 +900,7 @@ namespace LibHIRT.Processes
                 if (vertex is S3DVertexSkinned skinnedVertex)
                     AddVertexSkinningData(skinnedVertex);
 
-                VertexLookup.Add(offset++, VertexLookup.Count);
+                VertexLookup.Add(offset++, (uint)VertexLookup.Count);
             }
         }
 
@@ -973,7 +1032,7 @@ namespace LibHIRT.Processes
                 {
                     var boneIndex = boneIds[Reader.ReadInt32()];
                     var vertIndex = VertexLookup[offset++];
-                    AddVertexWeight(boneIndex, 1, vertIndex);
+                    AddVertexWeight(boneIndex, 1, (int)vertIndex);
                 }
             }
             finally { Stream.ReleaseLock(); }
@@ -1020,16 +1079,16 @@ namespace LibHIRT.Processes
                 foreach (var weight in sourceBone.VertexWeights)
                 {
                     var trueVertOffset = weight.VertexID + skinCompoundVertOffset;
-                    if (!VertexLookup.TryGetValue(trueVertOffset, out var translatedVertOffset))
+                    if (!VertexLookup.TryGetValue((uint)trueVertOffset, out var translatedVertOffset))
                         continue;
 
                     var skinVertex = skinCompound.Mesh.Vertices[weight.VertexID];
-                    var targetVertex = Mesh.Vertices[translatedVertOffset];
+                    var targetVertex = Mesh.Vertices[(int)translatedVertOffset];
                     Debug.Assert(skinVertex.X == targetVertex.X);
                     Debug.Assert(skinVertex.Y == targetVertex.Y);
                     Debug.Assert(skinVertex.Z == targetVertex.Z);
 
-                    AddVertexWeight(adjustedBoneId, 1, translatedVertOffset);
+                    AddVertexWeight(adjustedBoneId, 1, (int)translatedVertOffset);
                 }
             }
         }

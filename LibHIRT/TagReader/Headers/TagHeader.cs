@@ -36,7 +36,7 @@ namespace LibHIRT.TagReader.Headers
             public int Version;
 
             [FieldOffset(8)]
-            public ulong UnknownProperty;
+            public ulong TypeHash; // this is unic for TagGroups
 
             [FieldOffset(16)]
             public ulong AssetChecksum;

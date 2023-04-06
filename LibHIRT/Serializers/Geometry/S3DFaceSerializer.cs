@@ -29,7 +29,7 @@ namespace LibHIRT.Serializers.Geometry
         "Face data has an odd number of bytes. Something is very wrong." );
 
       var numIndices = elementSize / 2;
-      var vertexIndices = new ushort[ numIndices ];
+      var vertexIndices = new uint[ numIndices ];
       for ( var i = 0; i < numIndices; i++ )
         vertexIndices[ i ] = reader.ReadUInt16();
 

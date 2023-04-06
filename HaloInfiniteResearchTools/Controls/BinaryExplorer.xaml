@@ -378,7 +378,7 @@
                     ForegroundSecondColor="Blue"
                     OffSetStringVisual="Hexadecimal"
                     PreloadByteInEditorMode="MaxScreenVisibleLineAtDataLoad"
-                    VisualCaretMode="Overwrite" SelectionStartChanged="HexEdit_SelectionStartChanged" 
+                    VisualCaretMode="Overwrite" SelectionStartChanged="HexEdit_SelectionStartChanged" Loaded="HexEdit_Loaded" 
                     
                     />
                     <local:BytesReadView x:Name="BytesReadView" Grid.Column="1" Width="200" FileStream="{Binding FileStream}"/>

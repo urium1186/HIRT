@@ -121,16 +121,27 @@ namespace LibHIRT.TagReader
 
                     if (File.Exists(predicted_file))
                     {
-                        XmlDocument xd = new XmlDocument();
-                        xd.Load(predicted_file);
-                        XmlNode xn = xd.SelectSingleNode("root");
-                        XmlNodeList xnl = xn.ChildNodes;
-                        long current_offset = 0;
-                        foreach (XmlNode xntwo in xnl)
-                        {
-                            current_offset += the_switch_statement(xntwo, current_offset, ref poopdict);
+						try
+						{
+                            XmlDocument xd = new XmlDocument();
+                            xd.Load(predicted_file);
+                            XmlNode xn = xd.SelectSingleNode("root");
+                            long current_offset = 0;
+                            /*XmlNodeList xnl = xn.ChildNodes;
+
+                            foreach (XmlNode xntwo in xnl)
+                            {
+                                current_offset += the_switch_statement(xntwo, current_offset, ref poopdict);
+                            }*/
+                            the_switch_statement(xn, current_offset, ref poopdict);
+                            readedTags[file_to_find] = poopdict;
                         }
-                        readedTags[file_to_find] = poopdict;
+						catch (Exception ex)
+						{
+
+							throw ex;
+						}
+                        
                     }
 
                     return poopdict;
@@ -163,7 +174,9 @@ namespace LibHIRT.TagReader
 			}
             static string getPathOfElementNamed(XmlNode xn)
             {
-                string path = xn.Attributes.GetNamedItem("v").InnerText;
+				string path = "";
+				if (xn.Attributes.GetNamedItem("v") != null)
+                    path = xn.Attributes.GetNamedItem("v").InnerText;
 				if (path == "")
 					path = xn.Name;
                 var temp = xn;
@@ -182,9 +195,35 @@ namespace LibHIRT.TagReader
 			{
 				var s_p = getPathOfElement(xn);
 				string s_p_n = getPathOfElementNamed(xn);
+                Dictionary<string, object> extra_afl = new Dictionary<string, object>();
                 switch (xn.Name)
 				{
-					case "_0":
+					case "root":
+                        extra_afl.Clear();
+                        if (xn.ChildNodes.Count > 0)
+                        {
+                            Dictionary<long, C> subthings = new Dictionary<long, C>();
+                            XmlNodeList xnl2 = xn.ChildNodes;
+                            extra_afl.Clear();
+
+                            if (xn.Attributes.GetNamedItem("hash") != null)
+                                extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
+
+                            long current_offset2 = 0;
+                            foreach (XmlNode xntwo2 in xnl2)
+                            {
+                                current_offset2 += the_switch_statement(xntwo2, current_offset2, ref subthings); // its gonna append that to the main, rather than our struct
+                            }
+
+                            pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.RootTagInstance, N = "root", B = subthings, E = extra_afl, S = current_offset2, xmlPath = ("root", "root") });
+                            return current_offset2;
+                        }
+                        else
+                        {
+                            pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Tagblock, N = xn.Attributes.GetNamedItem("v").InnerText, S = 20, xmlPath = (s_p, s_p_n) });
+                        }
+						return 0;
+                    case "_0":
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_1":
@@ -409,7 +448,7 @@ namespace LibHIRT.TagReader
 						}
 						else
 						{
-							pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText, S = length, xmlPath = (s_p, s_p_n) });
+							pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.GenericBlock, N = xn.Attributes.GetNamedItem("v").InnerText, S = length, xmlPath = (s_p, s_p_n) });
 						}
 						return length;
 					case "_35":
@@ -444,11 +483,14 @@ namespace LibHIRT.TagReader
 					case "_38":
                         var temp_index = offset ; //+evalutated_index_PREVENT_DICTIONARYERROR
                         var p_P = new Dictionary<string, object>();
+                        extra_afl.Clear();
+                        extra_afl["count"] = 0;
                         p_P["generateEntry"] = false;
                         if (xn.Attributes.GetNamedItem("g") != null)
                             p_P["generateEntry"] = xn.Attributes.GetNamedItem("g").InnerText == "true";
 
-                        
+                        if (xn.Attributes.GetNamedItem("hash") != null)
+                            extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
                         //evalutated_index_PREVENT_DICTIONARYERROR++;
                         long current_offset1 = 0;
                         XmlNodeList xnl1 = xn.ChildNodes;
@@ -457,7 +499,7 @@ namespace LibHIRT.TagReader
 						{
 							current_offset1 += the_switch_statement(xntwo2, current_offset1, ref sub_dic);
 						}
-                        pairs[temp_index] = new C { G = xn.Name, T = TagElemntType.TagStructData, N = xn.Attributes.GetNamedItem("v").InnerText, P = p_P, B = sub_dic, S = current_offset1, xmlPath = (s_p, s_p_n) };
+                        pairs[temp_index] = new C { G = xn.Name, T = TagElemntType.TagStructData, N = xn.Attributes.GetNamedItem("v").InnerText, P = p_P, B = sub_dic, E = extra_afl, S = current_offset1, xmlPath = (s_p, s_p_n) };
                         /*
 						foreach (var k in sub_dic.Keys)
 						{
@@ -467,7 +509,7 @@ namespace LibHIRT.TagReader
                         return current_offset1;
 					case "_39":
                         // TODO revisar
-                        Dictionary<string, object> extra_afl = new Dictionary<string, object>();
+                        extra_afl.Clear() ;
 						extra_afl["count"] = 0;
 
                         if (xn.HasChildNodes)
@@ -480,6 +522,9 @@ namespace LibHIRT.TagReader
                                 current_offset3 += the_switch_statement(xntwo2, current_offset3, ref subthings);
                             }
 							extra_afl["count"] = int.Parse(xn.Attributes.GetNamedItem("count").InnerText);
+                            if (xn.Attributes.GetNamedItem("hash") != null)
+                                extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
+
                             pairs[offset] = new C { G = xn.Name, T = TagElemntType.ArrayFixLen, N = xn.Attributes.GetNamedItem("v").InnerText, B = subthings, E=extra_afl, S=current_offset3* (int)extra_afl["count"], xmlPath = (s_p, s_p_n) };
 							return current_offset3 * (int)extra_afl["count"];
                         }
@@ -515,17 +560,23 @@ namespace LibHIRT.TagReader
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText , S = 8, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_40":
-						if (xn.ChildNodes.Count > 0)
+                        extra_afl.Clear();
+                        if (xn.ChildNodes.Count > 0)
 						{
 							Dictionary<long, C> subthings = new Dictionary<long, C>();
 							XmlNodeList xnl2 = xn.ChildNodes;
+							extra_afl.Clear();
+
+                            if (xn.Attributes.GetNamedItem("hash") != null)
+								extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
+                             
 							long current_offset2 = 0;
 							foreach (XmlNode xntwo2 in xnl2)
 							{
 								current_offset2 += the_switch_statement(xntwo2, current_offset2, ref subthings); // its gonna append that to the main, rather than our struct
 							}
 
-							pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Tagblock, N = xn.Attributes.GetNamedItem("v").InnerText, B = subthings, S = current_offset2, xmlPath = (s_p, s_p_n) });
+							pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Tagblock, N = xn.Attributes.GetNamedItem("v").InnerText, B = subthings, E = extra_afl, S = current_offset2, xmlPath = (s_p, s_p_n) });
 
 						}
 						else
@@ -549,12 +600,16 @@ namespace LibHIRT.TagReader
                             Dictionary<long, C> subthings = new Dictionary<long, C>();
                             XmlNodeList xnl2 = xn.ChildNodes;
                             long current_offset2 = 0;
+                            extra_afl.Clear();
+
+                            if (xn.Attributes.GetNamedItem("hash") != null)
+                                extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
                             foreach (XmlNode xntwo2 in xnl2)
                             {
                                 current_offset2 += the_switch_statement(xntwo2, current_offset2, ref subthings); // its gonna append that to the main, rather than our struct
                             }
 
-                            pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.ResourceHandle, N = xn.Attributes.GetNamedItem("v").InnerText, B = subthings, S = current_offset2, xmlPath = (s_p, s_p_n) });
+                            pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.ResourceHandle, N = xn.Attributes.GetNamedItem("v").InnerText, B = subthings, E = extra_afl, S = current_offset2, xmlPath = (s_p, s_p_n) });
 
                         }
                         else

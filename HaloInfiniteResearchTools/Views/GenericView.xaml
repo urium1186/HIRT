@@ -31,7 +31,7 @@
                 </Grid>
             </TabItem>
             -->
-            <TabItem Header="TagInstances" FontStyle="Italic" FontWeight="Thin" RenderTransformOrigin="0.5,0.5">
+            <TabItem Header="Tag Instances" FontStyle="Italic" FontWeight="Thin" RenderTransformOrigin="0.5,0.5">
                 <TabItem.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
@@ -47,12 +47,13 @@
                                                   TagToJsonCommand="{Binding TagInstanceExportJsonCommand}"
                                                   TagGoToBinCommand="{Binding TagGoToBinCommand}"
                                                   TagGoToTemplateCommand="{Binding TagGoToTemplateCommand}"
+                                                  RenderGeomGenOpenCommand="{Binding RenderGeomGenOpenCommand}"
                                                   >
 
                     </controls:TagInstanceTreeview>
                 </Grid>
             </TabItem>
-            <TabItem Header="Binary Data" RenderTransformOrigin="0.5,0.5">
+            <TabItem Header="Binary Data"  FontStyle="Italic" FontWeight="Thin" RenderTransformOrigin="0.5,0.5">
                 <TabItem.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
@@ -65,14 +66,23 @@
                     <controls:BinaryExplorer FileStream="{Binding FileStream}"/>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="XmlViewer" Header="TagTemplate" Initialized="XmlViewer_Initialized" >
+            <TabItem x:Name="XmlViewer" Header="Tag Template"  FontStyle="Italic" FontWeight="Thin" Initialized="XmlViewer_Initialized" >
                 <Grid Background="#FFE5E5E5">
                     <WebBrowser x:Name="webBro" />
                 </Grid>
             </TabItem>
-            <TabItem x:Name="TagFileViewer" Header="TagStructure" Initialized="XmlViewer_Initialized" >
+            <TabItem x:Name="TagFileViewer" Header="Tag Structure"  FontStyle="Italic" FontWeight="Thin"  Initialized="XmlViewer_Initialized" >
                 <Grid Background="#FFE5E5E5">
                     <controls:TagFileViewer x:Name="tagFileViewerCtrl" />
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="RenderGeomViewer" Header="Render Geom"  FontStyle="Italic" FontWeight="Thin" 
+                     IsEnabled="{Binding RenderGeomViewerEnable, 
+                                                   Converter={StaticResource InequalityBoolConverter}, 
+                                                   ConverterParameter ={StaticResource IntOneMinus}}"
+                     >
+                <Grid Background="#FFE5E5E5">
+                    <controls:Model3DViewerControl x:Name="model3dCtrl" />
                 </Grid>
             </TabItem>
         </TabControl>

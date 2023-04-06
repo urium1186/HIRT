@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace LibHIRT.ModuleUnpacker
 {
@@ -37,10 +30,10 @@ namespace LibHIRT.ModuleUnpacker
         /*int hd1_delta; // = gf.read_uint32(fb)  # 0x38 56 HeaderBlockCount ???
         int header_size; // = gf.read_uint32(fb)  # 0x3C 60 ???*/
         int string_offset; // = gf.read_uint32(fb)  # 0x40 64
-        int unk0x44;// = gf.read_uint32(fb)  # 0x44 68 data_size????
+        int parent_of_resource;// = gf.read_uint32(fb)  # 0x44 68 data_size????
         byte[] hash; // 80
         /*
-        int unk0x44; // = gf.read_int32(fb)  # 0x44 68, -1 int for one type, not for another
+        int parent_of_resource; // = gf.read_int32(fb)  # 0x44 68, -1 int for one type, not for another
         string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
         */
         string path_string = ""; // = gf.offset_to_string(fb, string_table_offset + t1e.string_offset)
@@ -83,7 +76,7 @@ namespace LibHIRT.ModuleUnpacker
         public short TagDataBlockCount1 { get => TagDataBlockCount; set => TagDataBlockCount = value; }
         public short ResourceBlockCount1 { get => ResourceBlockCount; set => ResourceBlockCount = value; }
         public short ResourceBlockCountPad1 { get => ResourceBlockCountPad; set => ResourceBlockCountPad = value; }
-        public int Unk0x44 { get => unk0x44; set => unk0x44 = value; }
+        public int ParentOffResource { get => parent_of_resource; set => parent_of_resource = value; }
         public byte[] Hash { get => hash; set => hash = value; }
         public string Save_path { get => save_path; set => save_path = value; }
         public HiModule HiModuleRef { get => hiModuleRef;}
@@ -95,6 +88,7 @@ namespace LibHIRT.ModuleUnpacker
             resource_count = byteStream.ReadInt32(); // 0x00
             parent_file_index = byteStream.ReadInt32();  // 0x04
             unk0x08 = byteStream.ReadInt16(); // 0x08
+            var bytes_temp = BitConverter.GetBytes(unk0x08);
             block_count = byteStream.ReadInt16(); // 0x0A
             first_block_index = byteStream.ReadInt32(); // 0x0C
             first_resource_index = byteStream.ReadInt32(); // 0x10
@@ -105,6 +99,8 @@ namespace LibHIRT.ModuleUnpacker
             bytes[7] = bytes[6] = 0;
             //Array.Copy(byteStream.ReadBytes(6), bytes, 6); 
             //local_data_offset = BitConverter.ToInt64(bytes, 0); // 0x18
+            if (bytes_temp[1] != 3 && bytes_temp[1] != 5) { 
+            }
             var temp_dataOffset = (byteStream.ReadUInt64() & 0xffffffffffff);
             local_data_offset = ((long)temp_dataOffset); // 0x18
             Debug.Assert(local_data_offset.ToString() == temp_dataOffset.ToString());
@@ -121,8 +117,38 @@ namespace LibHIRT.ModuleUnpacker
             ResourceBlockCount = byteStream.ReadInt16(); // 0x3C
             ResourceBlockCountPad = byteStream.ReadInt16(); // 0x3E
             string_offset = byteStream.ReadInt32(); // 0x40
-            unk0x44 = byteStream.ReadInt32(); // 0x44 
+            parent_of_resource = byteStream.ReadInt32(); // 0x44 
             hash = byteStream.ReadBytes(0x10); // 0x4C
+            //if (tagGroupRev != "����") {
+            if (tagGroupRev == "levl") {
+                
+                var byt = BitConverter.GetBytes(BitConverter.ToInt64(hash, 0));
+                string hex = BitConverter.ToString(byt).Replace("-", "");
+            }
+            try
+            {
+                lock (Utils.UIDebug.debugValues) { 
+                    if (!Utils.UIDebug.debugValues.ContainsKey("unk0x08"))
+                    {
+                        Utils.UIDebug.debugValues["unk0x08"] = new Dictionary<object, List<object>>();
+                    }
+                    if (!Utils.UIDebug.debugValues["unk0x08"].ContainsKey(bytes_temp[1].ToString()))
+                        Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()] = new List<object>();
+                    if (!Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Contains(tagGroupRev)) {
+                        Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Add(tagGroupRev);
+                        Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Sort();
+                    }
+                    if (Utils.UIDebug.debugValues["unk0x08"].Count > 300) { 
+                    
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+               
+            }
+            
         }
     }
 }

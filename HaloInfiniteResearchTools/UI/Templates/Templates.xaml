@@ -6,7 +6,7 @@
         <ResourceDictionary Source="/UI/Templates/Template.TextureImageMip.xaml" />
         <ResourceDictionary Source="/UI/Templates/Template.ViewShell.xaml" />
         <ResourceDictionary Source="/UI/Templates/Template.WindowModal.xaml" />
-        <ResourceDictionary Source="/UI/Templates/z_dark.xaml" />
+        <!--<ResourceDictionary Source="/UI/Templates/z_dark.xaml" />-->
     </ResourceDictionary.MergedDictionaries>
     
 </ResourceDictionary>

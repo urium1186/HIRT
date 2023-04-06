@@ -334,7 +334,7 @@ namespace LibHIRT.Processes
     public Mesh Mesh { get; }
     public Dictionary<short, Bone> Bones { get; }
     public Dictionary<string, Bone> BoneNames { get; }
-    public Dictionary<int, int> VertexLookup { get; }
+    public Dictionary<uint, uint> VertexLookup { get; }
     public short SkinCompoundId { get; }
 
     private HIRTStream Stream => _context.Stream;
@@ -358,7 +358,7 @@ namespace LibHIRT.Processes
 
       Bones = new Dictionary<short, Bone>();
       BoneNames = new Dictionary<string, Bone>();
-      VertexLookup = new Dictionary<int, int>();
+      VertexLookup = new Dictionary<uint, uint>();
     }
 
     #endregion
@@ -428,9 +428,9 @@ namespace LibHIRT.Processes
       foreach ( var face in faces )
       {
         var assimpFace = new Face();
-        assimpFace.Indices.Add( VertexLookup[ face[ 0 ] ] );
-        assimpFace.Indices.Add( VertexLookup[ face[ 1 ] ] );
-        assimpFace.Indices.Add( VertexLookup[ face[ 2 ] ] );
+        assimpFace.Indices.Add((int)VertexLookup[ face[ 0 ] ] );
+        assimpFace.Indices.Add((int)VertexLookup[ face[ 1 ] ] );
+        assimpFace.Indices.Add((int)VertexLookup[ face[ 2 ] ] );
 
         Mesh.Faces.Add( assimpFace );
       }
@@ -476,7 +476,7 @@ namespace LibHIRT.Processes
         if ( vertex is S3DVertexSkinned skinnedVertex )
           AddVertexSkinningData( skinnedVertex );
 
-        VertexLookup.Add( offset++, VertexLookup.Count );
+        VertexLookup.Add( offset++, (uint)VertexLookup.Count );
       }
     }
 
@@ -608,7 +608,7 @@ namespace LibHIRT.Processes
         {
           var boneIndex = boneIds[ Reader.ReadInt32() ];
           var vertIndex = VertexLookup[ offset++ ];
-          AddVertexWeight( boneIndex, 1, vertIndex );
+          AddVertexWeight( boneIndex, 1, (int)vertIndex );
         }
       }
       finally { Stream.ReleaseLock(); }
@@ -655,16 +655,16 @@ namespace LibHIRT.Processes
         foreach ( var weight in sourceBone.VertexWeights )
         {
           var trueVertOffset = weight.VertexID + skinCompoundVertOffset;
-          if ( !VertexLookup.TryGetValue( trueVertOffset, out var translatedVertOffset ) )
+          if ( !VertexLookup.TryGetValue((uint)trueVertOffset, out var translatedVertOffset ) )
             continue;
 
           var skinVertex = skinCompound.Mesh.Vertices[ weight.VertexID ];
-          var targetVertex = Mesh.Vertices[ translatedVertOffset ];
+          var targetVertex = Mesh.Vertices[ (int)translatedVertOffset ];
           Debug.Assert( skinVertex.X == targetVertex.X );
           Debug.Assert( skinVertex.Y == targetVertex.Y );
           Debug.Assert( skinVertex.Z == targetVertex.Z );
 
-          AddVertexWeight( adjustedBoneId, 1, translatedVertOffset );
+          AddVertexWeight( adjustedBoneId, 1, (int)translatedVertOffset );
         }
       }
     }

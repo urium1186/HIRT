@@ -1,14 +1,16 @@
-﻿using HaloInfiniteResearchTools.Models;
+﻿using Assimp;
+using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace HaloInfiniteResearchTools.Controls
 {
+    public class ParNodes { 
+        public Scene Attach { get; set; }
+        public Node Marker { get; set; }
+    }
+
     public class ItemHelper : DependencyObject
     {
         public static readonly DependencyProperty IsCheckedProperty = DependencyProperty.RegisterAttached("IsChecked", typeof(bool?), typeof(ItemHelper), new PropertyMetadata(false, new PropertyChangedCallback(OnIsCheckedPropertyChanged)));
@@ -28,8 +30,8 @@ namespace HaloInfiniteResearchTools.Controls
                         
                         if (node!= null)
                         {
-                            node.Node.ModelMatrix = GetParentAttachmentTransform(ch); 
-                            node.Node.ComputeTransformMatrix();
+                            node.Node.Tag = GetParentAttachmentTransform(ch); 
+                            
                             node.IsVisible = (bool)e.NewValue;
                         }
                     }
@@ -71,22 +73,22 @@ namespace HaloInfiniteResearchTools.Controls
             return (object)element.GetValue(ItemHelper.ParentProperty);
         }
 
-        public static SharpDX.Matrix GetParentAttachmentTransform(TreeViewItemChModel element)
+        public static ParNodes GetParentAttachmentTransform(TreeViewItemChModel element)
         {
             bool noStop = true;
             TreeViewItemModel parent = (element.GetValue(ItemHelper.ParentProperty) as TreeViewItemModel);
             while (noStop)
             {
                 
-                if (parent == null || parent.Tag is SharpDX.Matrix) { 
+                if (parent == null || parent.Tag is ParNodes) { 
                     noStop= false;
                 }
                 if (noStop)
                     parent = (parent.GetValue(ItemHelper.ParentProperty) as TreeViewItemModel);
             }
             if (parent != null)
-                return (SharpDX.Matrix)parent.Tag;
-            return SharpDX.Matrix.Identity;
+                return (ParNodes)parent.Tag;
+            return null;
         }
     }
 }

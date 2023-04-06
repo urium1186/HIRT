@@ -67,9 +67,9 @@ namespace LibHIRT.ModuleUnpacker
                 if (!UIDebug.debugValues.ContainsKey("TagDataBlockCount"))
                   UIDebug.debugValues["TagDataBlockCount"] = new Dictionary<object, List<object>>();
                 UIDebug.debugValues["TagDataBlockCount"][entry.ResourceBlockCountPad1] = new List<object>();
-                if (!UIDebug.debugValues.ContainsKey("unk0x44"))
-                  UIDebug.debugValues["unk0x44"] = new Dictionary<object, List<object>>();
-                UIDebug.debugValues["unk0x44"][entry.Unk0x44] = new List<object>();
+                if (!UIDebug.debugValues.ContainsKey("parent_of_resource"))
+                  UIDebug.debugValues["parent_of_resource"] = new Dictionary<object, List<object>>();
+                UIDebug.debugValues["parent_of_resource"][entry.ParentOffResource] = new List<object>();
 
                 if (!UIDebug.debugValues.ContainsKey("ResourceBlockCount"))
                 {
@@ -121,28 +121,6 @@ namespace LibHIRT.ModuleUnpacker
             var t2 = binaryReader.BaseStream.Position;
             var t3 = t2 + moduleHeader.StringsSize;
             
-            /*if (UIDebug.debugValues.ContainsKey("Unk0x3C")) {
-                UIDebug.debugValues["Unk0x3C"].Add(_moduleHeader.Unk0x3C, new List<object>());
-            } else {
-                UIDebug.debugValues.Add("Unk0x3C", new Dictionary<object, List<object>>());
-                UIDebug.debugValues["Unk0x3C"].Add(_moduleHeader.Unk0x3C, new List<object>());
-            }
-
-            if (UIDebug.debugValues.ContainsKey("Unk0x44"))
-            {
-                UIDebug.debugValues["Unk0x44"].Add(_moduleHeader.Unk0x44, new List<object>());
-            }
-            else
-            {
-                UIDebug.debugValues.Add("Unk0x44", new Dictionary<object, List<object>>());
-                if (UIDebug.debugValues["Unk0x44"].ContainsKey(_moduleHeader.Unk0x44)) {
-                    
-                }
-                else { 
-                UIDebug.debugValues["Unk0x44"].Add(_moduleHeader.Unk0x44, new List<object>());
-                }
-            }
-            */
             
             if (moduleHeader.Unk0x44 != 0) { 
             }

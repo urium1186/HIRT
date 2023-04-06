@@ -429,8 +429,8 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     var ind1 = BitConverter.ToInt16(debug, 0x2A);
                     var ind0 = BitConverter.ToInt16(debug, 0x2A-2);
                     if (currentTag.TagGroup != "shbc") {
-                        Debug.Assert(ind1 == 4096);
-                        Debug.Assert(ind0 == 5);
+                        // Debug.Assert(ind1 == 4096);
+                       // Debug.Assert(ind0 == 5);
                     }
                     
                     //TagFileHeader tagFileHeaderInst = (TagFileHeader)UtilBinaryReader.marshallBinData<TagFileHeader>(tempheader);

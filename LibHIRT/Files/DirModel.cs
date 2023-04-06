@@ -7,19 +7,19 @@ namespace LibHIRT.Files
 {
     public class DirModel
     {
-        protected string path = "";
+        protected string _path = "";
         Dictionary<string, DirModel> dirs = new Dictionary<string, DirModel>();
         DirModel? parent;
 
         public DirModel(string path)
         {
-            this.path = path;
+            this._path = path;
         }
 
         virtual public List<DirModel> ListDirs { get => arrangeDirs(); }
 
         virtual public Dictionary<string, DirModel>? Dirs { get => dirs; }
-        virtual public string SubPath { get => path; }
+        virtual public string SubPath { get => _path; }
 
         
         public DirModel? Parent { get => parent; set => parent = value; }

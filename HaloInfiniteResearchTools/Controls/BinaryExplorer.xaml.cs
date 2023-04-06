@@ -275,5 +275,10 @@ namespace HaloInfiniteResearchTools.Controls
         {
             HexEdit.Stream = GetStreamFromExClipboard();
         }
+
+        private void HexEdit_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

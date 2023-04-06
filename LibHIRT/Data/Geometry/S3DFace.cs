@@ -5,12 +5,12 @@ using static LibHIRT.Assertions;
 namespace LibHIRT.Data.Geometry
 {
 
-  public abstract class S3DFace : S3DGeometryElement, IEnumerable<ushort>
+  public abstract class S3DFace : S3DGeometryElement, IEnumerable<uint>
   {
 
     #region Data Members
 
-    protected ushort[] _vertexIndices;
+    protected uint[] _vertexIndices;
 
     #endregion
 
@@ -26,7 +26,7 @@ namespace LibHIRT.Data.Geometry
       get => S3DGeometryElementType.Face;
     }
 
-    public ushort this[ int index ]
+    public uint this[ int index ]
     {
       get => _vertexIndices[ index ];
       set => _vertexIndices[ index ] = value;
@@ -36,12 +36,12 @@ namespace LibHIRT.Data.Geometry
 
     #region Constructor
 
-    protected S3DFace(ushort[] vertexIndices )
+    protected S3DFace(uint[] vertexIndices )
     {
       _vertexIndices = vertexIndices;
     }
 
-    public static S3DFace Create( ushort[] vertexIndices )
+    public static S3DFace Create( uint[] vertexIndices )
     {
       Assert( vertexIndices.Length > 1,
         "An S3DFace must have at least 2 vertices." );
@@ -61,7 +61,7 @@ namespace LibHIRT.Data.Geometry
 
     #region IEnumerable Methods
 
-    public IEnumerator<ushort> GetEnumerator()
+    public IEnumerator<uint> GetEnumerator()
     {
       foreach ( var index in _vertexIndices )
         yield return index;
@@ -82,13 +82,13 @@ namespace LibHIRT.Data.Geometry
 
     #region Properties
 
-    public ushort VertexA
+    public uint VertexA
     {
       get => this[ 0 ];
       set => this[ 0 ] = value;
     }
 
-    public ushort VertexB
+    public uint VertexB
     {
       get => this[ 1 ];
       set => this[ 1 ] = value;
@@ -98,7 +98,7 @@ namespace LibHIRT.Data.Geometry
 
     #region Constructor
 
-    public S3DEdge( ushort[] vertexIndices )
+    public S3DEdge( uint[] vertexIndices )
       : base( vertexIndices )
     {
       Assert( vertexIndices.Length == 2,
@@ -114,19 +114,19 @@ namespace LibHIRT.Data.Geometry
 
     #region Properties
 
-    public ushort VertexA
+    public uint VertexA
     {
       get => this[ 0 ];
       set => this[ 0 ] = value;
     }
 
-    public ushort VertexB
+    public uint VertexB
     {
       get => this[ 1 ];
       set => this[ 1 ] = value;
     }
 
-    public ushort VertexC
+    public uint VertexC
     {
       get => this[ 2 ];
       set => this[ 2 ] = value;
@@ -136,7 +136,7 @@ namespace LibHIRT.Data.Geometry
 
     #region Constructor
 
-    public S3DFaceTri( ushort[] vertexIndices )
+    public S3DFaceTri( uint[] vertexIndices )
       : base( vertexIndices )
     {
       Assert( vertexIndices.Length == 3,
@@ -152,25 +152,25 @@ namespace LibHIRT.Data.Geometry
 
     #region Properties
 
-    public ushort VertexA
+    public uint VertexA
     {
       get => this[ 0 ];
       set => this[ 0 ] = value;
     }
 
-    public ushort VertexB
+    public uint VertexB
     {
       get => this[ 1 ];
       set => this[ 1 ] = value;
     }
 
-    public ushort VertexC
+    public uint VertexC
     {
       get => this[ 2 ];
       set => this[ 2 ] = value;
     }
 
-    public ushort VertexD
+    public uint VertexD
     {
       get => this[ 3 ];
       set => this[ 3 ] = value;
@@ -180,7 +180,7 @@ namespace LibHIRT.Data.Geometry
 
     #region Constructor
 
-    public S3DFaceQuad( ushort[] vertexIndices )
+    public S3DFaceQuad( uint[] vertexIndices )
       : base( vertexIndices )
     {
       Assert( vertexIndices.Length == 4,
@@ -196,7 +196,7 @@ namespace LibHIRT.Data.Geometry
 
     #region Constructor
 
-    public S3DFaceNgon( ushort[] vertexIndices )
+    public S3DFaceNgon( uint[] vertexIndices )
       : base( vertexIndices )
     {
     }
