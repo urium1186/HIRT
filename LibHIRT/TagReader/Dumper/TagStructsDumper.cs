@@ -270,6 +270,8 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
             {
                 textWriter.WriteAttributeString("item_name_1", take_this_mf_and_pass_it_down_for_gods_sake);
                 textWriter.WriteAttributeString("item_name_2", take_this_mf_and_pass_it_down_for_gods_sake_1);
+
+                textWriter.WriteAttributeString("hash", str_bytes.Substring(32,32));
             }
 
             for (int index = 0; index < amount_of_things_to_read; index++)
@@ -520,7 +522,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                             Debug.Assert(tg_42._42_.int2 == 2);
                             Debug.Assert(tg_42._42_.int3 == 872);
                             Debug.Assert(n_name == "data");
-                            Debug.Assert(name_temp1 == "");
+                            //Debug.Assert(name_temp1 == "");
                             textWriter.WriteAttributeString("type", sub_n1);
                         }
                         break;

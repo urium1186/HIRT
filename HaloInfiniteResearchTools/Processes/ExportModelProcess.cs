@@ -21,6 +21,7 @@ using LibHIRT.Processes;
 using LibHIRT.Domain.RenderModel;
 using HaloInfiniteResearchTools.ViewModels;
 using System.Collections.ObjectModel;
+using Assimp.Unmanaged;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -71,6 +72,20 @@ namespace HaloInfiniteResearchTools.Processes
             _nodes = nodes;
         }
 
+        public ExportModelProcess(SSpaceFile file, HelixToolkit.SharpDX.Core.Assimp.HelixToolkitScene sceneHelixToolkit, RenderModelDefinition geometryGraph, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, ObservableCollection<ModelNodeModel> nodes)
+         : this(file, modelOptions, textureOptions)
+        {
+            
+            using (var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter())
+            {
+              exporter.ToAssimpScene(sceneHelixToolkit.Root, out _scene);
+            }
+            
+            
+            _geometryGraph = geometryGraph;
+            _nodes = nodes;
+        }
+
         #endregion
 
         #region Overrides
@@ -82,6 +97,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         protected override async Task OnExecuting()
         {
+           
             if (!_modelOptions.OverwriteExisting && CheckIfFileExists())
             {
                 StatusList.AddWarning(_outputPath,
@@ -94,7 +110,11 @@ namespace HaloInfiniteResearchTools.Processes
                 if (!success)
                     return;
             }
-
+            FilterMeshes();
+            if (!_scene.HasMeshes)
+            {
+                return;
+            }
             if (!Directory.Exists(_modelOptions.OutputPath))
                 Directory.CreateDirectory(_modelOptions.OutputPath);
 
@@ -104,7 +124,8 @@ namespace HaloInfiniteResearchTools.Processes
             if (_modelOptions.ExportTextures)
                 FixupTextureSlotFileExtensions();
 
-            FilterMeshes();
+            //FilterMeshes();
+            //await WriteHelixToolkitSceneToFile();
             await WriteAssimpSceneToFile();
 
             if (_modelOptions.ExportTextures)
@@ -188,6 +209,7 @@ namespace HaloInfiniteResearchTools.Processes
                 StatusList.AddError(_file.Name, "Encountered an error attempting to export material definitions.", ex);
             }
         }
+       
 
         private async Task WriteAssimpSceneToFile()
         {
@@ -205,6 +227,7 @@ namespace HaloInfiniteResearchTools.Processes
                 var formatId = _modelOptions.OutputFileFormat.ToAssimpFormatId();
                 using (var context = new AssimpContext())
                 {
+                    //_scene.RootNode.Transform = Matrix4x4.FromRotationX(90);
                     context.ExportFile(_scene, _outputPath, formatId);
                 }
             }
@@ -442,6 +465,13 @@ namespace HaloInfiniteResearchTools.Processes
         {
             foreach (var oldMeshIndex in oldNode.MeshIndices)
             {
+                if (oldNode.MeshCount > 0)
+                {
+                    var vc = OldScene.Meshes[oldNode.MeshIndices[0]].Vertices.Count;
+                    if (vc == 4 || vc == 8)
+                        continue;
+                    
+                }
                 if (!MeshLookup.TryGetValue(oldMeshIndex, out var newMeshIndex))
                 {
                     var mesh = OldScene.Meshes[oldMeshIndex];
@@ -458,11 +488,23 @@ namespace HaloInfiniteResearchTools.Processes
         {
             if (Evaluate(oldNode.Name))
                 return null;
+
+            var is_bone_mesh = false;
+            if (oldNode.Metadata.ContainsKey("isBoneMesh"))
+            {
+                is_bone_mesh = (bool)oldNode.Metadata["isBoneMesh"].Data;
+            }
+            /*if (is_bone_mesh)
+            {
+                return null;
+            }*/
             foreach (var item in _nodes)
             {
-                if ( oldNode.Name.Contains(item.Node.Name) && !item.IsVisible) {
+               
+                if ( oldNode.Name.Contains(item.Node.Name) && !item.Node.Visible) {
                     return null;
                 }
+                
             }
             var newNode = new Node(oldNode.Name, newParentNode);
             if (newParentNode != null)

@@ -1,0 +1,20 @@
+﻿<views:View  x:Class="HaloInfiniteResearchTools.Views.LevelView"
+              x:TypeArguments="vm:LevelViewModel"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:views="clr-namespace:HaloInfiniteResearchTools.Views"
+              xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
+            xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800" 
+      >
+
+    <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+        <controls:Model3DViewerControl x:Name="ModelViewer" ></controls:Model3DViewerControl>
+    </Grid>
+</views:View>

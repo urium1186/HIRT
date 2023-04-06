@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using LibHIRT.Common;
+using SharpDX.X3DAudio;
 
 namespace LibHIRT.Domain.RenderModel
 {
@@ -62,15 +63,22 @@ namespace LibHIRT.Domain.RenderModel
         // Get the gloal transformation from his parent
         static public void calculateGlobalTransformation(ModelBone bone)
         {
-            if (bone.Parent == null)
-            {
-                bone.GlobalTransform = bone.LocalTransform;
+            bone.GlobalTransform = Matrix4x4.Identity;
+            List<Matrix4x4> temp = new List<Matrix4x4>();
+            var parent = bone;
+            while (parent != null) { 
+                temp.Add(parent.LocalTransform);
+                parent = parent.Parent;
             }
-            else
-            {
-                bone.GlobalTransform = bone.Parent.GlobalTransform * bone.LocalTransform;
+            temp.Reverse();
+            if (temp.Count > 2) { 
             }
-            bone.LoadedGlobalTransform = true;  
+            foreach (var item in temp)
+            {
+                bone.GlobalTransform *= item;
+            }
+            bone.LoadedGlobalTransform = true;
+
         }
 
         // Get Local transfomr from Traslation Rotation Scale 
@@ -78,6 +86,10 @@ namespace LibHIRT.Domain.RenderModel
         static public void calculateLocalTransformation(ModelBone bone)
         {
             bone.LocalTransform = NumericExtensions.TRS(bone.Traslation, bone.Rotation, bone.Scale);
+            double d = Matrix4x4.Identity.GetTransformDistance(bone.LocalTransform);
+            if (d == bone.DistanceFromParent)
+            { 
+            }
             bone.LoadedLocalTransform = true;
         }
 

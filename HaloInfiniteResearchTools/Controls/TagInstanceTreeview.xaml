@@ -55,7 +55,27 @@
                         <Label Content=" childs"  Grid.Column="3"></Label>
                     </Grid>
                 </HierarchicalDataTemplate>
-
+                <HierarchicalDataTemplate DataType="{x:Type tags:RenderGeometryTag}" ItemsSource="{Binding Childrens}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
+                        <Label Content=" childs"  Grid.Column="3"></Label>
+                        <Button Content="View Geometry" DataContext="{Binding Self}" Width="100" Height="18" Grid.Column="4" Click="RenderGeometryTag_Click"
+                                     Margin="10,0,0,0"
+                                    >
+                            
+                        </Button>
+                    </Grid>
+                </HierarchicalDataTemplate>
+                
                 <HierarchicalDataTemplate DataType="{x:Type model:TagInstanceModel}" ItemsSource="{Binding Childrens}" >
                     <Grid>
                         <Grid.ColumnDefinitions>

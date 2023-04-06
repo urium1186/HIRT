@@ -46,6 +46,18 @@ namespace HaloInfiniteResearchTools.Controls
             get => (ICommand)GetValue(TagRefGenOpenCommandProperty);
             set => SetValue(TagRefGenOpenCommandProperty, value);
         }
+        
+        public static readonly DependencyProperty RenderGeomGenOpenCommandProperty = DependencyProperty.Register(
+         nameof(RenderGeomGenOpenCommand),
+         typeof(ICommand),
+         typeof(TagInstanceTreeview),
+         new PropertyMetadata());
+
+        public ICommand RenderGeomGenOpenCommand
+        {
+            get => (ICommand)GetValue(RenderGeomGenOpenCommandProperty);
+            set => SetValue(RenderGeomGenOpenCommandProperty, value);
+        }
 
         public static readonly DependencyProperty TagToJsonCommandProperty = DependencyProperty.Register(
          nameof(TagToJsonCommand),
@@ -122,6 +134,13 @@ namespace HaloInfiniteResearchTools.Controls
             TagRef tagRef = (TagRef)((sender as Button)?.DataContext);
             if (tagRef.Ref_id_int != -1)
                 TagRefGenOpenCommand?.Execute(tagRef);
+        }
+
+        private void RenderGeometryTag_Click(object sender, RoutedEventArgs e)
+        {
+            RenderGeometryTag render_geom = (RenderGeometryTag)((sender as Button)?.DataContext);
+            if (render_geom != null)
+                RenderGeomGenOpenCommand?.Execute(render_geom);
         }
     }
 }

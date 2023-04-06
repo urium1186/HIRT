@@ -84,7 +84,7 @@ namespace HavokScriptToolsCommon
                     sb.Append(".debug_info\n");
                     if (debugInfo2.Path.Length > 0)
                     {
-                        sb.AppendFormat(".path {0}\n", debugInfo2.Path);
+                        sb.AppendFormat("._path {0}\n", debugInfo2.Path);
                     }
                     sb.AppendFormat(".line_begin {0}\n", debugInfo2.LineBegin);
                     sb.AppendFormat(".line_end {0}\n", debugInfo2.LineEnd);

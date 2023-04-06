@@ -27,10 +27,11 @@ namespace HaloInfiniteResearchTools.Views
             
         }
 
-        
+
 
         protected override void OnDisposing()
         {
+            model3dCtrl?.Dispose();
             base.OnDisposing();
         }
 
@@ -53,7 +54,7 @@ namespace HaloInfiniteResearchTools.Views
                 if (tb != null && tb.Name == "XmlViewer")
                 {
                     var temp = DataContext as GenericViewModel;
-                    if (temp != null && webBro.Source == null)
+                    if (temp != null && webBro.Source == null && !string.IsNullOrEmpty(temp.XmlPath))
                         webBro.Navigate(temp.XmlPath);
                 }
             }

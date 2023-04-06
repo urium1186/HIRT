@@ -1,18 +1,15 @@
-﻿<view:View x:Class="HaloInfiniteResearchTools.Views.RenderModelView"
-      x:TypeArguments="vm:RenderModelViewModel"
-     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
-           xmlns:m="clr-namespace:HaloInfiniteResearchTools.Models"
-      xmlns:view="clr-namespace:HaloInfiniteResearchTools.Views"
-      xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      >
-
+﻿<UserControl x:Class="HaloInfiniteResearchTools.Controls.Model3DViewerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+            xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
+            xmlns:m="clr-namespace:HaloInfiniteResearchTools.Models"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="_this"
+             >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -93,14 +90,13 @@
         <controls:ModelViewerControl x:Name="ModelViewer" 
                                      Grid.Row="1" 
                                      Grid.Column="0"
-                                     Camera="{Binding Camera}"
-                                     EffectsManager="{Binding EffectsManager}"
-                                     FXAAQuality="{Binding Options.RenderFxaaQuality}"
+                                     Camera="{Binding ElementName=_this, Path=Camera}"
+                                     EffectsManager="{Binding ElementName=_this, Path=EffectsManager}"
                                      Model="{Binding Model}"
-                                     MinMoveSpeed="{Binding MinMoveSpeed}"
-                                     MoveSpeed="{Binding MoveSpeed}"
-                                     MaxMoveSpeed="{Binding MaxMoveSpeed}"
-                                     UseFlycam="{Binding UseFlycam}" />
+                                     MinMoveSpeed="{Binding ElementName=_this, Path=MinMoveSpeed}"
+                                     MoveSpeed="{Binding ElementName=_this, Path=MoveSpeed}"
+                                     MaxMoveSpeed="{Binding ElementName=_this, Path=MaxMoveSpeed}"
+                                     UseFlycam="{Binding ElementName=_this, Path=UseFlycam}" />
 
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" />
 
@@ -119,7 +115,7 @@
                     HorizontalAlignment="Stretch">
                 <DockPanel HorizontalAlignment="Stretch">
 
-                    <Label Content="Meshes"
+                    <Label Content="{Binding ElementName=_this, Path=StringName}"
                            FontSize="14"
                            FontWeight="SemiBold"
                            Margin="0"
@@ -209,24 +205,24 @@
                 <TabItem Header="Meshs">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="149*" />
+                            <ColumnDefinition Width="45*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <controls:SearchBox Grid.Row="0"
-                                TextChangedCommand="{Binding SearchTermChangedCommand}" />
+                                TextChangedCommand="{Binding SearchTermChangedCommand}" Grid.ColumnSpan="2" />
 
                         <ListView Grid.Row="1"
                       ItemsSource="{Binding Nodes}"
                       VirtualizingPanel.IsContainerVirtualizable="True"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-                      VirtualizingPanel.VirtualizationMode="Recycling"
-                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                      VirtualizingPanel.VirtualizationMode="Recycling" HorizontalContentAlignment="Stretch"
                       SizeChanged="OnListViewSizeChanged"
-                      Loaded="OnListViewLoaded">
+                      Loaded="OnListViewLoaded" Grid.ColumnSpan="2">
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn>
@@ -249,44 +245,10 @@
                         </ListView>
                     </Grid>
                 </TabItem>
-                <TabItem Header="RenderModel">
-                    <Grid>
-                        <controls:CheckedTreeControl TreeItems="{Binding Path=Regions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </Grid>
-                </TabItem>
-                <TabItem Header="Model">
-                    <Grid>
-                        <controls:CheckedTreeControl TreeItems="{Binding Path=Variants, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </Grid> 
-                </TabItem>
-                <TabItem Header="CustumCOnfig">
-                    <Grid>
-                        <controls:CheckedTreeControl TreeItems="{Binding Path=ThemeConfigurationsTVIM, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </Grid> 
-                </TabItem>
+               
             </TabControl>
-           
-
-
-            <!--<TreeView Grid.Row="2" 
-                      ItemsSource="{Binding Nodes}"
-                      VirtualizingPanel.IsContainerVirtualizable="True"
-                      VirtualizingPanel.IsVirtualizing="True"
-                      VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-                      VirtualizingPanel.VirtualizationMode="Recycling">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="TreeViewItem">
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                    </Style>
-                </TreeView.ItemContainerStyle>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Items}">
-                        <CheckBox IsChecked="{Binding IsVisible}" Content="{Binding Name}" Focusable="False" FocusVisualStyle="{x:Null}" />
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>-->
 
         </Grid>
 
     </Grid>
-</view:View>
+</UserControl>

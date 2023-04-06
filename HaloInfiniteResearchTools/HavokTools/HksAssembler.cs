@@ -430,9 +430,9 @@ namespace HavokScriptToolsCommon
             {
                 hasDebugInfo = 1;
                 string path = "";
-                if (foundDirectives.ContainsKey(".path"))
+                if (foundDirectives.ContainsKey("._path"))
                 {
-                    path = string.Join(' ', foundDirectives[".path"]);
+                    path = string.Join(' ', foundDirectives["._path"]);
                 }
                 uint lineBegin = uint.Parse(foundDirectives[".line_begin"][0]);
                 uint lineEnd = uint.Parse(foundDirectives[".line_end"][0]);

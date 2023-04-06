@@ -9,13 +9,25 @@ using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.Views;
+using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyChanged;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
+    public abstract class SSpaceFileViewModel<T> : ViewModel where T : ISSpaceFile
+    {
+        T _file;
 
-  [AddINotifyPropertyChangedInterface]
+        protected SSpaceFileViewModel(IServiceProvider serviceProvider, T file) : base(serviceProvider)
+        {
+            _file = file;
+        }
+
+        public T File { get => _file; set => _file = value; }
+    }
+
+    [AddINotifyPropertyChangedInterface]
     public abstract class ViewModel : ObservableObject, IViewModel
     {
 

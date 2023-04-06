@@ -32,7 +32,7 @@
                        Padding="5,2"
                        DockPanel.Dock="Left"
                        VerticalAlignment="Center" />
-
+  
                 <StackPanel DockPanel.Dock="Right"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"

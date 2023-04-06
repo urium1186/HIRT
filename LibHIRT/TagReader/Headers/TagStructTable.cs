@@ -22,9 +22,9 @@ namespace LibHIRT.TagReader.Headers
     public class TagStruct : HeaderTableEntry
     {
         TagStructInfo info = new();
-        string gUID = "";
-        string gUID1 = "";
-        string gUID2 = "";
+        string _UID = "";
+        string _UID1 = "";
+        string _UID2 = "";
         short typeID = -1;
         TagStructType typeIdTg = TagStructType.Tagblock;
         short unknown_property_bool_0_1 = -1;
@@ -77,18 +77,27 @@ namespace LibHIRT.TagReader.Headers
         public List<TagReferenceFixup> L_tag_ref { get => l_tag_ref; set => l_tag_ref = value; }
         public List<string> Bin_datas_hex { get => bin_datas_hex; set => bin_datas_hex = value; }
         public TagStructType TypeIdTg { get => typeIdTg; set => typeIdTg = value; }
+        public string UID { get => _UID; set => _UID = value; }
+        public string UID1 { get => _UID1; set => _UID1 = value; }
+        public string UID2 { get => _UID2; set => _UID2 = value; }
 
         public override void ReadIn()
         {
-            var temp = ReadInt64();
-            var temp2 = ReadInt64();
+            var bytes =ReadBytes(16);
+            _UID = BitConverter.ToString(bytes).Replace("-", "");
+            var byt = BitConverter.GetBytes(BitConverter.ToInt64(bytes,0));
+            _UID1 = BitConverter.ToString(byt).Replace("-", "");
+            byt = BitConverter.GetBytes(BitConverter.ToInt64(bytes, 8));
+            _UID2 = BitConverter.ToString(byt).Replace("-", "");
             typeID = ReadInt16();
             typeIdTg = (TagStructType)typeID;
             unknown_property_bool_0_1 = ReadInt16();
             field_data_block_index = ReadInt32();
             parent_field_data_block_index = ReadInt32();
             field_offset = ReadInt32();
-
+            if (typeIdTg == TagStructType.Root) { 
+            
+            }
         }
 
         public TagStructInfo readTagStructInfo() {

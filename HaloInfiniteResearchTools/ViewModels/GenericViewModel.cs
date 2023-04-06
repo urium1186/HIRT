@@ -39,12 +39,14 @@ namespace HaloInfiniteResearchTools.ViewModels
         private readonly ITabService _tabService;
 
         public int SelectedTabIndex { get; set; }
+        public int RenderGeomViewerEnable { get; set; }
 
         public ICommand OpenFileTabCommand { get; }
         public ICommand OpenGenFileTabCommand { get; }
         public ICommand TagInstanceExportJsonCommand { get; }
         public ICommand TagGoToBinCommand { get; }
         public ICommand TagGoToTemplateCommand { get; }
+        public ICommand RenderGeomGenOpenCommand { get; }
 
         public string JsonFile { get;  set ; }
         public Stream FileStream { get;  set ; }
@@ -73,6 +75,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         public GenericViewModel(IServiceProvider serviceProvider, SSpaceFile file) : base(serviceProvider)
         {
             _file = file;
+            RenderGeomViewerEnable = -1;
             _fileMem = null;
             _tagRoot = new ObservableCollection<TagInstance>();
             OpenFileTabCommand = new AsyncCommand<TagRef>(OpenFileTab);
@@ -80,8 +83,17 @@ namespace HaloInfiniteResearchTools.ViewModels
             TagInstanceExportJsonCommand = new AsyncCommand<TagInstance>(TagInstanceExportJson);
             TagGoToBinCommand = new AsyncCommand<TagInstance>(TagGoToBin);
             TagGoToTemplateCommand = new AsyncCommand<TagInstance>(TagGoToTemplate);
+            RenderGeomGenOpenCommand = new AsyncCommand<RenderGeometryTag>(RenderGeomGenOpen);
             _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
             _tabService = serviceProvider.GetService<ITabService>();
+        }
+
+        private async Task RenderGeomGenOpen(RenderGeometryTag arg)
+        {
+            if (arg == null)
+                return;
+            RenderGeomViewerEnable = 1; 
+            SelectedTabIndex = 4;
         }
 
         private  async Task TagGoToBin(TagInstance arg)
@@ -121,6 +133,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             OpenGenFileTabCommand = new AsyncCommand<TagRef>(OpenGenFileTab);
             _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
             _tabService = serviceProvider.GetService<ITabService>();
+            _tagRoot = new ObservableCollection<TagInstance>();
+            _tagRootModel = new List<TagInstanceModel>();
         }
 
         protected override async Task OnInitializing()
@@ -158,15 +172,17 @@ namespace HaloInfiniteResearchTools.ViewModels
                 _tagRoot.Add(tagParse.RootTagInst);
                 if (tagParse.TagFile != null) { 
                     _tagFile.Add(tagParse.TagFile); 
-                }   
-                _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
+                } 
+                if (tagParse.RootTagInst!=null)
+                    _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
                 FileStream = _file.GetStream();
-                XmlPath = _file.GetTagXmlTempaltePath();
+                if (_file.TagGroup != "����")
+                    XmlPath = _file.GetTagXmlTempaltePath();
             }
             else if (_fileMem != null){
                 if (HIFileContext.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
                 {
-                    var process = new ReadTagInstanceProcess(_file);
+                    var process = new ReadTagInstanceProcess(_fileMem);
 
                     //process.Completed += OpenFilesProcess_Completed;
                     //await RunProcess(process);
@@ -194,7 +210,6 @@ namespace HaloInfiniteResearchTools.ViewModels
 
 
                     tagParse = process.TagParse;
-                   
                     _tagRoot.Add(tagParse.RootTagInst);
                     _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
                    

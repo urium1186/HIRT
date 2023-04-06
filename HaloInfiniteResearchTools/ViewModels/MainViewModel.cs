@@ -6,6 +6,7 @@ using HaloInfiniteResearchTools.Views;
 using LibHIRT.Files;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
+using LibHIRT.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -86,7 +87,10 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private void OpenFilesProcess_Completed(object? sender, EventArgs e)
         {
-            FileContext.SearchTermChangedCommand.Execute("ocgd");
+            //FileContext.SearchTermChangedCommand.Execute("ocgd");
+            /*var see = LibHIRT.Utils.UIDebug.debugValues;
+            var intese =LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["3"].Intersect(LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["2"]);*/
+            FileContext.SearchTermChangedCommand.Execute("");
         }
 
         #endregion

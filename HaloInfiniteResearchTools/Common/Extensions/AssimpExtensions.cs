@@ -11,7 +11,7 @@ namespace HaloInfiniteResearchTools.Common.Extensions
 
     public static class AssimpExtensions
     {
-
+        
         public static Assimp.Matrix4x4 calculateGlobalTransformation(this Node node)
         {
             var initT = node.Transform;

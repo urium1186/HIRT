@@ -31,6 +31,8 @@ namespace HaloInfiniteResearchTools.Common
         public static TagStructsDumperOptionsModel DeepCopy(this TagStructsDumperOptionsModel source)
                   => source;
 
+        
+
 
     }
 

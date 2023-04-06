@@ -19,6 +19,7 @@ namespace HaloInfiniteResearchTools.Processes
         private TagParseControl tagParse;
 
         private IHIRTFile _file;
+        public event EventHandler<ITagInstance> OnInstanceLoadEvent;
 
         public ReadTagInstanceProcess(IHIRTFile file)
         {
@@ -68,7 +69,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         private void TagParse_OnInstanceLoadEvent(object? sender, ITagInstance e)
         {
-            
+            OnInstanceLoadEvent?.Invoke(this, e);
         }
     }
 }

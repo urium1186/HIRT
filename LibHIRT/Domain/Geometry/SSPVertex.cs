@@ -27,7 +27,7 @@ namespace LibHIRT.Domain.Geometry
 
         public Vector2? UV0 { get; set; }
         public Vector2? UV1 { get; set; }
-        public Vector2? UV3 { get; set; }
+        public Vector2? UV2 { get; set; }
 
         public Vector4? Normal { get; set; }
         public Vector4? Tangent { get; set; }

@@ -14,7 +14,7 @@ namespace LibHIRT.Domain
         public Flags LodRenderFlags { get; set; }
 
         Dictionary<BufferVertType, int[]> _vertexBufferIndices;
-        List<int> _indexBufferIndex;
+        List<uint> _indexBufferIndex;
         public int Vert_count { get => vert_count; 
             set { vert_count = value; 
                 vertexs= new SSPVertex[vert_count];
@@ -29,12 +29,12 @@ namespace LibHIRT.Domain
                     _vertexBufferIndices =  new Dictionary<BufferVertType, int[]>();
                 return _vertexBufferIndices; } }
 
-        public List<int> IndexBufferIndex
+        public List<uint> IndexBufferIndex
         {
             get
             {
                 if (_indexBufferIndex == null)
-                    _indexBufferIndex = new List<int>();
+                    _indexBufferIndex = new List<uint>();
                 return _indexBufferIndex;
             }
         }
