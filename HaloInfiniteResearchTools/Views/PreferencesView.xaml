@@ -22,7 +22,7 @@
                     <GroupBox.Header>
                         <DockPanel>
                             <Label DockPanel.Dock="Left"
-                                   Content="Default H2A Directory" />
+                                   Content="Default Halo Infinite Directory" />
                             <CheckBox DockPanel.Dock="Right"
                                       Content="Load on Startup"
                                       FlowDirection="RightToLeft"
@@ -294,11 +294,10 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <GroupBox Header="Dumper" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,5,0,5">
+                <GroupBox Header="Dumper paths" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,5,0,5">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
@@ -306,19 +305,16 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
 
                         <controls:FileBrowserBox Path="{Binding  Preferences.TagReaderOptionsModel.XmlOutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2"
                                      DialogPathType="Directory"  />
-
-                        <ListView ItemsSource="{Binding Preferences.TagReaderOptionsModel.Paths}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,5,0,0">
+                        <ScrollViewer Grid.ColumnSpan="2" Grid.Row="1" CanContentScroll="True" VerticalScrollBarVisibility="Auto">
+                        <ListView ItemsSource="{Binding Preferences.TagReaderOptionsModel.Paths}" Grid.Column="0"  Margin="0,5,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
+                                  
+                                  >
                             <ListView.View>
                                 <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Paths to tag xml">
 
@@ -343,7 +339,7 @@
                                 </GridView>
                             </ListView.View>
                         </ListView>
-                        
+                        </ScrollViewer>
                     </Grid>
                 </GroupBox>
 

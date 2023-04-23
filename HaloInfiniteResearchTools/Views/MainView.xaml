@@ -38,7 +38,7 @@
                 <Separator />
                 <MenuItem Header="Preferences" Command="{Binding EditPreferencesCommand}" />
             </MenuItem>
-            <MenuItem Header="Help">
+            <MenuItem Header="Help" IsEnabled="false">
                 <MenuItem Header="Tutorial Video"
                           Command="{Binding ShowWebPageCommand}"
                           CommandParameter="https://www.youtube.com/watch?v=hfji1ik2wFk" />
@@ -74,7 +74,7 @@
 
                 <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type m:ITab}">
-                        <DockPanel Background="Transparent" IsHitTestVisible="True" HorizontalAlignment="Stretch">
+                        <DockPanel Background="{DynamicResource TabItem.Selected.Background}" IsHitTestVisible="True" HorizontalAlignment="Stretch">
                             <DockPanel.InputBindings>
                                 <MouseBinding Command="{Binding CloseCommand}" Gesture="MiddleClick" />
                             </DockPanel.InputBindings>

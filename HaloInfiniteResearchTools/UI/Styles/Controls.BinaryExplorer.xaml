@@ -4,5 +4,8 @@
 
     <conv:PathToFilenameConverter x:Key="FilenameConverter" />
     <conv:VisibilityToBooleanConverter x:Key="VisibilityToBoolConverter" />
-
+    <SolidColorBrush x:Key="StatusBar.Static.Background"    Color="{DynamicResource Color.Primary.2.Background.Static}"/>
+    <Style TargetType="{x:Type StatusBar}">
+        <Setter Property="Background" Value="{DynamicResource StatusBar.Static.Background}" />
+    </Style>
 </ResourceDictionary>

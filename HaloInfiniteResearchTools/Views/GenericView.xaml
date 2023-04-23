@@ -42,6 +42,7 @@
                 </TabItem.RenderTransform>
                 <Grid Background="#FFE5E5E5">
                     <controls:TagInstanceTreeview x:Name="TagInstanceTree" 
+                                                  
                                                   TagRefOpenCommand="{Binding OpenFileTabCommand}"
                                                   TagRefGenOpenCommand="{Binding OpenGenFileTabCommand}"
                                                   TagToJsonCommand="{Binding TagInstanceExportJsonCommand}"
@@ -82,7 +83,10 @@
                                                    ConverterParameter ={StaticResource IntOneMinus}}"
                      >
                 <Grid Background="#FFE5E5E5">
-                    <controls:Model3DViewerControl x:Name="model3dCtrl" />
+
+                    <controls:Model3DViewerControl x:Name="model3dCtrl" SceneContex ="{Binding MyGeometrySceneContex}" DataContext="{Binding DViewerControlModel}"
+                                                   />
+                    
                 </Grid>
             </TabItem>
         </TabControl>

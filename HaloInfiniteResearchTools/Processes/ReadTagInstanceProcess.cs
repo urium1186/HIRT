@@ -34,9 +34,10 @@ namespace HaloInfiniteResearchTools.Processes
             {
                 SSpaceFile file = (SSpaceFile)_file;  
                 tagParse = new TagParseControl(file.Path_string, file.TagGroup, null, file.GetStream());
-                TagInstance.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
+                tagParse.OnInstanceLoadEvent += OnInstanceLoadEvent;
+                //TagInstance.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
                 tagParse.readFile();
-                TagInstance.OnInstanceLoadEvent -= TagParse_OnInstanceLoadEvent;
+                //TagInstance.OnInstanceLoadEvent -= TagParse_OnInstanceLoadEvent;
                 /*_tagRoot.Add(tagParse.RootTagInst);
                 if (tagParse.TagFile != null)
                 {

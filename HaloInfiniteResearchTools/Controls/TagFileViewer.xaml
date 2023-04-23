@@ -61,6 +61,27 @@
                                         <RowDefinition Height="auto"></RowDefinition>
                                         <RowDefinition Height="auto"></RowDefinition>
                                         <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition Height="auto"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Label Content="DataBlockOffset"  Grid.Column="0" Grid.Row="0"></Label>
                                     <Label Content="{Binding TagHeader.DataBlockOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
@@ -70,6 +91,50 @@
                                     <Label Content="{Binding TagHeader.DependencyOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="2"></Label>
                                     <Label Content="StringTableOffset"  Grid.Column="0" Grid.Row="3"></Label>
                                     <Label Content="{Binding TagHeader.StringTableOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="3"></Label>
+
+
+                                    <Label Content="Magic"  Grid.Column="0" Grid.Row="4"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Magic, Mode=OneWay}" Grid.Column="1" Grid.Row="4"></Label>
+                                    <Label Content="Version"  Grid.Column="0" Grid.Row="5"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Version, Mode=OneWay}" Grid.Column="1" Grid.Row="5"></Label>
+                                    <Label Content="TypeHash"  Grid.Column="0" Grid.Row="6"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TypeHash, Mode=OneWay}" Grid.Column="1" Grid.Row="6"></Label>
+                                    <Label Content="AssetChecksum"  Grid.Column="0" Grid.Row="7"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.AssetChecksum, Mode=OneWay}" Grid.Column="1" Grid.Row="7"></Label>
+                                    <Label Content="DependencyCount"  Grid.Column="0" Grid.Row="8"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DependencyCount, Mode=OneWay}" Grid.Column="1" Grid.Row="8"></Label>
+                                    <Label Content="DataBlockCount"  Grid.Column="0" Grid.Row="9"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DataBlockCount, Mode=OneWay}" Grid.Column="1" Grid.Row="9"></Label>
+                                    <Label Content="TagStructCount"  Grid.Column="0" Grid.Row="10"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TagStructCount, Mode=OneWay}" Grid.Column="1" Grid.Row="10"></Label>
+                                    <Label Content="DataReferenceCount"  Grid.Column="0" Grid.Row="11"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DataReferenceCount, Mode=OneWay}" Grid.Column="1" Grid.Row="11"></Label>
+                                    <Label Content="TagReferenceCount"  Grid.Column="0" Grid.Row="12"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TagReferenceCount, Mode=OneWay}" Grid.Column="1" Grid.Row="12"></Label>
+                                    <Label Content="StringTableSize"  Grid.Column="0" Grid.Row="13"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.StringTableSize, Mode=OneWay}" Grid.Column="1" Grid.Row="13"></Label>
+                                    <Label Content="ZoneSetDataSize"  Grid.Column="0" Grid.Row="14"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.ZoneSetDataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="14"></Label>
+                                    <Label Content="unknownDescInfoType"  Grid.Column="0" Grid.Row="15"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.UnknownDescInfoType, Mode=OneWay}" Grid.Column="1" Grid.Row="15"></Label>
+                                    <Label Content="HeaderSize"  Grid.Column="0" Grid.Row="16"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.HeaderSize, Mode=OneWay}" Grid.Column="1" Grid.Row="16"></Label>
+                                    <Label Content="DataSize"  Grid.Column="0" Grid.Row="17"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="17"></Label>
+                                    <Label Content="ResourceDataSize"  Grid.Column="0" Grid.Row="18"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.ResourceDataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="18"></Label>
+                                    <Label Content="Section3Size"  Grid.Column="0" Grid.Row="19"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Section3Size, Mode=OneWay}" Grid.Column="1" Grid.Row="19"></Label>
+                                    <Label Content="HeaderAlignment"  Grid.Column="0" Grid.Row="20"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.HeaderAlignment, Mode=OneWay}" Grid.Column="1" Grid.Row="20"></Label>
+                                    <Label Content="TagDataAlightment"  Grid.Column="0" Grid.Row="21"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TagDataAlightment, Mode=OneWay}" Grid.Column="1" Grid.Row="21"></Label>
+                                    <Label Content="ResourceDataAligment"  Grid.Column="0" Grid.Row="22"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.ResourceDataAligment, Mode=OneWay}" Grid.Column="1" Grid.Row="22"></Label>
+                                    <Label Content="Section3Alightment"  Grid.Column="0" Grid.Row="23"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Section3Alightment, Mode=OneWay}" Grid.Column="1" Grid.Row="23"></Label>
+                                    <Label Content="UnknownProperty4"  Grid.Column="0" Grid.Row="24"></Label>
+                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.UnknownProperty4, Mode=OneWay}" Grid.Column="1" Grid.Row="24"></Label>
 
                                 </Grid>
 

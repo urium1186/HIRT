@@ -257,12 +257,15 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
             int is37Count = 0;
             long address_for_our_string_bruh = m.ReadLong(address.ToString("X"));
             long address_for_our_string_bruh_1 = m.ReadLong((address + 8).ToString("X"));
+            
+            
 
             long address_four_our_fields = m.ReadLong((address + 32).ToString("X"));
             int amount_of_things_to_read = m.ReadInt((address + 120).ToString("X"));
 
             string take_this_mf_and_pass_it_down_for_gods_sake = m.ReadString(address_for_our_string_bruh.ToString("X"), "", 300);
             string take_this_mf_and_pass_it_down_for_gods_sake_1 = m.ReadString(address_for_our_string_bruh_1.ToString("X"), "", 300);
+
             addUniqueString(take_this_mf_and_pass_it_down_for_gods_sake);
             addUniqueString(take_this_mf_and_pass_it_down_for_gods_sake_1);
 
@@ -272,6 +275,15 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                 textWriter.WriteAttributeString("item_name_2", take_this_mf_and_pass_it_down_for_gods_sake_1);
 
                 textWriter.WriteAttributeString("hash", str_bytes.Substring(32,32));
+                //textWriter.WriteAttributeString("desirfar-0", str_bytes.Substring(80, 64));
+                textWriter.WriteAttributeString("hashTagRelated-0", str_bytes.Substring(144,16));
+                textWriter.WriteAttributeString("hashTagRelated-1", str_bytes.Substring(160,16));
+                //textWriter.WriteAttributeString("int-0", m.ReadInt((address + 88).ToString("X")).ToString());
+                //textWriter.WriteAttributeString("int-1", m.ReadInt((address + 92).ToString("X")).ToString());
+                ;
+                //textWriter.WriteAttributeString("desirfar-1", str_bytes.Substring(192, 120*2 - 192));
+
+                //textWriter.WriteAttributeString("amountOfThingsToRead", amount_of_things_to_read.ToString());
             }
 
             for (int index = 0; index < amount_of_things_to_read; index++)

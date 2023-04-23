@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using LibHIRT.Files;
+using System.Diagnostics;
 
 namespace LibHIRT.ModuleUnpacker
 {
@@ -82,6 +83,7 @@ namespace LibHIRT.ModuleUnpacker
         public HiModule HiModuleRef { get => hiModuleRef;}
         public int Index { get => _index; set => _index = value; }
         public List<HiModuleFileEntry> ResourceFiles { get => _resourceFiles; set => _resourceFiles = value; }
+        public ISSpaceFile ParentOffResourceRef { get; internal set; }
 
         public void ReadIn(BinaryReader byteStream)
         {

@@ -30,67 +30,89 @@ namespace LibHIRT.TagReader.Headers
         public struct TagFileHeader
         {
             [FieldOffset(0)]
-            public int Magic;
+            private int magic;
 
             [FieldOffset(4)]
-            public int Version;
+            private int version;
 
             [FieldOffset(8)]
-            public ulong TypeHash; // this is unic for TagGroups
+            private ulong typeHash; // this is unic for TagGroups
 
             [FieldOffset(16)]
-            public ulong AssetChecksum;
+            private ulong assetChecksum;
 
             [FieldOffset(24)]
-            public int DependencyCount;
+            private int dependencyCount;
 
             [FieldOffset(28)]
-            public int DataBlockCount;
+            private int dataBlockCount;
 
             [FieldOffset(32)]
-            public int TagStructCount;
+            private int tagStructCount;
 
             [FieldOffset(36)]
-            public int DataReferenceCount;
+            private int dataReferenceCount;
 
             [FieldOffset(40)]
-            public int TagReferenceCount;
+            private int tagReferenceCount;
 
             [FieldOffset(44)]
-            public int StringTableSize;
+            private int stringTableSize;
 
             [FieldOffset(48)]
-            public int ZoneSetDataSize;
+            private int zoneSetDataSize;
 
             [FieldOffset(52)]
-            public int unknownDescInfoType;
+            private int unknownDescInfoType;
 
             [FieldOffset(56)]
-            public int HeaderSize;
+            private int headerSize;
 
             [FieldOffset(60)]
-            public int DataSize;
+            private int dataSize;
 
             [FieldOffset(64)]
-            public int ResourceDataSize; // Section2Size
+            private int resourceDataSize; // Section2Size
 
             [FieldOffset(68)]
-            public int Section3Size;
+            private int section3Size;
 
             [FieldOffset(72)]
-            public byte HeaderAlignment;
+            private byte headerAlignment;
 
             [FieldOffset(73)]
-            public byte TagDataAlightment;
+            private byte tagDataAlightment;
 
             [FieldOffset(74)]
-            public byte ResourceDataAligment;
+            private byte resourceDataAligment;
 
             [FieldOffset(75)]
-            public byte Section3Alightment;
+            private byte section3Alightment;
 
             [FieldOffset(76)]
-            public int UnknownProperty4;
+            private int unknownProperty4;
+
+            public int Magic { get => magic; set => magic = value; }
+            public int Version { get => version; set => version = value; }
+            public ulong TypeHash { get => typeHash; set => typeHash = value; }
+            public ulong AssetChecksum { get => assetChecksum; set => assetChecksum = value; }
+            public int DependencyCount { get => dependencyCount; set => dependencyCount = value; }
+            public int DataBlockCount { get => dataBlockCount; set => dataBlockCount = value; }
+            public int TagStructCount { get => tagStructCount; set => tagStructCount = value; }
+            public int DataReferenceCount { get => dataReferenceCount; set => dataReferenceCount = value; }
+            public int TagReferenceCount { get => tagReferenceCount; set => tagReferenceCount = value; }
+            public int StringTableSize { get => stringTableSize; set => stringTableSize = value; }
+            public int ZoneSetDataSize { get => zoneSetDataSize; set => zoneSetDataSize = value; }
+            public int UnknownDescInfoType { get => unknownDescInfoType; set => unknownDescInfoType = value; }
+            public int HeaderSize { get => headerSize; set => headerSize = value; }
+            public int DataSize { get => dataSize; set => dataSize = value; }
+            public int ResourceDataSize { get => resourceDataSize; set => resourceDataSize = value; }
+            public int Section3Size { get => section3Size; set => section3Size = value; }
+            public byte HeaderAlignment { get => headerAlignment; set => headerAlignment = value; }
+            public byte TagDataAlightment { get => tagDataAlightment; set => tagDataAlightment = value; }
+            public byte ResourceDataAligment { get => resourceDataAligment; set => resourceDataAligment = value; }
+            public byte Section3Alightment { get => section3Alightment; set => section3Alightment = value; }
+            public int UnknownProperty4 { get => unknownProperty4; set => unknownProperty4 = value; }
         }
 
         private TagFileHeader tagFileHeaderInst;

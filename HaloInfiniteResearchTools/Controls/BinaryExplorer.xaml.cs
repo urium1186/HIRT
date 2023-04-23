@@ -255,25 +255,50 @@ namespace HaloInfiniteResearchTools.Controls
 
         private void HexEdit_SelectionStartChanged(object sender, System.EventArgs e)
         {
-            var temp = HexEdit.SelectionStart;
+            HexEditor tempS = sender as HexEditor;
+            if (tempS == null) return;
+
+            var temp = tempS.SelectionStart;
             //if (((HexEditor)sender).Stream == null && !string.IsNullOrEmpty(((HexEditor)sender).FileName))
             //    ((HexEditor)sender).Stream = new FileStream(((HexEditor)sender).FileName, FileMode.Open);
-            if (BytesReadView.FileStream == null)
+            if (BytesReadView.FileStream != tempS.Stream)
                 BytesReadView.FileStream = HexEdit.Stream;
-            if (BytesReadView.FileStream == null)
+            if (BytesReadView.FileStream == null) {
                 BytesReadView.FileStream = FileStream;
-            BytesReadView.FileStream.Position = temp;
-            BytesReadView.Refresh();
+            }
+             
+            if (temp!=-1 && BytesReadView.FileStream != null && BytesReadView.FileStream.CanRead && temp < BytesReadView.FileStream.Length) {
+                BytesReadView.FileStream.Position = temp;
+                BytesReadView.Refresh();
+            }
+            
         }
 
         Stream GetStreamFromExClipboard() {
-            byte[] result= Convert.FromHexString(Clipboard.GetText());
-            return new MemoryStream(result);
+            try
+            {
+                byte[] result = Convert.FromHexString(Clipboard.GetText());
+                return new MemoryStream(result);
+            }
+            catch (Exception ex)
+            {
+                return null;
+
+
+            }
+            
+
         }
 
         private void OpenClipboardMenu_Click(object sender, RoutedEventArgs e)
         {
+            if (HexEdit.Stream != null) {
+                HexEdit.Stream.Close();
+                HexEdit.Stream.Dispose();
+                HexEdit.Stream = null;
+            }
             HexEdit.Stream = GetStreamFromExClipboard();
+            BytesReadView.FileStream = HexEdit.Stream;
         }
 
         private void HexEdit_Loaded(object sender, RoutedEventArgs e)

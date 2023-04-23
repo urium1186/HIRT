@@ -29,16 +29,20 @@
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="25"/>
             </Grid.RowDefinitions>
-
-            <Label x:Name="StatusLabel" 
-                   Grid.Row="2"
-                   Content="{Binding Status, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            <ScrollViewer Height="125"  Grid.Row="2">
+                <TextBlock x:Name="StatusLabel" 
+                  
+                   Text="{Binding Status, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                    FontWeight="Bold" 
                    FontSize="20" 
                    HorizontalAlignment="Center" 
-                   Padding="0" />
+                   Padding="0" 
+                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
+         ScrollViewer.VerticalScrollBarVisibility="Auto"
+         ScrollViewer.CanContentScroll="True"/>
+                </ScrollViewer>
 
-            <Label x:Name="SubStatusLabel" 
+                <Label x:Name="SubStatusLabel" 
                        Grid.Row="3"
                        Content="{Binding SubStatus, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" 
                        FontWeight="Light" 

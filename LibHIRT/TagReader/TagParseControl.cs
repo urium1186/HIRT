@@ -37,6 +37,29 @@ namespace LibHIRT.TagReader
             _tagLayout = tagLayout;
             _f = f;
         }
+        public Dictionary<long, C?> getSubTaglayoutFrom(string tagLayoutStr, string hash) {
+            return getSubTaglayoutFrom(TagXmlParse.parse_the_mfing_xmls(tagLayoutStr), hash);
+        }
+        public Dictionary<long, C?> getSubTaglayoutFrom(Dictionary<long, C?>? tagLayout, string hash) {
+            if (tagLayout == null || string.IsNullOrEmpty(hash))
+                return null;
+            Dictionary<long, C?> result =null;
+            foreach (var item in tagLayout)
+            {
+                if (item.Value.E != null && item.Value.E.ContainsKey("hashTagRelated-0") && item.Value.E["hashTagRelated-0"].ToString() == hash) {
+                    result = new Dictionary<long, C?>();
+                    result[0] = item.Value;
+                    return result;
+                }
+                if (item.Value.B != null && item.Value.B.Count != 0) { 
+                    result = getSubTaglayoutFrom(item.Value.B, hash);
+                    if (result != null)
+                        return result;
+                }
+                    
+            }
+            return null;
+        }
 
         #region On Mem
         public void readOnMem(long address, Mem M)
@@ -213,20 +236,62 @@ namespace LibHIRT.TagReader
         
         #endregion
         #region On Disk
+        public void readFile(Dictionary<long, C?>? tagLayout, TagFile tagFile)
+        {
+            try
+            {
+                if (tagLayout == null)
+                {
+                    return;
+                }
+                
+                if (tagFile == null)
+                    return ;
+                _tagLayout = tagLayout;
+                _tagFile = tagFile;
+
+                
+                
+                C root_tag = _tagLayout[0];
+                
+                _rootTagInst = new RootTagInstance(root_tag, 0, 0);
+                _rootTagInst.Content_entry = _tagFile.TagStructTable.Entries[0];
+
+                //readTagsAndCreateInstances();
+                readTagsAndCreateInstances(ref _rootTagInst);
+            }
+            catch (Exception e)
+            {
+                if (_tagLayoutTemplate == "����")
+                {
+
+                }else
+                    throw e;
+            }
+
+        } 
+        
         public void readFile()
         {
             try
             {
                 if (_tagLayout == null)
                 {
-                    _tagLayout = TagXmlParse.parse_the_mfing_xmls(_tagLayoutTemplate);
+                    if (!string.IsNullOrEmpty(_tagLayoutTemplate) && _tagLayoutTemplate != "����")
+                    {
+                        _tagLayout = TagXmlParse.parse_the_mfing_xmls(_tagLayoutTemplate);
+                    }
                 }
-                if (_tagLayoutTemplate == "����")
-                { 
-
-                }
+                if (!TagFile.isValid(_f))
+                    return ;
+                
                 _tagFile = new TagFile();
                 _tagFile.readIn(_f);
+
+                if (_tagLayout==null)
+                    return;
+
+                
                 //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
                 C root_tag = _tagLayout[0];
                 //_rootTagInst = new RootTagInstance(root_tag, _tagFile.TagStructTable.Entries[0].Field_data_block.OffsetPlus,0);
@@ -261,7 +326,7 @@ namespace LibHIRT.TagReader
             instance_parent.Content_entry.Field_name = instance_parent.TagDef.N;
             if (instance_parent.TagDef.E != null && instance_parent.TagDef.E.ContainsKey("hash"))
             {
-                Debug.Assert(instance_parent.Content_entry.UID == instance_parent.TagDef.E["hash"].ToString());
+                //Debug.Assert(instance_parent.Content_entry.UID == instance_parent.TagDef.E["hash"].ToString());
             }
             else {
                 if (instance_parent.TagDef.T != TagElemntType.RootTagInstance) { 

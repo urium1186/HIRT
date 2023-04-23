@@ -1,4 +1,5 @@
-﻿using LibHIRT.Common;
+﻿using Bond.IO.Unsafe;
+using LibHIRT.Common;
 using LibHIRT.TagReader.Headers;
 using LibHIRT.Utils;
 using Newtonsoft.Json;
@@ -374,7 +375,7 @@ namespace LibHIRT.TagReader
             global_handle = f.ReadInt64();
             //ref_id = f.read(4)
             ref_id_int = f.ReadInt32();
-            ref_id = VarNames.getMmr3HashFromInt(ref_id_int);
+            ref_id = Mmr3HashLTU.getMmr3HashFromInt(ref_id_int);
             //ref_id_sub = f.read(4)
             ref_id_sub_int = f.ReadInt32();
             //ref_id_sub = self.ref_id_sub.hex().upper()
@@ -433,6 +434,13 @@ namespace LibHIRT.TagReader
             base.ReadIn(f, header);
             //value = new string(f.ReadChars((int)TagDef.S));
             value = f.ReadStringNullTerminated((int)TagDef.S);
+            if (Mmr3HashLTU.ForceFillData) {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Mmr3HashLTU.AddUniqueStrValue(value);
+                }
+                
+            }
             ExeTagInstance();
         }
     }
@@ -448,6 +456,17 @@ namespace LibHIRT.TagReader
             base.ReadIn(f, header);
             value = new string(f.ReadChars(4));
             tag_string_rev = value.Reverse().ToString();
+            if (Mmr3HashLTU.ForceFillData)
+            {
+                if (!string.IsNullOrEmpty(value))
+                    Mmr3HashLTU.AddUniqueStrValue(value);
+                    
+                
+                if (!string.IsNullOrEmpty(tag_string_rev))
+                    Mmr3HashLTU.AddUniqueStrValue(tag_string_rev);
+
+
+            }
             ExeTagInstance();
         }
     }
@@ -592,7 +611,14 @@ namespace LibHIRT.TagReader
         {
             base.ReadIn(f, header);
             value = f.ReadInt32();
-            str_value = VarNames.getMmr3HashFromInt(value);
+            if (Mmr3HashLTU.ForceFillData)
+            {
+                Mmr3HashLTU.AddUniqueIntHash(value);
+            }
+            if (!Mmr3HashLTU.Mmr3lTU.TryGetValue(value, out str_value)) {
+                str_value = Mmr3HashLTU.getMmr3HashFromInt(value);
+            }
+            
             ExeTagInstance();
         }
     }
@@ -1423,6 +1449,37 @@ namespace LibHIRT.TagReader
         }
     }
 
+    public class ExternalFileDescriptor : ResourceHandle
+    {
+
+        private long newAddress;
+        private int int_value;
+        private string str_value;
+
+        public ExternalFileDescriptor(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+
+        public long NewAddress { get => newAddress; set => newAddress = value; }
+
+        public override void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
+        {
+            base.FillChilds(ref refItCount, header);
+        }
+
+        public override void ReadIn(BinaryReader f, TagHeader? header = null)
+        {
+            base.ReadIn(f, header);
+            f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
+            newAddress = f.ReadInt64();
+            int_value = f.ReadInt32();
+            str_value = Mmr3HashLTU.getMmr3HashFromInt(int_value);
+            childrenCount = f.ReadInt32();
+            ExeTagInstance();
+        }
+
+
+    }
     public class ResourceHandle : ListTagInstance
     {
 
@@ -1447,7 +1504,7 @@ namespace LibHIRT.TagReader
             f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
             newAddress = f.ReadInt64();
             int_value = f.ReadInt32();
-            str_value = VarNames.getMmr3HashFromInt(int_value);
+            str_value = Mmr3HashLTU.getMmr3HashFromInt(int_value);
             childrenCount = f.ReadInt32();
             ExeTagInstance();
         }

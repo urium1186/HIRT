@@ -30,6 +30,8 @@ namespace LibHIRT.TagReader.Headers
         {
             f.Position = 0;
             var tables = new List<HeaderTable<HeaderTableEntry>>();
+            
+            
             tagHeader.readStream(f, new PreLoadSections());
             tagDependencyTable.readTable(f, tagHeader);
             dataBlockTableField.readTable(f, tagHeader);
@@ -40,6 +42,16 @@ namespace LibHIRT.TagReader.Headers
             tagReferenceFixUpTable.DataReferenceTableField = dataReferenceTable;
             tagReferenceFixUpTable.TagDependencyTableField = tagDependencyTable;
             tagReferenceFixUpTable.readTable(f, tagHeader);
+        }
+
+        public static bool isValid(Stream f) {
+            f.Position = 0;
+
+            byte[] hash_magic = new byte[4];
+            f.Read(hash_magic, 0, 4);
+            //("ucsh");
+            f.Position = 0;
+            return BitConverter.ToInt32(hash_magic) == 1752392565;
         }
 
         public int tryReadGlobalId(Stream f)

@@ -108,7 +108,7 @@ namespace HaloInfiniteResearchTools.Models
             _context = serviceProvider.GetRequiredService<IHIFileContext>();
             _context.FileAdded += OnFileAdded;
             _context.FileRemoved += OnFileRemoved;
-
+            HiContext.InitDbHashTable();
             // Initialize the collection view source
             _collectionViewSource = InitializeCollectionView(_files);
             //_collectionDirsViewSource = InitializeCollectionView(_dirFiles);

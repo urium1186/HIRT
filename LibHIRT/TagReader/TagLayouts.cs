@@ -196,6 +196,7 @@ namespace LibHIRT.TagReader
 				var s_p = getPathOfElement(xn);
 				string s_p_n = getPathOfElementNamed(xn);
                 Dictionary<string, object> extra_afl = new Dictionary<string, object>();
+                FillGeneralExtraData(xn, extra_afl);
                 switch (xn.Name)
 				{
 					case "root":
@@ -204,10 +205,8 @@ namespace LibHIRT.TagReader
                         {
                             Dictionary<long, C> subthings = new Dictionary<long, C>();
                             XmlNodeList xnl2 = xn.ChildNodes;
-                            extra_afl.Clear();
 
-                            if (xn.Attributes.GetNamedItem("hash") != null)
-                                extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
+                            FillGeneralExtraData(xn, extra_afl);
 
                             long current_offset2 = 0;
                             foreach (XmlNode xntwo2 in xnl2)
@@ -483,14 +482,13 @@ namespace LibHIRT.TagReader
 					case "_38":
                         var temp_index = offset ; //+evalutated_index_PREVENT_DICTIONARYERROR
                         var p_P = new Dictionary<string, object>();
-                        extra_afl.Clear();
+                       
+                        FillGeneralExtraData(xn, extra_afl);
                         extra_afl["count"] = 0;
                         p_P["generateEntry"] = false;
                         if (xn.Attributes.GetNamedItem("g") != null)
                             p_P["generateEntry"] = xn.Attributes.GetNamedItem("g").InnerText == "true";
 
-                        if (xn.Attributes.GetNamedItem("hash") != null)
-                            extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
                         //evalutated_index_PREVENT_DICTIONARYERROR++;
                         long current_offset1 = 0;
                         XmlNodeList xnl1 = xn.ChildNodes;
@@ -565,12 +563,9 @@ namespace LibHIRT.TagReader
 						{
 							Dictionary<long, C> subthings = new Dictionary<long, C>();
 							XmlNodeList xnl2 = xn.ChildNodes;
-							extra_afl.Clear();
+                            FillGeneralExtraData(xn, extra_afl);
 
-                            if (xn.Attributes.GetNamedItem("hash") != null)
-								extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
-                             
-							long current_offset2 = 0;
+                            long current_offset2 = 0;
 							foreach (XmlNode xntwo2 in xnl2)
 							{
 								current_offset2 += the_switch_statement(xntwo2, current_offset2, ref subthings); // its gonna append that to the main, rather than our struct
@@ -600,10 +595,7 @@ namespace LibHIRT.TagReader
                             Dictionary<long, C> subthings = new Dictionary<long, C>();
                             XmlNodeList xnl2 = xn.ChildNodes;
                             long current_offset2 = 0;
-                            extra_afl.Clear();
-
-                            if (xn.Attributes.GetNamedItem("hash") != null)
-                                extra_afl["hash"] = xn.Attributes.GetNamedItem("hash").InnerText;
+                            FillGeneralExtraData(xn, extra_afl);
                             foreach (XmlNode xntwo2 in xnl2)
                             {
                                 current_offset2 += the_switch_statement(xntwo2, current_offset2, ref subthings); // its gonna append that to the main, rather than our struct
@@ -633,8 +625,24 @@ namespace LibHIRT.TagReader
 				return group_lengths_dict[xn.Name];
 			}
 
+            private static void FillGeneralExtraData(XmlNode xn, Dictionary<string, object> extra_afl)
+            {
+                extra_afl.Clear();
+                AddAtribute(xn, extra_afl, "hash");
+                AddAtribute(xn, extra_afl, "item_name_1");
+                AddAtribute(xn, extra_afl, "item_name_2");
+                AddAtribute(xn, extra_afl, "hashTagRelated-0");
+                AddAtribute(xn, extra_afl, "hashTagRelated-1");
 
-			public static Dictionary<string, long> group_lengths_dict = new()
+                static void AddAtribute(XmlNode xn, Dictionary<string, object> extra_afl, string name)
+                {
+                    if (xn.Attributes.GetNamedItem(name) != null)
+                        extra_afl[name] = xn.Attributes.GetNamedItem(name).InnerText;
+                }
+
+            }
+
+            public static Dictionary<string, long> group_lengths_dict = new()
 			{
 				{ "_0", 32 }, // _field_string
 				{ "_1", 256 }, // _field_long_string
