@@ -90,13 +90,13 @@
         <controls:ModelViewerControl x:Name="ModelViewer" 
                                      Grid.Row="1" 
                                      Grid.Column="0"
-                                     Camera="{Binding ElementName=_this, Path=Camera}"
-                                     EffectsManager="{Binding ElementName=_this, Path=EffectsManager}"
+                                     Camera="{Binding Camera}"
+                                     EffectsManager="{Binding EffectsManager}"
                                      Model="{Binding Model}"
-                                     MinMoveSpeed="{Binding ElementName=_this, Path=MinMoveSpeed}"
-                                     MoveSpeed="{Binding ElementName=_this, Path=MoveSpeed}"
-                                     MaxMoveSpeed="{Binding ElementName=_this, Path=MaxMoveSpeed}"
-                                     UseFlycam="{Binding ElementName=_this, Path=UseFlycam}" />
+                                     MinMoveSpeed="{Binding MinMoveSpeed}"
+                                     MoveSpeed="{Binding MoveSpeed}"
+                                     MaxMoveSpeed="{Binding MaxMoveSpeed}"
+                                     UseFlycam="{Binding UseFlycam}" />
 
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" />
 
@@ -115,7 +115,7 @@
                     HorizontalAlignment="Stretch">
                 <DockPanel HorizontalAlignment="Stretch">
 
-                    <Label Content="{Binding ElementName=_this, Path=StringName}"
+                    <Label Content=""
                            FontSize="14"
                            FontWeight="SemiBold"
                            Margin="0"

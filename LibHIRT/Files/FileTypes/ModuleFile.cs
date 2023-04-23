@@ -5,6 +5,7 @@ using LibHIRT.Common;
 using static LibHIRT.Assertions;
 using Oodle;
 using LibHIRT.TagReader;
+using LibHIRT.Serializers;
 
 namespace LibHIRT.Files.FileTypes
 {
@@ -169,9 +170,13 @@ namespace LibHIRT.Files.FileTypes
                     HiModuleBlockEntry block = readBlockEntryIn(i);
                     if (block.B_compressed)
                     {
+                        if (offset + block.Comp_offset >= handle.BaseStream.Length) {
+                            Debug.Assert(false);
+                        }
                         handle.BaseStream.Seek(offset + block.Comp_offset, SeekOrigin.Begin);
                         byte[] data = handle.ReadBytes(block.Comp_size);
-                        if (block.Comp_size != data.Length) { 
+                        if (block.Comp_size != data.Length) {
+                            Debug.Assert(false);
                         }
                         //byte[] DecompressedFile = OodleSharp.Oodle.Decompress(data, data.Length, block.Decomp_size);
                         byte[] decomp = OodleWrapper.Decompress(data, block.Comp_size, block.Decomp_size);
@@ -290,7 +295,9 @@ namespace LibHIRT.Files.FileTypes
                         {
                             var tempFD = ((SSpaceFile)tempP).FileMemDescriptor;
                             var i_n = tempFD.ResourceFiles.Count;
+                           
                             entry.Path_string = tempFD.Path_string + "[" + i_n.ToString() + "_resource_chunk_" + i_n.ToString() + "]";
+                            entry.ParentOffResourceRef = tempP;
                             ((SSpaceFile)tempP).FileMemDescriptor.ResourceFiles.Add(entry);
                         };
                     }
@@ -300,7 +307,7 @@ namespace LibHIRT.Files.FileTypes
                 }
                 else {
 
-                    entry.Path_string = entry.TagGroupRev + "\\" + VarNames.getMmr3HashFromInt(entry.GlobalTagId1) +"_"+entry.GlobalTagId1 + "." + entry.TagGroupRev;
+                    entry.Path_string = entry.TagGroupRev + "\\" + Mmr3HashLTU.getMmr3HashFromInt(entry.GlobalTagId1) +"_"+entry.GlobalTagId1 + "." + entry.TagGroupRev;
                 }
                 
             }
@@ -375,6 +382,19 @@ namespace LibHIRT.Files.FileTypes
                             if (!_filesGlobalIdLookup.ContainsKey(entry.GlobalTagId1))
                             {
                                 _filesGlobalIdLookup[entry.GlobalTagId1] = childFile;
+                                if (Mmr3HashLTU.ForceFillData && (childFile.TagGroup != "����" || (childFile as SSpaceFile).FileMemDescriptor.GlobalTagId1 != -1)) {
+                                    try
+                                    {
+                                        var _deserialized = GenericSerializer.Deserialize(childFile.GetStream(), childFile);
+                                        _deserialized = null;
+                                    }
+                                    catch (Exception exp1)
+                                    {
+
+                                        
+                                    }
+                                    
+                                }
                             }
                             else
                             {

@@ -1,13 +1,6 @@
 ﻿using LibHIRT.Domain;
-using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Serializers
 {
@@ -29,7 +22,7 @@ namespace LibHIRT.Serializers
             {
                 return;
             }
-            tagParse = new TagParseControl("", _file.TagGroup, null, reader.BaseStream);
+            tagParse = new TagParseControl(_file.Name, _file.TagGroup, null, reader.BaseStream);
             tagParse.readFile();
             obj.Root = tagParse.RootTagInst;
         }

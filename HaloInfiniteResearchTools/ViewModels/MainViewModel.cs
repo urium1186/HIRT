@@ -90,6 +90,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             //FileContext.SearchTermChangedCommand.Execute("ocgd");
             /*var see = LibHIRT.Utils.UIDebug.debugValues;
             var intese =LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["3"].Intersect(LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["2"]);*/
+            
+            //FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
             FileContext.SearchTermChangedCommand.Execute("");
         }
 

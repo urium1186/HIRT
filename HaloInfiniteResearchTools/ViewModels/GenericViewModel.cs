@@ -1,15 +1,22 @@
 ﻿using HaloInfiniteResearchTools.Common;
+using HaloInfiniteResearchTools.ControlModel;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
+using HaloInfiniteResearchTools.Processes.Utils;
 using HaloInfiniteResearchTools.Services;
+using HaloInfiniteResearchTools.Services.Abstract;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
+using LibHIRT.Domain;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
+using LibHIRT.Processes;
+using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
 using LibHIRT.TagReader.Headers;
 using Microsoft.Extensions.DependencyInjection;
+using OpenSpartan.Grunt.Models.HaloInfinite;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,6 +29,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using WSF.IDs;
 using static LibHIRT.TagReader.TagLayouts;
+using static System.Windows.Forms.Design.AxImporter;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -37,6 +45,9 @@ namespace HaloInfiniteResearchTools.ViewModels
         private TagParseControl tagParse;
         private readonly IHIFileContext _fileContext;
         private readonly ITabService _tabService;
+        private readonly IMeshIdentifierService _meshIdentifierService;
+
+        private readonly Model3DViewerControlModel _dViewerControlModel;
 
         public int SelectedTabIndex { get; set; }
         public int RenderGeomViewerEnable { get; set; }
@@ -51,6 +62,8 @@ namespace HaloInfiniteResearchTools.ViewModels
         public string JsonFile { get;  set ; }
         public Stream FileStream { get;  set ; }
         public string XmlPath { get;  set ; }
+
+        public ModelViewerOptionsModel Options { get; set; }
 
         public string CustoJsonFilemerName
         {
@@ -72,8 +85,13 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ObservableCollection<TagInstance> TagRoot { get => _tagRoot; set => _tagRoot = value; }
         public List<TagFile> TagFile { get => _tagFile; set => _tagFile = value; }
 
+        public IMeshIdentifierService MeshIdentifierService => _meshIdentifierService;
+
+        public Model3DViewerControlModel DViewerControlModel => _dViewerControlModel;
+
         public GenericViewModel(IServiceProvider serviceProvider, SSpaceFile file) : base(serviceProvider)
         {
+            _dViewerControlModel = new Model3DViewerControlModel(serviceProvider, file);
             _file = file;
             RenderGeomViewerEnable = -1;
             _fileMem = null;
@@ -86,14 +104,21 @@ namespace HaloInfiniteResearchTools.ViewModels
             RenderGeomGenOpenCommand = new AsyncCommand<RenderGeometryTag>(RenderGeomGenOpen);
             _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
             _tabService = serviceProvider.GetService<ITabService>();
+            _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
+            
         }
 
         private async Task RenderGeomGenOpen(RenderGeometryTag arg)
         {
             if (arg == null)
                 return;
+            _dViewerControlModel.RenderGeometryTag = arg;   
+            await _dViewerControlModel.Initialize();
+            
             RenderGeomViewerEnable = 1; 
             SelectedTabIndex = 4;
+
+            
         }
 
         private  async Task TagGoToBin(TagInstance arg)
@@ -122,7 +147,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             if (string.IsNullOrEmpty(GetPreferences().DefaultExportPath))
                 return;
             string file_path = GetPreferences().DefaultExportPath+ "\\"+ file_name;
-            File.WriteAllText(file_path, result);   
+            System.IO.File.WriteAllText(file_path, result);   
         }
 
         public GenericViewModel(IServiceProvider serviceProvider, TagStructMem fileMem) : base(serviceProvider)
@@ -143,7 +168,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 var process = new ReadTagInstanceProcess(_file);
 
-                //process.Completed += OpenFilesProcess_Completed;
+                process.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
                 //await RunProcess(process);
 
                 var modal = ServiceProvider.GetService<ProgressModal>();
@@ -169,15 +194,37 @@ namespace HaloInfiniteResearchTools.ViewModels
 
 
                 tagParse = process.TagParse;
-                _tagRoot.Add(tagParse.RootTagInst);
+                
                 if (tagParse.TagFile != null) { 
                     _tagFile.Add(tagParse.TagFile); 
-                } 
-                if (tagParse.RootTagInst!=null)
+                }
+                if (tagParse.RootTagInst != null)
+                {
+                    _tagRoot.Add(tagParse.RootTagInst);
                     _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
+                }
+                
+                    
                 FileStream = _file.GetStream();
                 if (_file.TagGroup != "����")
                     XmlPath = _file.GetTagXmlTempaltePath();
+                else
+                {
+                    if (tagParse.TagFile != null)
+                    {
+                        string hash = BitConverter.ToString(BitConverter.GetBytes(tagParse.TagFile.TagHeader.TagFileHeaderInst.TypeHash)).Replace("-", "");
+                        var tempTaglay = tagParse.getSubTaglayoutFrom(_file.FileMemDescriptor.ParentOffResourceRef?.TagGroup, hash);
+                        if (tempTaglay != null)
+                        {
+                            tagParse.readFile(tempTaglay, tagParse.TagFile);
+                            if (tagParse.RootTagInst != null)
+                            {
+                                _tagRoot.Add(tagParse.RootTagInst);
+                                _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
+                            }
+                        }
+                    }
+                }
             }
             else if (_fileMem != null){
                 if (HIFileContext.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
@@ -347,6 +394,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private void TagParse_OnInstanceLoadEvent(object? sender, ITagInstance e)
         {
+            
             if (e != null) {
                 switch (((TagInstance)e).TagDef.G)
                 {
@@ -355,6 +403,41 @@ namespace HaloInfiniteResearchTools.ViewModels
                     default:
                         break;
                 }
+                string classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
+                switch (classHash)
+                {
+                    case "B02683786045FFD03AE948A2C2F397C4":
+                        decompileShader((TagInstance)e);
+                        break;
+                    default:
+                        break;
+                }   
+            }
+        }
+
+
+        void decompileShader(TagInstance ti) {
+            try
+            {
+                var temp = ti["shaderBytecodeData"] as FUNCTION;
+
+                MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
+                SharpDX.D3DCompiler.ShaderBytecode sb = SharpDX.D3DCompiler.ShaderBytecode.FromStream(stream);
+
+                string code = sb.Disassemble(
+                    /* SharpDX.D3DCompiler.DisassemblyFlags.EnableColorCode */
+                    SharpDX.D3DCompiler.DisassemblyFlags.EnableDefaultValuePrints
+                    /*| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionCycle // this will cause an error, lol */
+                    //| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionNumbering
+                    );
+
+                
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.ToString());
+
+                
             }
         }
     }

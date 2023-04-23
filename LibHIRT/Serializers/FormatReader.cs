@@ -3,11 +3,65 @@ using SharpDX.Mathematics;
 using SharpDX.Animation;
 using System.Collections;
 using System.Numerics;
+using LibHIRT.Domain;
 
 namespace LibHIRT.Serializers
 {
     public static class FormatReader
     {
+
+        public static object Read(PcVertexBuffersFormat format, byte[]? in_byte) {
+            switch (format)
+            {
+                case PcVertexBuffersFormat.real:
+                    return ReadReal(in_byte);
+                case PcVertexBuffersFormat.realVector2D:
+                    break;
+                case PcVertexBuffersFormat.realVector3D:
+                    break;
+                case PcVertexBuffersFormat.realVector4D:
+                    break;
+                case PcVertexBuffersFormat.byteVector4D:
+                    return ReadByteVector4D(in_byte);
+                case PcVertexBuffersFormat.byteARGBColor:
+                    return ReadByteARGBColor(in_byte);
+                case PcVertexBuffersFormat.shortVector2D:
+                    break;
+                case PcVertexBuffersFormat.shortVector2DNormalized:
+                    break;
+                case PcVertexBuffersFormat.shortVector4DNormalized:
+                    break;
+                case PcVertexBuffersFormat.wordVector2DNormalized:
+                    return ReadWordVector2DNormalized(in_byte);
+                case PcVertexBuffersFormat.wordVector4DNormalized:
+                    return ReadWordVector4DNormalized(in_byte);
+                case PcVertexBuffersFormat.real16Vector2D:
+                    break;
+                case PcVertexBuffersFormat.real16Vector4D:
+                    break;
+                case PcVertexBuffersFormat.f_10_10_10_normalized:
+                    return ReadF_10_10_10_normalized(in_byte);
+                case PcVertexBuffersFormat.f_10_10_10_2:
+                    break;
+                case PcVertexBuffersFormat.f_10_10_10_2_signedNormalizedPackedAsUnorm:
+                    return ReadF_10_10_10_2_signedNormalizedPackedAsUnorm(in_byte);
+                case PcVertexBuffersFormat.dword:
+                    break;
+                case PcVertexBuffersFormat.dwordVector2D:
+                    break;
+                case PcVertexBuffersFormat.f_11_11_10_float:
+                    break;
+                case PcVertexBuffersFormat.byteUnitVector3D:
+                    return ReadByteUnitVector3D(in_byte);
+                case PcVertexBuffersFormat.wordVector3DNormalizedWith4Word:
+
+                    break;
+                default:
+                    break;
+            }
+            throw new NotImplementedException();
+            return null;
+        }
         public static (byte, byte, byte, byte) ReadByteARGBColor(byte[]? in_byte) {
             Debug.Assert(in_byte != null && in_byte.Length == 4);
             return (in_byte[0], in_byte[1], in_byte[2], in_byte[3]);
@@ -34,7 +88,7 @@ namespace LibHIRT.Serializers
             return (in_byte[0], in_byte[1], in_byte[2]);
         }
         
-        public static (byte, byte, byte, byte) readByteVector4D(byte[]? in_byte)
+        public static (byte, byte, byte, byte) ReadByteVector4D(byte[]? in_byte)
         {
             Debug.Assert(in_byte != null && in_byte.Length == 4);
             return (in_byte[0], in_byte[1], in_byte[2], in_byte[3]);

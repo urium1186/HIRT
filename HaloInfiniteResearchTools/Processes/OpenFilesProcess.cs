@@ -63,11 +63,20 @@ namespace HaloInfiniteResearchTools.Processes
             Parallel.ForEach(_filePaths, filePath =>
             {
                 var fileName = Path.GetFileName(filePath);
+                var fi = new FileInfo(filePath);
+
+                string temp = filePath.Replace(@"C:\Program Files (x86)\Steam\steamapps\common\Halo Infinite\deploy\", "") + " " + fi.Length.ToString();
+                Status = Status + "\n" + temp;
                 try
                 {
-                    if (!_fileContext.OpenFile(filePath))
+                   
+                   
+                    if (!_fileContext.OpenFile(filePath)) {
+                        
                         StatusList.AddWarning(fileName, "Failed to open file.");
+                    }   
                     else {
+                        Status = Status.Replace("\n" + temp, "");
                         _filesLoaded.Add(fileName);
                         StatusList.AddMessage(fileName, "Open file.");
                     }
@@ -79,8 +88,11 @@ namespace HaloInfiniteResearchTools.Processes
                 }
                 finally
                 {
-                    lock (objLock)
+                    lock (objLock) {
+                        Status = Status.Replace("\n" + temp, "");
                         CompletedUnits++;
+                    }
+                        
                 }
             });
         }

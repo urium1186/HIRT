@@ -153,7 +153,7 @@ namespace HaloInfiniteResearchTools.Processes
         {
             try
             {
-                var process = new ConvertModelToAssimpSceneProcess(_file);
+                var process = new ConvertRenderModelToAssimpSceneProcess(_file);
                 BindStatusToSubProcess(process);
 
                 await process.Execute();

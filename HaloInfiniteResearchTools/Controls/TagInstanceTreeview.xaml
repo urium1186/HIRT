@@ -68,7 +68,7 @@
                         <Label Content=": " Grid.Column="1" ></Label>
                         <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
                         <Label Content=" childs"  Grid.Column="3"></Label>
-                        <Button Content="View Geometry" DataContext="{Binding Self}" Width="100" Height="18" Grid.Column="4" Click="RenderGeometryTag_Click"
+                        <Button Content="View Geometry" DataContext="{Binding Self}" Width="100" Height="25" Grid.Column="4" Click="RenderGeometryTag_Click"
                                      Margin="10,0,0,0"
                                     >
                             
@@ -105,8 +105,8 @@
                             <TreeViewItem >
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Ref_id}"></TextBlock>
-                                        <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="18" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click"
+                                        <TextBlock Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                                        <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click"
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
                                                    ConverterParameter ={StaticResource IntOneMinus}}" Margin="10,0,0,0"
@@ -148,8 +148,8 @@
                                     </Grid.RowDefinitions>
                                     <Label Content="{Binding TagGroupRev , Mode=OneWay}"  Grid.Column="0" Grid.Row="0"></Label>
                                     <Label Content="{Binding Path , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
-                                    <Label Content="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1"></Label>
-                                    <Button Content="Open Gen" DataContext="{Binding Self}" Width="65" Height="18" Grid.Column="1" Grid.Row="1" Click="TagRefGenButton_Click"
+                                    <Label Content="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
+                                    <Button Content="Open Gen" DataContext="{Binding Self}" Width="65" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefGenButton_Click"
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
                                                    ConverterParameter ={StaticResource IntOneMinus}}" Margin="10,0,0,0"
@@ -162,6 +162,7 @@
                     </Grid>
 
                 </DataTemplate>
+                
                 <DataTemplate DataType="{x:Type tags:TagInstance}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -172,6 +173,19 @@
                         <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <Label Content="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2"></Label>
+                    </Grid>
+
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:Mmr3Hash}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding Str_value , Mode=OneWay}"  Grid.Column="2"></Label>
                     </Grid>
                     
                 </DataTemplate>

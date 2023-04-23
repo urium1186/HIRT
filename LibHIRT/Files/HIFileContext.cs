@@ -1,4 +1,5 @@
-﻿using LibHIRT.Files.Base;
+﻿using LibHIRT.DAO;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.ModuleUnpacker;
 using LibHIRT.TagReader;
@@ -6,9 +7,12 @@ using LibHIRT.TagReader.Common;
 using LibHIRT.TagReader.Headers;
 using LibHIRT.TagReader.RuntimeViewer;
 using LibHIRT.Utils;
+using Microsoft.Data.Sqlite;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -88,6 +92,8 @@ namespace LibHIRT.Files
         private static DirModel _rootDir = new DirModel("Root");
         private string _selectedJsonstring;
         static RuntimeTagLoader _runtimeTagLoader = new RuntimeTagLoader();
+        private SQLiteConnection connectionDb;
+
         public string SelectedJsonstring { get => _selectedJsonstring; set => _selectedJsonstring = value; }
         #endregion
 
@@ -129,6 +135,10 @@ namespace LibHIRT.Files
             _filesModuleGlobalIdLockUp = new ConcurrentDictionary<string, ModuleFile>();
             _filesGlobalIdLockUp = new ConcurrentDictionary<int, ISSpaceFile>();
             _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
+            
+            //SQLiteDriver.CreateTable(connectionDb);
+            //SQLiteDriver.InsertMmh3LTU(connectionDb);
+            //SQLiteDriver.ReadData(connectionDb);
         }
 
         private void _runtimeTagLoader_Completed(object? sender, EventArgs e)
@@ -139,6 +149,48 @@ namespace LibHIRT.Files
         #endregion
 
         #region Public Methods
+
+        public void InitDbHashTable() {
+            Mmr3HashLTU.loadFromDbLtu();
+            /*
+            if (connectionDb == null)
+                connectionDb = SQLiteDriver.CreateConnection();
+            foreach (var item in Mmr3HashLTU.Mmr3lTU)
+            {
+                try
+                {
+                    SQLiteDriver.InsertMmh3LTU(connectionDb, item.Key, item.Value);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return; 
+            using (StreamReader r = new StreamReader("in_use.json"))
+            {
+                string json = r.ReadToEnd();
+                dynamic array = JsonConvert.DeserializeObject(json);
+                
+                foreach (var item in array)
+                {
+                    try
+                    {
+                        Mmr3HashLTU.AddUniqueStrValue(item.Value.Value);
+                        //SQLiteDriver.InsertMmh3LTU(connectionDb, Mmr3HashLTU.fromStrHash(item.Name), item.Value.Value, true, true);
+                    }
+                    catch (Exception ex)
+                    {
+                
+                    }
+
+                    Console.WriteLine("{0} {1}", item.Name, item.Value.Value);
+                }
+            }
+           
+            */
+           
+        }
 
         public bool AddFile(ISSpaceFile file)
         {
@@ -161,7 +213,7 @@ namespace LibHIRT.Files
             }
             else {
                 int global_id = file.TryGetGlobalId();
-                var temp_s = VarNames.getMmr3HashFromInt(global_id);
+                var temp_s = Mmr3HashLTU.getMmr3HashFromInt(global_id);
                 if (global_id != -1)
                     _filesGlobalIdLockUp.TryAdd(global_id, file);
                 else { 
@@ -181,7 +233,6 @@ namespace LibHIRT.Files
                     throw e;
                 }
             }
-                
 
             return filesAdded;
         }

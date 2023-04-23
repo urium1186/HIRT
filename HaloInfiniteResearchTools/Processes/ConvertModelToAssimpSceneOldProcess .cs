@@ -29,7 +29,7 @@ namespace LibHIRT.Processes
 
     private readonly ISSpaceFile _file;
 
-    private SceneContext _context;
+    private SceneContextOld _context;
     private readonly object _statusLock;
 
     #endregion
@@ -68,7 +68,7 @@ namespace LibHIRT.Processes
 
     #region Private Methods
 
-    private async Task<SceneContext> DeserializeFile()
+    private async Task<SceneContextOld> DeserializeFile()
     {
         Status = "Deserializing File";
         IsIndeterminate = true;
@@ -82,7 +82,7 @@ namespace LibHIRT.Processes
             if (_file is RenderModelFile)
             {
                 var tpl = S3DTemplateSerializer.Deserialize(stream);
-                var context = new SceneContext(tpl.GeometryGraph, stream, StatusList);
+                var context = new SceneContextOld(tpl.GeometryGraph, stream, StatusList);
                 context.AddLodDefinitions(tpl.LodDefinitions);
 
                 return context;
@@ -130,7 +130,7 @@ namespace LibHIRT.Processes
         if ( !skinCompoundObject.SubMeshes.Any() )
           continue;
 
-        var builder = new MeshBuilder( _context, skinCompoundObject, skinCompoundObject.SubMeshes.First() );
+        var builder = new MeshBuilderOld( _context, skinCompoundObject, skinCompoundObject.SubMeshes.First() );
         builder.Build();
 
         _context.SkinCompounds[ skinCompoundId ] = builder;
@@ -208,7 +208,7 @@ namespace LibHIRT.Processes
 
       foreach ( var submesh in obj.SubMeshes )
       {
-        var builder = new MeshBuilder( _context, obj, submesh );
+        var builder = new MeshBuilderOld( _context, obj, submesh );
         var mesh = builder.Build();
 
         lock ( _context )
@@ -283,7 +283,7 @@ namespace LibHIRT.Processes
     public Dictionary<short, Node> Nodes { get; }
     public Dictionary<string, Node> NodeNames { get; }
     public Dictionary<string, int> MaterialIndices { get; }
-    public Dictionary<short, MeshBuilder> SkinCompounds { get; }
+    public Dictionary<short, MeshBuilderOld> SkinCompounds { get; }
     public Dictionary<short, short> LodIndices { get; }
 
     public SceneContextOld( S3DGeometryGraph graph, HIRTStream stream, StatusList statusList )
@@ -301,7 +301,7 @@ namespace LibHIRT.Processes
       Nodes = new Dictionary<short, Node>();
       NodeNames = new Dictionary<string, Node>();
       MaterialIndices = new Dictionary<string, int>();
-      SkinCompounds = new Dictionary<short, MeshBuilder>();
+      SkinCompounds = new Dictionary<short, MeshBuilderOld>();
       LodIndices = new Dictionary<short, short>();
 
       Scene.Materials.Add( new Material() { Name = "DefaultMaterial" } );
@@ -323,7 +323,7 @@ namespace LibHIRT.Processes
 
     #region Data Members
 
-    private readonly SceneContext _context;
+    private readonly SceneContextOld _context;
     private readonly S3DObject _object;
     private readonly S3DGeometrySubMesh _submesh;
 
@@ -345,7 +345,7 @@ namespace LibHIRT.Processes
 
     #region Constructor
 
-    public MeshBuilderOld( SceneContext context, S3DObject obj, S3DGeometrySubMesh submesh )
+    public MeshBuilderOld( SceneContextOld context, S3DObject obj, S3DGeometrySubMesh submesh )
     {
       _context = context;
       _object = obj;

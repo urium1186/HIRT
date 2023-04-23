@@ -175,7 +175,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             Options = GetPreferences().ModelViewerOptions;
             UseFlycam = Options.DefaultToFlycam;
 
-            var convertProcess = new ConvertModelToAssimpSceneProcess(_file);
+            var convertProcess = new ConvertRenderModelToAssimpSceneProcess(_file);
             await RunProcess(convertProcess);
 
             _assimpScene = convertProcess.Result;
@@ -604,7 +604,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                                 continue;
                            // Assimp.Matrix4x4 initialTransform = GetTransformationMatrixFrom((ListTagInstance)(modelAttachment["Markers"] ),0,0);
 
-                            var convertProcess = new ConvertModelToAssimpSceneProcess(rmf);
+                            var convertProcess = new ConvertRenderModelToAssimpSceneProcess(rmf);
 
                             RenderModelDefinition temp_renderModelDef = null;
                             try
@@ -905,7 +905,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     var rmf = modelFile.GetRenderModel();
                     if (rmf == null)
                         continue;
-                    var convertProcess = new ConvertModelToAssimpSceneProcess(rmf);
+                    var convertProcess = new ConvertRenderModelToAssimpSceneProcess(rmf);
 
                     RenderModelDefinition temp_renderModelDef = null;
                     try

@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using HaloInfiniteResearchTools.Common;
+using HaloInfiniteResearchTools.ControlModel;
 using HaloInfiniteResearchTools.ViewModels;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
@@ -373,9 +374,15 @@ namespace HaloInfiniteResearchTools.Controls
         {
             var viewModel = DataContext as RenderModelViewModel;
             if (viewModel is null)
-                return;
-
-            viewModel.Viewport = ViewportControl;
+            {
+                var viewModel1 = DataContext as Model3DViewerControlModel;
+                if (viewModel1 is null)
+                    return;
+                viewModel1.Viewport = ViewportControl;
+            }
+            else {
+                viewModel.Viewport = ViewportControl;
+            }
         }
 
         private void OnViewportPreviewKeyDown(object sender, KeyEventArgs e)
