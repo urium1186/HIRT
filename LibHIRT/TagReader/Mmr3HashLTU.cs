@@ -1,6 +1,8 @@
 ﻿using LibHIRT.DAO;
 using LibHIRT.Utils;
+using SharpDX.Direct3D9;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text;
 
 namespace LibHIRT.TagReader
@@ -15,6 +17,8 @@ namespace LibHIRT.TagReader
         static private ConcurrentDictionary<int, string> _Mmr3Collaide4 = new ConcurrentDictionary<int, string>();
 
         public static readonly bool ForceFillData = false;
+        public static bool ForceLower = true;
+        public static bool UpdateOnlyInUse = false;
 
         public static ConcurrentDictionary<int, string> Mmr3lTU { get {
                 if (_Mmr3lTU == null)
@@ -50,72 +54,79 @@ namespace LibHIRT.TagReader
             */
         }
 
-        static public void saveToDbLtu(int hash, string str_value, bool in_use, bool generate)
+        static public bool saveToDbLtu(int hash, string str_value, bool in_use, bool generate)
         {
             var connectionDb = SQLiteDriver.CreateConnection();
-            
+            var result = true;
             try
             {
                 SQLiteDriver.InsertMmh3LTU(connectionDb, hash, str_value, in_use, generate);
             }
             catch (Exception ex)
             {
-
+                result = false;
             }
             
             connectionDb.Close();
+            return result;
         } 
         
-        static public void loadFromDbLtu()
+        static public bool loadFromDbLtu()
         {
             var connectionDb = SQLiteDriver.CreateConnection();
-            
+            var result = true;
             try
             {
                 SQLiteDriver.ReadData(connectionDb, Mmr3HashLTU.Mmr3lTU);
             }
             catch (Exception ex)
             {
-
+                result = false;
             }
             
             connectionDb.Close();
+            return result;
         }
-        static public void insertToDbLtuCollaide(int hash, string str_value)
+        static public bool insertToDbLtuCollaide(int hash, string str_value)
         {
             var connectionDb = SQLiteDriver.CreateConnection();
-            
+            var result = true;
             try
             {
                 SQLiteDriver.InsertDataCollaide(connectionDb, hash, str_value);
             }
             catch (Exception ex)
             {
-
+                result = false;
             }
             
             connectionDb.Close();
+            return result;
         }
-         static public void updateToDbLtu(int hash, string str_value, bool in_use, bool generate)
+         static public bool updateToDbLtu(int hash, string str_value, bool in_use, bool generate)
         {
             var connectionDb = SQLiteDriver.CreateConnection();
-            
+            var result = true;
             try
             {
                 SQLiteDriver.UpdateMmh3LTU(connectionDb, hash, str_value, in_use, generate);
             }
             catch (Exception ex)
             {
-
+                result = false;
             }
             
             connectionDb.Close();
+            return result;
         }
 
 
-        public static void AddUniqueStrValue(string value) {
+        public static bool AddUniqueStrValue(string value) {
             if (!string.IsNullOrEmpty(value))
             {
+                if (ForceLower)
+                    value = CleanString(value);
+
                 int key = Mmr3HashLTU.getMmr3HashIntFrom(value);
                 if (!Mmr3HashLTU.Mmr3lTU.TryAdd(key, value))
                 {
@@ -124,7 +135,7 @@ namespace LibHIRT.TagReader
                         if (Mmr3HashLTU.Mmr3lTU[key] == Mmr3HashLTU.getMmr3HashFromInt(key))
                         {
                             Mmr3HashLTU.Mmr3lTU[key] = value;
-                            updateToDbLtu(key, value, true, true);
+                            return updateToDbLtu(key, value, true, true);
                         }
                         else
                         {
@@ -134,17 +145,32 @@ namespace LibHIRT.TagReader
                                         if (!_Mmr3Collaide4.TryAdd(key, value))
                                         {
                                         }
-                            insertToDbLtuCollaide(key, value);
+                            return insertToDbLtuCollaide(key, value);
+                            
                         }
 
                     }
                 }
                 else {
-                    saveToDbLtu(key, value, false, true);
+                    if (!Mmr3HashLTU.UpdateOnlyInUse) {
+                        return saveToDbLtu(key, value, false, true);
+                    }
+                    
                 }
             }
+            return false;
         }
+        public static string CleanString(string value) {
+            value=value.ToLower();
+            value = value.Replace(";","");
+            value = value.Replace(",","");
+            value = value.Replace("\"","");
+            value = value.Trim();
+            value = value.Split("[")[0];
+            value = value.Replace(" ","_");
 
+            return value;
+        }
         public static void AddUniqueIntHash(int key)
         {
             if (Mmr3HashLTU.Mmr3lTU.TryAdd(key, Mmr3HashLTU.getMmr3HashFromInt(key)))

@@ -417,7 +417,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     // = String.Concat(bytes.Where(c => !Char.IsWhiteSpace(c)));
                     
                     currentTag.ObjectId = BitConverter.ToString(test).Replace("-", string.Empty);
-                    currentTag.TagGroup = read_tag_group(M.ReadLong((tagAddress + 0x8).ToString("X")));
+                    currentTag.TagGroupMem = read_tag_group(M.ReadLong((tagAddress + 0x8).ToString("X")));
                     currentTag.TagData = M.ReadLong((tagAddress + 0x10).ToString("X"));
                     currentTag.TagFullName = convert_ID_to_tag_name(currentTag.ObjectId).Trim();
                     currentTag.TagFile = currentTag.TagFullName.Split('\\').Last().Trim();
@@ -508,9 +508,9 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     return false; 
                 }
 
-                //if (TagLayouts.Tags.ContainsKey(loadingTag.TagGroup))
+                //if (TagLayouts.Tags.ContainsKey(loadingTag.TagGroupMem))
                 //{
-                //Dictionary<long, TagLayouts.C> tags = TagLayouts.Tags(loadingTag.TagGroup);
+                //Dictionary<long, TagLayouts.C> tags = TagLayouts.Tags(loadingTag.TagGroupMem);
                 //readTagsAndCreateControls(loadingTag, 0, tags, loadingTag.TagData, tagview_panels, tagID + ":");
                 
                 //}
@@ -626,7 +626,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                             {
                                 TreeViewItem t = new();
                                 TagStruct tag = curr_tag.Value;
-                                TagGroups.TryGetValue(tag.TagGroup, out GroupTagStruct? dictTagGroup);
+                                TagGroups.TryGetValue(tag.TagGroupMem, out GroupTagStruct? dictTagGroup);
 
                                 t.Header = "(" + tag.Datnum + ") " + convert_ID_to_tag_name(tag.ObjectId);
 

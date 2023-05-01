@@ -105,7 +105,7 @@
                             <TreeViewItem >
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBox Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="True"></TextBox>
                                         <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click"
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
@@ -148,7 +148,7 @@
                                     </Grid.RowDefinitions>
                                     <Label Content="{Binding TagGroupRev , Mode=OneWay}"  Grid.Column="0" Grid.Row="0"></Label>
                                     <Label Content="{Binding Path , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
-                                    <Label Content="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
+                                    <TextBox Text="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="True"></TextBox>
                                     <Button Content="Open Gen" DataContext="{Binding Self}" Width="65" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefGenButton_Click"
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
@@ -172,7 +172,7 @@
                         </Grid.ColumnDefinitions>
                         <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
-                        <Label Content="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2"></Label>
+                        <TextBox Text="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2" IsReadOnly="True" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBox>
                     </Grid>
 
                 </DataTemplate>
@@ -185,7 +185,7 @@
                         </Grid.ColumnDefinitions>
                         <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
-                        <Label Content="{Binding Str_value , Mode=OneWay}"  Grid.Column="2"></Label>
+                        <TextBox Text="{Binding Str_value , Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="True"></TextBox>
                     </Grid>
                     
                 </DataTemplate>

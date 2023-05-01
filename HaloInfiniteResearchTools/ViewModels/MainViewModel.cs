@@ -34,6 +34,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand EditPreferencesCommand { get; }
         public ICommand TagStructsDumperCommand { get; }
         public ICommand BinaryExplorerCommand { get; }
+        public ICommand ToolsCommand { get; }
 
         public ICommand BulkExportModelsCommand { get; }
         public ICommand BulkExportTexturesCommand { get; }
@@ -54,6 +55,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             TagStructsDumperCommand = new AsyncCommand(TagStructsDumper);
             BinaryExplorerCommand = new AsyncCommand(BinaryExplorer);
+            ToolsCommand = new AsyncCommand(Tools);
 
             BulkExportModelsCommand = new AsyncCommand(BulkExportModels);
             BulkExportTexturesCommand = new AsyncCommand(BulkExportTextures);
@@ -91,8 +93,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             /*var see = LibHIRT.Utils.UIDebug.debugValues;
             var intese =LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["3"].Intersect(LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["2"]);*/
             
-            //FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
-            FileContext.SearchTermChangedCommand.Execute("");
+            FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
+            //FileContext.SearchTermChangedCommand.Execute("");
         }
 
         #endregion
@@ -192,7 +194,16 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 var viewModel = vm as ToolBinaryExplorerViewModel;
             });
+        } 
+        
+        private async Task Tools()
+        {
+            var result = await ShowViewModal<ToolsView>(vm =>
+            {
+                var viewModel = vm as ToolsViewModel;
+            });
         }
+
          private async Task TagStructsDumper()
         {
             var result = await ShowViewModal<TagStructsDumperView>(vm =>

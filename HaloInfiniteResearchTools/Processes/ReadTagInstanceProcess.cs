@@ -60,7 +60,7 @@ namespace HaloInfiniteResearchTools.Processes
                     /*_tagRoot.Add(tagParse.RootTagInst);
                     _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
                     JsonFile = tagParse.RootTagInst.ToJson();
-                    string temp = _fileMem.TagGroup;
+                    string temp = _fileMem._tagGroup;
                     XmlPath = TagXmlParse.GetXmlPath(ref temp);*/
                 }
 

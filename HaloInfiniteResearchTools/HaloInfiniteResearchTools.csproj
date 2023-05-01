@@ -59,6 +59,15 @@
     <None Update="Resources\db\database.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\dxc\dxc.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\dxc\dxcompiler.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\dxc\dxil.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Icon\0x-Icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -78,6 +87,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibHIRT\LibHIRT.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\dxc\" />
   </ItemGroup>
 
 </Project>

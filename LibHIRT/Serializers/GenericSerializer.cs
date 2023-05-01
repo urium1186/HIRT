@@ -1,16 +1,17 @@
 ﻿using LibHIRT.Domain;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
 
 namespace LibHIRT.Serializers
 {
     public class GenericSerializer : SerializerBase<DinamycType>
     {
-        private static ISSpaceFile _file;
+        private static IHIRTFile _file;
 
         
 
-        public static DinamycType Deserialize(Stream stream, ISSpaceFile file)
+        public static DinamycType Deserialize(Stream stream, IHIRTFile file)
         {
             _file = file;
             var reader = new BinaryReader(stream);

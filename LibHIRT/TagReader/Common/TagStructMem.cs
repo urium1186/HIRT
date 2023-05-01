@@ -1,4 +1,5 @@
-﻿using LibHIRT.Files.Base;
+﻿using LibHIRT.Domain;
+using LibHIRT.Files.Base;
 using LibHIRT.TagReader.Headers;
 
 namespace LibHIRT.TagReader.Common
@@ -9,7 +10,7 @@ namespace LibHIRT.TagReader.Common
 
         public string ObjectId;
 
-        public string TagGroup;
+        public string TagGroupMem;
 
         public long TagData;
 
@@ -20,6 +21,12 @@ namespace LibHIRT.TagReader.Common
         public string TagFile;
 
         public bool unloaded;
+
+        public DinamycType Deserialized { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public string Name => ObjectId;
+
+        public string TagGroup => TagGroupMem;
     }
 
     public class GroupTagStruct

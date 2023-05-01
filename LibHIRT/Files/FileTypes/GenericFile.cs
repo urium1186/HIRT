@@ -14,11 +14,6 @@ namespace LibHIRT.Files.FileTypes
     {
 
         #region Properties
-        private DinamycType? _deserialized;
-        public DinamycType? Deserialized { get { 
-                if (_deserialized== null)
-                    _deserialized = GenericSerializer.Deserialize(GetStream(), this);
-                return _deserialized; } }
 
         public override string FileTypeDisplay => "Generic (*.*)";
 
