@@ -105,7 +105,7 @@ namespace LibHIRT.ModuleUnpacker
                         }
                     }
                     else {
-                        if (entry.TagGroup != "����") { 
+                        if (entry.TagGroupMem != "����") { 
                         }
                     }
                 }*/
@@ -368,10 +368,10 @@ namespace LibHIRT.ModuleUnpacker
                     hiModuleFileEntries[i].Path_string = Encoding.ASCII.GetString(stringsBytesArray, item.String_offset, (nextIndex - 1) - item.String_offset);
                     hiModuleFileEntries[i].Save_path = unpack_dir + hiModuleFileEntries[i].Path_string.Replace(" ", "_").Replace(":", "_");
                 }
-                /*if (!ModuleUnpackerClass.tagGroupFileList.ContainsKey(item.TagGroup)) {
-                    //ModuleUnpackerClass.tagGroupFileList[item.TagGroup] = new List<Models.FileDirModel>();
+                /*if (!ModuleUnpackerClass.tagGroupFileList.ContainsKey(item.TagGroupMem)) {
+                    //ModuleUnpackerClass.tagGroupFileList[item.TagGroupMem] = new List<Models.FileDirModel>();
                 }*/
-                //ModuleUnpackerClass.tagGroupFileList[item.TagGroup].Add(new Models.FileDirModel(item,""));
+                //ModuleUnpackerClass.tagGroupFileList[item.TagGroupMem].Add(new Models.FileDirModel(item,""));
                 //ModuleUnpackerClass.AddFileToDirList(item);
                 if (externalOperation!=null)
                     externalOperation(item);

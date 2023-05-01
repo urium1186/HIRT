@@ -160,7 +160,7 @@ namespace HaloInfiniteResearchTools.Models
            
 
             /*
-            var test = HIFileContext.RuntimeTagLoader.TagsList.Values.GroupBy(u => u.TagGroup);
+            var test = HIFileContext.RuntimeTagLoader.TagsList.Values.GroupBy(u => u._tagGroup);
             var r = test.ToDictionary(g => g.Key, g => g.ToList());
             r.Keys*/
         }

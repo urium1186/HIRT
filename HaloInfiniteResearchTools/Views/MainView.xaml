@@ -32,6 +32,7 @@
                 <MenuItem Header="Tag Structs Dumper" Command="{Binding TagStructsDumperCommand}" />
                 <Separator />
                 <MenuItem Header="Binary Explorer" Command="{Binding BinaryExplorerCommand}" />
+                <MenuItem Header="Tools" Command="{Binding ToolsCommand}" />
                 <Separator />
                 <MenuItem Header="Bulk Export Models" Command="{Binding BulkExportModelsCommand}" />
                 <MenuItem Header="Bulk Export Textures" Command="{Binding BulkExportTexturesCommand}" />

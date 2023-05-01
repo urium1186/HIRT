@@ -1,6 +1,8 @@
-﻿using LibHIRT.Files.Base;
+﻿using LibHIRT.Domain;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.ModuleUnpacker;
+using LibHIRT.Serializers;
 using LibHIRT.TagReader.Headers;
 using System;
 using System.Collections.Generic;
@@ -78,7 +80,19 @@ namespace LibHIRT.Files
                     _ref_children= new Dictionary<int, ISSpaceFile>();
                 return _ref_children; 
             } 
-        } 
+        }
+
+        private DinamycType? _deserialized;
+        public DinamycType? Deserialized
+        {
+            get
+            {
+                if (_deserialized == null)
+                    _deserialized = GenericSerializer.Deserialize(GetStream(), this);
+                GetStream().Seek(0, SeekOrigin.Begin);  
+                return _deserialized;
+            }
+        }
 
         #endregion
 

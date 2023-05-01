@@ -74,6 +74,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<ModelExportOptionsView>();
             services.AddTransient<RenderModelView>();
             services.AddTransient<ModelView>();
+            services.AddTransient<ShaderBytecodeView>();
             services.AddTransient<CustomizationGlobalsDefinitionView>();
             services.AddTransient<GenericView>();
             services.AddTransient<LevelView>();
@@ -83,6 +84,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TextureView>();
             services.AddTransient<TextureExportOptionsView>();
             services.AddTransient<ToolBinaryExplorerView>();
+            services.AddTransient<ToolsView>();
         }
 
         private void ConfigureViewModels(IServiceCollection services)
@@ -97,6 +99,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<LevelViewModel>();
             services.AddTransient<RenderModelViewModel>();
             services.AddTransient<ModelViewModel>();
+            services.AddTransient<ShaderBytecodeViewModel>();
             services.AddTransient<CustomizationGlobalsDefinitionViewModel>();
             services.AddTransient<PreferencesViewModel>();
             services.AddTransient<ProgressViewModel>();
@@ -105,6 +108,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TextureViewModel>();
             services.AddTransient<TextureExportOptionsViewModel>();
             services.AddTransient<ToolBinaryExplorerViewModel>();
+            services.AddTransient<ToolsViewModel>();
         }
 
         private void ConfigureWindows(IServiceCollection services)

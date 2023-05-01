@@ -406,8 +406,8 @@ namespace HaloInfiniteResearchTools.ViewModels
                 string classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
                 switch (classHash)
                 {
-                    case "B02683786045FFD03AE948A2C2F397C4":
-                        decompileShader((TagInstance)e);
+                    case "9B6D4747FC4FE0CCB27AC58D817D912A":
+                        decompileShaderAsync((TagInstance)e);
                         break;
                     default:
                         break;
@@ -416,22 +416,27 @@ namespace HaloInfiniteResearchTools.ViewModels
         }
 
 
-        void decompileShader(TagInstance ti) {
+        async Task decompileShaderAsync(TagInstance ti) {
             try
             {
-                var temp = ti["shaderBytecodeData"] as FUNCTION;
+                var temp = ti["rootSignatureData"] as FUNCTION;
 
                 MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
-                SharpDX.D3DCompiler.ShaderBytecode sb = SharpDX.D3DCompiler.ShaderBytecode.FromStream(stream);
+                ShaderByteCodeDecompileProcess process = new ShaderByteCodeDecompileProcess(temp?.ReadBuffer(),true);
 
-                string code = sb.Disassemble(
-                    /* SharpDX.D3DCompiler.DisassemblyFlags.EnableColorCode */
-                    SharpDX.D3DCompiler.DisassemblyFlags.EnableDefaultValuePrints
-                    /*| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionCycle // this will cause an error, lol */
-                    //| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionNumbering
-                    );
+                await Task.Factory.StartNew(process.Execute, TaskCreationOptions.LongRunning);
+                await process.CompletionTask;
 
-                
+                //SharpDX.D3DCompiler.ShaderBytecode sb = SharpDX.D3DCompiler.ShaderBytecode.FromStream(stream);
+
+                //string code = sb.Disassemble(
+                /* SharpDX.D3DCompiler.DisassemblyFlags.EnableColorCode */
+                //    SharpDX.D3DCompiler.DisassemblyFlags.EnableDefaultValuePrints
+                /*| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionCycle // this will cause an error, lol */
+                //| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionNumbering
+                //    );
+
+
             }
             catch (Exception e)
             {

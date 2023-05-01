@@ -610,8 +610,8 @@ namespace LibHIRT.TagReader
                         }
                         return group_lengths_dict[xn.Name];
 					case "_44":// unmapped
-                        //Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _44 unmapped");
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = 4, xmlPath = (s_p, s_p_n) });
+                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _44 unmapped");
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_45":// unmapped
                         Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _45 unmapped");
@@ -714,7 +714,7 @@ namespace LibHIRT.TagReader
 
 				{ "_43", 16 }, // ok _field_resource_handle
 
-				{ "_44", 4 },
+				{ "_44", 256 },// revisar original 4
 				{ "_45", 4 },
 			};
 
