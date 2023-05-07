@@ -6,6 +6,7 @@ using static LibHIRT.Assertions;
 using Oodle;
 using LibHIRT.TagReader;
 using LibHIRT.Serializers;
+using LibHIRT.Utils;
 
 namespace LibHIRT.Files.FileTypes
 {
@@ -171,12 +172,12 @@ namespace LibHIRT.Files.FileTypes
                     if (block.B_compressed)
                     {
                         if (offset + block.Comp_offset >= handle.BaseStream.Length) {
-                            Debug.Assert(false);
+                            Debug.Assert(DebugConfig.NoCheckFails);
                         }
                         handle.BaseStream.Seek(offset + block.Comp_offset, SeekOrigin.Begin);
                         byte[] data = handle.ReadBytes(block.Comp_size);
                         if (block.Comp_size != data.Length) {
-                            Debug.Assert(false);
+                            Debug.Assert(DebugConfig.NoCheckFails);
                         }
                         //byte[] DecompressedFile = OodleSharp.Oodle.Decompress(data, data.Length, block.Decomp_size);
                         byte[] decomp = OodleWrapper.Decompress(data, block.Comp_size, block.Decomp_size);

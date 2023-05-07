@@ -18,6 +18,7 @@ namespace HaloInfiniteResearchTools.ViewModels
     public class ShaderBytecodeViewModel : SSpaceFileViewModel<ShaderBytecodeFile>, IDisposeWithView
     {
         public string DecompiledStr { get; set; }
+        public string DecompiledStrGLSL { get; set; }
         public ShaderBytecodeViewModel(IServiceProvider serviceProvider, ShaderBytecodeFile file) : base(serviceProvider, file)
         {
         }
@@ -76,7 +77,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             try
             {
-                var temp = ti["shaderBytecodeData"] as FUNCTION;
+                var temp = ti["shaderBytecodeData"] as Data;
 
                 MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
                 ShaderByteCodeDecompileProcess process = new ShaderByteCodeDecompileProcess(temp?.ReadBuffer());
@@ -85,6 +86,9 @@ namespace HaloInfiniteResearchTools.ViewModels
                 await process.CompletionTask;
 
                 DecompiledStr = process.DecompiledStr;
+                DecompiledStrGLSL = process.DecompiledStrGLSL;
+                if (string.IsNullOrEmpty(DecompiledStrGLSL) && !string.IsNullOrEmpty(process.DecompiledStrGLSL_V))
+                    DecompiledStrGLSL = process.DecompiledStrGLSL_V;
 
             }
             catch (Exception e)

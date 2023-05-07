@@ -259,7 +259,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     tagParse = process.TagParse;
                     _tagRoot.Add(tagParse.RootTagInst);
                     _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
-                   
+                    FileStream = tagParse.MemoStream;
                     string temp = _fileMem.TagGroup;
                     XmlPath = TagXmlParse.GetXmlPath(ref temp);
                 }
@@ -419,7 +419,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         async Task decompileShaderAsync(TagInstance ti) {
             try
             {
-                var temp = ti["rootSignatureData"] as FUNCTION;
+                var temp = ti["rootSignatureData"] as Data;
 
                 MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
                 ShaderByteCodeDecompileProcess process = new ShaderByteCodeDecompileProcess(temp?.ReadBuffer(),true);

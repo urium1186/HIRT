@@ -13,13 +13,6 @@ namespace HaloInfiniteResearchTools.Views
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ToolsViewModel) {
-                (DataContext as ToolsViewModel).GenerateFromStrValue();
-            }
-        }
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             if (DataContext is ToolsViewModel)
@@ -59,29 +52,7 @@ namespace HaloInfiniteResearchTools.Views
             }
         }
 
-        private void BCToTxt_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ToolsViewModel)
-            {
-                (DataContext as ToolsViewModel).ProcessAllMmh3AllBytecodeToTxt();
-            }
-        }
         
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ToolsViewModel)
-            {
-                (DataContext as ToolsViewModel).doSome();
-            }
-        }
-
-        private void BCInSVToTxtBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ToolsViewModel)
-            {
-                (DataContext as ToolsViewModel).ProcessAllBytecodeToTxtInShaderVariant((DataContext as ToolsViewModel).SearchTerm);
-            }
-        }
     }
 }

@@ -215,6 +215,9 @@ namespace LibHIRT.TagReader.RuntimeViewer
             try
             {
                 bool reset = hookProcess(M);
+                if (M.mProc.Process != null) {
+                    return;
+                }
                 if (M.mProc.Process.Handle == IntPtr.Zero || loadedTags == false) // || processSelector.selected == false
                 {
                     // Could not find the process

@@ -5,6 +5,7 @@ using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
+using LibHIRT.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -119,7 +120,7 @@ namespace LibHIRT.Serializers
                             index = BitConverter.ToUInt32(index_buff.d3dbuffer.D3dBuffer, o * 4);
                         }
                         else
-                            Debug.Assert(false);
+                            Debug.Assert(DebugConfig.NoCheckFails);
                         Debug.Assert(index != uint.MaxValue);
                         obj_lod.IndexBufferIndex.Add(index);
                     }
@@ -714,7 +715,7 @@ namespace LibHIRT.Serializers
                 {
                     var v = temp_ch[i];
                     temp.MeshLodChunks[i] = new StreamingChunkList();
-                    temp.MeshLodChunks[i].Chunks = (v["chunks"] as FUNCTION).ReadBuffer();
+                    temp.MeshLodChunks[i].Chunks = (v["chunks"] as TagReader.Data).ReadBuffer();
                     //InterpretChunkParameterInfo(temp.MeshLodChunks[i].Chunks);
                 }
             }

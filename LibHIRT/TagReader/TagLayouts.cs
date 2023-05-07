@@ -8,6 +8,7 @@ using System;
 using System.IO.Packaging;
 using LibHIRT.Data;
 using System.Diagnostics;
+using LibHIRT.Utils;
 
 namespace LibHIRT.TagReader
 {
@@ -222,38 +223,38 @@ namespace LibHIRT.TagReader
                             pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Tagblock, N = xn.Attributes.GetNamedItem("v").InnerText, S = 20, xmlPath = (s_p, s_p_n) });
                         }
 						return 0;
-                    case "_0":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+                    case "_0": // string
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_1":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_1": // long string
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Mmr3Hash, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_2": // -- hashstring [ global | test | multi ] namespace
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Mmr3Hash, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_3":// unmapped - This case isn't found in any tag file
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_4":
+					case "_4": // char
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_5":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_5": // short
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_6":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_6": // long
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_7":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_7": // int64
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_8":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Float, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_8": // angle
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Float, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_9": 
+					case "_9": // tag
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.StringTag, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_A":
-						Dictionary<int, string> childdictionary1 = new();
+					case "_A": // char enum
+                        Dictionary<int, string> childdictionary1 = new();
 						for (int iu = 0; iu < xn.ChildNodes.Count; iu++)
 						{
 							childdictionary1.Add(iu, xn.ChildNodes[iu].Attributes.GetNamedItem("v").InnerText);
@@ -261,8 +262,8 @@ namespace LibHIRT.TagReader
 						pairs.Add(offset, new EnumGroupTL { G = xn.Name,  A = 1, N = xn.Attributes.GetNamedItem("v").InnerText, STR = childdictionary1, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 
 						return group_lengths_dict[xn.Name];
-					case "_B":
-						Dictionary<int, string> childdictionary2 = new();
+					case "_B": // short enum
+                        Dictionary<int, string> childdictionary2 = new();
 						for (int iu = 0; iu < xn.ChildNodes.Count; iu++)
 						{
 							childdictionary2.Add(iu, xn.ChildNodes[iu].Attributes.GetNamedItem("v").InnerText);
@@ -270,8 +271,8 @@ namespace LibHIRT.TagReader
 						pairs.Add(offset, new EnumGroupTL { G = xn.Name,  A = 2, N = xn.Attributes.GetNamedItem("v").InnerText, STR = childdictionary2, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 
 						return group_lengths_dict[xn.Name];
-					case "_C":
-						Dictionary<int, string> childdictionary3 = new();
+					case "_C": // long enum
+                        Dictionary<int, string> childdictionary3 = new();
 						for (int iu = 0; iu < xn.ChildNodes.Count; iu++)
 						{
 							childdictionary3.Add(iu, xn.ChildNodes[iu].Attributes.GetNamedItem("v").InnerText);
@@ -279,7 +280,7 @@ namespace LibHIRT.TagReader
 						pairs.Add(offset, new EnumGroupTL { G = xn.Name,  A = 4, N = xn.Attributes.GetNamedItem("v").InnerText, STR = childdictionary3, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 
 						return group_lengths_dict[xn.Name];
-					case "_D":
+					case "_D": // long flags
 						Dictionary<int, string> childdictionary4 = new();
 						for (int iu = 0; iu < xn.ChildNodes.Count; iu++)
 						{
@@ -288,8 +289,8 @@ namespace LibHIRT.TagReader
 						pairs.Add(offset, new FlagGroupTL { G = xn.Name,  A = 4, N = xn.Attributes.GetNamedItem("v").InnerText, STR = childdictionary4, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 
 						return group_lengths_dict[xn.Name];
-					case "_E":
-						Dictionary<int, string> childdictionary5 = new();
+					case "_E": // word flags
+                        Dictionary<int, string> childdictionary5 = new();
 						for (int iu = 0; iu < xn.ChildNodes.Count; iu++)
 						{
 							childdictionary5.Add(iu, xn.ChildNodes[iu].Attributes.GetNamedItem("v").InnerText);
@@ -297,8 +298,8 @@ namespace LibHIRT.TagReader
 						pairs.Add(offset, new FlagGroupTL { G = xn.Name,  A = 2, N = xn.Attributes.GetNamedItem("v").InnerText, STR = childdictionary5, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 
 						return group_lengths_dict[xn.Name];
-					case "_F":
-						Dictionary<int, string> childdictionary6 = new();
+					case "_F": // byte flags
+                        Dictionary<int, string> childdictionary6 = new();
 						for (int iu = 0; iu < xn.ChildNodes.Count; iu++)
 						{
 							childdictionary6.Add(iu, xn.ChildNodes[iu].Attributes.GetNamedItem("v").InnerText);
@@ -307,128 +308,128 @@ namespace LibHIRT.TagReader
 
 						return group_lengths_dict[xn.Name];
 
-					case "_10": // im not 100% on this one
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2D2Byte, N = xn.Attributes.GetNamedItem("v").InnerText, xmlPath = (s_p, s_p_n) });
+					case "_10": // short point 2d -- im not 100% on this one
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2D2Byte, N = xn.Attributes.GetNamedItem("v").InnerText, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_11":// unmapped
-						Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _11 unmapped");
+					case "_11":// unmapped -- short rectangle 2d
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _11 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_12":
-                        //Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _12 unmapped Revisar pq se dice q es un color");
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Mmr3Hash, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_12": // rgb pixel 32
+                        //Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _12 unmapped Revisar pq se dice q es un color");
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.RgbPixel32, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_13":// unmapped - only found in ttag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _11 unmapped");
+					case "_13":// unmapped - argb pixel 32 - only found in ttag
+                        //Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _11 unmapped");
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.ArgbPixel32, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_14": // real
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Float, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_15": // fraction
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Float, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_16": // real point 2d
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2DFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_17":// real point 3d
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_18": // real vector 2d
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2DFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_19": // real vector 3d
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_1A": // real quaternion
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Quaternion, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_1B": // real euler angles 2d
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2DFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_1C": // real euler angles 3d
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_1D":// unmapped -- plane 2d
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _1D unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_14":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Float, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_1E": // plane 3d -- pretty sure this is currect, could be wrong though. I referenced calculus equations
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Plane3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_15":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Float, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_1F": // real rgb color
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.RGB, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_16":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2DFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_17":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_18":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2DFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_19":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_1A":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Quaternion, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_1B":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point2DFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_1C":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Point3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_1D":// unmapped
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _1D unmapped");
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_1E": // pretty sure this is currect, could be wrong though. I referenced calculus equations
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Plane3D, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_1F":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.RGB, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_20":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.ARGB, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_20": // real argb color
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.ARGB, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_21":// unmapped - only found in ttag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _21 unmapped");
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _21 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_22":// unmapped  - only found in ttag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _22 unmapped");
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _22 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_23":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText + ".min", S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_23": // short bounds -- revisar pq 2 entradas pudiendo ser una
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText + ".min", S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						pairs.Add((offset + 2), new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText + ".max", S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_24":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.BoundsFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_24": // angle bounds
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.BoundsFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_25":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.BoundsFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_25": // real bounds
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.BoundsFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_26":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.BoundsFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_26": // fraction bounds
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.BoundsFloat, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_27":// unmapped - This case isn't found in any tag file
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _27 unmapped");
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _27 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_28":// unmapped - This case isn't found in any tag file
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _28 unmapped");
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _28 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_29":// unmapped  - only found in ttag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _29 unmapped");
+					case "_29":// unmapped - dword block flags - only found in ttag
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _29 unmapped");
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+						return group_lengths_dict[xn.Name];
+					case "_2A":// unmapped - word block flags - only found in ttag
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _2A unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2A":// unmapped - only found in ttag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _2A unmapped");
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_2B":// unmapped - byte block flags - only found in ttag
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _2B unmapped");
+						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2B":// unmapped - only found in ttag
-						Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _2B unmapped");
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_2C": // char block index
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2C":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_2D":// unmapped - char block index custom -- only found in ttag
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _2D unmapped");
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2D":// unmapped - only found in ttag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _2D unmapped");
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_2E": // short block index
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2E":
+					case "_2F": // short block index custom
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_2F":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_30": // long block index
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_30":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+					case "_31":// unmapped -- long block index custom
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _31 unmapped");
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_31":// unmapped
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _31 unmapped");
+					case "_32":// unmapped -- unused
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _32 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_32":// unmapped
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _32 unmapped");
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
-						return group_lengths_dict[xn.Name];
-					case "_33":// unmapped
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _33 unmapped");
+					case "_33":// unmapped -- unused
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _33 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_34": // field pad
@@ -450,15 +451,16 @@ namespace LibHIRT.TagReader
 							pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.GenericBlock, N = xn.Attributes.GetNamedItem("v").InnerText, S = length, xmlPath = (s_p, s_p_n) });
 						}
 						return length;
-					case "_35":
+					case "_35": // len depent type
+						Debug.Assert(DebugConfig.NoCheckFails);
 						//pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText + " Index", S = 4, xmlPath = (s_p, s_p_n) }); // Definitely could be wrong, just guessing here.
 						//pairs.Add(offset + 4, new C { G = xn.Name, T = TagElemntType.Mmr3Hash, N = xn.Attributes.GetNamedItem("v").InnerText + " Name", S = 4, xmlPath = (s_p, s_p_n) });
 						int l = int.Parse(xn.Attributes.GetNamedItem("length").InnerText);
 
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = l, xmlPath = (s_p, s_p_n) });
                         return l;
-					case "_36":
-						if (xn.Attributes.GetNamedItem("v").InnerText != "")
+					case "_36": // explanation
+                        if (xn.Attributes.GetNamedItem("v").InnerText != "")
 						{
 							pairs.Add(offset + evalutated_index_PREVENT_DICTIONARYERROR, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 							evalutated_index_PREVENT_DICTIONARYERROR++;
@@ -468,7 +470,7 @@ namespace LibHIRT.TagReader
 
 						}
 						return 0;
-					case "_37":
+					case "_37": // TODO revisar regin typed grouper
 						if (xn.Attributes.GetNamedItem("v").InnerText != "")
 						{
 							pairs.Add(offset + evalutated_index_PREVENT_DICTIONARYERROR, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
@@ -479,7 +481,7 @@ namespace LibHIRT.TagReader
 							// what
 						}
 						return 0;
-					case "_38":
+					case "_38": // struct
                         var temp_index = offset ; //+evalutated_index_PREVENT_DICTIONARYERROR
                         var p_P = new Dictionary<string, object>();
                        
@@ -505,7 +507,7 @@ namespace LibHIRT.TagReader
 
                         }*/
                         return current_offset1;
-					case "_39":
+					case "_39": // array
                         // TODO revisar
                         extra_afl.Clear() ;
 						extra_afl["count"] = 0;
@@ -540,24 +542,24 @@ namespace LibHIRT.TagReader
 						}
 						return current_offset3;*/
 					case "_3A":// unmapped - Not found in any tag
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _3A unmapped");
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _3A unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_3B":
 						return group_lengths_dict[xn.Name];
-					case "_3C":
+					case "_3C": // byte
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText, S = 1, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_3D":
+					case "_3D": // word
 						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TwoByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = 2, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_3E":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = 4, xmlPath = (s_p, s_p_n) });
+					case "_3E": // dword
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText, S = 4, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_3F":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText , S = 8, xmlPath = (s_p, s_p_n) });
+					case "_3F": // qword
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText , S = 8, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_40":
+					case "_40": // block
                         extra_afl.Clear();
                         if (xn.ChildNodes.Count > 0)
 						{
@@ -579,12 +581,11 @@ namespace LibHIRT.TagReader
 							pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Tagblock, N = xn.Attributes.GetNamedItem("v").InnerText, S = 20, xmlPath = (s_p, s_p_n) });
 						}
 						return group_lengths_dict[xn.Name];
-					case "_41":
-
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagRef, N = xn.Attributes.GetNamedItem("v").InnerText, S = 28, xmlPath = (s_p, s_p_n) });
+					case "_41": // tag reference
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagRef, N = xn.Attributes.GetNamedItem("v").InnerText, S = 28, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
-					case "_42":
-						pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FUNCTION, N = xn.Attributes.GetNamedItem("v").InnerText, S = 24, xmlPath = (s_p, s_p_n) });
+					case "_42": // data
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Data, N = xn.Attributes.GetNamedItem("v").InnerText, S = 24, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_43":// Mapping these to fix errors. The new length seems to fix some issues. Check pfnd > mobileNavMeshes to understand.
                         /*pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText });
@@ -609,12 +610,12 @@ namespace LibHIRT.TagReader
                             pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.ResourceHandle, N = xn.Attributes.GetNamedItem("v").InnerText, S = 20, xmlPath = (s_p, s_p_n) });
                         }
                         return group_lengths_dict[xn.Name];
-					case "_44":// unmapped
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _44 unmapped");
+					case "_44":// unmapped -- data path
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _44 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_45":// unmapped
-                        Debug.Assert(false, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _45 unmapped");
+                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _45 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = 4, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_69":// unmapped693A unmapped");
@@ -662,8 +663,8 @@ namespace LibHIRT.TagReader
 				{ "_F", 1 }, // _field_byte_flags
 				{ "_10", 4 }, // _field_point_2d -- 2 2bytes?
 				{ "_11", 4 }, // _field_rectangle_2d
-				{ "_12", 4 }, // _field_rgb_color -- hex color codes - it's technically only 3 bytes but the final byte is FF
-				{ "_13", 4 }, // _field_argb_color 
+				{ "_12", 4 }, // _field_rgb_color -- hex color codes --- rgb pixel 32 - it's technically only 3 bytes but the final byte is FF
+				{ "_13", 4 }, // _field_argb_color --- argb pixel 32
 				{ "_14", 4 }, // _field_real
 				{ "_15", 4 }, // _field_real_fraction
 				{ "_16", 8 }, // _field_real_point_2d
@@ -714,7 +715,7 @@ namespace LibHIRT.TagReader
 
 				{ "_43", 16 }, // ok _field_resource_handle
 
-				{ "_44", 256 },// revisar original 4
+				{ "_44", 256 },// revisar original 4 --- data path
 				{ "_45", 4 },
 			};
 

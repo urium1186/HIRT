@@ -17,7 +17,7 @@ namespace LibHIRT.TagReader
         static private ConcurrentDictionary<int, string> _Mmr3Collaide4 = new ConcurrentDictionary<int, string>();
 
         public static readonly bool ForceFillData = false;
-        public static bool ForceLower = true;
+        public static bool ForceLower = false;
         public static bool UpdateOnlyInUse = false;
 
         public static ConcurrentDictionary<int, string> Mmr3lTU { get {
@@ -165,9 +165,14 @@ namespace LibHIRT.TagReader
             value = value.Replace(";","");
             value = value.Replace(",","");
             value = value.Replace("\"","");
+            //value = value.Replace("%", "");
+            value = value.Replace("{", "");
+            value = value.Replace("}", "");
             value = value.Trim();
             value = value.Split("[")[0];
+            
             value = value.Replace(" ","_");
+            
 
             return value;
         }
