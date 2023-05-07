@@ -622,6 +622,42 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
     }
+    
+    public class RgbPixel32 : ValueTagInstace<string>
+    {
+        string str_value = "";
+        public RgbPixel32(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+
+        public string Str_value { get => str_value; set => str_value = value; }
+
+        public override void ReadIn(BinaryReader f, TagHeader? header = null)
+        {
+            base.ReadIn(f, header);
+            value = f.ReadInt32().ToString("X");
+            
+            ExeTagInstance();
+        }
+    }
+    
+    public class ArgbPixel32 : ValueTagInstace<string>
+    {
+        string str_value = "";
+        public ArgbPixel32(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+
+        public string Str_value { get => str_value; set => str_value = value; }
+
+        public override void ReadIn(BinaryReader f, TagHeader? header = null)
+        {
+            base.ReadIn(f, header);
+            value = f.ReadInt32().ToString("X");
+            
+            ExeTagInstance();
+        }
+    }
     public class RGB : AtomicTagInstace
     {
         float r_value = -1;
@@ -779,6 +815,27 @@ namespace LibHIRT.TagReader
         public float Y { get => y; set => y = value; }
         public float Z { get => z; set => z = value; }
     }
+    public class Plane2D : AtomicTagInstace
+    {
+        float x = -1;
+        float y = -1;
+        float point = -1;
+
+        public Plane2D(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+        public override void ReadIn(BinaryReader f, TagHeader? header = null)
+        {
+            base.ReadIn(f, header);
+            f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
+            x = f.ReadSingle();
+            y = f.ReadSingle();
+            point = f.ReadSingle();
+            ExeTagInstance();
+        }
+
+        public override object AccessValue => new { X = x, Y = y, Point = point };
+    }
     public class Plane3D : AtomicTagInstace
     {
         float x = -1;
@@ -831,7 +888,7 @@ namespace LibHIRT.TagReader
         }
         
     }
-    public class FUNCTION : ValueTagInstace<int>
+    public class Data : ValueTagInstace<int>
     {
         private ulong functAddress;
         private ulong functAddress_2;
@@ -850,7 +907,7 @@ namespace LibHIRT.TagReader
         private int leftover_bytes;
         private byte[] curvature_bytes;
         BinaryReader _f;
-        public FUNCTION(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Data(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -991,9 +1048,9 @@ namespace LibHIRT.TagReader
 
                 switch (TagDef.B[entry].T)
                 {
-                    case TagElemntType.FUNCTION:
+                    case TagElemntType.Data:
                         if (Content_entry != null)
-                            (temp as FUNCTION).Data_reference = Content_entry.L_function[refItCount.f];
+                            (temp as Data).Data_reference = Content_entry.L_function[refItCount.f];
                         else
                         {
                         }
@@ -1591,8 +1648,8 @@ namespace LibHIRT.TagReader
                     if (tagDef.E != null && tagDef.E.ContainsKey("hash") && tagDef.E["hash"].ToString() == "E423D497BA42B08FA925E0B06C3C363A")
                         return new RenderGeometryTag(tagDef, addressStart, offset);
                     return new TagStructData(tagDef, addressStart, offset);
-                case TagElemntType.FUNCTION:
-                    return new FUNCTION(tagDef, addressStart, offset);
+                case TagElemntType.Data:
+                    return new Data(tagDef, addressStart, offset);
                 case TagElemntType.EnumGroup:
                     return new EnumGroup(tagDef, addressStart, offset);
                 case TagElemntType.FourByte:
@@ -1625,6 +1682,10 @@ namespace LibHIRT.TagReader
                     return new FlagGroup(tagDef, addressStart, offset);
                 case TagElemntType.Mmr3Hash:
                     return new Mmr3Hash(tagDef, addressStart, offset);
+                case TagElemntType.RgbPixel32:
+                    return new RgbPixel32(tagDef, addressStart, offset);
+                case TagElemntType.ArgbPixel32:
+                    return new ArgbPixel32(tagDef, addressStart, offset);
                 case TagElemntType.RGB:
                     return new RGB(tagDef, addressStart, offset);
                 case TagElemntType.ARGB:
@@ -1641,6 +1702,8 @@ namespace LibHIRT.TagReader
                     return new Point3D(tagDef, addressStart, offset);
                 case TagElemntType.Quaternion:
                     return new Quaternion(tagDef, addressStart, offset);
+                case TagElemntType.Plane2D:
+                    return new Plane2D(tagDef, addressStart, offset);
                 case TagElemntType.Plane3D:
                     return new Plane3D(tagDef, addressStart, offset);
 

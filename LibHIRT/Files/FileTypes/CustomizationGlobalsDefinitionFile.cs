@@ -1,6 +1,7 @@
 ﻿using LibHIRT.Domain;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
+using LibHIRT.Utils;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace LibHIRT.Files.FileTypes
             var fil_id = HIFileContext.GetFileFrom((_result["Themes"] as ListTagInstance)[0]["Model"] as TagRef, (ModuleFile)Parent);
             if (fil_id == null)
             {
-                Debug.Assert(false, "Check the Mem Files");
+                Debug.Assert(DebugConfig.NoCheckFails, "Check the Mem Files");
             }
 
             return fil_id == null ? null : (RenderModelFile)fil_id;

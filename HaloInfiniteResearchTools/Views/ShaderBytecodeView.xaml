@@ -11,6 +11,33 @@
       >
 
     <Grid>
-        <TextBox Text="{Binding DecompiledStr}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
+        <TabControl>
+            <TabItem Header="ASM">
+                <Grid>
+                    <TextBox Text="{Binding DecompiledStr}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" >
+
+                    </TextBox>
+                    <!--
+                    <RichTextBox>
+                        <FlowDocument>
+                            <Paragraph>
+                            
+                            </Paragraph>
+                            
+                        </FlowDocument>
+                    
+                    </RichTextBox>
+                    -->
+                    
+                </Grid>
+            </TabItem>
+            <TabItem Header="GLSL">
+                <Grid>
+                    <TextBox Text="{Binding DecompiledStrGLSL}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        
+        
     </Grid>
 </views:View>

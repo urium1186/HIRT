@@ -138,7 +138,9 @@
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                   VirtualizingPanel.IsContainerVirtualizable="True"
                   VirtualizingPanel.VirtualizationMode="Recycling"
-                  PreviewMouseDoubleClick="OnPreviewMouseDoubleClick">
+                  PreviewMouseDoubleClick="OnPreviewMouseDoubleClick"
+                  
+                  >
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type models:TreeHierarchicalModel}" ItemsSource="{Binding Childrens}">
                     <TextBlock Text="{Binding Name}"></TextBlock>

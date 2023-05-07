@@ -31,48 +31,6 @@ namespace HaloInfiniteResearchTools.Views
             InitializeComponent();
         }
 
-        #region Variables
-        public XmlWriter textWriter;
-        private Mem m = new Mem();
-
-        private long startAddress = 0;
-        private int tagCount = 0;
-        private string outDIR = "";
-        private TagStructsDumper structsDumper = new TagStructsDumper();
-        /*
-                private HashSet<int> unique_items_1 = new HashSet<int>();
-                private HashSet<int> unique_items_2 = new HashSet<int>();
-                private HashSet<int> unique_items_4 = new HashSet<int>();
-                private HashSet<int> unique_items_5 = new HashSet<int>();
-                private HashSet<int> unique_items_6 = new HashSet<int>();
-
-                private HashSet<int> unique_items_8 = new HashSet<int>();        
-                private HashSet<int> unique_items_9 = new HashSet<int>();
-        */
-        #endregion
-        #region Control Buttons
-        // Window Control Button Functions
-        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
-
-        private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
-        {
-            //SystemCommands.MinimizeWindow(this);
-        }
-
-        private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
-        {
-            //SystemCommands.CloseWindow(this);
-        }
-
-        private void Move_Window(object sender, MouseButtonEventArgs e)
-        {
-            //DragMove();
-        }
-        #endregion
-
         #region Zs Changes
         private void DumpClick(object sender, RoutedEventArgs e)
         {
@@ -107,64 +65,7 @@ namespace HaloInfiniteResearchTools.Views
             e.Handled = regex.IsMatch(e.Text);
         }
 
-        private async void Scan()
-        {
-            SetStatus("Scanning for starting address...");
-
-            // await AoBScan();
-            startAddress = 2178283012096;
-            Console.WriteLine(startAddress.ToString());
-            if (startAddress != 0)
-            {
-                SetStatus("Address Found: " + startAddress.ToString("X"));
-
-                int warnings = 0;
-                long curAddress = startAddress;
-                bool scanning = true;
-
-                while (scanning)
-                {
-                    if (m.ReadInt((curAddress + 80).ToString("X")) == 257)
-                    {
-                        tagCount++;
-                        curAddress += 88;
-                        warnings = 0;
-                    }
-                    else
-                    {
-                        warnings++;
-                        curAddress += 88;
-                    }
-
-                    if (warnings > 3)
-                    {
-                        scanning = false;
-                    }
-                }
-
-                SetStatus("Found " + tagCount + " tag structs!");
-                structsDumper.M = m;
-                structsDumper.OutDIR = outDIR;
-                structsDumper.StartAddress = startAddress;
-                structsDumper.DumpStructs();
-                structsDumper.printSaveLogUniqueStr();
-                SetStatus("Done!");
-            }
-        }
-
-        private async Task AoBScan()
-        {
-            long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 53 62 6F 47 67 61 54 61", true, false)).ToArray();
-            startAddress = results[0];
-        }
-
-        public void SetStatus(string message)
-        {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                //statusText.Text = message;
-            }));
-        }
+       
         #endregion
 
     }

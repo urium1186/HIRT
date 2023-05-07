@@ -29,6 +29,7 @@ namespace LibHIRT.TagReader
 
         public CompoundTagInstance? RootTagInst { get => _rootTagInst; set => _rootTagInst = value; }
         public TagFile? TagFile { get => _tagFile; set => _tagFile = value; }
+        public Stream MemoStream { get; private set; }
 
         public TagParseControl(string filename, string tagLayoutTemplate, Dictionary<long, C?>? tagLayout, Stream? f)
         {
@@ -75,7 +76,7 @@ namespace LibHIRT.TagReader
                 C root_tag = _tagLayout[0] ;
                 
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
-                
+                MemoStream = null;
                 readTagsAndCreateInstancesFromMem(ref _rootTagInst, address, M);
 
             }
@@ -93,8 +94,11 @@ namespace LibHIRT.TagReader
                 var last = instance_parent.TagDef.B.Last();
                 temp_size = last.Key + last.Value.S;
             }
+             
             byte[] bytes = m.ReadBytes(address.ToString("X"), temp_size);
             var temp_f = new MemoryStream(bytes);
+            if (MemoStream == null)
+                MemoStream = new MemoryStream(bytes);
             (CompoundTagInstance, List<CompoundTagInstance>)? read_result = readTagDefinitionOnMem(ref instance_parent, temp_f, 0);
             if (instance_parent is ParentTagInstance)
             {
@@ -175,8 +179,8 @@ namespace LibHIRT.TagReader
         {
             switch (childItem.TagDef.T)
             {
-                case TagElemntType.FUNCTION:
-                    //(childItem as FUNCTION).Data_reference = parent.Content_entry.L_function[ref_it.f];
+                case TagElemntType.Data:
+                    //(childItem as Data).Data_reference = parent.Content_entry.L_function[ref_it.f];
                     //ref_it.f += 1;
                     OnInstanceLoad(childItem);
                     break;
@@ -500,8 +504,8 @@ namespace LibHIRT.TagReader
         {
             switch (childItem.TagDef.T)
             {
-                case TagElemntType.FUNCTION:
-                    (childItem as FUNCTION).Data_reference = parent.Content_entry.L_function[ref_it.f];
+                case TagElemntType.Data:
+                    (childItem as Data).Data_reference = parent.Content_entry.L_function[ref_it.f];
                     ref_it.f += 1;
                     OnInstanceLoad(childItem);
                     break;
@@ -720,8 +724,8 @@ namespace LibHIRT.TagReader
 
                     switch (tagDefinitions[entry].T)
                     {
-                        case TagElemntType.FUNCTION:
-                            (tagInstanceTemp[key] as FUNCTION).Data_reference = parent.Content_entry.L_function[ref_it.f];
+                        case TagElemntType.Data:
+                            (tagInstanceTemp[key] as Data).Data_reference = parent.Content_entry.L_function[ref_it.f];
                             ref_it.f += 1;
                             OnInstanceLoad(tagInstanceTemp[key]);
                             break;

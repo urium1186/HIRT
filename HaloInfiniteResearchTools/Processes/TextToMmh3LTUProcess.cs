@@ -17,15 +17,21 @@ namespace HaloInfiniteResearchTools.Processes
         private IEnumerable<string> _inputPaths;
         private string[] _filePaths;
         private List<string> _filesLoaded;
+        private string _spliters;
+        private bool _forceLowerCase;
+        private bool _prevForceLowerCase;
         private bool _prevCalueUOIU;
         private bool _dbModify;
 
-        public TextToMmh3LTUProcess(IEnumerable<string>? paths)
+        public TextToMmh3LTUProcess(IEnumerable<string>? paths, string spliters, bool forceLowerCase)
         {
             
             _inputPaths = paths;
 
             _filesLoaded = new List<string>();
+
+            _spliters = spliters;
+            _forceLowerCase = forceLowerCase;
         }
 
         public override IEnumerable<string> Result
@@ -42,6 +48,10 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = _filePaths.Length == 1;
             _prevCalueUOIU = Mmr3HashLTU.UpdateOnlyInUse;
             Mmr3HashLTU.UpdateOnlyInUse = true;
+
+            _prevForceLowerCase = Mmr3HashLTU.ForceLower;
+            Mmr3HashLTU.ForceLower = _forceLowerCase;
+
             _dbModify = false;
             var objLock = new object();
             Parallel.ForEach(_filePaths, filePath =>
@@ -61,12 +71,14 @@ namespace HaloInfiniteResearchTools.Processes
                         string tempLine = sr.ReadLine().Replace("\0","");
                         if (string.IsNullOrEmpty(tempLine))
                             continue;
-                        char[] c_array = new char[] { '\r', '\n', ' ', '\t' };
+                        //char[] c_array = new char[] { '\r', '\n', ' ', '\t' };
+                        //tempLine = tempLine.Replace(" ", "_");
                         var splits = tempLine.Split(' ',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                         //var splits = tempLine.Split(c_array,StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                         foreach (string line in splits) {
                             try
                             {
+                                SpecialOperations(line);
                                 if (Mmr3HashLTU.AddUniqueStrValue(line))
                                 {
                                     if (!_dbModify)
@@ -88,13 +100,17 @@ namespace HaloInfiniteResearchTools.Processes
                                             _dbModify = true;
                                     }
                                 }
-                                
-                                SplitEntryBy(line,'_');
-                                SplitEntryBy(line,'/');
+                                char[] c_array2 = _spliters.ToCharArray();
+                                foreach (char c in c_array2)
+                                {
+                                    SplitEntryBy(line, c);
+                                }
+                                //SplitEntryBy(line, '_');
+                                //SplitEntryBy(line, '/');
                                 //SplitEntryBy(line,'\\');
                                 //SplitEntryBy(line,'.');
                                 //SplitEntryBy(line, ':');
-                                
+
                                 string fileName_temp = Path.GetFileNameWithoutExtension(line);
                                 if (Mmr3HashLTU.AddUniqueStrValue(fileName_temp))
                                 {
@@ -127,6 +143,22 @@ namespace HaloInfiniteResearchTools.Processes
 
                 }
             });
+        }
+
+        private void SpecialOperations(string line) {
+            if (!line.Contains("_default_ps"))
+                return;
+            string val_1 = line.Split("_default_ps@@")[0];
+            var array_S = val_1.Split("?");
+            if (array_S.Length > 1) {
+                string val_2 = array_S[array_S.Length-1];
+                if (Mmr3HashLTU.AddUniqueStrValue(val_2))
+                {
+                    if (!_dbModify)
+                        _dbModify = true;
+                }
+            }
+                
         }
 
         private void SplitEntryBy(string line, char splitter)
@@ -197,6 +229,7 @@ namespace HaloInfiniteResearchTools.Processes
         protected override Task OnComplete()
         {
             Mmr3HashLTU.UpdateOnlyInUse = _prevCalueUOIU;
+            Mmr3HashLTU.ForceLower = _prevForceLowerCase;
             return base.OnComplete();
         }
     }

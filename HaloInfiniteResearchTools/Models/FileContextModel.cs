@@ -134,8 +134,9 @@ namespace HaloInfiniteResearchTools.Models
                     Dictionary<string, TreeHierarchicalModel> valuePairs = new Dictionary<string, TreeHierarchicalModel>();
                     _filesH.Clear();
 
-
-                    foreach (var item in HIFileContext.RuntimeTagLoader.TagsList.Values)
+                    var list = HIFileContext.RuntimeTagLoader.TagsList.Values.ToList();
+                    list.Sort((x, y) => x.TagGroup.CompareTo(y.TagGroup));
+                    foreach (var item in list)
                     {
                         if (!valuePairs.ContainsKey(item.TagGroup))
                         {
@@ -148,6 +149,8 @@ namespace HaloInfiniteResearchTools.Models
                         itemI.Name = item.TagFullName;
                         itemI.Value = item;
                         valuePairs[item.TagGroup].Childrens.Add(itemI);
+                        valuePairs[item.TagGroup].Childrens.Sort((x, y) => x.Name.CompareTo(y.Name));
+                        
                     }
                 }
                 
@@ -320,7 +323,11 @@ namespace HaloInfiniteResearchTools.Models
         
         private void UpdateDirsFiles()
         {
-            FiltersDirs = filterList();
+            if (HIFileContext.RootDir != null)
+                FiltersDirs = filterList();
+            else { 
+                 
+            }
 
             /*
             lock (_collectionLock)

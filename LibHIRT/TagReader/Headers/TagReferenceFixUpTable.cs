@@ -86,7 +86,7 @@ namespace LibHIRT.TagReader.Headers
                 //entry.StrPath = UtilBinaryReader.readStringFromOffset(new BinaryReader(f), temp_offset, true);
                 entries.Add(entry);
                 if (entry.FieldBlock >= dataReferenceTableField.TagStructTableField.Data_block_table.Entries.Count) {
-                    Debug.Assert(false);
+                    Debug.Assert(DebugConfig.NoCheckFails);
                 }
                 var db = dataReferenceTableField.TagStructTableField.Data_block_table.Entries[entry.FieldBlock];
                 foreach (var tag_i in dataReferenceTableField.TagStructTableField.Entries)
@@ -136,7 +136,7 @@ namespace LibHIRT.TagReader.Headers
                 
                 /*if (entry.FieldBlock >= dataReferenceTableField.TagStructTableField.Data_block_table.Entries.Count)
                 {
-                    Debug.Assert(false);
+                    Debug.Assert(DebugConfig.NoCheckFails);
                 }*/
                 var db = dataReferenceTableField.TagStructTableField.Data_block_table.GetTableEntry(f,header, entry.FieldBlock);
                 foreach (var tag_i in dataReferenceTableField.TagStructTableField.Entries)

@@ -12,7 +12,7 @@ namespace LibHIRT.TagReader
         ArrayFixLen,
         GenericBlock,
         TagStructData,
-        FUNCTION,
+        Data,
         EnumGroup,
         UFourByte,
         UTwoByte,
@@ -39,10 +39,13 @@ namespace LibHIRT.TagReader
         Point2D2Byte,
         Point3D,
         Quaternion,
+        Plane2D,
         Plane3D,
         RootTagInstance,
         TagInstance,
-        TagParentInstance
+        TagParentInstance,
+        RgbPixel32,
+        ArgbPixel32
     }
 
     internal class TagCommon

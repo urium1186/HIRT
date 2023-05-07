@@ -30,7 +30,7 @@
                     <TextBox Text="{Binding Str_hash}" Grid.Column="2"></TextBox>
                     <StackPanel  Grid.Column="0" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
                         <CheckBox IsChecked="{Binding ForceLowerCase}" Content="Force Lower Case"></CheckBox>
-                        <Button Content="Generate" Width="80" Click="Button_Click" ></Button>
+                        <Button Content="Generate" Width="80" Command="{Binding GenerateFromStrValueCommand}" ></Button>
                         <Button Content="Check In Use" Width="80" Click="Button_Click_1" ></Button>
                         <Button x:Name="AddToDB" Content="Add to DB" Width="80" Click="AddToDB_Click" ></Button>
                     </StackPanel>
@@ -42,28 +42,38 @@
                         <controls:FileBrowserBox  Grid.Row="0" Path="{Binding TextFilesPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      DialogPathType="Directory"></controls:FileBrowserBox>
                         <StackPanel x:Name="ProccAllTextFile"  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Process Text" Width="80" Click="Button_Click_2" ></Button>
+                            <Label Content="Spliters"></Label>
+                            <TextBox Width="120" Text="{Binding Spliters}"></TextBox>
+                            <Button Content="Process Text" Width="80" Command="{Binding ProcessTextCommand}"  ></Button>
                         </StackPanel>
                     </Grid>
-                    
+
                 </Grid>
             </TabItem>
             <TabItem Header="Generic Tools">
                 <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="13*"/>
+                        <ColumnDefinition Width="284*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="BCToTxt" Content="Export BC To Txt" Click="BCToTxt_Click"></Button>
+                    <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+                        <Button x:Name="BCToTxt" Content="Export BC To Txt" Command="{Binding ProcessAllBytecodeToTxtCommand}"></Button>
                         <StackPanel Orientation="Horizontal">
-                            <TextBox Width="100" Text="{Binding SearchTerm}"></TextBox>
-                            <Button x:Name="BCInSVToTxtBtn" Content="Export BC in SV To Txt" Click="BCInSVToTxtBtn_Click"></Button>
+                            <Label Content="ShaderVarianID"></Label>
+                            <TextBox Width="100" Text="{Binding SearchTerm}" VerticalAlignment="Center"></TextBox>
+                            <Label Content="VertType"></Label>
+                            <TextBox Width="30" Text="{Binding VertType}" VerticalAlignment="Center"></TextBox>
+                            <CheckBox IsChecked="{Binding OnlyVertexShaders}" Content="VS"></CheckBox>
+                            <Button x:Name="BCInSVToTxtBtn" Content="Export BC in SV To Txt" Command="{Binding BCInSVToTxtCommand}"></Button>
                         </StackPanel>
                     </StackPanel>
-                    
+
                 </Grid>
-                
+
             </TabItem>
         </TabControl>
     </Grid>
