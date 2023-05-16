@@ -1,20 +1,8 @@
 ﻿using LibHIRT.TagReader.Common;
-using LibHIRT.TagReader.Headers;
 using LibHIRT.Utils;
 using Memory;
-using Microsoft.VisualBasic;
-using SharpDX.DirectManipulation;
-using SharpDX.MediaFoundation;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime;
-using System.Security.Principal;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using static LibHIRT.TagReader.Headers.TagHeader;
 
 namespace LibHIRT.TagReader.RuntimeViewer
@@ -216,7 +204,9 @@ namespace LibHIRT.TagReader.RuntimeViewer
             {
                 bool reset = hookProcess(M);
                 if (M.mProc.Process != null) {
-                    return;
+                    BaseAddress = -1;
+                    hooked = false;
+                    loadedTags = false;
                 }
                 if (M.mProc.Process.Handle == IntPtr.Zero || loadedTags == false) // || processSelector.selected == false
                 {

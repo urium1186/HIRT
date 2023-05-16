@@ -137,7 +137,7 @@ namespace LibHIRT.Serializers
           case PictureSentinel.MipMaps:
             ReadMipMaps( reader, pict );
             break;
-          case PictureSentinel.Data:
+          case PictureSentinel.TagData:
             ReadData( reader, pict, endOffset );
             break;
           case PictureSentinel.Footer:

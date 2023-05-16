@@ -11,15 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DirectXTexNet" Version="1.0.3" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
     <PackageReference Include="Javi.ExplorerTreeView" Version="1.0.4" />
     <PackageReference Include="JSONTreeView" Version="1.1.0" />
     <PackageReference Include="LiveSearchTextBoxControl" Version="0.1.1" />
-    <PackageReference Include="Memory.dll.x64" Version="1.2.24" />
-	  <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
 	  <PackageReference Include="AvalonEdit" Version="6.1.3.50" />
 	  <PackageReference Include="DeepCopy.Fody" Version="1.0.16" />
-	  <PackageReference Include="DirectXTexNet" Version="1.0.3" />
 	  <PackageReference Include="Fody" Version="6.6.3">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

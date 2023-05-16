@@ -66,6 +66,7 @@ namespace LibHIRT.ModuleUnpacker
         public char[] Tag { get => tag; set => tag = value; }
         public string TagGroupRev { get => tagGroupRev; set => tagGroupRev = value; }
         public long DataOffset { get => local_data_offset; set => local_data_offset = value; }
+        public long InModuleDataOffset { get; set; }
         public UInt16 Flags { get => flags; set => flags = value; }
         public int Comp_size { get => comp_size; set => comp_size = value; }
         public int Decomp_size { get => decomp_size; set => decomp_size = value; }

@@ -1,9 +1,10 @@
-﻿using Bond.IO.Unsafe;
-using LibHIRT.Common;
+﻿using LibHIRT.Common;
 using LibHIRT.TagReader.Headers;
 using LibHIRT.Utils;
 using Newtonsoft.Json;
+using SharpDX;
 using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -23,24 +24,27 @@ namespace LibHIRT.TagReader
         public long GetTagSize { get; }
 
         public void ReadIn(BinaryReader f, TagHeader? header = null);
+        public void WriteIn(Stream f, long offset = -1, TagHeader? header = null);
         public void ReadIn(TagHeader? header = null);
 
         public string ToJson();
         public TagInstance GetObjByPath(string path);
 
-        public object AccessValue { get; }
+        public object AccessValue { get; set; }
         public string FieldName { get; set; }
+        public bool NoAllowEdit { get; set; }
 
         public TagLayouts.C TagDef { get; }
 
 
     }
-    public class TagInstance : ITagInstance
+    public class TagInstance : ITagInstance, INotifyPropertyChanged
     {
 
         protected TagLayouts.C tagDef;
         protected long addressStart;
         protected long offset;
+        protected long inFileOffset;
         protected HeaderTableEntry? entry = null;
         protected TagStruct? content_entry = null;
 
@@ -49,8 +53,10 @@ namespace LibHIRT.TagReader
         protected long inst_address = -1;
         private long inst_global_address = -1;
         protected Dictionary<string, Object> extra_data = new Dictionary<string, object>();
+        private bool _noAllowEdit = true;
 
         public static event EventHandler<ITagInstance> OnInstanceLoadEvent;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public TagInstance(TagLayouts.C tagDef, long addressStart, long offset)
         {
@@ -66,9 +72,9 @@ namespace LibHIRT.TagReader
         public TagInstance? Parent { get => parent; set { parent = value;} }
         public long Inst_parent_offset { get => inst_parent_offset; set => inst_parent_offset = value; }
 
-        public long GetTagSize => throw new NotImplementedException();
+        public long GetTagSize => TagDef?.S ?? 0;
 
-        public virtual object AccessValue => new { AddressStart= addressStart, Offset= offset };
+        public virtual object AccessValue { get => new { AddressStart = addressStart, Offset = offset }; set { ; } }
         public virtual object AccessValueExtra => new {
             Value = AccessValue,
             AddressStart = addressStart,
@@ -82,10 +88,30 @@ namespace LibHIRT.TagReader
             }
         }
 
-        
+        protected virtual long GetInFileOffset() {
+            return ((Content_entry?.Field_data_block?.OffsetPlus ?? 0 ) + InstanceParentOffset);
+        }
 
         public string FieldName { get ; set ; }
         public TagInstance Self => this;
+
+        public long InFileOffset { get => GetInFileOffset(); }
+        public long InstanceParentOffset { get; set; }
+        protected long Inst_address { get => inst_address; set => inst_address = value; }
+        public bool NoAllowEdit { get { 
+                return _noAllowEdit ; 
+            } 
+            set { _noAllowEdit = value;
+                OnPropertyChanged("NoAllowEdit");
+            } }
+
+        
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public virtual TagInstance GetObjByPath(string path)
         {
@@ -125,6 +151,10 @@ namespace LibHIRT.TagReader
             return JsonConvert.SerializeObject(AccessValueExtra);
         }
 
+        public virtual void WriteIn(Stream f, long offset = -1, TagHeader? header = null)
+        {
+            throw new NotImplementedException();
+        }
     }
     #region Atomic
     public class AtomicTagInstace : TagInstance
@@ -143,6 +173,8 @@ namespace LibHIRT.TagReader
     {
         protected T value;
 
+        Stack<object> stackChange = new Stack<object>();
+
         public ValueTagInstace(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
@@ -157,7 +189,9 @@ namespace LibHIRT.TagReader
 
         public T Value { get => value; set => this.value = value; }
 
-        public override object AccessValue => Value;
+        public override object AccessValue { get { return stackChange.Count == 0? Value: stackChange.Peek(); } set {
+                stackChange.Push(value);
+            } }
 
         
     }
@@ -486,16 +520,52 @@ namespace LibHIRT.TagReader
     
     public class Flag
     {
+        bool _value = false;
         public string Label { get; set; }
-        public string Value { get; set; }
-        public List<Flag>? Childrens{ get; set; }
-}
+        public bool Value {
+            get { return _value; }
+            set { 
+                _value = value;
+                Parent?.FlagGroupC?.RegenerateOutPut();
+            }
+            
+        }
+
+        public FlagsModel Parent { get; set; }
+    }
+    
+    public class FlagsModel: INotifyPropertyChanged
+    {
+        private string _value;
+
+        public string Label { get; set; }
+        public string Value { get { return _value; } set {
+                _value = value;
+                OnPropertyChanged("Value");
+            }
+            
+        }
+        public List<Flag>? Childrens{ get; 
+            set; 
+        }
+
+        public FlagGroup FlagGroupC { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+    }
     public class FlagGroup : ValueTagInstace<List<bool>>
     {
         
         List<string> options = new List<string>();
         List<bool> options_v = new List<bool>();
-
+        List<FlagsModel> _salida =  null;
         public override object AccessValue => new { options, options_v};
 
         public FlagGroup(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
@@ -516,24 +586,37 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public List<Flag> Flags
+        public override void WriteIn(Stream f, long offset = -1, TagHeader? header = null)
+        {
+            var toReturn = f.Position;
+            f.Seek(offset==-1?InFileOffset:offset, SeekOrigin.Begin);
+            f.Write(UtilBinaryReader.GetBytesFormStringBit(_salida[0].Value));
+            f.Seek(toReturn, SeekOrigin.Begin);
+        }
+
+        public List<FlagsModel> Flags
         {
             get {
+                if (_salida !=null)
+                    return _salida;
+                _salida = new List<FlagsModel>();
+                _salida.Add(new FlagsModel());
                 List<Flag> r_options = new List<Flag>();
                 for (int i = 0; i < options.Count; i++)
                 {
                     r_options.Add(new Flag()
                     {
                         Label = options[i],
-                        Value = options_v[i].ToString(),
+                        Value = options_v[i],
+                        Parent = _salida[0]
                     });
                 }
-                List<Flag> salida = new List<Flag>();
+                
                 string result = "";
                 for (int i = 0; i < options_v.Count; i++)
                 {
-
-                    if (options_v[i])
+                    bool check = r_options.Count > i ? r_options[i].Value : options_v[i];
+                    if (check)
                     {
                         result = result + "1";
                     }
@@ -542,13 +625,33 @@ namespace LibHIRT.TagReader
                         result = result + "0";
                     }
                 }
-                salida.Add(new Flag() {
-                    Label = "Bin val",
-                    Value = result,
-                    Childrens = r_options
-                });
-                return salida;
+
+                _salida[0].Label = "Bin val";
+                _salida[0].Value = result;
+                _salida[0].Childrens = r_options;
+                _salida[0].FlagGroupC = this;
+                return _salida;
             }
+            
+        }
+
+        public void RegenerateOutPut() {
+            if (_salida == null)
+                return;
+            string result = "";
+            for (int i = 0; i < options_v.Count; i++)
+            {
+                bool check = _salida[0].Childrens.Count > i ? _salida[0].Childrens[i].Value : options_v[i];
+                if (check)
+                {
+                    result = result + "1";
+                }
+                else
+                {
+                    result = result + "0";
+                }
+            }
+            _salida[0].Value = result;
             
         }
 
@@ -561,6 +664,8 @@ namespace LibHIRT.TagReader
             this.amountOfBytes = amountOfBytes;
             this.maxBit = maxBit;
             */
+            if (amountOfBytes > 1) { 
+            }
             if (maxBit == 0)
             {
                 maxBit = maxBit = amountOfBytes * 8;
@@ -590,7 +695,7 @@ namespace LibHIRT.TagReader
                     {
                         continue;
                     }
-                    options_v.Add(UtilBinaryReader.GetBit(flags_value, currentBitIndex));
+                    options_v.Add(UtilBinaryReader.GetBit(flags_value, bit));
 
                     bitsLeft--;
                 }
@@ -888,7 +993,7 @@ namespace LibHIRT.TagReader
         }
         
     }
-    public class Data : ValueTagInstace<int>
+    public class TagData : ValueTagInstace<int>
     {
         private ulong functAddress;
         private ulong functAddress_2;
@@ -907,7 +1012,7 @@ namespace LibHIRT.TagReader
         private int leftover_bytes;
         private byte[] curvature_bytes;
         BinaryReader _f;
-        public Data(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public TagData(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -1048,9 +1153,9 @@ namespace LibHIRT.TagReader
 
                 switch (TagDef.B[entry].T)
                 {
-                    case TagElemntType.Data:
+                    case TagElemntType.TagData:
                         if (Content_entry != null)
-                            (temp as Data).Data_reference = Content_entry.L_function[refItCount.f];
+                            (temp as TagData).Data_reference = Content_entry.L_function[refItCount.f];
                         else
                         {
                         }
@@ -1344,6 +1449,10 @@ namespace LibHIRT.TagReader
             }
         }
 
+        protected override long GetInFileOffset()
+        {
+            return ((Content_entry?.Data_parent?.OffsetPlus ?? 0) + (Content_entry?.Field_offset ?? inst_address));
+        }
         List<object> getAccessValues()
         {
             var result = new List<object>();
@@ -1648,8 +1757,8 @@ namespace LibHIRT.TagReader
                     if (tagDef.E != null && tagDef.E.ContainsKey("hash") && tagDef.E["hash"].ToString() == "E423D497BA42B08FA925E0B06C3C363A")
                         return new RenderGeometryTag(tagDef, addressStart, offset);
                     return new TagStructData(tagDef, addressStart, offset);
-                case TagElemntType.Data:
-                    return new Data(tagDef, addressStart, offset);
+                case TagElemntType.TagData:
+                    return new TagData(tagDef, addressStart, offset);
                 case TagElemntType.EnumGroup:
                     return new EnumGroup(tagDef, addressStart, offset);
                 case TagElemntType.FourByte:

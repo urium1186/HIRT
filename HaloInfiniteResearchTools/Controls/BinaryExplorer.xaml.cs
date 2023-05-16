@@ -45,6 +45,31 @@ namespace HaloInfiniteResearchTools.Controls
             }// RefreshJsonTree(e.NewValue.ToString());
         }
 
+        public static readonly DependencyProperty PositionOnCurrentStreamProperty= DependencyProperty.Register("PositionOnCurrentStream", typeof(long), typeof(BinaryExplorer), new
+           PropertyMetadata(0L, new PropertyChangedCallback(OnPositionOnCurrentStreamChanged)));
+
+        public long PositionOnCurrentStream
+        {
+            get { return (long)GetValue(PositionOnCurrentStreamProperty); }
+            set { SetValue(PositionOnCurrentStreamProperty, value); }
+        }
+
+        private static void OnPositionOnCurrentStreamChanged(DependencyObject d,
+           DependencyPropertyChangedEventArgs e)
+        {
+            BinaryExplorer UserControl1Control = d as BinaryExplorer;
+            UserControl1Control.OnPositionOnCurrentStreamChanged(e);
+        }
+
+        private void OnPositionOnCurrentStreamChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null)
+            { 
+                long position = (long)e.NewValue;
+                HexEdit.SetPosition(position, 1);
+            }// RefreshJsonTree(e.NewValue.ToString());
+        }
+
 
         public BinaryExplorer()
         {

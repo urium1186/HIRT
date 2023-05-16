@@ -265,7 +265,7 @@ namespace LibHIRT.Serializers
 
         private void ReadGeometryMngProperty(BinaryReader reader, S3DTemplate template)
         {
-            /* Geometry (Multi-Node Graph?) Data
+            /* Geometry (Multi-Node Graph?) TagData
              * Contains most of the model info.
              */
             /*if ( !template.PropertyFlags.HasFlag( TemplatePropertyFlags.GeometryMNG ) )
@@ -279,7 +279,7 @@ namespace LibHIRT.Serializers
         private void ReadExternDataProperty(BinaryReader reader, S3DTemplate template)
         {
             // TODO
-            /* External Data. Not quite sure what it's used for.
+            /* External TagData. Not quite sure what it's used for.
              * Not being deserialized yet.
              */
             if (!template.PropertyFlags.HasFlag(TemplatePropertyFlags.ExternData))

@@ -154,7 +154,7 @@ namespace LibHIRT.Serializers
 
     private void ReadGeometryMngProperty( BinaryReader reader, S3DScene scene )
     {
-      /* Geometry (Multi-Node Graph?) Data
+      /* Geometry (Multi-Node Graph?) TagData
        * Contains most of the model info.
        */
       var geometryGraphSerializer = new S3DGeometryGraphSerializer();

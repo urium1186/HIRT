@@ -57,7 +57,7 @@ namespace LibHIRT.Serializers.Configurations
       var dataType = ( DataType ) reader.ReadUInt32();
 
       if ( !Enum.IsDefined( typeof( DataType ), dataType ) )
-        Fail( $"Unknown Configuration Property Data Type: {dataType:X}" );
+        Fail( $"Unknown Configuration Property TagData Type: {dataType:X}" );
 
       return dataType;
     }

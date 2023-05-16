@@ -1,24 +1,10 @@
-﻿using LibHIRT.DAO;
-using LibHIRT.Files.Base;
+﻿using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.ModuleUnpacker;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
-using LibHIRT.TagReader.Headers;
 using LibHIRT.TagReader.RuntimeViewer;
-using LibHIRT.Utils;
-using Microsoft.Data.Sqlite;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.SQLite;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.Files

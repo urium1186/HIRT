@@ -84,6 +84,9 @@ namespace HaloInfiniteResearchTools.Processes.Utils
         private void AddVertices(MeshLOD meshLOD)
         {
             uint offset = 0;
+            if (meshLOD.Vertexs == null)
+                return;
+
             foreach (var vertex in meshLOD.Vertexs)
             {
                 Mesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
@@ -117,6 +120,9 @@ namespace HaloInfiniteResearchTools.Processes.Utils
         }
         private void AddInterleavedData(MeshLOD meshLOD)
         {
+            if (meshLOD.Vertexs == null)
+                return;
+
             foreach (var vertex in meshLOD.Vertexs)
             {
                 Vector4 uvVector = default;

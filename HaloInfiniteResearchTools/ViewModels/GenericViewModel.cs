@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -51,11 +52,14 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         public int SelectedTabIndex { get; set; }
         public int RenderGeomViewerEnable { get; set; }
+        public long PositionOnCurrentStream { get; set; }
 
         public ICommand OpenFileTabCommand { get; }
         public ICommand OpenGenFileTabCommand { get; }
         public ICommand TagInstanceExportJsonCommand { get; }
         public ICommand TagGoToBinCommand { get; }
+        public ICommand WriteToCommand { get; }
+        public ICommand WriteTagCommand { get; }
         public ICommand TagGoToTemplateCommand { get; }
         public ICommand RenderGeomGenOpenCommand { get; }
 
@@ -94,18 +98,28 @@ namespace HaloInfiniteResearchTools.ViewModels
             _dViewerControlModel = new Model3DViewerControlModel(serviceProvider, file);
             _file = file;
             RenderGeomViewerEnable = -1;
+            PositionOnCurrentStream = 0;
             _fileMem = null;
             _tagRoot = new ObservableCollection<TagInstance>();
             OpenFileTabCommand = new AsyncCommand<TagRef>(OpenFileTab);
             OpenGenFileTabCommand = new AsyncCommand<TagRef>(OpenGenFileTab);
             TagInstanceExportJsonCommand = new AsyncCommand<TagInstance>(TagInstanceExportJson);
             TagGoToBinCommand = new AsyncCommand<TagInstance>(TagGoToBin);
+            WriteToCommand = new AsyncCommand<TagInstance>(WriteTo);
+            WriteTagCommand = new AsyncCommand(WriteTag);
             TagGoToTemplateCommand = new AsyncCommand<TagInstance>(TagGoToTemplate);
             RenderGeomGenOpenCommand = new AsyncCommand<RenderGeometryTag>(RenderGeomGenOpen);
             _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
             _tabService = serviceProvider.GetService<ITabService>();
             _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
             
+        }
+
+        private async Task WriteTo(TagInstance arg)
+        {
+            if (arg == null || !(arg is FlagGroup))
+                return;
+            arg.WriteIn(FileStream);
         }
 
         private async Task RenderGeomGenOpen(RenderGeometryTag arg)
@@ -125,7 +139,33 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             if (arg == null)
                 return;
+            
+            PositionOnCurrentStream = arg.InFileOffset;
+            /*this.FileStream.Seek(2055288, SeekOrigin.Begin);
+            this.FileStream.WriteByte(0x78);
+            this.FileStream.WriteByte(0x18);*/
             SelectedTabIndex = 1;
+        } 
+        
+        private  async Task WriteTag()
+        {
+            try
+            {
+                if (_file != null)
+                {
+                    ModuleFile temp = _file.Parent as ModuleFile;
+                    if (temp != null)
+                    {
+                        temp.WriteTag(_file);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine(ex);
+            }
+            
         }
         private  async Task TagGoToTemplate(TagInstance arg)
         {
@@ -408,10 +448,15 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
                     case "9B6D4747FC4FE0CCB27AC58D817D912A":
                         decompileShaderAsync((TagInstance)e);
+                        break; 
+                    case "36C8F698C54393CD883131BA77BABD05":
+                        
                         break;
                     default:
                         break;
-                }   
+                }
+                if (((TagInstance)e).TagDef.N == "raw vertices") { 
+                }
             }
         }
 
@@ -419,7 +464,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         async Task decompileShaderAsync(TagInstance ti) {
             try
             {
-                var temp = ti["rootSignatureData"] as Data;
+                var temp = ti["rootSignatureData"] as TagData;
 
                 MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
                 ShaderByteCodeDecompileProcess process = new ShaderByteCodeDecompileProcess(temp?.ReadBuffer(),true);

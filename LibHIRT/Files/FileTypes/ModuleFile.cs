@@ -7,6 +7,7 @@ using Oodle;
 using LibHIRT.TagReader;
 using LibHIRT.Serializers;
 using LibHIRT.Utils;
+using Oodle.NET;
 
 namespace LibHIRT.Files.FileTypes
 {
@@ -146,6 +147,7 @@ namespace LibHIRT.Files.FileTypes
                     handle = new BinaryReader(hd1Handle);
                 }
             }
+            file.InModuleDataOffset = offset;
             /*
             var tmp = Reader;
             FileStream? fb_hd1 = null;
@@ -159,7 +161,7 @@ namespace LibHIRT.Files.FileTypes
                 tmp = new BinaryReader(fb_hd1);
                 file_data_offset = offset - _moduleHeader.Hd1_delta;
             }*/
-            
+
             if (file.Decomp_size == 0)
                 return decomp_save_data;
             if (file.Block_count != 0)
@@ -233,6 +235,37 @@ namespace LibHIRT.Files.FileTypes
             }*/
             
             return decomp_save_data;
+        }
+
+        public bool WriteTag(SSpaceFile file) {
+            return WriteTag(file.FileMemDescriptor, file.GetStream(), (FileStream)(BaseStream as HIRTDecompressionStream).BaseStream);
+        }
+        public bool WriteTag(HiModuleFileEntry moduleFileEntry, Stream TagStream, FileStream ModuleStream)
+        {
+            for (int i = moduleFileEntry.First_block_index; i < moduleFileEntry.First_block_index + moduleFileEntry.Block_count; i++)
+            {
+                HiModuleBlockEntry block = readBlockEntryIn(i);
+                byte[] modifiedBlock = new byte[block.Decomp_size];
+
+                TagStream.Seek(block.Decomp_offset, SeekOrigin.Begin);
+                TagStream.Read(modifiedBlock, 0, modifiedBlock.Length);
+
+                byte[] compressedBlock = OodleWrapper.Compress(modifiedBlock, modifiedBlock.Length, OodleLZ_Compressor.Kraken, OodleLZ_CompressionLevel.Optimal5);
+
+                if (modifiedBlock.Length == block.Comp_size)
+                {
+                    compressedBlock = compressedBlock.Skip(2).ToArray();
+                }
+
+                if (compressedBlock.Length <= block.Comp_size)
+                {
+                    ModuleStream.Seek(moduleFileEntry.InModuleDataOffset +  block.Comp_offset, SeekOrigin.Begin);
+                    ModuleStream.Write(compressedBlock, 0, compressedBlock.Length);
+                }
+                else return false;
+            }
+
+            return true;
         }
         protected override void ReadHeader()
         {

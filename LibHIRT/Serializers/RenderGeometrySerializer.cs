@@ -6,10 +6,12 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,7 +29,7 @@ namespace LibHIRT.Serializers
         {
             _file = file;
             _filePath = file.Path_string;
-            GetBlendInfo = false;
+            GetBlendInfo = true;
             _renderGeometry = renderGeometry;
             var reader = new BinaryReader(new MemoryStream());
             return new RenderGeometrySerializer().Deserialize(reader);
@@ -68,24 +70,29 @@ namespace LibHIRT.Serializers
             obj_mesh.CloneIndex = (Int16)mesh["clone index"].AccessValue;
             obj_mesh.RigidNodeIndex = (sbyte)mesh["rigid node index"].AccessValue;
             obj_mesh.VertType = (VertType)((EnumGroup)mesh["vertex type"]).SelectedIndex;
+            
             obj_mesh.IndexBufferType = (IndexBufferType)((EnumGroup)mesh["index buffer type"]).SelectedIndex;
             obj_mesh.UseDualQuat = (sbyte)mesh["use dual quat"].AccessValue != 0;
             ListTagInstance lod_render_data = mesh["LOD render data"] as ListTagInstance;
-            var str_mesh = mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingMeshes[m_i];
-            var max = -1;
-            var min = int.MaxValue;
-            short count_nz = 0;
             HashSet<short[]> indices = new HashSet<short[]>();
-            for (int w = 0; w < str_mesh.MeshLodChunks.Length; w++)
-            {
+            if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingMeshes.Length > 0) {
+                var str_mesh = mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingMeshes[m_i];
+                var max = -1;
+                var min = int.MaxValue;
+                short count_nz = 0;
+                
+                for (int w = 0; w < str_mesh.MeshLodChunks.Length; w++)
+                {
 
-                var l_chun = str_mesh.MeshLodChunks[w];
-                if (l_chun.Chunks.Length == 0)
-                    continue;
-                count_nz++;
-                var b = InterpretChunkParameterInfo(l_chun.Chunks);
-                indices.Add(b);
+                    var l_chun = str_mesh.MeshLodChunks[w];
+                    if (l_chun.Chunks.Length == 0)
+                        continue;
+                    count_nz++;
+                    var b = InterpretChunkParameterInfo(l_chun.Chunks);
+                    indices.Add(b);
+                }
             }
+            
 
             if (lod_render_data != null && lod_render_data.Count > 0)
             {
@@ -99,33 +106,36 @@ namespace LibHIRT.Serializers
                     var obj_lod = new MeshLOD(obj_mesh);
                     obj_lod.IndexBufferIndex.Clear();
                     short index_i = (short)lod["index buffer index"].AccessValue;
-                    var index_buff = mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers[index_i];
-                    if (index_buff.d3dbuffer.D3dBuffer == null)
-                    {
-                        index_buff.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], index_buff.offset, index_buff.d3dbuffer.ByteWidth);
+                    if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers.Length > 0) {
+                        var index_buff = mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers[index_i];
                         if (index_buff.d3dbuffer.D3dBuffer == null)
-                            continue;
-                    }
-                    if (index_buff.Stride == 4)
-                    {
-
-                    }
-                    for (int o = 0; o < index_buff.count; o++)
-                    {
-                        uint index = uint.MaxValue;
-                        if (index_buff.Stride == 2)
-                            index = BitConverter.ToUInt16(index_buff.d3dbuffer.D3dBuffer, o * 2);
-                        else if (index_buff.Stride == 4)
                         {
-                            index = BitConverter.ToUInt32(index_buff.d3dbuffer.D3dBuffer, o * 4);
+                            index_buff.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], index_buff.offset, index_buff.d3dbuffer.ByteWidth);
+                            if (index_buff.d3dbuffer.D3dBuffer == null)
+                                continue;
                         }
-                        else
-                            Debug.Assert(DebugConfig.NoCheckFails);
-                        Debug.Assert(index != uint.MaxValue);
-                        obj_lod.IndexBufferIndex.Add(index);
+                        if (index_buff.Stride == 4)
+                        {
+
+                        }
+                        for (int o = 0; o < index_buff.count; o++)
+                        {
+                            uint index = uint.MaxValue;
+                            if (index_buff.Stride == 2)
+                                index = BitConverter.ToUInt16(index_buff.d3dbuffer.D3dBuffer, o * 2);
+                            else if (index_buff.Stride == 4)
+                            {
+                                index = BitConverter.ToUInt32(index_buff.d3dbuffer.D3dBuffer, o * 4);
+                            }
+                            else
+                                Debug.Assert(DebugConfig.NoCheckFails);
+                            Debug.Assert(index != uint.MaxValue);
+                            obj_lod.IndexBufferIndex.Add(index);
+                        }
+
+
+
                     }
-
-
                     //Debug.Assert(index_buff.offset >= min && index_buff.offset + index_buff.d3dbuffer.ByteWidth <= max);
                     ListTagInstance vert_buffer_indices = lod["vertex buffer indices"] as ListTagInstance;
                     Dictionary<PcVertexBuffersUsage, RasterizerVertexBuffer> vert_buffers = new Dictionary<PcVertexBuffersUsage, RasterizerVertexBuffer>();
@@ -145,6 +155,98 @@ namespace LibHIRT.Serializers
                     }
                     if (vert_buffers.ContainsKey(PcVertexBuffersUsage.Position))
                     {
+                        switch (obj_mesh.VertType)
+                        {
+                            case VertType.world:
+                                break;
+                            case VertType.rigid:
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
+                                break;
+                            case VertType.skinned:
+                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].format == PcVertexBuffersFormat.f_10_10_10_normalized);
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
+                                break;
+                            case VertType.particle_model:
+                                break;
+                            case VertType.screen:
+                                break;
+                            case VertType.debug:
+                                break;
+                            case VertType.transparent:
+                                break;
+                            case VertType.particle:
+                                break;
+                            case VertType.removed08:
+                                break;
+                            case VertType.removed09:
+                                break;
+                            case VertType.chud_simple:
+                                break;
+                            case VertType.decorator:
+                                break;
+                            case VertType.position_only:
+                                break;
+                            case VertType.removed13:
+                                break;
+                            case VertType.ripple:
+                                break;
+                            case VertType.removed15:
+                                break;
+                            case VertType.tessellatedTerrain:
+                                break;
+                            case VertType.empty:
+                                break;
+                            case VertType.decal:
+                                break;
+                            case VertType.removed19:
+                                break;
+                            case VertType.removed20:
+                                break;
+                            case VertType.position_only_21:
+                                break;
+                            case VertType.tracer:
+                                break;
+                            case VertType.rigid_boned:
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
+                                break;
+                            case VertType.removed24:
+                                break;
+                            case VertType.CheapParticle:
+                                break;
+                            case VertType.dq_skinned:
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
+                                Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
+                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].format == PcVertexBuffersFormat.f_10_10_10_normalized);
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
+                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights1].format == PcVertexBuffersFormat.real);
+                                break;
+                            case VertType.skinned_8_weights:
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
+                                Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
+                                break;
+                            case VertType.tessellated_vector:
+                                break;
+                            case VertType.interaction:
+                                break;
+                            case VertType.number_of_standard_vertex_types:
+                                break;
+                            default:
+                                break;
+                        }
+                       
+
                         RasterizerVertexBuffer tempPosition = vert_buffers[PcVertexBuffersUsage.Position];
                         if (tempPosition.d3dbuffer.D3dBuffer == null)
                             tempPosition.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempPosition.offset, tempPosition.d3dbuffer.ByteWidth);
@@ -276,10 +378,20 @@ namespace LibHIRT.Serializers
                                 {
                                     buffer = new byte[blendWeights0.stride];
                                     msBlendWeights0.Read(buffer, 0, blendWeights0.stride);
-                                    (float, float, float, float) resultBW = ((float, float, float, float))FormatReader.Read(blendWeights0.format, buffer);
-                                    temp.BlendWeights0 = new System.Numerics.Vector4(resultBW.Item1, resultBW.Item2, resultBW.Item3, resultBW.Item4);
-                                    if (temp.BlendIndices0.Value.X != temp.BlendIndices0.Value.Y)
-                                    {
+                                    Vector3 re = Vector3.One;
+                                    if (blendWeights0.format == PcVertexBuffersFormat.f_10_10_10_normalized) {
+                                        
+                                        
+                                        re = (Vector3)FormatReader.Read(blendWeights0.format, buffer);
+                                        temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, 1);
+                                        if (obj_mesh.VertType != VertType.dq_skinned)
+                                        {
+                                            //Debug.Assert(re.X + re.Y + re.Z <= 1);
+                                        }
+                                        
+                                        if (temp.BlendIndices0.Value.X != temp.BlendIndices0.Value.Y)
+                                        {
+                                        }
                                     }
                                 }
                             }
@@ -357,6 +469,8 @@ namespace LibHIRT.Serializers
         }
         void ReadBufferInMemChuncks(ref RenderGeometryMeshPackage mesh_package)
         {
+            if (mesh_package.MeshResourceGroups.Length == 0)
+                return;
             var mesh_R = mesh_package.MeshResourceGroups[0].MeshResource[0];
             int chunk_i = 0;
             foreach (var item in mesh_R.StreamingBuffers)
@@ -661,8 +775,11 @@ namespace LibHIRT.Serializers
             int temp_c = (int)value["d3dbuffer"]["d3d buffer"].AccessValue;
             if (temp_c != 0)
             {
+                TagData tempTagData = value["d3dbuffer"]["d3d buffer"] as TagData;
                 Debug.Assert(temp.ownsD3DResource != 0);
-                temp.d3dbuffer.D3dBuffer = new byte[temp_c];
+                temp.d3dbuffer.D3dBuffer = tempTagData.ReadBuffer();
+                // temp.d3dbuffer.D3dBuffer = new byte[temp_c];
+                
             }
 
 
@@ -715,7 +832,7 @@ namespace LibHIRT.Serializers
                 {
                     var v = temp_ch[i];
                     temp.MeshLodChunks[i] = new StreamingChunkList();
-                    temp.MeshLodChunks[i].Chunks = (v["chunks"] as TagReader.Data).ReadBuffer();
+                    temp.MeshLodChunks[i].Chunks = (v["chunks"] as TagReader.TagData).ReadBuffer();
                     //InterpretChunkParameterInfo(temp.MeshLodChunks[i].Chunks);
                 }
             }

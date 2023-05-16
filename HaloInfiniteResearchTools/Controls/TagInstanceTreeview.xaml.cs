@@ -1,20 +1,7 @@
-﻿using HaloInfiniteResearchTools.Models;
-using LibHIRT.TagReader;
-using SharpDX.DirectComposition;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LibHIRT.TagReader;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HaloInfiniteResearchTools.Controls
 {
@@ -83,6 +70,18 @@ namespace HaloInfiniteResearchTools.Controls
             set => SetValue(TagGoToBinCommandProperty, value);
         }
         
+        public static readonly DependencyProperty WriteToCommandProperty = DependencyProperty.Register(
+         nameof(WriteToCommand),
+         typeof(ICommand),
+         typeof(TagInstanceTreeview),
+         new PropertyMetadata());
+
+        public ICommand WriteToCommand
+        {
+            get => (ICommand)GetValue(WriteToCommandProperty);
+            set => SetValue(WriteToCommandProperty, value);
+        }
+        
         public static readonly DependencyProperty TagGoToTemplateCommandProperty = DependencyProperty.Register(
          nameof(TagGoToTemplateCommand),
          typeof(ICommand),
@@ -121,12 +120,31 @@ namespace HaloInfiniteResearchTools.Controls
                 return;
             TagGoToBinCommand?.Execute(temp.DataContext);
         }
-         private void MenuItem_GoToTemplateClick(object sender, RoutedEventArgs e)
+
+        private void MenuItem_WriteToClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem temp = sender as MenuItem;
+            if (temp == null || !(temp.DataContext is TagInstance))
+                return;
+            WriteToCommand?.Execute(temp.DataContext);
+        }
+
+        private void MenuItem_GoToTemplateClick(object sender, RoutedEventArgs e)
         {
             MenuItem temp = sender as MenuItem;
             if (temp == null || !(temp.DataContext is TagInstance))
                 return;
             TagGoToTemplateCommand?.Execute(temp.DataContext);
+        }
+        
+
+
+        private void MenuItem_ToggleEditClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem temp = sender as MenuItem;
+            if (temp == null || !(temp.DataContext is AtomicTagInstace))
+                return;
+            (temp.DataContext as AtomicTagInstace).NoAllowEdit = !(temp.DataContext as AtomicTagInstace).NoAllowEdit;//=="False"?"True":"False"
         }
 
         private void TagRefGenButton_Click(object sender, RoutedEventArgs e)
@@ -142,5 +160,6 @@ namespace HaloInfiniteResearchTools.Controls
             if (render_geom != null)
                 RenderGeomGenOpenCommand?.Execute(render_geom);
         }
+
     }
 }

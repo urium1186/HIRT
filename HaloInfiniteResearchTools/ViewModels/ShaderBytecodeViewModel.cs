@@ -77,7 +77,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             try
             {
-                var temp = ti["shaderBytecodeData"] as Data;
+                var temp = ti["shaderBytecodeData"] as TagData;
 
                 MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
                 ShaderByteCodeDecompileProcess process = new ShaderByteCodeDecompileProcess(temp?.ReadBuffer());

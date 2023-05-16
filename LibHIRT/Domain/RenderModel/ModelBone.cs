@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using LibHIRT.Common;
-using SharpDX.X3DAudio;
 
 namespace LibHIRT.Domain.RenderModel
 {

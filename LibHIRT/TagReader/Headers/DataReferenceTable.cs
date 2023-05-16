@@ -75,7 +75,7 @@ namespace LibHIRT.TagReader.Headers
         }
         public byte[] readBinData(int offset, int len) {
             if (field_data_block == null)
-                throw new Exception("The Data Reference need a field_data_block");
+                throw new Exception("The TagData Reference need a field_data_block");
             var pos_on_init = BaseStream.Position;
             BaseStream.Seek(field_data_block.OffsetPlus+offset, SeekOrigin.Begin);
             if (len > field_data_block.Size)

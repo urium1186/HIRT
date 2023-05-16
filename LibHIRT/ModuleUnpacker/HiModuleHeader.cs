@@ -86,7 +86,7 @@ namespace LibHIRT.ModuleUnpacker
             Console.WriteLine("String Table Offset: 0x" + StringTableOffset.ToString("X8"));
             Console.WriteLine("Resource List Offset: 0x" + ResourceListOffset.ToString("X8"));
             Console.WriteLine("Block List Offset: 0x" + BlockListOffset.ToString("X8"));
-            Console.WriteLine("File Data Offset: 0x" + FileDataOffset.ToString("X8"));
+            Console.WriteLine("File TagData Offset: 0x" + FileDataOffset.ToString("X8"));
         }
 
         public void ReadIn(byte[] ModuleHeader) {

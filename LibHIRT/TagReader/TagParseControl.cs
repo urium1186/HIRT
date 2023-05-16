@@ -179,8 +179,8 @@ namespace LibHIRT.TagReader
         {
             switch (childItem.TagDef.T)
             {
-                case TagElemntType.Data:
-                    //(childItem as Data).Data_reference = parent.Content_entry.L_function[ref_it.f];
+                case TagElemntType.TagData:
+                    //(childItem as TagData).Data_reference = parent.Content_entry.L_function[ref_it.f];
                     //ref_it.f += 1;
                     OnInstanceLoad(childItem);
                     break;
@@ -260,7 +260,7 @@ namespace LibHIRT.TagReader
                 
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 _rootTagInst.Content_entry = _tagFile.TagStructTable.Entries[0];
-
+                _rootTagInst.InstanceParentOffset = 0;
                 //readTagsAndCreateInstances();
                 readTagsAndCreateInstances(ref _rootTagInst);
             }
@@ -344,11 +344,12 @@ namespace LibHIRT.TagReader
             int n_items = -1;
             (CompoundTagInstance, List<CompoundTagInstance>)? read_result = null;
             RefItCount refItCount = new RefItCount();
+            long instParentOffest = 0;
             foreach (var data in instance_parent.Content_entry.Bin_datas)
             {
                 MemoryStream bin_stream = new MemoryStream(data.ToArray<byte>());
 
-                read_result = readTagDefinition(ref instance_parent, bin_stream, ref refItCount);
+                read_result = readTagDefinition(instParentOffest,ref instance_parent, bin_stream, ref refItCount);
                 if (instance_parent is ParentTagInstance)
                 {
                 }
@@ -358,6 +359,7 @@ namespace LibHIRT.TagReader
                 }
                 tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)read_result.Value.Item2);
                 n_items = read_result.Value.Item2.Count;
+                instParentOffest += data.Count;
             }
 
             /*
@@ -447,7 +449,7 @@ namespace LibHIRT.TagReader
             OnInstanceLoad(instance_parent);
         }
 
-        private (CompoundTagInstance, List<CompoundTagInstance>)? readTagDefinition(ref CompoundTagInstance parent, MemoryStream f, ref RefItCount ref_it, long parcial_address = 0)
+        private (CompoundTagInstance, List<CompoundTagInstance>)? readTagDefinition(long instParentOffest, ref CompoundTagInstance parent, MemoryStream f, ref RefItCount ref_it, long parcial_address = 0)
         {
             ParentTagInstance tagInstanceTemp = new ParentTagInstance(parent.TagDef, 0, 0);
             if (parent is ParentTagInstance)
@@ -468,6 +470,7 @@ namespace LibHIRT.TagReader
                 tagInstanceTemp.AddChild(childItem);
                 childItem.Parent = parent;
                 childItem.Content_entry = parent.Content_entry;
+                childItem.InstanceParentOffset = instParentOffest+entry;
                 childItem.ReadIn(new BinaryReader(f), _tagFile?.TagHeader);
                 if (f.Position < parcial_addresstemp)
                 {
@@ -482,7 +485,7 @@ namespace LibHIRT.TagReader
                     for (int k = 0; k < count; k++)
                     {
                         parcial_addresstemp = f.Position;
-                        var r2 = readTagDefinition(ref tempref, f, ref ref_it, parcial_addresstemp);
+                        var r2 = readTagDefinition(childItem.InstanceParentOffset, ref tempref, f, ref ref_it, parcial_addresstemp);
                         tempref.AddChild(r2.Value.Item1);
                         tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)r2.Value.Item2);
                     }
@@ -492,7 +495,7 @@ namespace LibHIRT.TagReader
                 {
                     parcial_addresstemp = f.Position;
                     CompoundTagInstance temp = (CompoundTagInstance)childItem;
-                    var temp_r = readTagDefinition(ref temp, f, ref ref_it, parcial_addresstemp);
+                    var temp_r = readTagDefinition(childItem.InstanceParentOffset, ref temp, f, ref ref_it, parcial_addresstemp);
                     tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)temp_r.Value.Item2);
                 }
                 i++;
@@ -504,8 +507,8 @@ namespace LibHIRT.TagReader
         {
             switch (childItem.TagDef.T)
             {
-                case TagElemntType.Data:
-                    (childItem as Data).Data_reference = parent.Content_entry.L_function[ref_it.f];
+                case TagElemntType.TagData:
+                    (childItem as TagData).Data_reference = parent.Content_entry.L_function[ref_it.f];
                     ref_it.f += 1;
                     OnInstanceLoad(childItem);
                     break;
@@ -590,15 +593,17 @@ namespace LibHIRT.TagReader
             };
 
             int k = 0;
+            long parentBlockOffset = 0;
             foreach (var data in instance_parent.Content_entry.Bin_datas)
             {
                 MemoryStream bin_stream = new MemoryStream(data.ToArray<byte>());
                 //var read_result = null;
-                read_result = readTagDefinition_(k, ref instance_parent, ref ref_count, f: bin_stream);
+                read_result = readTagDefinition_(k, parentBlockOffset, ref instance_parent, ref ref_count, f: bin_stream);
                 k++;
                 //instance_parent.AddChild(read_result["instance_parent"] as Dictionary<string, TagInstance>);
                 tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)read_result["child_array"]);
                 n_items = ((IEnumerable<TagInstance>)read_result["child_array"]).Count<TagInstance>();
+                parentBlockOffset += data.Count;
             }
 
             /*
@@ -687,7 +692,7 @@ namespace LibHIRT.TagReader
                 OnInstanceLoadEvent.Invoke(this, instance);
         }
 
-        protected Dictionary<string, object> readTagDefinition_(int i, ref TagInstance parent, ref RefItCount? ref_it, long parcial_address = 0, Stream? f = null)
+        protected Dictionary<string, object> readTagDefinition_(int i,long parentBlockOffset, ref TagInstance parent, ref RefItCount? ref_it, long parcial_address = 0, Stream? f = null)
         {
             if (ref_it == null)
             {
@@ -720,12 +725,13 @@ namespace LibHIRT.TagReader
 
                     tagInstanceTemp[key] = TagInstanceFactory.Create(tagDefinitions[entry], parcial_address, entry);
                     tagInstanceTemp[key].Parent = parent;
+                    tagInstanceTemp[key].InstanceParentOffset = parentBlockOffset + entry;
                     tagInstanceTemp[key].ReadIn(new BinaryReader(f), _tagFile.TagHeader);
 
                     switch (tagDefinitions[entry].T)
                     {
-                        case TagElemntType.Data:
-                            (tagInstanceTemp[key] as Data).Data_reference = parent.Content_entry.L_function[ref_it.f];
+                        case TagElemntType.TagData:
+                            (tagInstanceTemp[key] as TagData).Data_reference = parent.Content_entry.L_function[ref_it.f];
                             ref_it.f += 1;
                             OnInstanceLoad(tagInstanceTemp[key]);
                             break;

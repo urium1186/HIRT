@@ -38,8 +38,21 @@ namespace LibHIRT.Utils
 
         public static bool GetBit(byte b, int bitNumber)
         {
-            var bit = (b & (1 << bitNumber - 1)) != 0;
+            var result = Convert.ToString(b, 2).PadLeft(8, '0');
+            
+            
+            var bit = (b & (1 << bitNumber)) != 0;
             return bit;
+        }
+
+        public static byte[] GetBytesFormStringBit(string binaryStr) {
+            var byteArray = Enumerable.Range(0, int.MaxValue / 8)
+                                      .Select(i => i * 8)    // get the starting index of which char segment
+                                      .TakeWhile(i => i < binaryStr.Length)
+                                      .Select(i => binaryStr.Substring(i, 8)) // get the binary string segments
+                                      .Select(s => Convert.ToByte(new string(s.ToCharArray().Reverse().ToArray()), 2)) // convert to byte
+                                      .ToArray();
+            return byteArray;
         }
     }
 }
