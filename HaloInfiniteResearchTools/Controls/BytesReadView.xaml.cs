@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Common;
+using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -116,6 +117,26 @@ namespace HaloInfiniteResearchTools.Controls
                         return "";
                     var pos = stream.BaseStream.Position;
                     string temp = stream.ReadInt32().ToString();
+                    stream.BaseStream.Position = pos;
+                    return temp;
+                }
+                catch (System.Exception)
+                {
+
+                    return "";
+                }
+            }
+        }
+        public string Mmr3
+        {
+            get
+            {
+                try
+                {
+                    if (stream == null)
+                        return "";
+                    var pos = stream.BaseStream.Position;
+                    string temp = Mmr3HashLTU.getMmr3HashFromInt(stream.ReadInt32());
                     stream.BaseStream.Position = pos;
                     return temp;
                 }
@@ -343,6 +364,7 @@ namespace HaloInfiniteResearchTools.Controls
             BindingOperations.GetBindingExpressionBase((TextBox)TbInt16, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbUInt32, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbInt32, TextBox.TextProperty).UpdateTarget();
+            BindingOperations.GetBindingExpressionBase((TextBox)TbMmr3, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbUInt64, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbInt64, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbFloat16, TextBox.TextProperty).UpdateTarget();

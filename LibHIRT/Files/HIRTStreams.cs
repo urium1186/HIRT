@@ -204,6 +204,7 @@ namespace LibHIRT.Files
         {
             get => _chunks[_currentChunkIndex];
         }
+        public Stream BaseStream { get => _baseStream; set => _baseStream = value; }
 
         #endregion
 
@@ -231,7 +232,7 @@ namespace LibHIRT.Files
         }
 
         public static HIRTDecompressionStream FromFile(string filePath)
-          => HIRTDecompressionStream.FromStream(File.OpenRead(filePath));
+          => HIRTDecompressionStream.FromStream(File.Open(filePath, FileMode.Open, FileAccess.ReadWrite));
 
         #endregion
 

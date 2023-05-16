@@ -12,8 +12,18 @@
       >
 
     <Grid>
-
-        <TabControl TabStripPlacement="Right" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="{Binding SelectedTabIndex}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0"
+              VerticalAlignment="Bottom">
+            <MenuItem Header="File">
+                <MenuItem Header="Write Tag to Module" Command="{Binding WriteTagCommand}" />
+            </MenuItem>
+           
+        </Menu>
+        <TabControl Grid.Row="1" TabStripPlacement="Right" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="{Binding SelectedTabIndex}">
             <!--
             <TabItem Header="TabItem" FontStyle="Italic" FontWeight="Thin" RenderTransformOrigin="0.5,0.5">
                 <TabItem.RenderTransform>
@@ -47,6 +57,7 @@
                                                   TagRefGenOpenCommand="{Binding OpenGenFileTabCommand}"
                                                   TagToJsonCommand="{Binding TagInstanceExportJsonCommand}"
                                                   TagGoToBinCommand="{Binding TagGoToBinCommand}"
+                                                  WriteToCommand="{Binding WriteToCommand}"
                                                   TagGoToTemplateCommand="{Binding TagGoToTemplateCommand}"
                                                   RenderGeomGenOpenCommand="{Binding RenderGeomGenOpenCommand}"
                                                   >
@@ -64,7 +75,7 @@
                     </TransformGroup>
                 </TabItem.RenderTransform>
                 <Grid Background="#FFE5E5E5">
-                    <controls:BinaryExplorer FileStream="{Binding FileStream}"/>
+                    <controls:BinaryExplorer FileStream="{Binding FileStream}" PositionOnCurrentStream ="{Binding PositionOnCurrentStream}"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="XmlViewer" Header="Tag Template"  FontStyle="Italic" FontWeight="Thin" Initialized="XmlViewer_Initialized" >

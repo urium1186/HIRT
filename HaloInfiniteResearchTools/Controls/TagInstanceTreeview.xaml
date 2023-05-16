@@ -24,6 +24,9 @@
                 <ContextMenu x:Key="TagInstanceMenuContext">
                     <MenuItem Header="Export to Json" Click="MenuItem_ExportToJsonClick" />
                     <Separator/>
+                    <MenuItem Header="Toggle Edit" Click="MenuItem_ToggleEditClick" />
+                    <MenuItem Header="Write To" Click="MenuItem_WriteToClick" />
+                    <Separator/>
                     <MenuItem Header="GoTo Binary" Click="MenuItem_GoToBinClick" IsEnabled="True"/>
                     <MenuItem Header="GoTo Template" Click="MenuItem_GoToTemplateClick" IsEnabled="True"/>
                 </ContextMenu>
@@ -52,7 +55,7 @@
                         <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
-                        <Label Content=" childs"  Grid.Column="3"></Label>
+                        <Label Content=" fields"  Grid.Column="3"></Label>
                     </Grid>
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type tags:RenderGeometryTag}" ItemsSource="{Binding Childrens}" >
@@ -105,7 +108,7 @@
                             <TreeViewItem >
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBox Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="True"></TextBox>
+                                        <TextBox Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
                                         <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click"
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
@@ -148,7 +151,7 @@
                                     </Grid.RowDefinitions>
                                     <Label Content="{Binding TagGroupRev , Mode=OneWay}"  Grid.Column="0" Grid.Row="0"></Label>
                                     <Label Content="{Binding Path , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
-                                    <TextBox Text="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="True"></TextBox>
+                                    <TextBox Text="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
                                     <Button Content="Open Gen" DataContext="{Binding Self}" Width="65" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefGenButton_Click"
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
@@ -172,7 +175,9 @@
                         </Grid.ColumnDefinitions>
                         <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
-                        <TextBox Text="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2" IsReadOnly="True" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBox>
+                        <TextBox Text="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}" 
+                                
+                                 VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnlyCaretVisible="True"></TextBox>
                     </Grid>
 
                 </DataTemplate>
@@ -185,7 +190,7 @@
                         </Grid.ColumnDefinitions>
                         <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
-                        <TextBox Text="{Binding Str_value , Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="True"></TextBox>
+                        <TextBox Text="{Binding Str_value , Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
                     </Grid>
                     
                 </DataTemplate>
@@ -220,7 +225,7 @@
                                   >
                             <TreeView.Resources >
 
-                                <HierarchicalDataTemplate DataType="{x:Type tags:Flag}" ItemsSource="{Binding Childrens}">
+                                <HierarchicalDataTemplate DataType="{x:Type tags:FlagsModel}" ItemsSource="{Binding Childrens}">
                                     <Grid ShowGridLines="False" >
 
                                         <Grid.ColumnDefinitions>
@@ -230,7 +235,23 @@
                                         </Grid.ColumnDefinitions>
                                         <Label Content="{Binding Label}" Grid.Column="0" FontFamily="Calibri Light"></Label>
                                         <Label Content=": " Grid.Column="1" FontFamily="Calibri Light"></Label>
-                                        <Label Content="{Binding Value}" Grid.Column="2" FontFamily="Calibri Light"></Label>
+                                        <Label Content="{Binding Value, Mode=TwoWay}" Grid.Column="2" FontFamily="Calibri Light"></Label>
+                                    </Grid>
+
+
+
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type tags:Flag}" >
+                                    <Grid ShowGridLines="False" >
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="{Binding Label}" Grid.Column="0" FontFamily="Calibri Light"></Label>
+                                        <Label Content=": " Grid.Column="1" FontFamily="Calibri Light"></Label>
+                                        <CheckBox IsChecked="{Binding Value}" Grid.Column="2" FontFamily="Calibri Light"></CheckBox>
                                     </Grid>
 
 

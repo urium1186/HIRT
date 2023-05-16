@@ -585,7 +585,7 @@ namespace LibHIRT.TagReader
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagRef, N = xn.Attributes.GetNamedItem("v").InnerText, S = 28, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_42": // data
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Data, N = xn.Attributes.GetNamedItem("v").InnerText, S = 24, xmlPath = (s_p, s_p_n) });
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagData, N = xn.Attributes.GetNamedItem("v").InnerText, S = 24, xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_43":// Mapping these to fix errors. The new length seems to fix some issues. Check pfnd > mobileNavMeshes to understand.
                         /*pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText });

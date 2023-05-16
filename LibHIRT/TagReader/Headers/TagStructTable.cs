@@ -241,7 +241,7 @@ namespace LibHIRT.TagReader.Headers
             {
                 int temp = bin_datas[0].Count;
                 if (temp == 0)
-                    throw new Exception("Data vacia en conteentry");
+                    throw new Exception("TagData vacia en conteentry");
                 return field_offset / temp;
 
             }

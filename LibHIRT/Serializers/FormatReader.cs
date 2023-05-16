@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
-using SharpDX.Mathematics;
-using SharpDX.Animation;
 using System.Collections;
 using System.Numerics;
 using LibHIRT.Domain;
+using System;
 
 namespace LibHIRT.Serializers
 {
@@ -94,7 +93,15 @@ namespace LibHIRT.Serializers
             return (in_byte[0], in_byte[1], in_byte[2], in_byte[3]);
         }
 
-        public static (float, float, float, float) ReadF_10_10_10_normalized(byte[]? in_byte)
+        public static Vector3 ReadF_10_10_10_normalized(byte[]? vertexData) {
+            uint packedNormal = BitConverter.ToUInt32(vertexData, 0);
+            float x = (ushort)(packedNormal & 0x3FF) / 1023.0f;
+            float y = (ushort)((packedNormal >> 10) & 0x3FF) / 1023.0f;
+            float z = (ushort)((packedNormal >> 20) & 0x3FF) / 1023.0f;
+            Vector3 normal = new Vector3(x, y, z);
+            return normal;
+        }
+        public static (float, float, float, float) ReadF_10_10_10_normalized_Old(byte[]? in_byte)
         {
             Debug.Assert(in_byte != null && in_byte.Length == 4);
             var inter = InterpretVertexBuffer(BitConverter.ToInt32(in_byte));

@@ -12,7 +12,7 @@ namespace LibHIRT.TagReader
         ArrayFixLen,
         GenericBlock,
         TagStructData,
-        Data,
+        TagData,
         EnumGroup,
         UFourByte,
         UTwoByte,

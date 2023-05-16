@@ -1,8 +1,6 @@
 ﻿using LibHIRT.DAO;
 using LibHIRT.Utils;
-using SharpDX.Direct3D9;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Text;
 
 namespace LibHIRT.TagReader
