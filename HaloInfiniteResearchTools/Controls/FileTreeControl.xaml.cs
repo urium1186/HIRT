@@ -20,6 +20,12 @@ namespace HaloInfiniteResearchTools.Controls
           typeof(FileTreeControl),
           new PropertyMetadata());
 
+        public static readonly DependencyProperty FileTreeExportJsonCommandProperty = DependencyProperty.Register(
+          nameof(FileTreeExportJsonCommand),
+          typeof(ICommand),
+          typeof(FileTreeControl),
+          new PropertyMetadata());
+
         #endregion
 
         #region Properties
@@ -28,6 +34,11 @@ namespace HaloInfiniteResearchTools.Controls
         {
             get => (ICommand)GetValue(FileDoubleClickCommandProperty);
             set => SetValue(FileDoubleClickCommandProperty, value);
+        }
+         public ICommand FileTreeExportJsonCommand
+        {
+            get => (ICommand)GetValue(FileTreeExportJsonCommandProperty);
+            set => SetValue(FileTreeExportJsonCommandProperty, value);
         }
 
         #endregion
@@ -114,6 +125,31 @@ namespace HaloInfiniteResearchTools.Controls
                 //FileTree.Items.Refresh();
                 //FileTree.UpdateLayout();
             }
+        }
+
+        private void MenuItem_ExportToJsonClick(object sender, RoutedEventArgs e)
+        {
+            var item = sender as MenuItem; if (item == null) {
+                return;
+            }
+            var fileModel = item.DataContext as DirModel;
+            if (!(fileModel is null))
+            {
+                e.Handled = true;
+               
+
+                FileTreeExportJsonCommand?.Execute(fileModel);
+            }
+            /*else
+            {
+                var treeModel = item.DataContext as TreeHierarchicalModel;
+
+                if (treeModel != null)
+                {
+                    FileTreeExportJsonCommand?.Execute(treeModel);
+                }
+            }*/
+
         }
     }
 

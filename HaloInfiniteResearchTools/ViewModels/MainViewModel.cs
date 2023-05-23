@@ -25,6 +25,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private readonly ITabService _tabService;
         public ICommand OpenFileTabCommand { get; }
+        public ICommand FileTreeExportJsonCommand { get; }
 
         public ICommand OpenFileCommand { get; }
         public ICommand OpenFromRuntimeCommand { get; }
@@ -49,6 +50,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             OpenFileTabCommand = new AsyncCommand<IFileModel>(OpenFileTab);
 
             OpenFileCommand = new AsyncCommand(OpenFile);
+            FileTreeExportJsonCommand = new AsyncCommand<DirModel>(FileTreeExportJson);
             OpenFromRuntimeCommand = new AsyncCommand(OpenFromRuntime);
             OpenDirectoryCommand = new AsyncCommand(OpenDirectory);
             EditPreferencesCommand = new AsyncCommand(EditPreferences);
@@ -63,7 +65,17 @@ namespace HaloInfiniteResearchTools.ViewModels
             App.Current.DispatcherUnhandledException += OnUnhandledExceptionRaised;
         }
 
-       
+        private async Task FileTreeExportJson(DirModel dirModel)
+        {
+           if (dirModel == null) { return; }
+           List<ISSpaceFile> files = new List<ISSpaceFile>();
+            dirModel.GetAllFiles(files);
+            var prefs = GetPreferences();
+            var process = new ExportFilesToJsonProcess(files,prefs.DefaultExportPath);
+            await RunProcess(process);
+        }
+
+
         #endregion
 
         public FileContextModel FileContext { get; }

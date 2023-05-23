@@ -322,6 +322,8 @@ namespace LibHIRT.Serializers
                             //Debug.Assert(blendWeights0.count == tempPosition.count);
                         }
                         obj_lod.Vertexs = new SSPVertex[tempPosition.count];
+                        HashSet<string> vert = new HashSet<string>();
+                        int countVOOB = 0;
                         for (int j = 0; j < tempPosition.count; j++)
                         {
                             SSPVertex temp = new SSPVertexStatic();
@@ -384,19 +386,34 @@ namespace LibHIRT.Serializers
                                         
                                         re = (Vector3)FormatReader.Read(blendWeights0.format, buffer);
                                         temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, 1);
-                                        if (obj_mesh.VertType != VertType.dq_skinned)
+
+                                        if (obj_mesh.VertType == VertType.dq_skinned )
                                         {
-                                            //Debug.Assert(re.X + re.Y + re.Z <= 1);
+                                            Debug.Assert(blendWeights0.d3dbuffer.Usage == 8);
+                                        }else  if ( obj_mesh.VertType == VertType.skinned)
+                                        {
+                                            Debug.Assert(blendWeights0.d3dbuffer.Usage == 8);
                                         }
-                                        
-                                        if (temp.BlendIndices0.Value.X != temp.BlendIndices0.Value.Y)
+
+                                        if (temp.BlendIndices0.Value.X == temp.BlendIndices0.Value.Y && temp.BlendIndices0.Value.X == temp.BlendIndices0.Value.Z && temp.BlendIndices0.Value.X == temp.BlendIndices0.Value.W)
                                         {
+                                            countVOOB++;
+                                            string vert_S = temp.Position.X.ToString() + temp.Position.Y.ToString() + temp.Position.Z.ToString();
+                                            if (re.X + re.Y + re.Z != 0) {
+                                                if (!vert.Contains(vert_S)) {
+                                                    vert.Add(vert_S);
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                             
                             obj_lod.Vertexs[j] = temp;
+                        }
+                        if (obj_mesh.VertType == VertType.dq_skinned || obj_mesh.VertType == VertType.skinned)
+                        {
+                            Debug.Assert(vert.Count==0);
                         }
                     }
                     /*

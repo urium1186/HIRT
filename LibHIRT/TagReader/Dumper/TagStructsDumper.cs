@@ -26,6 +26,7 @@ namespace LibHIRT.TagReader.Dumper
         private HashSet<int> unique_items_7 = new HashSet<int>();
 
         private HashSet<string> unique_string_used = new HashSet<string>();
+        private Stack<string> _37Stack= new Stack<string>();
 
         public Mem M { get => m; set => m = value; }
         public string OutDIR { get => outDIR; set => outDIR = value; }
@@ -133,6 +134,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                 for (int iteration_index = 0; iteration_index < tagCount; iteration_index++)
                 {
                     string temp_filename = outDIR + @"\dump" + iteration_index + ".xml";
+                    _37Stack.Clear();
                     using (XmlWriter w = XmlWriter.Create(temp_filename, xmlWriterSettings))
                     {
                         textWriter = w;
@@ -266,6 +268,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
 
             bool is37 = false;
             int is37Count = 0;
+            _37Stack.Clear();
             long address_for_our_string_bruh = m.ReadLong(address.ToString("X"));
             long address_for_our_string_bruh_1 = m.ReadLong((address + 8).ToString("X"));
             
@@ -455,6 +458,21 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                     case 0x37:
                         is37 = !is37;
                         is37Count += is37 ? 1 : -1;
+                        if (is37)
+                        {
+                            _37Stack.Push(n_name);
+                        }
+                        else {
+                            if (_37Stack.Count != 0)
+                            {
+                                string s_name = _37Stack.Pop();
+                            }
+                            else { 
+                                
+                            }
+                                
+                        }
+                        
                         new possible_t1_struct_c_instance
                         {
                             actual_value = next_next_next_address
@@ -585,8 +603,12 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
 
 
             }
-            if (is37Count != 0)
-                Debug.Assert(is37Count == 1);
+            if (_37Stack.Count != 0 ) {
+                Debug.Assert(_37Stack.Count == 1);
+                string last_val = _37Stack.Pop();
+
+            }
+                
             return new Table2_struct { };
         }
         private void searchFuctions(long adrress) {

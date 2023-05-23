@@ -228,6 +228,34 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
     }
+     public class Explanation : AtomicTagInstace
+    {
+        
+        public Explanation(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+
+        public override void ReadIn(BinaryReader f, TagHeader? header = null)
+        {
+            base.ReadIn(f, header);
+            //value = TagDef.N;
+            ExeTagInstance();
+        }
+    }
+    public class CustomLikeGrouping : AtomicTagInstace
+    {
+        
+        public CustomLikeGrouping(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+
+        public override void ReadIn(BinaryReader f, TagHeader? header = null)
+        {
+            base.ReadIn(f, header);
+            //value = TagDef.N;
+            ExeTagInstance();
+        }
+    }
 
     public class GenericBlock : ValueTagInstace<string>
     {
@@ -1749,6 +1777,10 @@ namespace LibHIRT.TagReader
             {
                 case TagElemntType.Comment:
                     return new Comment(tagDef, addressStart, offset);
+                case TagElemntType.Explanation:
+                    return new Explanation(tagDef, addressStart, offset);
+                case TagElemntType.CustomLikeGrouping:
+                    return new CustomLikeGrouping(tagDef, addressStart, offset);
                 case TagElemntType.ArrayFixLen:
                     return new ArrayFixLen(tagDef, addressStart, offset);
                 case TagElemntType.GenericBlock:
