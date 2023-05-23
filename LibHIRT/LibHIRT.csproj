@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspose.3D" Version="23.4.0" />
     <PackageReference Include="Bond.Compiler" Version="10.0.0" />
     <PackageReference Include="Bond.Compiler.CSharp" Version="10.0.0" />
     <PackageReference Include="Iconic.Zlib.Netstandard" Version="1.0.0" />

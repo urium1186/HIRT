@@ -51,6 +51,16 @@ namespace LibHIRT.Files
             }
             return null;
         }
+
+        virtual public void GetAllFiles(List<ISSpaceFile> result)
+        {
+            if (result == null)
+                result = new List<ISSpaceFile>();
+            foreach (var dir in dirs.Values) {
+                dir.GetAllFiles(result);
+            }
+            
+        }
         virtual protected List<DirModel> getFilterList() {
             var temp = filterDirs();
             if (temp == null || temp.Dirs == null)
@@ -126,6 +136,14 @@ namespace LibHIRT.Files
 
             }
             return null;
+        }
+
+        override public void GetAllFiles(List<ISSpaceFile> result)
+        {
+            if (result == null)
+                result = new List<ISSpaceFile>();
+
+            result.Add(File);
         }
     }
 }

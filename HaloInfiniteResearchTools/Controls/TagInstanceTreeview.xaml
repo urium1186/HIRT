@@ -10,7 +10,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TreeView x:Name="treeView" Grid.Row="1"
+        <Grid.RowDefinitions>
+            
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <TreeView x:Name="treeView" Grid.Row="0"
                           VirtualizingPanel.IsVirtualizing="True"
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                   VirtualizingPanel.IsContainerVirtualizable="True"
@@ -44,6 +49,20 @@
                     <MenuItem Header="Move"/>
                 </ContextMenu>
                 
+                <HierarchicalDataTemplate DataType="{x:Type tags:ListTagInstance}" ItemsSource="{Binding Childrens}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
+                        <Label Content=" childs"  Grid.Column="3"></Label>
+                    </Grid>
+                </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type tags:CompoundTagInstance}" ItemsSource="{Binding Childrens}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -52,7 +71,7 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
                         <Label Content=" fields"  Grid.Column="3"></Label>
@@ -67,7 +86,7 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" ></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
                         <Label Content=" childs"  Grid.Column="3"></Label>
@@ -78,22 +97,6 @@
                         </Button>
                     </Grid>
                 </HierarchicalDataTemplate>
-                
-                <HierarchicalDataTemplate DataType="{x:Type model:TagInstanceModel}" ItemsSource="{Binding Childrens}" >
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"></ColumnDefinition>
-                            <ColumnDefinition Width="auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="{Binding Header}" Grid.Column="0"></Label>
-                        <Label Content=": " Grid.Column="1" ></Label>
-                        <Label Content="{Binding StrValue , Mode=OneWay}"  Grid.Column="2"></Label>
-                    </Grid>
-                </HierarchicalDataTemplate>
-                <DataTemplate DataType="{x:Type model:TagRefInstaceModel}" >
-                    <Label Content="{Binding TagGroup}"></Label>
-                </DataTemplate>
                 <DataTemplate DataType="{x:Type tags:TagRef}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -101,7 +104,7 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TreeView  Grid.Column="2" BorderThickness="0" >
                             
@@ -173,11 +176,37 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TextBox Text="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}" 
                                 
                                  VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnlyCaretVisible="True"></TextBox>
+                    </Grid>
+
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:Explanation}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"
+                                 Background="DarkRed" FontWeight="Bold" FontStyle="Italic"
+                                 ></TextBox>
+                    </Grid>
+
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type tags:CustomLikeGrouping}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"
+                                 Background="DarkGreen" FontWeight="Bold" FontStyle="Italic"
+                                 ></TextBox>
                     </Grid>
 
                 </DataTemplate>
@@ -188,7 +217,7 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TextBox Text="{Binding Str_value , Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
                     </Grid>
@@ -202,7 +231,7 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=OneWay}"  Grid.Column="2"></ComboBox>
                     </Grid>
@@ -214,7 +243,7 @@
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TreeView ItemsSource="{Binding Flags}" Grid.Column="2"
                                    VirtualizingPanel.IsVirtualizing="True"
@@ -269,7 +298,7 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TreeView  Grid.Column="2" BorderThickness="0" >
                             <TreeViewItem Header="{Binding AccessValue}" >
@@ -295,7 +324,7 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding FieldName}" Grid.Column="0"></Label>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TreeView  Grid.Column="2" BorderThickness="0" >
                             <TreeViewItem Header="{Binding AccessValue}" >

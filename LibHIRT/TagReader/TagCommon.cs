@@ -9,6 +9,8 @@ namespace LibHIRT.TagReader
 
     public enum TagElemntType {
         Comment,
+        Explanation,
+        CustomLikeGrouping,
         ArrayFixLen,
         GenericBlock,
         TagStructData,

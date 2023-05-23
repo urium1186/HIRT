@@ -142,6 +142,7 @@
                   
                   >
             <TreeView.Resources>
+                
                 <HierarchicalDataTemplate DataType="{x:Type models:TreeHierarchicalModel}" ItemsSource="{Binding Childrens}">
                     <TextBlock Text="{Binding Name}"></TextBlock>
                 </HierarchicalDataTemplate>
@@ -159,11 +160,21 @@
                                                    Converter={StaticResource CollectionVisibilityConverter}}"
                   >
             <TreeView.Resources>
+                <ContextMenu x:Key="DirMenuTools">
+                    <MenuItem Header="Export to Json" Click="MenuItem_ExportToJsonClick" />
+                    <Separator/>
+                    
+                </ContextMenu>
                 <HierarchicalDataTemplate DataType="{x:Type model:DirModel}" ItemsSource="{Binding ListDirs}">
                     <TextBlock Text="{Binding SubPath}"></TextBlock>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
-            
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="ContextMenu" Value="{StaticResource DirMenuTools}" />
+                </Style>
+
+            </TreeView.ItemContainerStyle>
         </TreeView>
         <!--#endregion-->
         

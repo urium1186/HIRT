@@ -64,7 +64,9 @@
             </Grid.ColumnDefinitions>
 
             <controls:FileTreeControl Grid.Column="0"
-                                      FileDoubleClickCommand="{Binding OpenFileTabCommand}"/>
+                                      FileDoubleClickCommand="{Binding OpenFileTabCommand}"
+                                      FileTreeExportJsonCommand="{Binding FileTreeExportJsonCommand}"
+                                      />
 
             <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch" />
 

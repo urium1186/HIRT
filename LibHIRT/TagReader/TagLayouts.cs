@@ -462,7 +462,7 @@ namespace LibHIRT.TagReader
 					case "_36": // explanation
                         if (xn.Attributes.GetNamedItem("v").InnerText != "")
 						{
-							pairs.Add(offset + evalutated_index_PREVENT_DICTIONARYERROR, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+							pairs.Add(offset + evalutated_index_PREVENT_DICTIONARYERROR, new C { G = xn.Name, T = TagElemntType.Explanation, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 							evalutated_index_PREVENT_DICTIONARYERROR++;
 						}
 						else
@@ -473,7 +473,7 @@ namespace LibHIRT.TagReader
 					case "_37": // TODO revisar regin typed grouper
 						if (xn.Attributes.GetNamedItem("v").InnerText != "")
 						{
-							pairs.Add(offset + evalutated_index_PREVENT_DICTIONARYERROR, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
+							pairs.Add(offset + evalutated_index_PREVENT_DICTIONARYERROR, new C { G = xn.Name, T = TagElemntType.CustomLikeGrouping, N = xn.Attributes.GetNamedItem("v").InnerText, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 							evalutated_index_PREVENT_DICTIONARYERROR++;
 						}
 						else
