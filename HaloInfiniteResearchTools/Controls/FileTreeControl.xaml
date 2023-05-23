@@ -161,9 +161,10 @@
                   >
             <TreeView.Resources>
                 <ContextMenu x:Key="DirMenuTools">
-                    <MenuItem Header="Export to Json" Click="MenuItem_ExportToJsonClick" />
+                    <MenuItem Header="Open Generic View" Click="MenuItem_OpenGenericViewClick" />
                     <Separator/>
-                    
+                    <MenuItem Header="Export to Json" Click="MenuItem_ExportToJsonClick" />
+                    <MenuItem Header="Export Recursive to Json" Click="MenuItem_ExportRecursiveToJsonClick" />
                 </ContextMenu>
                 <HierarchicalDataTemplate DataType="{x:Type model:DirModel}" ItemsSource="{Binding ListDirs}">
                     <TextBlock Text="{Binding SubPath}"></TextBlock>

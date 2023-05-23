@@ -1149,6 +1149,8 @@ namespace LibHIRT.TagReader
         }
         Dictionary<string, object> getAccessValuesExtra() {
             var result = new Dictionary<string, object>();
+            if (keyValues==null)
+                return result;
             foreach (var key in keyValues.Keys) {
                 result[key] = keyValues[key].AccessValueExtra;
             }

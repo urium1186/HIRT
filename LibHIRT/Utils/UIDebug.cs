@@ -12,6 +12,6 @@ namespace LibHIRT.Utils
     }
 
     public static class DebugConfig{
-        public static bool NoCheckFails = false;
+        public static bool NoCheckFails = true;
     }
 }

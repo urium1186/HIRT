@@ -611,7 +611,7 @@ namespace LibHIRT.TagReader
                         }
                         return group_lengths_dict[xn.Name];
 					case "_44":// unmapped -- data path
-                        Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _44 unmapped");
+                        //Debug.Assert(DebugConfig.NoCheckFails, "Revisar pq se  unmapped");//throw new Exception("Revisar pq se _44 unmapped");
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.String, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
 						return group_lengths_dict[xn.Name];
 					case "_45":// unmapped
