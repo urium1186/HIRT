@@ -26,6 +26,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         private readonly ITabService _tabService;
         public ICommand OpenFileTabCommand { get; }
         public ICommand FileTreeExportJsonCommand { get; }
+        public ICommand FileTreeExportRecursiveJsonCommand { get; }
 
         public ICommand OpenFileCommand { get; }
         public ICommand OpenFromRuntimeCommand { get; }
@@ -51,6 +52,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             OpenFileCommand = new AsyncCommand(OpenFile);
             FileTreeExportJsonCommand = new AsyncCommand<DirModel>(FileTreeExportJson);
+            FileTreeExportRecursiveJsonCommand = new AsyncCommand<FileDirModel>(FileTreeExportRecursiveJson);
             OpenFromRuntimeCommand = new AsyncCommand(OpenFromRuntime);
             OpenDirectoryCommand = new AsyncCommand(OpenDirectory);
             EditPreferencesCommand = new AsyncCommand(EditPreferences);
@@ -72,6 +74,16 @@ namespace HaloInfiniteResearchTools.ViewModels
             dirModel.GetAllFiles(files);
             var prefs = GetPreferences();
             var process = new ExportFilesToJsonProcess(files,prefs.DefaultExportPath);
+            await RunProcess(process);
+        }
+
+        private async Task FileTreeExportRecursiveJson(FileDirModel dirModel)
+        {
+           if (dirModel == null) { return; }
+           
+            
+            var prefs = GetPreferences();
+            var process = new ExportFilesRecursiveToJsonProcess((SSpaceFile)dirModel.File,prefs.DefaultExportPath);
             await RunProcess(process);
         }
 

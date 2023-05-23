@@ -25,6 +25,13 @@ namespace HaloInfiniteResearchTools.Controls
           typeof(ICommand),
           typeof(FileTreeControl),
           new PropertyMetadata());
+        
+
+        public static readonly DependencyProperty FileTreeExportRecursiveJsonCommandProperty = DependencyProperty.Register(
+          nameof(FileTreeExportRecursiveJsonCommand),
+          typeof(ICommand),
+          typeof(FileTreeControl),
+          new PropertyMetadata());
 
         #endregion
 
@@ -39,6 +46,11 @@ namespace HaloInfiniteResearchTools.Controls
         {
             get => (ICommand)GetValue(FileTreeExportJsonCommandProperty);
             set => SetValue(FileTreeExportJsonCommandProperty, value);
+        }
+         public ICommand FileTreeExportRecursiveJsonCommand
+        {
+            get => (ICommand)GetValue(FileTreeExportRecursiveJsonCommandProperty);
+            set => SetValue(FileTreeExportRecursiveJsonCommandProperty, value);
         }
 
         #endregion
@@ -150,6 +162,42 @@ namespace HaloInfiniteResearchTools.Controls
                 }
             }*/
 
+        }
+
+        private void MenuItem_OpenGenericViewClick(object sender, RoutedEventArgs e)
+        {
+            var item = sender as MenuItem; if (item == null)
+            {
+                return;
+            }
+            var fileModel = item.DataContext as FileDirModel;
+            if (!(fileModel is null))
+            {
+                e.Handled = true;
+                var temp_model = new FileModel(fileModel.File);
+
+                {
+                    temp_model.GenericView = true;
+
+                    FileDoubleClickCommand?.Execute(temp_model);
+                }
+            }
+        }
+
+        private void MenuItem_ExportRecursiveToJsonClick(object sender, RoutedEventArgs e)
+        {
+            var item = sender as MenuItem; if (item == null)
+            {
+                return;
+            }
+            var fileModel = item.DataContext as FileDirModel;
+            if (!(fileModel is null))
+            {
+                e.Handled = true;
+
+
+                FileTreeExportRecursiveJsonCommand?.Execute(fileModel);
+            }
         }
     }
 
