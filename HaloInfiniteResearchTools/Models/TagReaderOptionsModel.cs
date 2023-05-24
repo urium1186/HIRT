@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DeepCopy;
+using HaloInfiniteResearchTools.Common;
+using LibHIRT.TagReader;
+using PropertyChanged;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
-using DeepCopy;
-using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.Common.Enumerations;
-using LibHIRT.TagReader;
-using PropertyChanged;
 
 namespace HaloInfiniteResearchTools.Models
 {
-    public class TagReaderPath: ObservableObject, IDeepCopy<TagReaderOptionsModel>
+    public class TagReaderPath : ObservableObject, IDeepCopy<TagReaderOptionsModel>
     {
         public string Path { get; set; }
         [OnChangedMethod(nameof(SetActivePath))]
@@ -69,7 +65,8 @@ namespace HaloInfiniteResearchTools.Models
                     Path = XmlOutputPath
                 });
             }
-            else {
+            else
+            {
                 bool found = false;
                 foreach (var item in Paths)
                 {
@@ -79,11 +76,13 @@ namespace HaloInfiniteResearchTools.Models
                         found = true;
                         break;
                     }
-                    else {
+                    else
+                    {
                         item.Active = false;
                     }
                 }
-                if (!found) {
+                if (!found)
+                {
                     Paths.Add(new TagReaderPath
                     {
                         Active = true,
@@ -91,7 +90,7 @@ namespace HaloInfiniteResearchTools.Models
                     });
                 }
             }
-            
+
 
         }
 
@@ -102,7 +101,7 @@ namespace HaloInfiniteResearchTools.Models
         [DefaultValue(null)]
         public ObservableCollection<TagReaderPath> Paths { get; set; }
 
-        
+
 
         #endregion
 

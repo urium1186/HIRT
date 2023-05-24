@@ -9,12 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms.Design;
 using System.Windows.Input;
-using WpfHexaEditor.Core.MethodExtention;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -191,7 +188,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                     progress.UnitName = sh_bc.Count() > 1 ? "files opened" : "file opened";
                     progress.TotalUnits = sh_bc.Count();
-                    progress.IsIndeterminate = sh_bc.Count()==1;
+                    progress.IsIndeterminate = sh_bc.Count() == 1;
 
                     var objLock = new object();
                     foreach (var sh in sh_bc)

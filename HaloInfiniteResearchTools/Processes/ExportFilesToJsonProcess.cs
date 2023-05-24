@@ -1,11 +1,7 @@
 ﻿using LibHIRT.Files;
-using LibHIRT.Serializers;
-using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
@@ -34,37 +30,39 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = _files.Count == 1;
 
             var objLock = new object();
-            Parallel.ForEach(_files, filePath =>
+            _ = Parallel.ForEach(_files, filePath =>
             {
                 var fileName = filePath.Name;
-                
+
                 try
                 {
-                    if (filePath.TagGroup != "����") {
+                    if (filePath.TagGroup != "����")
+                    {
                         var temp_file = filePath as SSpaceFile;
-                        string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
-                        string path_file = dir_path  + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1)+".json";
+                        string dir_path = _dir_path + "\\";
+                        string path_file = dir_path + temp_file.FileMemDescriptor.GlobalTagId1 + "_" + temp_file.TagGroup + ".json";
                         if (!Directory.Exists(dir_path))
                             Directory.CreateDirectory(dir_path);
-                        if (!File.Exists(path_file)) {
+                        if (!File.Exists(path_file))
+                        {
                             string jstonToWrite = (filePath as SSpaceFile).Deserialized?.Root?.ToJson();
                             if (!string.IsNullOrEmpty(jstonToWrite))
                                 File.WriteAllText(path_file, jstonToWrite);
                         }
-                             
+
                     }
 
-                   /* if (!_fileContext.OpenFile(filePath))
-                    {
+                    /* if (!_fileContext.OpenFile(filePath))
+                     {
 
-                        StatusList.AddWarning(fileName, "Failed to open file.");
-                    }
-                    else
-                    {
-                        Status = Status.Replace("\n" + temp, "");
-                        _filesLoaded.Add(fileName);
-                        StatusList.AddMessage(fileName, "Open file.");
-                    }*/
+                         StatusList.AddWarning(fileName, "Failed to open file.");
+                     }
+                     else
+                     {
+                         Status = Status.Replace("\n" + temp, "");
+                         _filesLoaded.Add(fileName);
+                         StatusList.AddMessage(fileName, "Open file.");
+                     }*/
 
                 }
                 catch (Exception ex)

@@ -1,32 +1,32 @@
-﻿using System;
-using HaloInfiniteResearchTools.ViewModels;
+﻿using HaloInfiniteResearchTools.ViewModels;
+using System;
 
 namespace HaloInfiniteResearchTools.Views
 {
 
-  public interface IView : IDisposable
-  {
+    public interface IView : IDisposable
+    {
 
-    #region Properties
+        #region Properties
 
-    string ViewName { get; }
+        string ViewName { get; }
 
-    object DataContext { get; set; }
+        object DataContext { get; set; }
 
-    #endregion
+        #endregion
 
-  }
+    }
 
-  public interface IView<TViewModel> : IView
-    where TViewModel : IViewModel
-  {
+    public interface IView<TViewModel> : IView
+      where TViewModel : IViewModel
+    {
 
-    #region Properties
+        #region Properties
 
-    TViewModel ViewModel { get; }
+        TViewModel ViewModel { get; }
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

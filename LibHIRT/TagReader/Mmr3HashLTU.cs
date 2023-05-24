@@ -18,13 +18,18 @@ namespace LibHIRT.TagReader
         public static bool ForceLower = false;
         public static bool UpdateOnlyInUse = false;
 
-        public static ConcurrentDictionary<int, string> Mmr3lTU { get {
+        public static ConcurrentDictionary<int, string> Mmr3lTU
+        {
+            get
+            {
                 if (_Mmr3lTU == null)
                     _Mmr3lTU = new ConcurrentDictionary<int, string>();
                 return _Mmr3lTU;
-            } }
+            }
+        }
 
-        public static int getMmr3HashIntFrom(string str_in) {
+        public static int getMmr3HashIntFrom(string str_in)
+        {
             Encoding encoding = new UTF8Encoding();
             byte[] input = encoding.GetBytes(str_in);
             using (MemoryStream stream = new MemoryStream(input))
@@ -34,7 +39,8 @@ namespace LibHIRT.TagReader
         }
 
 
-        static public void saveLtu(bool changed) {
+        static public void saveLtu(bool changed)
+        {
             /*
             var connectionDb = SQLiteDriver.CreateConnection();
             foreach (var item in Mmr3HashLTU.Mmr3lTU)
@@ -64,11 +70,11 @@ namespace LibHIRT.TagReader
             {
                 result = false;
             }
-            
+
             connectionDb.Close();
             return result;
-        } 
-        
+        }
+
         static public bool loadFromDbLtu()
         {
             var connectionDb = SQLiteDriver.CreateConnection();
@@ -81,7 +87,7 @@ namespace LibHIRT.TagReader
             {
                 result = false;
             }
-            
+
             connectionDb.Close();
             return result;
         }
@@ -97,11 +103,11 @@ namespace LibHIRT.TagReader
             {
                 result = false;
             }
-            
+
             connectionDb.Close();
             return result;
         }
-         static public bool updateToDbLtu(int hash, string str_value, bool in_use, bool generate)
+        static public bool updateToDbLtu(int hash, string str_value, bool in_use, bool generate)
         {
             var connectionDb = SQLiteDriver.CreateConnection();
             var result = true;
@@ -113,13 +119,14 @@ namespace LibHIRT.TagReader
             {
                 result = false;
             }
-            
+
             connectionDb.Close();
             return result;
         }
 
 
-        public static bool AddUniqueStrValue(string value) {
+        public static bool AddUniqueStrValue(string value)
+        {
             if (!string.IsNullOrEmpty(value))
             {
                 if (ForceLower)
@@ -144,33 +151,36 @@ namespace LibHIRT.TagReader
                                         {
                                         }
                             return insertToDbLtuCollaide(key, value);
-                            
+
                         }
 
                     }
                 }
-                else {
-                    if (!Mmr3HashLTU.UpdateOnlyInUse) {
+                else
+                {
+                    if (!Mmr3HashLTU.UpdateOnlyInUse)
+                    {
                         return saveToDbLtu(key, value, false, true);
                     }
-                    
+
                 }
             }
             return false;
         }
-        public static string CleanString(string value) {
-            value=value.ToLower();
-            value = value.Replace(";","");
-            value = value.Replace(",","");
-            value = value.Replace("\"","");
+        public static string CleanString(string value)
+        {
+            value = value.ToLower();
+            value = value.Replace(";", "");
+            value = value.Replace(",", "");
+            value = value.Replace("\"", "");
             //value = value.Replace("%", "");
             value = value.Replace("{", "");
             value = value.Replace("}", "");
             value = value.Trim();
             value = value.Split("[")[0];
-            
-            value = value.Replace(" ","_");
-            
+
+            value = value.Replace(" ", "_");
+
 
             return value;
         }
@@ -180,19 +190,22 @@ namespace LibHIRT.TagReader
             {
                 saveToDbLtu(key, Mmr3HashLTU.getMmr3HashFromInt(key), true, false);
             }
-            else {
+            else
+            {
                 if (Mmr3HashLTU.Mmr3lTU[key] != Mmr3HashLTU.getMmr3HashFromInt(key))
                     updateToDbLtu(key, Mmr3HashLTU.Mmr3lTU[key], true, true);
             }
         }
 
-        public static string getMmr3HashFromInt(int hash) {
+        public static string getMmr3HashFromInt(int hash)
+        {
             var byt = BitConverter.GetBytes(hash);
             string hex = BitConverter.ToString(byt).Replace("-", "");
             return hex;
         }
-        
-        public static string getMmr3HashFrom(string str_in) {
+
+        public static string getMmr3HashFrom(string str_in)
+        {
 
             Encoding encoding = new UTF8Encoding();
             byte[] input = encoding.GetBytes(str_in);

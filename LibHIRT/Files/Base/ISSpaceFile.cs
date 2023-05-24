@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Files
+﻿namespace LibHIRT.Files
 {
     public interface ISSpaceFile : IDisposable, IEquatable<ISSpaceFile>
     {
@@ -13,9 +7,9 @@ namespace LibHIRT.Files
 
         ISSpaceFile Parent { get; }
         IEnumerable<ISSpaceFile> Children { get; }
-        
+
         ISSpaceFile RefParent { get; set; }
-        Dictionary<int,ISSpaceFile> RefChildren { get;  }
+        Dictionary<int, ISSpaceFile> RefChildren { get; }
 
         string Name { get; }
         string Extension { get; }

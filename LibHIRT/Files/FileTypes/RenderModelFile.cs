@@ -7,7 +7,7 @@ namespace LibHIRT.Files.FileTypes
     [FileExtension(".render_model")]
     public class RenderModelFile : SSpaceFile, HasRenderModel
     {
-       
+
 
         #region Properties
 

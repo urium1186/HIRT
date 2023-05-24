@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace HavokScriptToolsCommon
@@ -362,7 +361,7 @@ namespace HavokScriptToolsCommon
                 case HksType.TTHREAD:
                 case HksType.TIFUNCTION:
                 case HksType.TCFUNCTION:
-                
+
                 case HksType.TSTRUCT:
                 default:
                     throw new HksDisassemblyException("type not implemented: " + type.ToString());

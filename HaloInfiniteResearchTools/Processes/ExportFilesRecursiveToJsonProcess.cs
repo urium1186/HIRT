@@ -50,14 +50,14 @@ namespace HaloInfiniteResearchTools.Processes
                 if (_file.TagGroup != "����")
                 {
                     var temp_file = _file;
-                    string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
-                    string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1) + ".json";
+                    string dir_path = _dir_path + "\\";
+                    string path_file = dir_path + temp_file.FileMemDescriptor.GlobalTagId1 + "_" + temp_file.TagGroup + ".json";
                     if (!Directory.Exists(dir_path))
                         Directory.CreateDirectory(dir_path);
 
                     if (!File.Exists(path_file))
                     {
-                        //await ExportFileToJson(_file,path_file);
+                        await ExportFileToJson(_file, path_file);
 
                     }
 
@@ -132,7 +132,7 @@ namespace HaloInfiniteResearchTools.Processes
                     {
 
                         string dir_path = _dir_path + "\\" + tagRef.TagGroupRev + "\\";
-                        string path_file = dir_path + tagRef.Ref_id + ".json";
+                        string path_file = dir_path + tagRef.Ref_id_int + "_" + tagRef.TagGroupRev + ".json";
                         if (!Directory.Exists(dir_path))
                             Directory.CreateDirectory(dir_path);
 
@@ -155,7 +155,7 @@ namespace HaloInfiniteResearchTools.Processes
                             }
                             if (file != null)
                             {
-                                await ExportFileToJson((SSpaceFile)file, path_file);
+                                // await ExportFileToJson((SSpaceFile)file, path_file);
                             }
                         }
                     }

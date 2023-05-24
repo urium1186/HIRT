@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.TagReader.Common
+﻿namespace LibHIRT.TagReader.Common
 {
     public class TRSettings
     {
         static TRSettings? _instance;
-        public static TRSettings Instance { get {
-                if (_instance ==  null)
-                    _instance = new TRSettings();   
+        public static TRSettings Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new TRSettings();
                 return _instance;
-            } }
+            }
+        }
 
         public string ProcAsyncBaseAddr { get; set; }
         public bool AutoHook { get; internal set; }

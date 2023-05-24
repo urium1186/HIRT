@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
-using static LibHIRT.TagReader.Headers.TagHeader;
+﻿using static LibHIRT.TagReader.Headers.TagHeader;
 
 namespace LibHIRT.TagReader.Headers
 {
@@ -30,8 +23,8 @@ namespace LibHIRT.TagReader.Headers
         {
             f.Position = 0;
             var tables = new List<HeaderTable<HeaderTableEntry>>();
-            
-            
+
+
             tagHeader.readStream(f, new PreLoadSections());
             tagDependencyTable.readTable(f, tagHeader);
             dataBlockTableField.readTable(f, tagHeader);
@@ -44,7 +37,8 @@ namespace LibHIRT.TagReader.Headers
             tagReferenceFixUpTable.readTable(f, tagHeader);
         }
 
-        public static bool isValid(Stream f) {
+        public static bool isValid(Stream f)
+        {
             f.Position = 0;
 
             byte[] hash_magic = new byte[4];
@@ -63,9 +57,9 @@ namespace LibHIRT.TagReader.Headers
                 {
 
                     tagStructTable.Data_block_table = dataBlockTableField;
-                    var entry = tagStructTable.readTableItem(f,tagHeader, 0);
-                    
-                    return BitConverter.ToInt32(entry.Bin_datas[0].ToArray(),8);
+                    var entry = tagStructTable.readTableItem(f, tagHeader, 0);
+
+                    return BitConverter.ToInt32(entry.Bin_datas[0].ToArray(), 8);
                 }
             }
             catch (Exception ex)

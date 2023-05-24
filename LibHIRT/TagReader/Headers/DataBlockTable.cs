@@ -1,22 +1,14 @@
-﻿using LibHIRT.Utils;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static LibHIRT.TagReader.Headers.TagHeader;
+﻿using System.Text;
 
 namespace LibHIRT.TagReader.Headers
 {
 
-    
-    public class DataBlock: HeaderTableEntry
+
+    public class DataBlock : HeaderTableEntry
     {
         int size;
 
-        
+
         short unknownProperty;
 
         short section;
@@ -53,79 +45,81 @@ namespace LibHIRT.TagReader.Headers
             offset = ReadInt64();
         }
 
-       
+
     }
 
     public class DataBlockTable : HeaderTable<DataBlock>
     {
         public override void readTable(Stream f, TagHeader header)
         {
-            if (header.Loaded) {
-                
+            if (header.Loaded)
+            {
+
                 f.Seek(header.DataBlockOffset, SeekOrigin.Begin);
                 for (int i = 0; i < header.TagFileHeaderInst.DataBlockCount; i++)
                 {
-                    
+
                     byte[] buffer = new byte[16];
-                    
+
                     f.Read(buffer, 0, 16);
-                    
+
                     MemoryStream stream = new(buffer);
                     DataBlock entry = new(stream);
                     entry.ReadIn();
-                    switch (entry.Section)            
+                    switch (entry.Section)
                     {
                         case 1:
-                            entry.OffsetPlus= entry.Offset + header.TagFileHeaderInst.HeaderSize;
+                            entry.OffsetPlus = entry.Offset + header.TagFileHeaderInst.HeaderSize;
                             break;
                         case 2:
-                            entry.OffsetPlus= entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize;
+                            entry.OffsetPlus = entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize;
                             break;
                         case 3:
-                            entry.OffsetPlus= entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize + header.TagFileHeaderInst.ResourceDataSize;
+                            entry.OffsetPlus = entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize + header.TagFileHeaderInst.ResourceDataSize;
                             break;
                         default:
                             break;
                     }
                     entries.Add(entry);
                     Console.Write(entries.Count);
-                }            
+                }
             }
-            
+
         }
         public override DataBlock readTableItem(Stream f, TagHeader header, int pos)
         {
-            if (header.Loaded && pos < header.TagFileHeaderInst.DataBlockCount) {
-                
-                f.Seek(header.DataBlockOffset+pos*16, SeekOrigin.Begin);
-                
-                    
-                    byte[] buffer = new byte[16];
-                    
-                    f.Read(buffer, 0, 16);
-                    
-                    MemoryStream stream = new(buffer);
-                    DataBlock entry = new(stream);
-                    entry.ReadIn();
-                    switch (entry.Section)            
-                    {
-                        case 1:
-                            entry.OffsetPlus= entry.Offset + header.TagFileHeaderInst.HeaderSize;
-                            break;
-                        case 2:
-                            entry.OffsetPlus= entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize;
-                            break;
-                        case 3:
-                            entry.OffsetPlus= entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize + header.TagFileHeaderInst.ResourceDataSize;
-                            break;
-                        default:
-                            break;
-                    }
+            if (header.Loaded && pos < header.TagFileHeaderInst.DataBlockCount)
+            {
+
+                f.Seek(header.DataBlockOffset + pos * 16, SeekOrigin.Begin);
+
+
+                byte[] buffer = new byte[16];
+
+                f.Read(buffer, 0, 16);
+
+                MemoryStream stream = new(buffer);
+                DataBlock entry = new(stream);
+                entry.ReadIn();
+                switch (entry.Section)
+                {
+                    case 1:
+                        entry.OffsetPlus = entry.Offset + header.TagFileHeaderInst.HeaderSize;
+                        break;
+                    case 2:
+                        entry.OffsetPlus = entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize;
+                        break;
+                    case 3:
+                        entry.OffsetPlus = entry.Offset + header.TagFileHeaderInst.HeaderSize + header.TagFileHeaderInst.DataSize + header.TagFileHeaderInst.ResourceDataSize;
+                        break;
+                    default:
+                        break;
+                }
                 return entry;
-                            
+
             }
             return null;
-            
+
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using LibHIRT.ModuleUnpacker;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace LibHIRT.Files
+﻿namespace LibHIRT.Files
 {
     public class DirModel
     {
@@ -21,18 +16,21 @@ namespace LibHIRT.Files
         virtual public Dictionary<string, DirModel>? Dirs { get => dirs; }
         virtual public string SubPath { get => _path; }
 
-        
+
         public DirModel? Parent { get => parent; set => parent = value; }
 
         virtual public List<DirModel> FilterListDirs { get => getFilterList(); }
 
-        private List<DirModel> arrangeDirs() { 
+        private List<DirModel> arrangeDirs()
+        {
             var result = dirs.Values.ToList<DirModel>();
-            result.Sort((x, y) => x.SubPath.CompareTo(y.SubPath)); 
+            result.Sort((x, y) => x.SubPath.CompareTo(y.SubPath));
             return result;
         }
-        virtual public DirModel GetChildByPath(string path) {
-            if (!string.IsNullOrEmpty(path)) {
+        virtual public DirModel GetChildByPath(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
                 var a_split = path.Split('\\');
                 if (a_split.Length == 1)
                 {
@@ -41,13 +39,15 @@ namespace LibHIRT.Files
                     else if (dirs.ContainsKey(a_split[0]))
                         return dirs[a_split[0]].GetChildByPath(a_split[0]);
                 }
-                else {
-                    if (dirs.ContainsKey(a_split[0])) {
+                else
+                {
+                    if (dirs.ContainsKey(a_split[0]))
+                    {
                         string sub_path = string.Join('\\', a_split.Skip(1));
                         return dirs[a_split[0]].GetChildByPath(sub_path);
                     }
                 }
-                    
+
             }
             return null;
         }
@@ -56,18 +56,21 @@ namespace LibHIRT.Files
         {
             if (result == null)
                 result = new List<ISSpaceFile>();
-            foreach (var dir in dirs.Values) {
+            foreach (var dir in dirs.Values)
+            {
                 dir.GetAllFiles(result);
             }
-            
+
         }
-        virtual protected List<DirModel> getFilterList() {
+        virtual protected List<DirModel> getFilterList()
+        {
             var temp = filterDirs();
             if (temp == null || temp.Dirs == null)
                 return new List<DirModel>();
             return temp.Dirs.Values.ToList<DirModel>();
         }
-        virtual protected DirModel? filterDirs() {
+        virtual protected DirModel? filterDirs()
+        {
             DirModel temp = new DirModel(SubPath);
             foreach (var item in ListDirs)
             {
@@ -79,7 +82,7 @@ namespace LibHIRT.Files
             }
             if (temp.Dirs.Count != 0)
                 return temp;
-            return null;   
+            return null;
         }
     }
 
@@ -113,12 +116,12 @@ namespace LibHIRT.Files
 
         public FileDirModel(ISSpaceFile pFileEntry, string path) : base(path)
         {
-            this._fileEntry = pFileEntry;    
+            this._fileEntry = pFileEntry;
         }
 
         public override Dictionary<string, DirModel>? Dirs => null;
 
-        public override string SubPath => string.IsNullOrEmpty(_fileEntry.Path_string) ?_fileEntry.Name : System.IO.Path.GetFileName(_fileEntry.Path_string);
+        public override string SubPath => string.IsNullOrEmpty(_fileEntry.Path_string) ? _fileEntry.Name : System.IO.Path.GetFileName(_fileEntry.Path_string);
 
         public override List<DirModel> FilterListDirs => base.FilterListDirs;
 

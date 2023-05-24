@@ -1,16 +1,16 @@
 ﻿namespace HaloInfiniteResearchTools.Processes
 {
 
-  public enum ProcessState
-  {
+    public enum ProcessState
+    {
 
-    Idle,
-    Initializing,
-    Initialized,
-    Executing,
-    Faulted,
-    Complete
+        Idle,
+        Initializing,
+        Initialized,
+        Executing,
+        Faulted,
+        Complete
 
-  }
+    }
 
 }

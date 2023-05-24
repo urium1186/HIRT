@@ -1,20 +1,14 @@
 ﻿
 using LibHIRT.Utils;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static LibHIRT.TagReader.Headers.TagHeader;
 
 namespace LibHIRT.TagReader.Headers
 {
-    
+
     public class TagHeader
     {
-        public struct PreLoadSections {
+        public struct PreLoadSections
+        {
             public bool s_all = true;
             public bool s0 = false;
             public bool s1 = false;
@@ -119,58 +113,70 @@ namespace LibHIRT.TagReader.Headers
 
         private bool loaded = false;
 
-        public bool Loaded { get => loaded;}
+        public bool Loaded { get => loaded; }
         public TagFileHeader TagFileHeaderInst { get => tagFileHeaderInst; }
 
-        public void read(FileStream f, PreLoadSections preloadSection) {
+        public void read(FileStream f, PreLoadSections preloadSection)
+        {
             readStream(f, preloadSection);
-        } 
-        
-        public void read(MemoryStream f, PreLoadSections preloadSection) {
-            readStream(f, preloadSection);    
         }
-        public void readStream(Stream f, PreLoadSections preloadSection) {
+
+        public void read(MemoryStream f, PreLoadSections preloadSection)
+        {
+            readStream(f, preloadSection);
+        }
+        public void readStream(Stream f, PreLoadSections preloadSection)
+        {
             byte[] TagHeader = new byte[80];
             f.Seek(0, SeekOrigin.Begin);
             f.Read(TagHeader, 0, 80);
 
             tagFileHeaderInst = (TagFileHeader)UtilBinaryReader.marshallBinData<TagFileHeader>(TagHeader);
-            loaded= true;   
+            loaded = true;
         }
 
-        public byte[] getSesion3Bytes(Stream stream) {
-            if (tagFileHeaderInst.Section3Size > 0) {
+        public byte[] getSesion3Bytes(Stream stream)
+        {
+            if (tagFileHeaderInst.Section3Size > 0)
+            {
                 var section_3_offset = tagFileHeaderInst.HeaderSize + tagFileHeaderInst.DataSize + tagFileHeaderInst.ResourceDataSize;
                 byte[] result = new byte[tagFileHeaderInst.Section3Size];
-                stream.Seek(section_3_offset, SeekOrigin.Begin);    
+                stream.Seek(section_3_offset, SeekOrigin.Begin);
                 stream.Read(result, 0, tagFileHeaderInst.Section3Size);
                 return result;
             }
             return new byte[0];
         }
 
-        public int DependencyOffset  {
+        public int DependencyOffset
+        {
             get => 0x50;
         }
 
-        public int DataBlockOffset {
+        public int DataBlockOffset
+        {
             get => DependencyOffset + (tagFileHeaderInst.DependencyCount * 0x18);
         }
-        
-        public int TagStructOffset {
+
+        public int TagStructOffset
+        {
             get => DataBlockOffset + (tagFileHeaderInst.DataBlockCount * 0x10);
         }
 
-        public int DataReferenceOffset {
+        public int DataReferenceOffset
+        {
             get => TagStructOffset + (tagFileHeaderInst.TagStructCount * 0x20);
         }
-        public int TagReferenceOffset {
+        public int TagReferenceOffset
+        {
             get => DataReferenceOffset + (tagFileHeaderInst.DataReferenceCount * 0x14);
         }
-        public int StringTableOffset {
+        public int StringTableOffset
+        {
             get => TagReferenceOffset + (tagFileHeaderInst.TagReferenceCount * 0x10);
         }
-        public int zone_set_offset {
+        public int zone_set_offset
+        {
             get => StringTableOffset + tagFileHeaderInst.StringTableSize;
         }
 

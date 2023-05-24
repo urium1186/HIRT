@@ -1,7 +1,6 @@
 ﻿
 using LibHIRT.TagReader.Headers;
 using Memory;
-using SharpDX;
 using System.Diagnostics;
 
 using static LibHIRT.TagReader.TagLayouts;
@@ -38,26 +37,30 @@ namespace LibHIRT.TagReader
             _tagLayout = tagLayout;
             _f = f;
         }
-        public Dictionary<long, C?> getSubTaglayoutFrom(string tagLayoutStr, string hash) {
+        public Dictionary<long, C?> getSubTaglayoutFrom(string tagLayoutStr, string hash)
+        {
             return getSubTaglayoutFrom(TagXmlParse.parse_the_mfing_xmls(tagLayoutStr), hash);
         }
-        public Dictionary<long, C?> getSubTaglayoutFrom(Dictionary<long, C?>? tagLayout, string hash) {
+        public Dictionary<long, C?> getSubTaglayoutFrom(Dictionary<long, C?>? tagLayout, string hash)
+        {
             if (tagLayout == null || string.IsNullOrEmpty(hash))
                 return null;
-            Dictionary<long, C?> result =null;
+            Dictionary<long, C?> result = null;
             foreach (var item in tagLayout)
             {
-                if (item.Value.E != null && item.Value.E.ContainsKey("hashTagRelated-0") && item.Value.E["hashTagRelated-0"].ToString() == hash) {
+                if (item.Value.E != null && item.Value.E.ContainsKey("hashTagRelated-0") && item.Value.E["hashTagRelated-0"].ToString() == hash)
+                {
                     result = new Dictionary<long, C?>();
                     result[0] = item.Value;
                     return result;
                 }
-                if (item.Value.B != null && item.Value.B.Count != 0) { 
+                if (item.Value.B != null && item.Value.B.Count != 0)
+                {
                     result = getSubTaglayoutFrom(item.Value.B, hash);
                     if (result != null)
                         return result;
                 }
-                    
+
             }
             return null;
         }
@@ -73,8 +76,8 @@ namespace LibHIRT.TagReader
                 }
 
                 //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
-                C root_tag = _tagLayout[0] ;
-                
+                C root_tag = _tagLayout[0];
+
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 MemoStream = null;
                 readTagsAndCreateInstancesFromMem(ref _rootTagInst, address, M);
@@ -90,11 +93,12 @@ namespace LibHIRT.TagReader
         private void readTagsAndCreateInstancesFromMem(ref CompoundTagInstance instance_parent, long address, Mem m)
         {
             long temp_size = instance_parent.TagDef.S;
-            if (temp_size == 0) {
+            if (temp_size == 0)
+            {
                 var last = instance_parent.TagDef.B.Last();
                 temp_size = last.Key + last.Value.S;
             }
-             
+
             byte[] bytes = m.ReadBytes(address.ToString("X"), temp_size);
             var temp_f = new MemoryStream(bytes);
             if (MemoStream == null)
@@ -109,16 +113,17 @@ namespace LibHIRT.TagReader
             }
             foreach (var item in read_result.Value.Item2)
             {
-                if (item is Tagblock || item is ResourceHandle) {
+                if (item is Tagblock || item is ResourceHandle)
+                {
                     var tempTb = item;
-                    long tempAddr = item is Tagblock?((Tagblock)item).NewAddress: ((ResourceHandle)item).NewAddress;
+                    long tempAddr = item is Tagblock ? ((Tagblock)item).NewAddress : ((ResourceHandle)item).NewAddress;
                     int count = item is Tagblock ? ((Tagblock)item).ChildrenCount : ((ResourceHandle)item).ChildrenCount;
                     for (int i = 0; i < count; i++)
                     {
                         long tbloS = item.TagDef.S;
-                        readTagsAndCreateInstancesFromMem(ref tempTb, tempAddr+i* tbloS, m);
+                        readTagsAndCreateInstancesFromMem(ref tempTb, tempAddr + i * tbloS, m);
                     }
-                    
+
                 }
             }
         }
@@ -158,7 +163,7 @@ namespace LibHIRT.TagReader
                     for (int k = 0; k < count; k++)
                     {
                         parcial_addresstemp = f.Position;
-                        var r2 = readTagDefinitionOnMem(ref tempref, f,parcial_addresstemp);
+                        var r2 = readTagDefinitionOnMem(ref tempref, f, parcial_addresstemp);
                         tempref.AddChild(r2.Value.Item1);
                         tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)r2.Value.Item2);
                     }
@@ -237,7 +242,7 @@ namespace LibHIRT.TagReader
             }
         }
 
-        
+
         #endregion
         #region On Disk
         public void readFile(Dictionary<long, C?>? tagLayout, TagFile tagFile)
@@ -248,16 +253,16 @@ namespace LibHIRT.TagReader
                 {
                     return;
                 }
-                
+
                 if (tagFile == null)
-                    return ;
+                    return;
                 _tagLayout = tagLayout;
                 _tagFile = tagFile;
 
-                
-                
+
+
                 C root_tag = _tagLayout[0];
-                
+
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 _rootTagInst.Content_entry = _tagFile.TagStructTable.Entries[0];
                 _rootTagInst.InstanceParentOffset = 0;
@@ -269,12 +274,13 @@ namespace LibHIRT.TagReader
                 if (_tagLayoutTemplate == "����")
                 {
 
-                }else
+                }
+                else
                     throw e;
             }
 
-        } 
-        
+        }
+
         public void readFile()
         {
             try
@@ -287,15 +293,15 @@ namespace LibHIRT.TagReader
                     }
                 }
                 if (!TagFile.isValid(_f))
-                    return ;
-                
+                    return;
+
                 _tagFile = new TagFile();
                 _tagFile.readIn(_f);
 
-                if (_tagLayout==null)
+                if (_tagLayout == null)
                     return;
 
-                
+
                 //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
                 C root_tag = _tagLayout[0];
                 //_rootTagInst = new RootTagInstance(root_tag, _tagFile.TagStructTable.Entries[0].Field_data_block.OffsetPlus,0);
@@ -310,7 +316,8 @@ namespace LibHIRT.TagReader
                 if (_tagLayoutTemplate == "����")
                 {
 
-                }else
+                }
+                else
                     throw e;
             }
 
@@ -325,15 +332,17 @@ namespace LibHIRT.TagReader
         {
             List<CompoundTagInstance> tagBlocks = new List<CompoundTagInstance>();
             if (instance_parent.Content_entry.TypeIdTg == TagStructType.ExternalFileDescriptor)
-            { 
+            {
             }
             instance_parent.Content_entry.Field_name = instance_parent.TagDef.N;
             if (instance_parent.TagDef.E != null && instance_parent.TagDef.E.ContainsKey("hash"))
             {
                 //Debug.Assert(instance_parent.Content_entry.UID == instance_parent.TagDef.E["hash"].ToString());
             }
-            else {
-                if (instance_parent.TagDef.T != TagElemntType.RootTagInstance) { 
+            else
+            {
+                if (instance_parent.TagDef.T != TagElemntType.RootTagInstance)
+                {
                 }
             }
             if (instance_parent.Content_entry.Field_data_block == null)
@@ -347,9 +356,11 @@ namespace LibHIRT.TagReader
             long instParentOffest = 0;
             foreach (var data in instance_parent.Content_entry.Bin_datas)
             {
+#pragma warning disable IDE0090 // Use 'new(...)'
                 MemoryStream bin_stream = new MemoryStream(data.ToArray<byte>());
+#pragma warning restore IDE0090 // Use 'new(...)'
 
-                read_result = readTagDefinition(instParentOffest,ref instance_parent, bin_stream, ref refItCount);
+                read_result = readTagDefinition(instParentOffest, ref instance_parent, bin_stream, ref refItCount);
                 if (instance_parent is ParentTagInstance)
                 {
                 }
@@ -470,7 +481,7 @@ namespace LibHIRT.TagReader
                 tagInstanceTemp.AddChild(childItem);
                 childItem.Parent = parent;
                 childItem.Content_entry = parent.Content_entry;
-                childItem.InstanceParentOffset = instParentOffest+entry;
+                childItem.InstanceParentOffset = instParentOffest + entry;
                 childItem.ReadIn(new BinaryReader(f), _tagFile?.TagHeader);
                 if (f.Position < parcial_addresstemp)
                 {
@@ -692,7 +703,7 @@ namespace LibHIRT.TagReader
                 OnInstanceLoadEvent.Invoke(this, instance);
         }
 
-        protected Dictionary<string, object> readTagDefinition_(int i,long parentBlockOffset, ref TagInstance parent, ref RefItCount? ref_it, long parcial_address = 0, Stream? f = null)
+        protected Dictionary<string, object> readTagDefinition_(int i, long parentBlockOffset, ref TagInstance parent, ref RefItCount? ref_it, long parcial_address = 0, Stream? f = null)
         {
             if (ref_it == null)
             {

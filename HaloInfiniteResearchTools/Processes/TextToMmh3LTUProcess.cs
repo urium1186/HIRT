@@ -1,13 +1,8 @@
-﻿using ImageMagick;
-using LibHIRT.Files;
-using LibHIRT.TagReader;
-using Microsoft.Extensions.DependencyInjection;
+﻿using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
@@ -25,7 +20,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public TextToMmh3LTUProcess(IEnumerable<string>? paths, string spliters, bool forceLowerCase)
         {
-            
+
             _inputPaths = paths;
 
             _filesLoaded = new List<string>();
@@ -61,21 +56,22 @@ namespace HaloInfiniteResearchTools.Processes
 
                 string temp = filePath.Replace(@"C:\Program Files (x86)\Steam\steamapps\common\Halo Infinite\deploy\", "") + " " + fi.Length.ToString();
                 Status = Status + "\n" + temp;
-               
+
                 try
                 {
 
                     StreamReader sr = new StreamReader(filePath);
                     while (!sr.EndOfStream)
                     {
-                        string tempLine = sr.ReadLine().Replace("\0","");
+                        string tempLine = sr.ReadLine().Replace("\0", "");
                         if (string.IsNullOrEmpty(tempLine))
                             continue;
                         //char[] c_array = new char[] { '\r', '\n', ' ', '\t' };
                         //tempLine = tempLine.Replace(" ", "_");
-                        var splits = tempLine.Split(' ',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                        var splits = tempLine.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                         //var splits = tempLine.Split(c_array,StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                        foreach (string line in splits) {
+                        foreach (string line in splits)
+                        {
                             try
                             {
                                 SpecialOperations(line);
@@ -123,7 +119,7 @@ namespace HaloInfiniteResearchTools.Processes
 
                                 continue;
                             }
-                            
+
                         }
                     }
                     sr.Close();
@@ -145,20 +141,22 @@ namespace HaloInfiniteResearchTools.Processes
             });
         }
 
-        private void SpecialOperations(string line) {
+        private void SpecialOperations(string line)
+        {
             if (!line.Contains("_default_ps"))
                 return;
             string val_1 = line.Split("_default_ps@@")[0];
             var array_S = val_1.Split("?");
-            if (array_S.Length > 1) {
-                string val_2 = array_S[array_S.Length-1];
+            if (array_S.Length > 1)
+            {
+                string val_2 = array_S[array_S.Length - 1];
                 if (Mmr3HashLTU.AddUniqueStrValue(val_2))
                 {
                     if (!_dbModify)
                         _dbModify = true;
                 }
             }
-                
+
         }
 
         private void SplitEntryBy(string line, char splitter)
@@ -223,7 +221,7 @@ namespace HaloInfiniteResearchTools.Processes
         private static bool IsFileExtensionRecognized(string filePath)
         {
             var ext = Path.GetExtension(filePath);
-            return ext==".txt";
+            return ext == ".txt";
         }
 
         protected override Task OnComplete()

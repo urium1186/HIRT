@@ -1,12 +1,9 @@
 ﻿
-using static LibHIRT.TagReader.Dumper.StructureLayouts;
-using System.Xml;
 using Memory;
-using File = System.IO.File;
 using System.Diagnostics;
-using System.IO;
-using SharpDX;
-using System.Runtime.InteropServices;
+using System.Xml;
+using static LibHIRT.TagReader.Dumper.StructureLayouts;
+using File = System.IO.File;
 
 namespace LibHIRT.TagReader.Dumper
 {
@@ -26,7 +23,7 @@ namespace LibHIRT.TagReader.Dumper
         private HashSet<int> unique_items_7 = new HashSet<int>();
 
         private HashSet<string> unique_string_used = new HashSet<string>();
-        private Stack<string> _37Stack= new Stack<string>();
+        private Stack<string> _37Stack = new Stack<string>();
 
         public Mem M { get => m; set => m = value; }
         public string OutDIR { get => outDIR; set => outDIR = value; }
@@ -110,11 +107,11 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
         {
             long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 53 62 6F 47 67 61 54 61", true, false)).ToArray();
             startAddress = results[0];
-        } 
+        }
         private async Task AoBScanTTGS()
         {
             long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 32 4C 21 3E 1B 4D 3C 57 A0 0F F5 98 99 B4 37 0E", true, false)).ToArray();
-            
+
             //long[] results = (await m.AoBScan("75 63 73 68 ?? ?? ?? ?? 32 4C 21 3E 1B 4D 3C 57 A0 0F F5 98 99 B4 37 0E", true, false)).ToArray();
             startAddress = results[0];
         }
@@ -236,7 +233,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
 
 
         }
-        public Group_definitions_link_struct GetGDLS(long address,short field_pointer_offet = 24)
+        public Group_definitions_link_struct GetGDLS(long address, short field_pointer_offet = 24)
         {
             string temp_name_1 = m.ReadString(m.ReadLong(address.ToString("X")).ToString("X"), "", 300);
             string temp_name_2 = m.ReadString(m.ReadLong((address + 8).ToString("X")).ToString("X"), "", 300);
@@ -271,8 +268,8 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
             _37Stack.Clear();
             long address_for_our_string_bruh = m.ReadLong(address.ToString("X"));
             long address_for_our_string_bruh_1 = m.ReadLong((address + 8).ToString("X"));
-            
-            
+
+
 
             long address_four_our_fields = m.ReadLong((address + 32).ToString("X"));
             int amount_of_things_to_read = m.ReadInt((address + 120).ToString("X"));
@@ -288,10 +285,10 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                 textWriter.WriteAttributeString("item_name_1", take_this_mf_and_pass_it_down_for_gods_sake);
                 textWriter.WriteAttributeString("item_name_2", take_this_mf_and_pass_it_down_for_gods_sake_1);
 
-                textWriter.WriteAttributeString("hash", str_bytes.Substring(32,32));
+                textWriter.WriteAttributeString("hash", str_bytes.Substring(32, 32));
                 //textWriter.WriteAttributeString("desirfar-0", str_bytes.Substring(80, 64));
-                textWriter.WriteAttributeString("hashTagRelated-0", str_bytes.Substring(144,16));
-                textWriter.WriteAttributeString("hashTagRelated-1", str_bytes.Substring(160,16));
+                textWriter.WriteAttributeString("hashTagRelated-0", str_bytes.Substring(144, 16));
+                textWriter.WriteAttributeString("hashTagRelated-1", str_bytes.Substring(160, 16));
                 //textWriter.WriteAttributeString("int-0", m.ReadInt((address + 88).ToString("X")).ToString());
                 //textWriter.WriteAttributeString("int-1", m.ReadInt((address + 92).ToString("X")).ToString());
                 ;
@@ -330,7 +327,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
 
                 textWriter.WriteStartElement("_" + group.ToString("X"));
                 textWriter.WriteAttributeString("v", n_name);
-                
+
                 if ("chunkInfo" == n_name)
                 {
                 }
@@ -462,17 +459,19 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                         {
                             _37Stack.Push(n_name);
                         }
-                        else {
+                        else
+                        {
                             if (_37Stack.Count != 0)
                             {
                                 string s_name = _37Stack.Pop();
                             }
-                            else { 
-                                
+                            else
+                            {
+
                             }
-                                
+
                         }
-                        
+
                         new possible_t1_struct_c_instance
                         {
                             actual_value = next_next_next_address
@@ -520,7 +519,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                         break;
                     case 0x41:
                         long child_address = m.ReadLong((next_next_next_address + 136).ToString("X"));
-                        var t= new possible_t1_struct_c_instance
+                        var t = new possible_t1_struct_c_instance
                         {
                             _41_ = new _41
                             {
@@ -532,12 +531,12 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                         int tg_i = 0;
                         textWriter.WriteAttributeString("tagGroup", ReverseString(t._41_.taggroup1));
                         textWriter.WriteAttributeString("int1", t._41_.int1.ToString());
-                        
+
                         break;
                     case 0x42:
                         string name_temp1 = m.ReadString(m.ReadLong(next_next_next_address.ToString("X")).ToString("X"), "", 300);
                         addUniqueString(name_temp1);
-                        var tg_42=new possible_t1_struct_c_instance
+                        var tg_42 = new possible_t1_struct_c_instance
                         {
                             _42_ = new _42
                             {
@@ -552,17 +551,18 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                                 long4 = m.ReadLong((next_next_next_address + 48).ToString("X")),
                             }
                         };
-                        
+
                         string sub_n1 = m.ReadString(m.ReadLong((next_next_next_address + 24).ToString("X")).ToString("X"), "", 300);
                         addUniqueString(sub_n1);
 
                         Debug.Assert((sub_n1 == "") || (sub_n1 == "k_maxFunctionSize" && tg_42._42_.int2 != 0));
-                        
+
                         textWriter.WriteAttributeString("sub_entry", name_temp1);
                         textWriter.WriteAttributeString("int1", tg_42._42_.int1.ToString());
                         textWriter.WriteAttributeString("int2", tg_42._42_.int2.ToString());
                         textWriter.WriteAttributeString("int3", tg_42._42_.int3.ToString());
-                        if (sub_n1 == "k_maxFunctionSize") {
+                        if (sub_n1 == "k_maxFunctionSize")
+                        {
                             Debug.Assert(tg_42._42_.int1 == 4);
                             Debug.Assert(tg_42._42_.int2 == 2);
                             Debug.Assert(tg_42._42_.int3 == 872);
@@ -603,19 +603,22 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
 
 
             }
-            if (_37Stack.Count != 0 ) {
+            if (_37Stack.Count != 0)
+            {
                 Debug.Assert(_37Stack.Count == 1);
                 string last_val = _37Stack.Pop();
 
             }
-                
+
             return new Table2_struct { };
         }
-        private void searchFuctions(long adrress) {
+        private void searchFuctions(long adrress)
+        {
 
             int i1 = 0;
 
-            while (DebugReadFuctions(adrress, i1)!=-1) {
+            while (DebugReadFuctions(adrress, i1) != -1)
+            {
                 i1++;
             }
             int i2 = -1;
@@ -625,8 +628,9 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                 i2--;
             }
         }
-        private int DebugReadFuctions(long next_next_next_address_,int i) {
-            
+        private int DebugReadFuctions(long next_next_next_address_, int i)
+        {
+
             long next_next_next_address = next_next_next_address_ + i * 56;
             string name_temp1 = m.ReadString(m.ReadLong(next_next_next_address.ToString("X")).ToString("X"), "", 300);
             addUniqueString(name_temp1);
@@ -640,7 +644,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
             long long4 = m.ReadLong((next_next_next_address + 48).ToString("X"));
             string sub_n1 = m.ReadString(m.ReadLong((next_next_next_address + 24).ToString("X")).ToString("X"), "", 300);
             addUniqueString(sub_n1);
-            return name_temp1 =="" || long3!=0 ? - 1: Math.Abs(i);
+            return name_temp1 == "" || long3 != 0 ? -1 : Math.Abs(i);
         }
         private possible_t1_struct_c_instance TryGetPossibleStructInstance(long address)
         {
@@ -661,7 +665,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                 childs.Add(reuse_me_uh);
 
                 textWriter.WriteAttributeString("v", reuse_me_uh);
-                
+
 
                 textWriter.WriteEndElement();
             }

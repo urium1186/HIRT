@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static LibHIRT.TagReader.Headers.TagHeader;
-
-namespace LibHIRT.TagReader.Headers
+﻿namespace LibHIRT.TagReader.Headers
 {
     public abstract class HeaderTable<T> where T : HeaderTableEntry
     {
@@ -17,8 +9,10 @@ namespace LibHIRT.TagReader.Headers
         abstract public void readTable(Stream f, TagHeader header);
         abstract public T readTableItem(Stream f, TagHeader header, int pos);
 
-        public T GetTableEntry(Stream f, TagHeader header, int pos) {
-            if (pos >= 0 && pos < entries.Count) { 
+        public T GetTableEntry(Stream f, TagHeader header, int pos)
+        {
+            if (pos >= 0 && pos < entries.Count)
+            {
                 return entries[pos];
             }
             return readTableItem(f, header, pos);

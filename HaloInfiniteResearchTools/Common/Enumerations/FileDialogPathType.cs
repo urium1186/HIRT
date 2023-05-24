@@ -1,12 +1,12 @@
 ﻿namespace HaloInfiniteResearchTools.Common.Enumerations
 {
 
-  public enum FileDialogPathType
-  {
+    public enum FileDialogPathType
+    {
 
-    File,
-    Directory
+        File,
+        Directory
 
-  }
+    }
 
 }

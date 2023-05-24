@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace LibHIRT.Data.Textures
+﻿namespace LibHIRT.Data.Textures
 {
 
-  public interface ITextureNameProvider
-  {
+    public interface ITextureNameProvider
+    {
 
-    IEnumerable<string> GetTextureNames();
+        IEnumerable<string> GetTextureNames();
 
-  }
+    }
 
 }

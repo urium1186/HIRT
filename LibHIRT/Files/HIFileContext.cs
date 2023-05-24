@@ -66,7 +66,7 @@ namespace LibHIRT.Files
         {
             get => SSpaceFileFactory.SupportedFileExtensions;
         }
-         public static IReadOnlyCollection<string> NoSupportedFileExtensions
+        public static IReadOnlyCollection<string> NoSupportedFileExtensions
         {
             get => SSpaceFileFactory.NoSupportedFileExtensions;
         }
@@ -92,15 +92,20 @@ namespace LibHIRT.Files
 
         public static ConcurrentDictionary<string, ModuleFile> FilesModuleGlobalIdLockUp { get => _filesModuleGlobalIdLockUp; }
         public static DirModel RootDir => _rootDir;
-        
 
 
-        public string TagTemplatePath { get {
+
+        public string TagTemplatePath
+        {
+            get
+            {
                 return TagXmlParse.TagsPath;
             }
-            set {
+            set
+            {
                 TagXmlParse.TagsPath = value;
-            } }
+            }
+        }
 
         public bool RuntimeLoadCompleted { get; private set; }
         public static RuntimeTagLoader RuntimeTagLoader { get => _runtimeTagLoader; }
@@ -121,7 +126,7 @@ namespace LibHIRT.Files
             _filesModuleGlobalIdLockUp = new ConcurrentDictionary<string, ModuleFile>();
             _filesGlobalIdLockUp = new ConcurrentDictionary<int, ISSpaceFile>();
             _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
-            
+
             //SQLiteDriver.CreateTable(connectionDb);
             //SQLiteDriver.InsertMmh3LTU(connectionDb);
             //SQLiteDriver.ReadData(connectionDb);
@@ -136,7 +141,8 @@ namespace LibHIRT.Files
 
         #region Public Methods
 
-        public void InitDbHashTable() {
+        public void InitDbHashTable()
+        {
             Mmr3HashLTU.loadFromDbLtu();
             /*
             if (connectionDb == null)
@@ -175,7 +181,7 @@ namespace LibHIRT.Files
             }
            
             */
-           
+
         }
 
         public bool AddFile(ISSpaceFile file)
@@ -192,22 +198,25 @@ namespace LibHIRT.Files
             }
             SSpaceFile temp = file as ModuleFile;
 
-            if (temp != null )
+            if (temp != null)
             {
                 if (!_filesModuleGlobalIdLockUp.ContainsKey(temp.Name))
                     _filesModuleGlobalIdLockUp.TryAdd(temp.Name, (ModuleFile)file);
             }
-            else {
+            else
+            {
                 int global_id = file.TryGetGlobalId();
                 var temp_s = Mmr3HashLTU.getMmr3HashFromInt(global_id);
                 if (global_id != -1)
                     _filesGlobalIdLockUp.TryAdd(global_id, file);
-                else { 
+                else
+                {
                 }
 
             }
 
-            foreach (var childFile in file.Children) {
+            foreach (var childFile in file.Children)
+            {
                 filesAdded |= AddFile(childFile);
                 try
                 {
@@ -225,15 +234,17 @@ namespace LibHIRT.Files
 
         public void AddFileToDirList(ISSpaceFile file)
         {
-            if (!(file.GetType().IsSubclassOf(typeof(SSpaceFile))) || (file.GetType().IsSubclassOf(typeof(SSpaceContainerFile)))) {
+            if (!(file.GetType().IsSubclassOf(typeof(SSpaceFile))) || (file.GetType().IsSubclassOf(typeof(SSpaceContainerFile))))
+            {
                 return;
             }
             lock (_rootDir)
             {
-                
+
                 var dirSplit = string.IsNullOrEmpty(file.Path_string) ? file.Name.Split(@"\") : file.Path_string.Split(@"\");
                 var tempDir = _rootDir;
-                lock (tempDir) {
+                lock (tempDir)
+                {
                     for (int i = 0; i < dirSplit.Length - 1; i++)
                     {
                         if (!tempDir.Dirs.ContainsKey(dirSplit[i]))
@@ -247,8 +258,8 @@ namespace LibHIRT.Files
                     tempDir.Dirs[dirSplit[dirSplit.Length - 1]] = new FileDirModel(file, dirSplit[dirSplit.Length - 1]);
                     tempDir.Dirs[dirSplit[dirSplit.Length - 1]].Parent = tempDir;
                 }
-                 
-                
+
+
             }
 
         }
@@ -295,15 +306,17 @@ namespace LibHIRT.Files
 
         public bool OpenFile(string filePath)
         {
-            var fileName = filePath.GetHashCode()+"__" + Path.GetFileName(filePath);
+            var fileName = filePath.GetHashCode() + "__" + Path.GetFileName(filePath);
             var fileExt = Path.GetExtension(fileName);
 
             HIRTStream stream;
-            if (fileExt == ".module") {
+            if (fileExt == ".module")
+            {
                 if (filePath.Contains("\\ds\\"))
                     return false;
                 stream = HIRTDecompressionStream.FromFile(filePath);
-            }else
+            }
+            else
                 stream = HIRTExtractedFileStream.FromFile(filePath);
 
             try
@@ -318,7 +331,8 @@ namespace LibHIRT.Files
             finally { stream.ReleaseLock(); }
         }
 
-        public bool ReadTagOnFile(ISSpaceFile file) {
+        public bool ReadTagOnFile(ISSpaceFile file)
+        {
             var tagParse = new TagParseControl(file.Path_string, file.TagGroup, null, file.GetStream());
             tagParse.readFile();
             _selectedJsonstring = tagParse.RootTagInst.ToJson();
@@ -342,18 +356,21 @@ namespace LibHIRT.Files
             return true;
         }
 
-        public static ISSpaceFile GetFileFrom(TagRef tagRef, ModuleFile init = null) {
+        public static ISSpaceFile GetFileFrom(TagRef tagRef, ModuleFile init = null)
+        {
             if (tagRef == null)
                 return null;
             ISSpaceFile result = null;
-            if (init != null) {
+            if (init != null)
+            {
 
                 result = init.GetFileByGlobalId(tagRef.Ref_id_int);
             }
-            if (result == null) {
+            if (result == null)
+            {
                 FilesGlobalIdLockUp.TryGetValue(tagRef.Ref_id_int, out result);
             }
-            
+
             return result;
         }
 

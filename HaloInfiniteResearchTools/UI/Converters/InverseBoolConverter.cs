@@ -5,19 +5,19 @@ using System.Windows.Data;
 namespace HaloInfiniteResearchTools.UI.Converters
 {
 
-  public class InverseBoolConverter : IValueConverter
-  {
-
-    public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
+    public class InverseBoolConverter : IValueConverter
     {
-      return !value.Equals( true );
-    }
 
-    public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture )
-    {
-      throw new NotImplementedException();
-    }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !value.Equals(true);
+        }
 
-  }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
 
 }

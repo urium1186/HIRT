@@ -1,7 +1,6 @@
 ﻿using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using SharpDX.Direct3D9;
 using System;
 using System.Windows.Controls;
 
@@ -23,9 +22,10 @@ namespace HaloInfiniteResearchTools.Views
             try
             {
                 var viewService = ServiceProvider.GetService<IViewService>();
-                ModelViewModel temp =(this.DataContext as ModelViewModel);
+                ModelViewModel temp = (this.DataContext as ModelViewModel);
                 var render_model = temp.File.GetRenderModel();
-                if (render_model != null) {
+                if (render_model != null)
+                {
                     RenderModelViewModel renderModel = new RenderModelViewModel(ServiceProvider, render_model);
                     renderModel.ModelInfo = temp.File.GetModelVariants();
                     renderModel.Initialize();
@@ -35,8 +35,8 @@ namespace HaloInfiniteResearchTools.Views
                     Grid.SetRow(view, 1);
                     Grid.SetColumn(view, 1); ;
                 }
-                
-                
+
+
             }
             catch (Exception ex)
             {

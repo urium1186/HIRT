@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Ionic.Zlib;
+﻿using Ionic.Zlib;
 using static LibHIRT.Assertions;
 
 namespace LibHIRT.Files
@@ -224,9 +217,10 @@ namespace LibHIRT.Files
             return stream;
         }
 
-        public string TryGetFilePath() {
+        public string TryGetFilePath()
+        {
             FileStream fileStream = _baseStream as FileStream;
-            if (fileStream != null) 
+            if (fileStream != null)
                 return fileStream.Name;
             return "";
         }
@@ -237,7 +231,7 @@ namespace LibHIRT.Files
         #endregion
 
         #region Overrides
-        
+
         public override int Read(byte[] buffer, int offset, int size)
         {
 #if DEBUG
@@ -256,19 +250,19 @@ namespace LibHIRT.Files
                 return ReadUncompressed(buffer, offset, size);*/
         }
 
-        
+
         public override long Seek(long offset, SeekOrigin origin)
         {
 #if DEBUG
             //Assert( IsLocked, "Attempting to seek without a lock." );
 #endif
             // Calculate the true offset.
-            
+
 
             Assert(offset >= 0, "Seek offset must be positive.");
             //Assert(offset < _length, "Seek offset was out of bounds.");
-         
-            
+
+
             _baseStream.Seek(offset, origin);
             _position = _baseStream.Position;
 
@@ -311,14 +305,14 @@ namespace LibHIRT.Files
         }
 
 
-       
+
         #endregion
 
         #region Read Methods
 
-        
 
-        
+
+
 
         #endregion
 

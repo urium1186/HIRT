@@ -1,16 +1,16 @@
 ﻿namespace LibHIRT.Domain.Geometry
 {
 
-  public enum SSPGeometryElementType
-  {
+    public enum SSPGeometryElementType
+    {
 
-    Unknown = 0,
+        Unknown = 0,
 
-    Face,
-    Vertex,
-    Interleaved,
-    BoneId
+        Face,
+        Vertex,
+        Interleaved,
+        BoneId
 
-  }
+    }
 
 }

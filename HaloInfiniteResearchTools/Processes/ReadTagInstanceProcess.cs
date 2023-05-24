@@ -1,16 +1,9 @@
-﻿using HaloInfiniteResearchTools.Models;
-using LibHIRT.Files;
-using LibHIRT.TagReader.Headers;
-using LibHIRT.TagReader;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static LibHIRT.TagReader.TagLayouts;
+﻿using LibHIRT.Files;
 using LibHIRT.Files.Base;
+using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
+using System;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -32,7 +25,7 @@ namespace HaloInfiniteResearchTools.Processes
         {
             if (_file is SSpaceFile)
             {
-                SSpaceFile file = (SSpaceFile)_file;  
+                SSpaceFile file = (SSpaceFile)_file;
                 tagParse = new TagParseControl(file.Path_string, file.TagGroup, null, file.GetStream());
                 tagParse.OnInstanceLoadEvent += OnInstanceLoadEvent;
                 //TagInstance.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
@@ -65,7 +58,7 @@ namespace HaloInfiniteResearchTools.Processes
                 }
 
             }
-           
+
         }
 
         private void TagParse_OnInstanceLoadEvent(object? sender, ITagInstance e)

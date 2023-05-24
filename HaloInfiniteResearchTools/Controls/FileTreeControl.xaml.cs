@@ -25,7 +25,7 @@ namespace HaloInfiniteResearchTools.Controls
           typeof(ICommand),
           typeof(FileTreeControl),
           new PropertyMetadata());
-        
+
 
         public static readonly DependencyProperty FileTreeExportRecursiveJsonCommandProperty = DependencyProperty.Register(
           nameof(FileTreeExportRecursiveJsonCommand),
@@ -42,12 +42,12 @@ namespace HaloInfiniteResearchTools.Controls
             get => (ICommand)GetValue(FileDoubleClickCommandProperty);
             set => SetValue(FileDoubleClickCommandProperty, value);
         }
-         public ICommand FileTreeExportJsonCommand
+        public ICommand FileTreeExportJsonCommand
         {
             get => (ICommand)GetValue(FileTreeExportJsonCommandProperty);
             set => SetValue(FileTreeExportJsonCommandProperty, value);
         }
-         public ICommand FileTreeExportRecursiveJsonCommand
+        public ICommand FileTreeExportRecursiveJsonCommand
         {
             get => (ICommand)GetValue(FileTreeExportRecursiveJsonCommandProperty);
             set => SetValue(FileTreeExportRecursiveJsonCommandProperty, value);
@@ -97,16 +97,18 @@ namespace HaloInfiniteResearchTools.Controls
                 }
                 FileDoubleClickCommand?.Execute(temp_model);
             }
-            else {
+            else
+            {
                 var treeModel = item.Header as TreeHierarchicalModel;
-                
-                if (treeModel != null) {
+
+                if (treeModel != null)
+                {
                     FileDoubleClickCommand?.Execute(treeModel);
                 }
             }
-            
 
-            
+
+
         }
 
         #endregion
@@ -141,14 +143,15 @@ namespace HaloInfiniteResearchTools.Controls
 
         private void MenuItem_ExportToJsonClick(object sender, RoutedEventArgs e)
         {
-            var item = sender as MenuItem; if (item == null) {
+            var item = sender as MenuItem; if (item == null)
+            {
                 return;
             }
             var fileModel = item.DataContext as DirModel;
             if (!(fileModel is null))
             {
                 e.Handled = true;
-               
+
 
                 FileTreeExportJsonCommand?.Execute(fileModel);
             }

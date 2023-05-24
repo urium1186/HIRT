@@ -1,21 +1,19 @@
-﻿using System.IO;
-
-namespace LibHIRT.Serializers.Configurations
+﻿namespace LibHIRT.Serializers.Configurations
 {
 
-  public interface IBinaryScriptingSerializer : IScriptingSerializer
-  {
+    public interface IBinaryScriptingSerializer : IScriptingSerializer
+    {
 
-    dynamic Deserialize( BinaryReader reader );
+        dynamic Deserialize(BinaryReader reader);
 
-  }
+    }
 
-  public interface IBinaryConfigurationSerializer<T> : IBinaryScriptingSerializer
-    where T : class, new()
-  {
+    public interface IBinaryConfigurationSerializer<T> : IBinaryScriptingSerializer
+      where T : class, new()
+    {
 
-    new T Deserialize( BinaryReader reader );
+        new T Deserialize(BinaryReader reader);
 
-  }
+    }
 
 }

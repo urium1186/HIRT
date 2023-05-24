@@ -1,16 +1,16 @@
 ﻿namespace LibHIRT.Data.Geometry
 {
 
-  public enum S3DGeometryElementType
-  {
+    public enum S3DGeometryElementType
+    {
 
-    Unknown = 0,
+        Unknown = 0,
 
-    Face,
-    Vertex,
-    Interleaved,
-    BoneId
+        Face,
+        Vertex,
+        Interleaved,
+        BoneId
 
-  }
+    }
 
 }

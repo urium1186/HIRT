@@ -41,7 +41,7 @@ namespace LibHIRT.ModuleUnpacker
         string save_path = ""; // = gf.offset_to_string(fb, string_table_offset + t1e.string_offset)
         HiModule hiModuleRef;
 
-        List<HiModuleFileEntry> _resourceFiles= new List<HiModuleFileEntry>();
+        List<HiModuleFileEntry> _resourceFiles = new List<HiModuleFileEntry>();
 
         int _index = -1;
 
@@ -81,7 +81,7 @@ namespace LibHIRT.ModuleUnpacker
         public int ParentOffResource { get => parent_of_resource; set => parent_of_resource = value; }
         public byte[] Hash { get => hash; set => hash = value; }
         public string Save_path { get => save_path; set => save_path = value; }
-        public HiModule HiModuleRef { get => hiModuleRef;}
+        public HiModule HiModuleRef { get => hiModuleRef; }
         public int Index { get => _index; set => _index = value; }
         public List<HiModuleFileEntry> ResourceFiles { get => _resourceFiles; set => _resourceFiles = value; }
         public ISSpaceFile ParentOffResourceRef { get; internal set; }
@@ -102,12 +102,13 @@ namespace LibHIRT.ModuleUnpacker
             bytes[7] = bytes[6] = 0;
             //Array.Copy(byteStream.ReadBytes(6), bytes, 6); 
             //local_data_offset = BitConverter.ToInt64(bytes, 0); // 0x18
-            if (bytes_temp[1] != 3 && bytes_temp[1] != 5) { 
+            if (bytes_temp[1] != 3 && bytes_temp[1] != 5)
+            {
             }
             var temp_dataOffset = (byteStream.ReadUInt64() & 0xffffffffffff);
             local_data_offset = ((long)temp_dataOffset); // 0x18
             Debug.Assert(local_data_offset.ToString() == temp_dataOffset.ToString());
-            byteStream.BaseStream.Seek(byteStream.BaseStream.Position-2, SeekOrigin.Begin);
+            byteStream.BaseStream.Seek(byteStream.BaseStream.Position - 2, SeekOrigin.Begin);
             flags = byteStream.ReadUInt16(); // 0x1E
             comp_size = byteStream.ReadInt32(); // 0x20
             decomp_size = byteStream.ReadInt32(); // 0x24
@@ -123,35 +124,39 @@ namespace LibHIRT.ModuleUnpacker
             parent_of_resource = byteStream.ReadInt32(); // 0x44 
             hash = byteStream.ReadBytes(0x10); // 0x4C
             //if (tagGroupRev != "����") {
-            if (tagGroupRev == "levl") {
-                
+            if (tagGroupRev == "levl")
+            {
+
                 var byt = BitConverter.GetBytes(BitConverter.ToInt64(hash, 0));
                 string hex = BitConverter.ToString(byt).Replace("-", "");
             }
             try
             {
-                lock (Utils.UIDebug.debugValues) { 
+                lock (Utils.UIDebug.debugValues)
+                {
                     if (!Utils.UIDebug.debugValues.ContainsKey("unk0x08"))
                     {
                         Utils.UIDebug.debugValues["unk0x08"] = new Dictionary<object, List<object>>();
                     }
                     if (!Utils.UIDebug.debugValues["unk0x08"].ContainsKey(bytes_temp[1].ToString()))
                         Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()] = new List<object>();
-                    if (!Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Contains(tagGroupRev)) {
+                    if (!Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Contains(tagGroupRev))
+                    {
                         Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Add(tagGroupRev);
                         Utils.UIDebug.debugValues["unk0x08"][bytes_temp[1].ToString()].Sort();
                     }
-                    if (Utils.UIDebug.debugValues["unk0x08"].Count > 300) { 
-                    
+                    if (Utils.UIDebug.debugValues["unk0x08"].Count > 300)
+                    {
+
                     }
                 }
             }
             catch (Exception ex)
             {
 
-               
+
             }
-            
+
         }
     }
 }

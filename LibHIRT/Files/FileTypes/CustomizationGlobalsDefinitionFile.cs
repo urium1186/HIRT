@@ -2,13 +2,7 @@
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
-using SharpDX;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Files.FileTypes
 {
@@ -30,7 +24,7 @@ namespace LibHIRT.Files.FileTypes
             {
                 _result = GenericSerializer.Deserialize(GetStream(), this);
             }
-            
+
             var fil_id = HIFileContext.GetFileFrom((_result["Themes"] as ListTagInstance)[0]["Model"] as TagRef, (ModuleFile)Parent);
             if (fil_id == null)
             {
@@ -40,7 +34,8 @@ namespace LibHIRT.Files.FileTypes
             return fil_id == null ? null : (RenderModelFile)fil_id;
         }
 
-        public ListTagInstance GetThemeConfigurations() {
+        public ListTagInstance GetThemeConfigurations()
+        {
             if (_result == null)
             {
                 _result = GenericSerializer.Deserialize(GetStream(), this);

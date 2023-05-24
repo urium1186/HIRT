@@ -1,13 +1,6 @@
 ﻿using HaloInfiniteResearchTools.Common;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Input;
+using HaloInfiniteResearchTools.Common.Extensions;
+using HaloInfiniteResearchTools.Controls;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
@@ -18,26 +11,31 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
-using Microsoft.Extensions.DependencyInjection;
-using PropertyChanged;
+using LibHIRT.Common;
+using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using MaterialCore = HelixToolkit.SharpDX.Core.Model.MaterialCore;
+using LibHIRT.Processes;
+using LibHIRT.TagReader;
+using Microsoft.Extensions.DependencyInjection;
+using PropertyChanged;
+using SharpDX;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Input;
 using PhongMaterialCore = HelixToolkit.SharpDX.Core.Model.PhongMaterialCore;
 using TextureModel = HelixToolkit.SharpDX.Core.TextureModel;
-using LibHIRT.Processes;
-using LibHIRT.Domain.RenderModel;
-using HaloInfiniteResearchTools.Controls;
-using LibHIRT.TagReader;
-using System.Diagnostics;
-
-using HaloInfiniteResearchTools.Common.Extensions;
-using SharpDX;
-using LibHIRT.Common;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
-    
+
 
     [AcceptsFileType(typeof(RenderModelFile))]
     public class RenderModelViewModel : ViewModel, IDisposeWithView
@@ -65,7 +63,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         private HelixToolkitScene _sceneHelixToolkit;
         private List<(SSpaceFile, RenderModelDefinition, Assimp.Scene)> _secundaryMesh;
 
-        
+
 
         #endregion
 
@@ -158,12 +156,12 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             ExportModelCommand = new AsyncCommand(ExportModel);
 
-            
+
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
         {
-            
+
         }
 
         #endregion
@@ -270,7 +268,7 @@ namespace HaloInfiniteResearchTools.ViewModels
               new System.Windows.Media.Media3D.Vector3D(1, 0, 0), -90);
 
             transformGroup.Children.Add(rotTransform);
-            
+
             var rotTransform2 = new System.Windows.Media.Media3D.RotateTransform3D();
             rotTransform2.Rotation = new System.Windows.Media.Media3D.AxisAngleRotation3D(
               new System.Windows.Media.Media3D.Vector3D(0, 1, 0), -90);
@@ -283,7 +281,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             Model.Transform = transformGroup;
         }
 
-        private Matrix getGlobalTransformation() {
+        private Matrix getGlobalTransformation()
+        {
             var transformGroup = new System.Windows.Media.Media3D.Transform3DGroup();
 
             var rotTransform = new System.Windows.Media.Media3D.RotateTransform3D();
@@ -311,7 +310,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
 
             _sceneHelixToolkit = scene;
-            
+
             AddNodeModels(scene.Root);
             FillRegionsList();
             FillVariantsList();
@@ -354,22 +353,24 @@ namespace HaloInfiniteResearchTools.ViewModels
                 _nodesNameLookUp[node.Name] = nodeModel;
             }
             var i = 0;
-            foreach (var childNode in node.Items) {
+            foreach (var childNode in node.Items)
+            {
                 AddNodeModels(childNode);
                 i++;
             }
-            
+
         }
 
         private async void NodeModel_NodeVisibilityChanged(object? sender, ModelNodeModel e)
         {
-            
+
             var temp = e.Node.Tag as ParNodes;
             if (temp == null)
                 return;
-            if (_nodesNameLookUp.TryGetValue(temp.Marker.Name+ "_marker", out var value)) {
+            if (_nodesNameLookUp.TryGetValue(temp.Marker.Name + "_marker", out var value))
+            {
                 var m_n = value.Node as MeshNode;
-                if (m_n == null) 
+                if (m_n == null)
                     return;
                 var a_n = e.Node as MeshNode;
                 if (a_n == null)
@@ -384,15 +385,16 @@ namespace HaloInfiniteResearchTools.ViewModels
                     a_n.Visible = false;
                     _assimpScene.Meshes[temp.Marker.MeshIndices[0]] = temp.Attach.Meshes[1];
                 }
-                else {
+                else
+                {
                     if (m_n.Tag != null && m_n.Tag is Geometry3D)
                         m_n.Geometry = (Geometry3D)m_n.Tag;
                     _assimpScene.Meshes[temp.Marker.MeshIndices[0]] = new Assimp.Mesh();
                     m_n.Visible = false;
                     a_n.Visible = false;
                 }
-                    
-                
+
+
             }
         }
 
@@ -593,7 +595,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                         foreach (var modelAttachment in tgl)
                         {
                             TagRef attach_model_ref = modelAttachment["Attachment Model"] as TagRef;
-                            
+
                             if (attach_model_ref == null || attach_model_ref.TagGroupRev != "hlmt")
                                 continue;
                             ModelFile modelFile = HIFileContext.GetFileFrom(attach_model_ref) as ModelFile;
@@ -602,7 +604,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                             var rmf = modelFile.GetRenderModel();
                             if (rmf == null)
                                 continue;
-                           // Assimp.Matrix4x4 initialTransform = GetTransformationMatrixFrom((ListTagInstance)(modelAttachment["Markers"] ),0,0);
+                            // Assimp.Matrix4x4 initialTransform = GetTransformationMatrixFrom((ListTagInstance)(modelAttachment["Markers"] ),0,0);
 
                             var convertProcess = new ConvertRenderModelToAssimpSceneProcess(rmf);
 
@@ -610,7 +612,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                             try
                             {
                                 await RunProcess(convertProcess);
-                                
+
                                 temp_renderModelDef = convertProcess.RenderModelDef;
 
                                 //assimpScene.RootNode.Children.AddRange(convertProcess.Result.RootNode.Children.ToArray());
@@ -633,7 +635,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             }
         }
 
-        private Assimp.Matrix4x4 GetTransformationMatrixFrom(ListTagInstance listTagInstance,int region_index, int permutation_index)
+        private Assimp.Matrix4x4 GetTransformationMatrixFrom(ListTagInstance listTagInstance, int region_index, int permutation_index)
         {
             var tempRMD = this._renderModelDef.TagInstance;
             ListTagInstance listTag = tempRMD["marker groups"] as ListTagInstance;
@@ -651,7 +653,8 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
                     foreach (var itemMarker in item["markers"] as ListTagInstance)
                     {
-                        if ((sbyte)itemMarker["region index"].AccessValue == region_index && (Int32)itemMarker["permutation index"].AccessValue == permutation_index) {
+                        if ((sbyte)itemMarker["region index"].AccessValue == region_index && (Int32)itemMarker["permutation index"].AccessValue == permutation_index)
+                        {
                             marketInfo = itemMarker;
                             break;
                         }
@@ -670,27 +673,36 @@ namespace HaloInfiniteResearchTools.ViewModels
             var markerGroup = this._renderModelDef.Marker_groups;
             ListTagInstance marker_groups = tempRMD["marker groups"] as ListTagInstance;
             if (marker_groups == null)
-                return ;
+                return;
 
             Assimp.Matrix4x4 result = default;
             var listTagInstance = attachmentDef["Markers"] as ListTagInstance;
             if (listTagInstance == null || listTagInstance.Count == 0)
-                return ;
+                return;
             var marketInfo = listTagInstance[0];
             Debug.Assert(listTagInstance.Count == 1);
-            
+
             var a_trs = marketInfo["Translation"] as Point3D;
             var a_rts = marketInfo["Rotation"] as Point3D;
             var a_scl = marketInfo["Scale"] as Point3D;
             // get vector3 from a_tras, a_rts, a_scl
-            Vector3 at_trs = new Vector3 { 
-                X= a_trs.X, Y= a_trs.Y,Z = a_trs.Z
-            }; 
-            Vector3 at_rts = new Vector3 { 
-                X= a_rts.X, Y= a_rts.Y,Z = a_rts.Z
-            }; 
-            Vector3 at_scl = new Vector3 { 
-                X= a_scl.X, Y= a_scl.Y,Z = a_scl.Z
+            Vector3 at_trs = new Vector3
+            {
+                X = a_trs.X,
+                Y = a_trs.Y,
+                Z = a_trs.Z
+            };
+            Vector3 at_rts = new Vector3
+            {
+                X = a_rts.X,
+                Y = a_rts.Y,
+                Z = a_rts.Z
+            };
+            Vector3 at_scl = new Vector3
+            {
+                X = a_scl.X,
+                Y = a_scl.Y,
+                Z = a_scl.Z
             };
             TagRef attach_model_ref = attachmentDef["Attachment Model"] as TagRef;
             string attachModelName = $"M_I:{attach_model_ref.Ref_id}"; // _Var:{(attachmentDef["Variant"] as Mmr3Hash).Str_value}
@@ -702,7 +714,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 string name = (marker_group["name"] as Mmr3Hash).Str_value;
                 if ((marker_group["name"] as Mmr3Hash).Value == (marketInfo["Marker Name"] as Mmr3Hash).Value)
                 {
-                    
+
                     var markers = marker_group["markers"] as ListTagInstance;
                     if (markers == null)
                         continue;
@@ -712,32 +724,33 @@ namespace HaloInfiniteResearchTools.ViewModels
                         int r_i = (sbyte)itemMarker["region index"].AccessValue;
                         int p_i = (Int32)itemMarker["permutation index"].AccessValue;
                         int node_index = (Int16)itemMarker["node index"].AccessValue;
-                        var direc = markerGroup[m_g_index-1].Markers[i].Direction.getVectorDirection();
+                        var direc = markerGroup[m_g_index - 1].Markers[i].Direction.getVectorDirection();
                         var position = markerGroup[m_g_index - 1].Markers[i].Direction.getVectorDirection(_renderModelDef.Nodes[node_index].LocalTransform);
                         i++;
                         if (r_i == -1 || p_i == -1)
                             continue;
 
                         //if ( r_i < regions.Children.Count )
-                        if ( r_i < _renderModelDef.Regions.Length)
+                        if (r_i < _renderModelDef.Regions.Length)
                         {
 
-                            
+
                             //var top = ((regions.Children[r_i] as TreeViewItemModel).Children[0]) as TreeViewItemModel;
                             if (!(p_i < _renderModelDef.Regions[r_i].permutations.Length))
                                 continue;
 
-                            TreeViewItemModel tvm = getVariant(regions,_renderModelDef.Regions[r_i].name_id, _renderModelDef.Regions[r_i].permutations[p_i].name_id, false);
+                            TreeViewItemModel tvm = getVariant(regions, _renderModelDef.Regions[r_i].name_id, _renderModelDef.Regions[r_i].permutations[p_i].name_id, false);
 
 
-                           
 
 
-                            if (tvm == null )
+
+                            if (tvm == null)
                                 continue;
                             CheckedModel copy_tvm = (CheckedModel)tvm.copy();
 
-                            if (tvm.Children.Count == 0 || tvm.Children[0].Header != "Attachments") {
+                            if (tvm.Children.Count == 0 || tvm.Children[0].Header != "Attachments")
+                            {
                                 TreeViewItemModel tempTVIMs = new TreeViewItemModel();
                                 tempTVIMs.Header = "Attachments";
                                 tvm.Children.Insert(0, tempTVIMs);
@@ -748,7 +761,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                             TreeViewItemModel tempTVIM = new TreeViewItemModel();
                             tempTVIM.Header = $"{attachModelName}_MG-{m_g_index - 1}_M-{i - 1}_In_R-{r_i}_P-{p_i}_N-{node_index}";
-                            _marker_lookup.TryGetValue($"{name}_{i-1}_{r_i}_{p_i}_{node_index}", out var nodeMarker);
+                            _marker_lookup.TryGetValue($"{name}_{i - 1}_{r_i}_{p_i}_{node_index}", out var nodeMarker);
 
                             tempTVIM.Tag = new ParNodes
                             {
@@ -767,10 +780,11 @@ namespace HaloInfiniteResearchTools.ViewModels
                     break;
                 }
             }
-            
+
         }
 
-        SharpDX.Matrix GetTransformMatrixFrom(TagInstance rd_maker, TagInstance marker) {
+        SharpDX.Matrix GetTransformMatrixFrom(TagInstance rd_maker, TagInstance marker)
+        {
             SharpDX.Matrix.Scaling(2, 2, 2);
             var trs = rd_maker["translation"] as Point3D;
             var rts = rd_maker["rotation"] as LibHIRT.TagReader.Quaternion;
@@ -784,14 +798,15 @@ namespace HaloInfiniteResearchTools.ViewModels
             var node = (_renderModelDef.TagInstance["nodes"] as ListTagInstance)[node_index];
             SharpDX.Matrix result = SharpDX.Matrix.Identity;
             SharpDX.Matrix rotM = SharpDX.Matrix.Identity;
-            SharpDX.Quaternion rot = new SharpDX.Quaternion {
-                X=rts.X,
-                Y=rts.Y,
-                Z=rts.Z,
-                W=rts.W
+            SharpDX.Quaternion rot = new SharpDX.Quaternion
+            {
+                X = rts.X,
+                Y = rts.Y,
+                Z = rts.Z,
+                W = rts.W
             };
             SharpDX.Matrix.RotationQuaternion(ref rot, out rotM);
-            
+
 
             var translV = new SharpDX.Vector3
             {
@@ -825,12 +840,14 @@ namespace HaloInfiniteResearchTools.ViewModels
             });
             result = SharpDX.Matrix.Transformation(new SharpDX.Vector3(0), new SharpDX.Quaternion(0), scaleV, new SharpDX.Vector3(), rot, translV);
             ModelBone.calculateGlobalTransformation(_renderModelDef.Nodes[node_index]);
-            result = (_renderModelDef.Nodes[node_index].GlobalTransform).ToSharpDX(false) ;
+            result = (_renderModelDef.Nodes[node_index].GlobalTransform).ToSharpDX(false);
             result.Transpose();
-            if (_nodesNameLookUp.TryGetValue("node_mesh_"+_renderModelDef.Nodes[node_index].Name,out var nodeModel)) {
+            if (_nodesNameLookUp.TryGetValue("node_mesh_" + _renderModelDef.Nodes[node_index].Name, out var nodeModel))
+            {
                 var t_v = (nodeModel.Node as MeshNode).Parent.ModelMatrix;
-                result= (nodeModel.Node as MeshNode).Parent.TotalModelMatrix;
-                if (!result.IsIdentity) { 
+                result = (nodeModel.Node as MeshNode).Parent.TotalModelMatrix;
+                if (!result.IsIdentity)
+                {
                 }
             }
             //tempLocalM *
@@ -838,16 +855,19 @@ namespace HaloInfiniteResearchTools.ViewModels
             return result;
         }
 
-        TreeViewItemModel getVariant(TreeViewItemModel regions, int r_i, int p_i, bool v) {
+        TreeViewItemModel getVariant(TreeViewItemModel regions, int r_i, int p_i, bool v)
+        {
             foreach (var regionTrv in regions.Children)
             {
                 TreeViewItemModel childs = regionTrv as TreeViewItemModel;
                 foreach (var subregionTrv in childs.Children)
                 {
-                    if (subregionTrv.Header == r_i.ToString()) {
+                    if (subregionTrv.Header == r_i.ToString())
+                    {
                         foreach (var itemVar in (subregionTrv as TreeViewItemModel).Children)
                         {
-                            if (itemVar.Header == p_i.ToString()) {
+                            if (itemVar.Header == p_i.ToString())
+                            {
                                 if (!v)
                                     return (TreeViewItemModel)itemVar;
                                 else
@@ -861,7 +881,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
             }
             return null;
-        } 
+        }
 
         private async Task ReadMeshAttachmentsAsync(ObjectCustomizationThemeConfiguration? r, TreeViewItemModel parent, Assimp.Scene assimpScene)
         {
@@ -881,20 +901,21 @@ namespace HaloInfiniteResearchTools.ViewModels
                 ListTagInstance tgl = attachFile.Deserialized.Root["Model Attachments"] as ListTagInstance;
                 if (tgl == null || tgl.Count == 0)
                     continue;
-                
+
                 foreach (var modelAttachment in tgl)
                 {
                     TagRef attach_model_ref = modelAttachment["Attachment Model"] as TagRef;
                     EnumGroup att_csm_type = modelAttachment["CMS Customization Item Type"] as EnumGroup;
-                    
-                    
-                    if (!keyValuePairs.ContainsKey(att_csm_type.Selected)) {
+
+
+                    if (!keyValuePairs.ContainsKey(att_csm_type.Selected))
+                    {
                         keyValuePairs[att_csm_type.Selected] = new TreeViewItemModel();
                         keyValuePairs[att_csm_type.Selected].Header = att_csm_type.Selected;
                         keyValuePairs[att_csm_type.Selected].SetValue(ItemHelper.ParentProperty, tempPart);
                         tempPart.Children.Add(keyValuePairs[att_csm_type.Selected]);
                     }
-                    
+
 
 
                     if (attach_model_ref == null || attach_model_ref.TagGroupRev != "hlmt")
@@ -919,7 +940,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                         importer.ToHelixToolkitScene(convertProcess.Result, out var scene);
 
 
-                        _secundaryMesh.Add((modelFile,temp_renderModelDef,convertProcess.Result));
+                        _secundaryMesh.Add((modelFile, temp_renderModelDef, convertProcess.Result));
                         AddNodeModels(scene.Root);
                         Model.AddNode(scene.Root);
                     }
@@ -954,7 +975,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     {
                         Header = modelAttachment["Variant"].AccessValue.ToString()
                     };
-                    
+
                     temp_tvm.SetValue(ItemHelper.ParentProperty, keyValuePairs[att_csm_type.Selected]);
                     keyValuePairs[att_csm_type.Selected].Children.Add(temp_tvm);
                 }
@@ -1164,7 +1185,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 await RunProcess(exportProcessN);
 
             }
-           
+
 
 
 

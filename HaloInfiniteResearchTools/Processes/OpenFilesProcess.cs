@@ -1,11 +1,9 @@
-﻿using HaloInfiniteResearchTools.Models;
-using LibHIRT.Files;
+﻿using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
@@ -69,18 +67,20 @@ namespace HaloInfiniteResearchTools.Processes
                 Status = Status + "\n" + temp;
                 try
                 {
-                   
-                   
-                    if (!_fileContext.OpenFile(filePath)) {
-                        
+
+
+                    if (!_fileContext.OpenFile(filePath))
+                    {
+
                         StatusList.AddWarning(fileName, "Failed to open file.");
-                    }   
-                    else {
+                    }
+                    else
+                    {
                         Status = Status.Replace("\n" + temp, "");
                         _filesLoaded.Add(fileName);
                         StatusList.AddMessage(fileName, "Open file.");
                     }
-                        
+
                 }
                 catch (Exception ex)
                 {
@@ -88,11 +88,12 @@ namespace HaloInfiniteResearchTools.Processes
                 }
                 finally
                 {
-                    lock (objLock) {
+                    lock (objLock)
+                    {
                         Status = Status.Replace("\n" + temp, "");
                         CompletedUnits++;
                     }
-                        
+
                 }
             });
         }

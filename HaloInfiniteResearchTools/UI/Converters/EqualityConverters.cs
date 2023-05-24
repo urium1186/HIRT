@@ -5,30 +5,30 @@ using System.Windows.Data;
 namespace HaloInfiniteResearchTools.UI.Converters
 {
 
-  public class EqualityBoolConverter : IValueConverter
-  {
-    public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
+    public class EqualityBoolConverter : IValueConverter
     {
-      return value.Equals( parameter );
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value.Equals(parameter);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture )
+    public class InequalityBoolConverter : IValueConverter
     {
-      throw new NotImplementedException();
-    }
-  }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !value.Equals(parameter);
+        }
 
-  public class InequalityBoolConverter : IValueConverter
-  {
-    public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
-    {
-      return !value.Equals( parameter );
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
-
-    public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture )
-    {
-      throw new NotImplementedException();
-    }
-  }
 
 }

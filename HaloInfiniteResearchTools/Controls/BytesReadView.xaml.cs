@@ -1,21 +1,10 @@
 ﻿using LibHIRT.Common;
 using LibHIRT.TagReader;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Xceed.Wpf.AvalonDock.Controls;
 
 namespace HaloInfiniteResearchTools.Controls
 {
@@ -274,7 +263,7 @@ namespace HaloInfiniteResearchTools.Controls
                     if (stream == null)
                         return "";
                     var pos = stream.BaseStream.Position;
-                    string temp =new string(stream.ReadChars(4));
+                    string temp = new string(stream.ReadChars(4));
                     stream.BaseStream.Position = pos;
                     return temp;
                 }
@@ -348,16 +337,17 @@ namespace HaloInfiniteResearchTools.Controls
         {
             if (e.NewValue != null)
             {
-                stream= new BinaryReader((Stream)e.NewValue);
+                stream = new BinaryReader((Stream)e.NewValue);
             }// RefreshJsonTree(e.NewValue.ToString());
         }
         public BytesReadView()
         {
             InitializeComponent();
-            DataContext= this;  
+            DataContext = this;
         }
 
-        public void Refresh() {
+        public void Refresh()
+        {
             BindingOperations.GetBindingExpressionBase((TextBox)TbUbyte, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbByte, TextBox.TextProperty).UpdateTarget();
             BindingOperations.GetBindingExpressionBase((TextBox)TbUInt16, TextBox.TextProperty).UpdateTarget();

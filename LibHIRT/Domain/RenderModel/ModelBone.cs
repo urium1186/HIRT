@@ -1,14 +1,16 @@
-﻿using System.Numerics;
-using LibHIRT.Common;
+﻿using LibHIRT.Common;
+using System.Numerics;
 
 namespace LibHIRT.Domain.RenderModel
 {
-    public struct RenderModelMarkerGroup {
+    public struct RenderModelMarkerGroup
+    {
         public string Name { get; set; }
         public RenderModelMarker[] Markers { get; set; }
     }
 
-    public struct RenderModelMarker {
+    public struct RenderModelMarker
+    {
         public int Index { get; set; }
         public int RegionIndex { get; set; }
         public int PermutationIndex { get; set; }
@@ -35,7 +37,7 @@ namespace LibHIRT.Domain.RenderModel
         public Matrix4x4 Offset { get; set; }
 
         public Vector3 Traslation { get; set; }
-        
+
         public Quaternion Rotation { get; set; }
         public Vector3 Scale { get; set; }
 
@@ -65,12 +67,14 @@ namespace LibHIRT.Domain.RenderModel
             bone.GlobalTransform = Matrix4x4.Identity;
             List<Matrix4x4> temp = new List<Matrix4x4>();
             var parent = bone;
-            while (parent != null) { 
+            while (parent != null)
+            {
                 temp.Add(parent.LocalTransform);
                 parent = parent.Parent;
             }
             temp.Reverse();
-            if (temp.Count > 2) { 
+            if (temp.Count > 2)
+            {
             }
             foreach (var item in temp)
             {
@@ -87,13 +91,13 @@ namespace LibHIRT.Domain.RenderModel
             bone.LocalTransform = NumericExtensions.TRS(bone.Traslation, bone.Rotation, bone.Scale);
             double d = Matrix4x4.Identity.GetTransformDistance(bone.LocalTransform);
             if (d == bone.DistanceFromParent)
-            { 
+            {
             }
             bone.LoadedLocalTransform = true;
         }
 
         // get the Assimp.Matrix4x4 from SharpDX.Matrix 
-       
+
 
         // Get Local transfomr from Traslation Rotation Scale SharpDX.Matrix 
 

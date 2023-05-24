@@ -1,4 +1,26 @@
 ﻿using HaloInfiniteResearchTools.Common;
+using HaloInfiniteResearchTools.Controls;
+using HaloInfiniteResearchTools.Models;
+using HaloInfiniteResearchTools.Processes;
+using HaloInfiniteResearchTools.Processes.Utils;
+using HaloInfiniteResearchTools.Services;
+using HaloInfiniteResearchTools.Services.Abstract;
+using HaloInfiniteResearchTools.ViewModels;
+using HaloInfiniteResearchTools.ViewModels.Abstract;
+using HaloInfiniteResearchTools.Views;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using LibHIRT.Domain.RenderModel;
+using LibHIRT.Files;
+using LibHIRT.Files.FileTypes;
+using LibHIRT.Processes;
+using LibHIRT.Serializers;
+using LibHIRT.TagReader;
+using Microsoft.Extensions.DependencyInjection;
+using PropertyChanged;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,41 +30,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using HaloInfiniteResearchTools.Models;
-using HaloInfiniteResearchTools.Processes;
-using HaloInfiniteResearchTools.Services;
-using HaloInfiniteResearchTools.Services.Abstract;
-using HaloInfiniteResearchTools.ViewModels.Abstract;
-using HaloInfiniteResearchTools.Views;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX;
-using Microsoft.Extensions.DependencyInjection;
-using PropertyChanged;
-using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
-using MaterialCore = HelixToolkit.SharpDX.Core.Model.MaterialCore;
 using PhongMaterialCore = HelixToolkit.SharpDX.Core.Model.PhongMaterialCore;
 using TextureModel = HelixToolkit.SharpDX.Core.TextureModel;
-using LibHIRT.Processes;
-using LibHIRT.Domain.RenderModel;
-using HaloInfiniteResearchTools.Controls;
-using LibHIRT.TagReader;
-using System.Diagnostics;
-
-using HaloInfiniteResearchTools.Common.Extensions;
-using SharpDX;
-using LibHIRT.Common;
-using HaloInfiniteResearchTools.ViewModels;
-using LibHIRT.Serializers;
-using HaloInfiniteResearchTools.Processes.Utils;
 
 namespace HaloInfiniteResearchTools.ControlModel
 {
 
 
-    
+
     public class Model3DViewerControlModel : ViewModel, IDisposeWithView
     {
 
@@ -130,7 +125,7 @@ namespace HaloInfiniteResearchTools.ControlModel
         {
             _file = file;
             _loadedTextures = new Dictionary<string, TextureModel>();
-            
+
 
             _secundaryMesh = new List<(SSpaceFile, RenderModelDefinition, Assimp.Scene)>();
 
@@ -164,13 +159,13 @@ namespace HaloInfiniteResearchTools.ControlModel
 
             ExportModelCommand = new AsyncCommand(ExportModel);
 
-            PropertyChanged += Model3DViewerControlModel_PropertyChanged; 
+            PropertyChanged += Model3DViewerControlModel_PropertyChanged;
 
         }
 
         private void Model3DViewerControlModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            
+
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
@@ -321,7 +316,7 @@ namespace HaloInfiniteResearchTools.ControlModel
             var importer = new Importer();
             importer.ToHelixToolkitScene(assimpScene, out var scene);
 
-            
+
             _sceneHelixToolkit = scene;
 
             AddNodeModels(scene.Root);
@@ -344,9 +339,9 @@ namespace HaloInfiniteResearchTools.ControlModel
                 Model.AddNode(scene.Root);
                 CalculateMoveSpeed(scene);
                 UpdateMeshInfo();
-                MyGeometrySceneContex = new RenderGeometrySceneContext(null,null);
-                
-                
+                MyGeometrySceneContex = new RenderGeometrySceneContext(null, null);
+
+
                 Viewport.Items.Clear();
                 Viewport.Items.Add(Model);
             });
@@ -413,7 +408,7 @@ namespace HaloInfiniteResearchTools.ControlModel
             }
         }
 
-        
+
         private void ShowAllNodes()
         {
             foreach (var node in Traverse(_nodes))

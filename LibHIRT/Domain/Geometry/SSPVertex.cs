@@ -32,7 +32,7 @@ namespace LibHIRT.Domain.Geometry
         public Vector4? Normal { get; set; }
         public Vector4? Tangent { get; set; }
         public Vector4? Colour { get; set; }
-        
+
         public Vector4? BlendIndices0 { get; set; }
         public Vector4? BlendWeights0 { get; set; }
         public Vector4? BlendIndices1 { get; set; }

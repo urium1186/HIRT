@@ -1,5 +1,4 @@
 ﻿using LibHIRT.Domain;
-using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
 
@@ -9,7 +8,7 @@ namespace LibHIRT.Serializers
     {
         private static IHIRTFile _file;
 
-        
+
 
         public static DinamycType Deserialize(Stream stream, IHIRTFile file)
         {

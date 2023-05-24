@@ -153,12 +153,13 @@ namespace LibHIRT.TagReader.RuntimeViewer
                         aobSingle = aobSingle.TrimEnd();
                         Debugger.Log(0, "DBGTIMING", "AOB: " + aobSingle);
                         var pointers = (await M.AoBScan(haloInfinite, 140737488289791, aobSingle + " 00 00", true, true, true));
-                        if (pointers != null && pointers.Count<long>() != 0) {
+                        if (pointers != null && pointers.Count<long>() != 0)
+                        {
                             long pointer = pointers.First();
                             Debug.WriteLine(pointer);
                             TRSettings.Instance.ProcAsyncBaseAddr = "HaloInfinite.exe+0x" + (pointer - haloInfinite).ToString("X");
                         }
-                        
+
                         //TRSettings.Instance.Save();
                         //Debug.WriteLine(TRSettings.Instance.ProcAsyncBaseAddr);
 
@@ -191,11 +192,11 @@ namespace LibHIRT.TagReader.RuntimeViewer
             // true: we reconnected to the process
             // false: no new connection to process
 
-            
+
             bool selected = m.OpenProcess("HaloInfinite.exe");
             return selected;
-            
-            
+
+
 
         }
         private async Task HookProcessAsync()
@@ -203,7 +204,8 @@ namespace LibHIRT.TagReader.RuntimeViewer
             try
             {
                 bool reset = hookProcess(M);
-                if (M.mProc.Process != null) {
+                if (M.mProc.Process != null)
+                {
                     BaseAddress = -1;
                     hooked = false;
                     loadedTags = false;
@@ -387,7 +389,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                 // 0x8 Tag_group Pointer 8bytes
                 // 0x10 Tag_data Pointer 8bytes
                 // 0x18 Tag_type_desc Pointer 8bytes
-               
+
                 TagsList = new Dictionary<string, TagStructMem>();
                 for (int tagIndex = 0; tagIndex < TagCount; tagIndex++)
                 {
@@ -408,7 +410,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     byte[] test = (M.ReadBytes((tagAddress + 4).ToString("X"), 4));
 
                     // = String.Concat(bytes.Where(c => !Char.IsWhiteSpace(c)));
-                    
+
                     currentTag.ObjectId = BitConverter.ToString(test).Replace("-", string.Empty);
                     currentTag.TagGroupMem = read_tag_group(M.ReadLong((tagAddress + 0x8).ToString("X")));
                     currentTag.TagData = M.ReadLong((tagAddress + 0x10).ToString("X"));
@@ -416,16 +418,17 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     currentTag.TagFile = currentTag.TagFullName.Split('\\').Last().Trim();
                     byte[] debug = M.ReadBytes((tagAddress).ToString("X"), 52);
 
-                    var temp_s=M.ReadString(M.ReadLong((tagAddress + 0x10+24).ToString("X")).ToString("X"),"",300);
-                    var temp_s1=M.ReadString(M.ReadLong((tagAddress + 0x10+32).ToString("X")).ToString("X"),"",300);
+                    var temp_s = M.ReadString(M.ReadLong((tagAddress + 0x10 + 24).ToString("X")).ToString("X"), "", 300);
+                    var temp_s1 = M.ReadString(M.ReadLong((tagAddress + 0x10 + 32).ToString("X")).ToString("X"), "", 300);
                     string str_bytes = BitConverter.ToString(debug).Replace("-", "");
                     var ind1 = BitConverter.ToInt16(debug, 0x2A);
-                    var ind0 = BitConverter.ToInt16(debug, 0x2A-2);
-                    if (currentTag.TagGroup != "shbc") {
+                    var ind0 = BitConverter.ToInt16(debug, 0x2A - 2);
+                    if (currentTag.TagGroup != "shbc")
+                    {
                         // Debug.Assert(ind1 == 4096);
-                       // Debug.Assert(ind0 == 5);
+                        // Debug.Assert(ind0 == 5);
                     }
-                    
+
                     //TagFileHeader tagFileHeaderInst = (TagFileHeader)UtilBinaryReader.marshallBinData<TagFileHeader>(tempheader);
                     if (is_checked)
                     {
@@ -448,7 +451,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     {
                         TagsList.Add(currentTag.ObjectId, currentTag);
                     }
-                    
+
                 }
             });
             if (!is_silent)
@@ -477,9 +480,9 @@ namespace LibHIRT.TagReader.RuntimeViewer
                 //p_block.value_type.Text = "Pointer check";
                 var pointerCheck = M.ReadLong((loadingTag.TagData).ToString("X"));//.ToString("X");
                 //tagview_panels.Children.Add(p_block);
-                byte[] tempheader = M.ReadBytes((loadingTag.TagData).ToString("X"),80);
+                byte[] tempheader = M.ReadBytes((loadingTag.TagData).ToString("X"), 80);
                 TagFileHeader tagFileHeaderInst = (TagFileHeader)UtilBinaryReader.marshallBinData<TagFileHeader>(tempheader);
-                
+
                 // ID check
                 //TagValueBlock id_block = new() { HorizontalAlignment = HorizontalAlignment.Left };
                 //id_block.value_type.Text = "ID check";
@@ -498,14 +501,14 @@ namespace LibHIRT.TagReader.RuntimeViewer
                 {
                     //TextBox tb1 = new TextBox { Text = "Datnum/ID mismatch; Tag appears to be unloaded, meaning it may not be active on the map, else try reloading the tags" };
                     //tagview_panels.Children.Add(tb1);
-                    return false; 
+                    return false;
                 }
 
                 //if (TagLayouts.Tags.ContainsKey(loadingTag.TagGroupMem))
                 //{
                 //Dictionary<long, TagLayouts.C> tags = TagLayouts.Tags(loadingTag.TagGroupMem);
                 //readTagsAndCreateControls(loadingTag, 0, tags, loadingTag.TagData, tagview_panels, tagID + ":");
-                
+
                 //}
                 //else
                 //{
@@ -525,7 +528,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
         public async Task Loadtags()
         {
-            Completed?.Invoke(this,null);
+            Completed?.Invoke(this, null);
 
             //Dictionary<string, TreeViewItem> groups_headers_diff = new();
 

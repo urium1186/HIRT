@@ -1,12 +1,12 @@
 ﻿namespace HaloInfiniteResearchTools.Common.Enumerations
 {
 
-  public enum NormalMapFormat
-  {
+    public enum NormalMapFormat
+    {
 
-    OpenGL,
-    DirectX
+        OpenGL,
+        DirectX
 
-  }
+    }
 
 }

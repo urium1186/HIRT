@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace HaloInfiniteResearchTools.UI.Modals
 {
 
-  public interface IModalFooterButtons
-  {
+    public interface IModalFooterButtons
+    {
 
-    IEnumerable<Button> GetFooterButtons();
+        IEnumerable<Button> GetFooterButtons();
 
-  }
+    }
 
 }

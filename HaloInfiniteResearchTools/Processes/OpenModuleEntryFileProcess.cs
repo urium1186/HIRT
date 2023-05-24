@@ -1,12 +1,8 @@
-﻿using HaloInfiniteResearchTools.Common.Enumerations;
-using HaloInfiniteResearchTools.Models;
+﻿using HaloInfiniteResearchTools.Models;
 using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes

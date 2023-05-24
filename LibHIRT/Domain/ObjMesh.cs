@@ -20,8 +20,8 @@ namespace LibHIRT.Domain
         {
             get
             {
-                if (_LODRenderData==null)
-                    _LODRenderData= new List<MeshLOD>();    
+                if (_LODRenderData == null)
+                    _LODRenderData = new List<MeshLOD>();
                 return _LODRenderData;
             }
         }

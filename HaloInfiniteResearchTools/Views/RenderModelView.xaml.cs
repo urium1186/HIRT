@@ -1,6 +1,6 @@
-﻿using System.Windows;
+﻿using HaloInfiniteResearchTools.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
-using HaloInfiniteResearchTools.ViewModels;
 
 namespace HaloInfiniteResearchTools.Views
 {

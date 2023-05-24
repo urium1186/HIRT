@@ -2,8 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
@@ -50,8 +48,8 @@ namespace HaloInfiniteResearchTools.Processes
                         {
 
                         }
-                        
-                       
+
+
                         _filesLoaded.Add("memory");
                         StatusList.AddMessage("memory", "Open file.");
                     }

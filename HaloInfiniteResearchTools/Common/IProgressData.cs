@@ -3,27 +3,27 @@
 namespace HaloInfiniteResearchTools.Common
 {
 
-  public interface IProgressData : INotifyPropertyChanged
-  {
+    public interface IProgressData : INotifyPropertyChanged
+    {
 
-    #region Properties
+        #region Properties
 
-    string Status { get; }
+        string Status { get; }
 
-    string SubStatus { get; }
+        string SubStatus { get; }
 
-    string UnitName { get; }
+        string UnitName { get; }
 
-    int CompletedUnits { get; }
+        int CompletedUnits { get; }
 
-    int TotalUnits { get; }
+        int TotalUnits { get; }
 
-    double PercentageComplete { get; }
+        double PercentageComplete { get; }
 
-    bool IsIndeterminate { get; }
+        bool IsIndeterminate { get; }
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

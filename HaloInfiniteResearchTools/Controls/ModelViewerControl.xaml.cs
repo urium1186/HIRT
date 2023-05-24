@@ -1,4 +1,9 @@
-﻿using System;
+﻿using HaloInfiniteResearchTools.Common;
+using HaloInfiniteResearchTools.ControlModel;
+using HaloInfiniteResearchTools.ViewModels;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
@@ -6,11 +11,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
-using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.ControlModel;
-using HaloInfiniteResearchTools.ViewModels;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX;
 using Camera = HelixToolkit.Wpf.SharpDX.Camera;
 
 namespace HaloInfiniteResearchTools.Controls
@@ -380,7 +380,8 @@ namespace HaloInfiniteResearchTools.Controls
                     return;
                 viewModel1.Viewport = ViewportControl;
             }
-            else {
+            else
+            {
                 viewModel.Viewport = ViewportControl;
             }
         }

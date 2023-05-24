@@ -1,30 +1,9 @@
-﻿using System.Windows.Controls;
-using HaloInfiniteResearchTools.Common;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Input;
-using HaloInfiniteResearchTools.Models;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX;
-using PropertyChanged;
-using MaterialCore = HelixToolkit.SharpDX.Core.Model.MaterialCore;
-using SharpDX;
-using System.Windows;
-using HaloInfiniteResearchTools.Services.Abstract;
+﻿using HaloInfiniteResearchTools.Processes.Utils;
 using LibHIRT.Domain;
-using LibHIRT.Processes;
-using System.IO;
-using HaloInfiniteResearchTools.Processes.Utils;
-using HelixToolkit.SharpDX.Core.Model;
-using LibHIRT.TagReader;
-using System.Security.Policy;
+using System;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace HaloInfiniteResearchTools.Controls
 {
@@ -56,7 +35,7 @@ namespace HaloInfiniteResearchTools.Controls
             }
         }
 
-        public string StringName {get; set;}
+        public string StringName { get; set; }
 
         public Model3DViewerControl()
         {
@@ -64,11 +43,12 @@ namespace HaloInfiniteResearchTools.Controls
             InitializeComponent();
         }
 
-        
+
 
         #region public Meth
-        public void LoadRenderGeometry(RenderGeometry renderGeometry, string prefix,bool resetView = true) {
-            
+        public void LoadRenderGeometry(RenderGeometry renderGeometry, string prefix, bool resetView = true)
+        {
+
         }
         #endregion
 

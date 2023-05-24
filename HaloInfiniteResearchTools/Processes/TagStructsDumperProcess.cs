@@ -1,21 +1,13 @@
 ﻿using HaloInfiniteResearchTools.Models;
 using LibHIRT.TagReader.Dumper;
-using Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
-using System.Xml;
 
 namespace HaloInfiniteResearchTools.Processes
 {
     public class TagStructsDumperProcess : ProcessBase
     {
         TagStructsDumperOptionsModel optionsModel;
-        private TagStructsDumper? structsDumper=null;
+        private TagStructsDumper? structsDumper = null;
 
         public TagStructsDumperOptionsModel OptionsModel { get => optionsModel; }
 
@@ -34,12 +26,12 @@ namespace HaloInfiniteResearchTools.Processes
         protected override async Task OnExecuting()
         {
             await structsDumper.Dump();
-            optionsModel.LastStartAddress= structsDumper.StartAddress;
+            optionsModel.LastStartAddress = structsDumper.StartAddress;
         }
 
         public void SetStatus(string message)
         {
-            
+
         }
 
     }

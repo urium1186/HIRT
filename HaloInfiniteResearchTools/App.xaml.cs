@@ -1,18 +1,12 @@
-﻿using HaloInfiniteResearchTools.Models;
+﻿using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.Services.Abstract;
-using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels;
 using HaloInfiniteResearchTools.Views;
+using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
-using LibHIRT.Files;
 
 namespace HaloInfiniteResearchTools
 {
@@ -67,7 +61,7 @@ namespace HaloInfiniteResearchTools
         private void ConfigureViews(IServiceCollection services)
         {
             services.AddTransient<MainView>();
-            
+
 
             services.AddTransient<AboutView>();
             services.AddTransient<TagStructsDumperView>();

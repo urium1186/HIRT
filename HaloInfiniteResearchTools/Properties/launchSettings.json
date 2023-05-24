@@ -2,7 +2,7 @@
   "profiles": {
     "HaloInfiniteResearchTools": {
       "commandName": "Project",
-      "nativeDebugging": false
+      "nativeDebugging": true
     }
   }
 }

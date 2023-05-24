@@ -1,9 +1,5 @@
 ﻿using LibHIRT.TagReader;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Models
 {
@@ -36,12 +32,14 @@ namespace HaloInfiniteResearchTools.Models
                     _childrens.Add(child);
                 }
             }
-            else {
+            else
+            {
                 Header = _value.AccessValue.ToString();
             }
         }
 
-        public TagInstanceModel getTagModelBy(TagInstance item) { 
+        public TagInstanceModel getTagModelBy(TagInstance item)
+        {
             if (item is TagRef)
                 return new TagRefInstaceModel(item);
             else
@@ -56,14 +54,19 @@ namespace HaloInfiniteResearchTools.Models
         public List<TagInstanceModel> Childrens { get => _childrens; set => _childrens = value; }
         public TagInstance Value { get => _value; set => _value = value; }
 
-        public string StrValue { get{
+        public string StrValue
+        {
+            get
+            {
                 if (Value is AtomicTagInstace)
                     return Value.AccessValue.ToString();
                 else if (Value is ListTagInstance)
                     return "Count - " + (Value as ListTagInstance).Count.ToString();
                 //else if (Value is ParentTagInstance)
                 //    return "Number of childs - "+(Value as ParentTagInstance).Count.ToString();
-                return "";}}
+                return "";
+            }
+        }
         public string Header { get => _header; set => _header = value; }
     }
 

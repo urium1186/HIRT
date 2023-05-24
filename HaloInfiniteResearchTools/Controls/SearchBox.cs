@@ -1,5 +1,4 @@
-﻿using HaloInfiniteResearchTools.Common;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Timers;
 using System.Windows;
@@ -30,7 +29,7 @@ namespace HaloInfiniteResearchTools.Controls
           typeof(ICommand),
           typeof(SearchBox));
 
-        ConcurrentStack<(ICommand,string)> _commands = new ConcurrentStack<(ICommand, string)>();
+        ConcurrentStack<(ICommand, string)> _commands = new ConcurrentStack<(ICommand, string)>();
 
         #endregion
 
@@ -76,14 +75,15 @@ namespace HaloInfiniteResearchTools.Controls
             base.OnTextChanged(e);
             HasText = Text.Length != 0;
 
-            if (timer == null) {
+            if (timer == null)
+            {
                 timer = new Timer(500);
-                
+
                 timer.Elapsed += OnTimedEvent;
-                
+
             }
-            _commands.Push((TextChangedCommand,Text));
-            if (!timer.Enabled)           
+            _commands.Push((TextChangedCommand, Text));
+            if (!timer.Enabled)
                 timer.Enabled = true;
             timer.Interval = 500;
             lasttime = DateTime.Now.Ticks;
@@ -94,16 +94,17 @@ namespace HaloInfiniteResearchTools.Controls
             long current_tick = DateTime.Now.Ticks;
             if (true)
             {
-               
+
                 try
                 {
                     lock (_commands)
                     {
-                        if (_commands.TryPop(out var temp)){
+                        if (_commands.TryPop(out var temp))
+                        {
                             timer.Stop();
                             _commands.Clear();
                             temp.Item1?.Execute(temp.Item2);
-                            
+
                         } //TextChangedCommand?
                     }
                 }
@@ -112,8 +113,8 @@ namespace HaloInfiniteResearchTools.Controls
 
                     throw ex;
                 }
-                
-                
+
+
             }
         }
 

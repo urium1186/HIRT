@@ -4,8 +4,6 @@ using HelixToolkit.SharpDX.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.ViewModels
@@ -51,16 +49,19 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         #endregion
 
-        public void addPath(string path) { 
-        
+        public void addPath(string path)
+        {
+
         }
-        
-        public void removePath(TagReaderPath item) {
-            if (Preferences.TagReaderOptionsModel.Paths != null && Preferences.TagReaderOptionsModel.Paths.Count >1) {
-                
+
+        public void removePath(TagReaderPath item)
+        {
+            if (Preferences.TagReaderOptionsModel.Paths != null && Preferences.TagReaderOptionsModel.Paths.Count > 1)
+            {
+
                 Preferences.TagReaderOptionsModel.Paths.Remove(item);
-                if (item.Active == true && Preferences.TagReaderOptionsModel.Paths.Count>0)
-                    Preferences.TagReaderOptionsModel.Paths[0].Active= true;
+                if (item.Active == true && Preferences.TagReaderOptionsModel.Paths.Count > 0)
+                    Preferences.TagReaderOptionsModel.Paths[0].Active = true;
 
 
             }

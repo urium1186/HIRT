@@ -23,7 +23,7 @@ namespace HaloInfiniteResearchTools.Models
         private readonly ObservableCollection<FileModel> _files;
         // private readonly ObservableCollection<DirModel> _dirFiles;
         private readonly ObservableCollection<TreeHierarchicalModel> _filesH;
-        
+
 
 
         private IReadOnlySet<string> _editorFileExtensions;
@@ -51,7 +51,7 @@ namespace HaloInfiniteResearchTools.Models
         {
             get => _collectionViewSource;
         }
-        
+
         public ICollectionView DirFiles
         {
             get => _collectionDirsViewSource;
@@ -126,7 +126,8 @@ namespace HaloInfiniteResearchTools.Models
 
         #endregion
 
-        public void fillMemFilesbyGroup() {
+        public void fillMemFilesbyGroup()
+        {
             try
             {
                 lock (_filesH)
@@ -150,17 +151,17 @@ namespace HaloInfiniteResearchTools.Models
                         itemI.Value = item;
                         valuePairs[item.TagGroup].Childrens.Add(itemI);
                         valuePairs[item.TagGroup].Childrens.Sort((x, y) => x.Name.CompareTo(y.Name));
-                        
+
                     }
                 }
-                
+
             }
             catch (Exception ex)
             {
 
                 throw ex;
             }
-           
+
 
             /*
             var test = HIFileContext.RuntimeTagLoader.TagsList.Values.GroupBy(u => u._tagGroup);
@@ -170,11 +171,12 @@ namespace HaloInfiniteResearchTools.Models
         private ObservableCollection<DirModel> filterList()
         {
             var temp = new ObservableCollection<DirModel>();
-            if (this._searchTerm == "") {
+            if (this._searchTerm == "")
+            {
                 temp.Add(HIFileContext.RootDir);
                 return temp;
             }
-                
+
             try
             {
                 var rootDir = filterList(HIFileContext.RootDir);
@@ -184,7 +186,7 @@ namespace HaloInfiniteResearchTools.Models
             catch (Exception ex)
             {
 
-                
+
             }
 
             //return _context.RootDir;
@@ -207,12 +209,12 @@ namespace HaloInfiniteResearchTools.Models
         {
             await Task.Factory.StartNew(process.Execute, TaskCreationOptions.LongRunning);
             await process.CompletionTask;
-            
+
         }
 
         private DirModel? filterList(DirModel dir)
         {
-            
+
             if (dir == null) return null;
             if (dir.GetType() == typeof(FileDirModel))
             {
@@ -262,7 +264,7 @@ namespace HaloInfiniteResearchTools.Models
             {
                 BindingOperations.EnableCollectionSynchronization(files, collectionLock);
             });
-        } 
+        }
         private void InitializeThreadSynchronization(
           ObservableCollection<DirModel> files, object collectionLock)
         {
@@ -294,7 +296,7 @@ namespace HaloInfiniteResearchTools.Models
 
             return collectionView;
         }
-         private ICollectionView InitializeCollectionView(ObservableCollection<DirModel> files)
+        private ICollectionView InitializeCollectionView(ObservableCollection<DirModel> files)
         {
             var collectionView = CollectionViewSource.GetDefaultView(files);
             collectionView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(DirModel.SubPath)));
@@ -320,13 +322,14 @@ namespace HaloInfiniteResearchTools.Models
             if (_fileAddQueue.Count > 0 || _fileRemoveQueue.Count > 0)
                 _throttler.Execute();
         }
-        
+
         private void UpdateDirsFiles()
         {
             if (HIFileContext.RootDir != null)
                 FiltersDirs = filterList();
-            else { 
-                 
+            else
+            {
+
             }
 
             /*
@@ -351,7 +354,7 @@ namespace HaloInfiniteResearchTools.Models
         private void OnFileAdded(object sender, ISSpaceFile file)
         {
             // Explicitly exclude pck files from the FileTree
-            
+
 
             var model = new FileModel(file);
             if (_fileLookup.TryAdd(file.Name, model))
@@ -409,14 +412,14 @@ namespace HaloInfiniteResearchTools.Models
         private void OnSearchTermUpdated(string searchTerm)
         {
             _searchTerm = searchTerm;
-            
-           // _throttler.Execute();
+
+            // _throttler.Execute();
             _throttlerDir.Execute();
         }
 
         private void AddExistingFiles()
         {
-            
+
             //_context.OpenModulesInDirPath("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\\");
             //return;
             foreach (var file in _context.Files.Values.ToArray())

@@ -4,7 +4,7 @@ using LibHIRT.TagReader.Headers;
 
 namespace LibHIRT.TagReader.Common
 {
-    public class TagStructMem: IHIRTFile
+    public class TagStructMem : IHIRTFile
     {
         public string Datnum;
 

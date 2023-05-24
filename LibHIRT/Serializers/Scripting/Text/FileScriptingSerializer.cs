@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LibHIRT.Serializers.Configurations
+﻿namespace LibHIRT.Serializers.Configurations
 {
 
-  public class FileScriptingSerializer<T> : TextScriptingSerializer<T>
+    public class FileScriptingSerializer<T> : TextScriptingSerializer<T>
     where T : class, new()
-  {
+    {
 
-    #region Data Members
+        #region Data Members
 
-    private readonly Dictionary<Type, IScriptingSerializer> _serializerCache
-      = new Dictionary<Type, IScriptingSerializer>();
+        private readonly Dictionary<Type, IScriptingSerializer> _serializerCache
+          = new Dictionary<Type, IScriptingSerializer>();
 
-    #endregion
+        #endregion
 
-    #region Overrides
+        #region Overrides
 
-    protected override Dictionary<Type, IScriptingSerializer> GetSerializerCache()
-      => _serializerCache;
+        protected override Dictionary<Type, IScriptingSerializer> GetSerializerCache()
+          => _serializerCache;
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

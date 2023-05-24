@@ -6,14 +6,20 @@ namespace LibHIRT.Domain
     {
         int _intValue;
         Dictionary<string, bool> options;
-        public Flags(int value) { 
-            _intValue= value;   
+        public Flags(int value)
+        {
+            _intValue = value;
         }
 
-        public Dictionary<string, bool> Options { get { 
+        public Dictionary<string, bool> Options
+        {
+            get
+            {
                 if (options == null)
                     options = new Dictionary<string, bool>();
-                return options; } }
+                return options;
+            }
+        }
 
         public int Value { get => _intValue; }
     }

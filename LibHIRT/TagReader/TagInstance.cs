@@ -2,7 +2,6 @@
 using LibHIRT.TagReader.Headers;
 using LibHIRT.Utils;
 using Newtonsoft.Json;
-using SharpDX;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -66,46 +65,57 @@ namespace LibHIRT.TagReader
         }
 
         public HeaderTableEntry? Entry { get => entry; set => entry = value; }
-        public TagLayouts.C TagDef { get => tagDef;}
+        public TagLayouts.C TagDef { get => tagDef; }
         public TagStruct? Content_entry { get => content_entry; set => content_entry = value; }
         public long Offset { get => offset; set => offset = value; }
-        public TagInstance? Parent { get => parent; set { parent = value;} }
+        public TagInstance? Parent { get => parent; set { parent = value; } }
         public long Inst_parent_offset { get => inst_parent_offset; set => inst_parent_offset = value; }
 
         public long GetTagSize => TagDef?.S ?? 0;
 
-        public virtual object AccessValue { get => new { AddressStart = addressStart, Offset = offset }; set { ; } }
-        public virtual object AccessValueExtra => new {
+        public virtual object AccessValue { get => new { AddressStart = addressStart, Offset = offset }; set {; } }
+        public virtual object AccessValueExtra => new
+        {
             Value = AccessValue,
             AddressStart = addressStart,
             Offset = offset,
-            InstOffset = parent == null? Offset : parent.Offset + Offset
+            InstOffset = parent == null ? Offset : parent.Offset + Offset
         };
 
-        public long Inst_global_address { get {
-              
-                return inst_global_address; 
+        public long Inst_global_address
+        {
+            get
+            {
+
+                return inst_global_address;
             }
         }
 
-        protected virtual long GetInFileOffset() {
-            return ((Content_entry?.Field_data_block?.OffsetPlus ?? 0 ) + InstanceParentOffset);
+        protected virtual long GetInFileOffset()
+        {
+            return ((Content_entry?.Field_data_block?.OffsetPlus ?? 0) + InstanceParentOffset);
         }
 
-        public string FieldName { get ; set ; }
+        public string FieldName { get; set; }
         public TagInstance Self => this;
 
         public long InFileOffset { get => GetInFileOffset(); }
         public long InstanceParentOffset { get; set; }
         protected long Inst_address { get => inst_address; set => inst_address = value; }
-        public bool NoAllowEdit { get { 
-                return _noAllowEdit ; 
-            } 
-            set { _noAllowEdit = value;
+        public bool NoAllowEdit
+        {
+            get
+            {
+                return _noAllowEdit;
+            }
+            set
+            {
+                _noAllowEdit = value;
                 OnPropertyChanged("NoAllowEdit");
-            } }
+            }
+        }
 
-        
+
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -123,7 +133,8 @@ namespace LibHIRT.TagReader
             get => GetObjByPath(path);
         }
 
-        protected void ExeTagInstance() {
+        protected void ExeTagInstance()
+        {
             if (OnInstanceLoadEvent != null)
                 OnInstanceLoadEvent.Invoke(this, this);
         }
@@ -147,7 +158,7 @@ namespace LibHIRT.TagReader
 
         public virtual string ToJson()
         {
-            
+
             return JsonConvert.SerializeObject(AccessValueExtra);
         }
 
@@ -185,22 +196,27 @@ namespace LibHIRT.TagReader
             f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
         }
 
-        
+
 
         public T Value { get => value; set => this.value = value; }
 
-        public override object AccessValue { get { return stackChange.Count == 0? Value: stackChange.Peek(); } set {
+        public override object AccessValue
+        {
+            get { return stackChange.Count == 0 ? Value : stackChange.Peek(); }
+            set
+            {
                 stackChange.Push(value);
-            } }
+            }
+        }
 
-        
+
     }
 
 
 
     public class DebugDataBlock : ValueTagInstace<string>
     {
-        
+
         public DebugDataBlock(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
             value = tagDef.N;
@@ -216,7 +232,7 @@ namespace LibHIRT.TagReader
     }
     public class Comment : AtomicTagInstace
     {
-        
+
         public Comment(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
@@ -228,9 +244,9 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
     }
-     public class Explanation : AtomicTagInstace
+    public class Explanation : AtomicTagInstace
     {
-        
+
         public Explanation(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
@@ -244,7 +260,7 @@ namespace LibHIRT.TagReader
     }
     public class CustomLikeGrouping : AtomicTagInstace
     {
-        
+
         public CustomLikeGrouping(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
@@ -271,7 +287,7 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        
+
     }
 
 
@@ -353,7 +369,7 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
     }
-    
+
     public class UTwoByte : ValueTagInstace<UInt16>
     {
         public UTwoByte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
@@ -399,7 +415,7 @@ namespace LibHIRT.TagReader
 
                 throw ex;
             }
-            
+
         }
     }
     public class TagRef : ValueTagInstace<int>
@@ -452,7 +468,8 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { 
+        public override object AccessValue => new
+        {
             Global_handle = global_handle,
             Ref_id_int = ref_id_int,
             Ref_id_sub_int = ref_id_sub_int,
@@ -464,7 +481,7 @@ namespace LibHIRT.TagReader
 
         public long Global_handle { get => global_handle; set => global_handle = value; }
         public int Ref_id_int { get => ref_id_int; set => ref_id_int = value; }
-        public int InvalidRef_id_int { get => -1;}
+        public int InvalidRef_id_int { get => -1; }
         public int Ref_id_sub_int { get => ref_id_sub_int; set => ref_id_sub_int = value; }
         public int Ref_id_center_int { get => ref_id_center_int; set => ref_id_center_int = value; }
         public string TagGroupRev { get => tagGroupRev; set => tagGroupRev = value; }
@@ -496,12 +513,13 @@ namespace LibHIRT.TagReader
             base.ReadIn(f, header);
             //value = new string(f.ReadChars((int)TagDef.S));
             value = f.ReadStringNullTerminated((int)TagDef.S);
-            if (Mmr3HashLTU.ForceFillData) {
+            if (Mmr3HashLTU.ForceFillData)
+            {
                 if (!string.IsNullOrEmpty(value))
                 {
                     Mmr3HashLTU.AddUniqueStrValue(value);
                 }
-                
+
             }
             ExeTagInstance();
         }
@@ -522,8 +540,8 @@ namespace LibHIRT.TagReader
             {
                 if (!string.IsNullOrEmpty(value))
                     Mmr3HashLTU.AddUniqueStrValue(value);
-                    
-                
+
+
                 if (!string.IsNullOrEmpty(tag_string_rev))
                     Mmr3HashLTU.AddUniqueStrValue(tag_string_rev);
 
@@ -545,36 +563,44 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
     }
-    
+
     public class Flag
     {
         bool _value = false;
         public string Label { get; set; }
-        public bool Value {
+        public bool Value
+        {
             get { return _value; }
-            set { 
+            set
+            {
                 _value = value;
                 Parent?.FlagGroupC?.RegenerateOutPut();
             }
-            
+
         }
 
         public FlagsModel Parent { get; set; }
     }
-    
-    public class FlagsModel: INotifyPropertyChanged
+
+    public class FlagsModel : INotifyPropertyChanged
     {
         private string _value;
 
         public string Label { get; set; }
-        public string Value { get { return _value; } set {
+        public string Value
+        {
+            get { return _value; }
+            set
+            {
                 _value = value;
                 OnPropertyChanged("Value");
             }
-            
+
         }
-        public List<Flag>? Childrens{ get; 
-            set; 
+        public List<Flag>? Childrens
+        {
+            get;
+            set;
         }
 
         public FlagGroup FlagGroupC { get; set; }
@@ -590,11 +616,11 @@ namespace LibHIRT.TagReader
     }
     public class FlagGroup : ValueTagInstace<List<bool>>
     {
-        
+
         List<string> options = new List<string>();
         List<bool> options_v = new List<bool>();
-        List<FlagsModel> _salida =  null;
-        public override object AccessValue => new { options, options_v};
+        List<FlagsModel> _salida = null;
+        public override object AccessValue => new { options, options_v };
 
         public FlagGroup(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
@@ -606,7 +632,7 @@ namespace LibHIRT.TagReader
             if (TagDef.GetType() != typeof(TagLayouts.FlagGroupTL))
                 return;
             TagLayouts.FlagGroupTL tempEnum = (TagDef as TagLayouts.FlagGroupTL);
-            generateBits(addressStart+offset, tempEnum.A, tempEnum.MB, tempEnum.STR, f);
+            generateBits(addressStart + offset, tempEnum.A, tempEnum.MB, tempEnum.STR, f);
             foreach (int gvsdahb in tempEnum.STR.Keys)
             {
                 options.Add(tempEnum.STR[gvsdahb]);
@@ -617,15 +643,16 @@ namespace LibHIRT.TagReader
         public override void WriteIn(Stream f, long offset = -1, TagHeader? header = null)
         {
             var toReturn = f.Position;
-            f.Seek(offset==-1?InFileOffset:offset, SeekOrigin.Begin);
+            f.Seek(offset == -1 ? InFileOffset : offset, SeekOrigin.Begin);
             f.Write(UtilBinaryReader.GetBytesFormStringBit(_salida[0].Value));
             f.Seek(toReturn, SeekOrigin.Begin);
         }
 
         public List<FlagsModel> Flags
         {
-            get {
-                if (_salida !=null)
+            get
+            {
+                if (_salida != null)
                     return _salida;
                 _salida = new List<FlagsModel>();
                 _salida.Add(new FlagsModel());
@@ -639,7 +666,7 @@ namespace LibHIRT.TagReader
                         Parent = _salida[0]
                     });
                 }
-                
+
                 string result = "";
                 for (int i = 0; i < options_v.Count; i++)
                 {
@@ -660,10 +687,11 @@ namespace LibHIRT.TagReader
                 _salida[0].FlagGroupC = this;
                 return _salida;
             }
-            
+
         }
 
-        public void RegenerateOutPut() {
+        public void RegenerateOutPut()
+        {
             if (_salida == null)
                 return;
             string result = "";
@@ -680,7 +708,7 @@ namespace LibHIRT.TagReader
                 }
             }
             _salida[0].Value = result;
-            
+
         }
 
         public List<bool> Options_v { get => options_v; set => options_v = value; }
@@ -692,7 +720,8 @@ namespace LibHIRT.TagReader
             this.amountOfBytes = amountOfBytes;
             this.maxBit = maxBit;
             */
-            if (amountOfBytes > 1) { 
+            if (amountOfBytes > 1)
+            {
             }
             if (maxBit == 0)
             {
@@ -715,7 +744,7 @@ namespace LibHIRT.TagReader
                 long addr = startAddress + @byte;
                 f.BaseStream.Seek(addr, SeekOrigin.Begin);
                 byte flags_value = (byte)f.ReadByte();//(addr).ToString("X")
-                
+
                 for (int bit = 0; bit < amountOfBits; bit++)
                 {
                     int currentBitIndex = (@byte * 8) + bit;
@@ -748,14 +777,15 @@ namespace LibHIRT.TagReader
             {
                 Mmr3HashLTU.AddUniqueIntHash(value);
             }
-            if (!Mmr3HashLTU.Mmr3lTU.TryGetValue(value, out str_value)) {
+            if (!Mmr3HashLTU.Mmr3lTU.TryGetValue(value, out str_value))
+            {
                 str_value = Mmr3HashLTU.getMmr3HashFromInt(value);
             }
-            
+
             ExeTagInstance();
         }
     }
-    
+
     public class RgbPixel32 : ValueTagInstace<string>
     {
         string str_value = "";
@@ -769,11 +799,11 @@ namespace LibHIRT.TagReader
         {
             base.ReadIn(f, header);
             value = f.ReadInt32().ToString("X");
-            
+
             ExeTagInstance();
         }
     }
-    
+
     public class ArgbPixel32 : ValueTagInstace<string>
     {
         string str_value = "";
@@ -787,7 +817,7 @@ namespace LibHIRT.TagReader
         {
             base.ReadIn(f, header);
             value = f.ReadInt32().ToString("X");
-            
+
             ExeTagInstance();
         }
     }
@@ -810,7 +840,7 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new {R_value = r_value, G_value = g_value, B_value = b_value };
+        public override object AccessValue => new { R_value = r_value, G_value = g_value, B_value = b_value };
 
         public float R_value { get => r_value; set => r_value = value; }
         public float B_value { get => b_value; set => b_value = value; }
@@ -836,7 +866,7 @@ namespace LibHIRT.TagReader
             b_value = f.ReadSingle();
             ExeTagInstance();
         }
-        
+
         public override object AccessValue => new { A_value = a_value, R_value = r_value, G_value = g_value, B_value = b_value };
 
         public float A_value { get => a_value; set => a_value = value; }
@@ -860,7 +890,7 @@ namespace LibHIRT.TagReader
             max = f.ReadSingle();
             ExeTagInstance();
         }
-        
+
         public override object AccessValue => new { Min = min, Max = max };
     }
     public class Bounds2Byte : AtomicTagInstace
@@ -879,7 +909,7 @@ namespace LibHIRT.TagReader
             max = f.ReadInt16();
             ExeTagInstance();
         }
-        
+
         public override object AccessValue => new { Min = min, Max = max };
     }
     public class Point2DFloat : AtomicTagInstace
@@ -898,7 +928,7 @@ namespace LibHIRT.TagReader
             y = f.ReadSingle();
             ExeTagInstance();
         }
-        
+
         public override object AccessValue => new { X = x, Y = y };
 
         public float X { get => x; set => x = value; }
@@ -942,7 +972,7 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { X = x, Y = y, Z = z};
+        public override object AccessValue => new { X = x, Y = y, Z = z };
 
         public float X { get => x; set => x = value; }
         public float Y { get => y; set => y = value; }
@@ -1002,7 +1032,7 @@ namespace LibHIRT.TagReader
         {
         }
 
-        public override object AccessValue => new { X =x,Y = y, Z=z, W= w};
+        public override object AccessValue => new { X = x, Y = y, Z = z, W = w };
 
         public float X { get => x; set => x = value; }
         public float Y { get => y; set => y = value; }
@@ -1019,7 +1049,7 @@ namespace LibHIRT.TagReader
             w = f.ReadSingle();
             ExeTagInstance();
         }
-        
+
     }
     public class TagData : ValueTagInstace<int>
     {
@@ -1106,7 +1136,7 @@ namespace LibHIRT.TagReader
 
         public abstract void AddChild(TagInstance item);
 
-        public abstract List<TagInstance>? Childrens { get ;  }
+        public abstract List<TagInstance>? Childrens { get; }
 
 
     }
@@ -1138,23 +1168,27 @@ namespace LibHIRT.TagReader
         {
         }
 
-        
 
-        Dictionary<string, object> getAccessValues() {
+
+        Dictionary<string, object> getAccessValues()
+        {
             var result = new Dictionary<string, object>();
-            foreach (var key in keyValues.Keys) {
+            foreach (var key in keyValues.Keys)
+            {
                 result[key] = keyValues[key].AccessValue;
             }
-            return result;  
+            return result;
         }
-        Dictionary<string, object> getAccessValuesExtra() {
+        Dictionary<string, object> getAccessValuesExtra()
+        {
             var result = new Dictionary<string, object>();
-            if (keyValues==null)
+            if (keyValues == null)
                 return result;
-            foreach (var key in keyValues.Keys) {
+            foreach (var key in keyValues.Keys)
+            {
                 result[key] = keyValues[key].AccessValueExtra;
             }
-            return result;  
+            return result;
         }
 
 
@@ -1266,11 +1300,11 @@ namespace LibHIRT.TagReader
                 keyValues = new Dictionary<string, TagInstance>();
             string key = tagInstance.TagDef.N;
             string item_key = tagInstance.TagDef.xmlPath.Item2;
-            string parent_key = tagInstance.Parent == null? "#document\\" : tagInstance.Parent.TagDef.xmlPath.Item2;
+            string parent_key = tagInstance.Parent == null ? "#document\\" : tagInstance.Parent.TagDef.xmlPath.Item2;
             string sub_key = item_key.Replace(parent_key, "");
             if (key == "")
                 key = sub_key;
-            
+
             key = key.Replace(@"\_", "T_");
             while (keyValues.ContainsKey(key))
             {
@@ -1283,22 +1317,25 @@ namespace LibHIRT.TagReader
 
         public override TagInstance GetObjByPath(string path)
         {
-            if (!string.IsNullOrEmpty(path)) { 
+            if (!string.IsNullOrEmpty(path))
+            {
                 var a_split = path.Split('.');
-                if (keyValues.ContainsKey(a_split[0])) {
-                    if (a_split.Length == 1) {
+                if (keyValues.ContainsKey(a_split[0]))
+                {
+                    if (a_split.Length == 1)
+                    {
                         var r = keyValues[a_split[0]];
                         if (r as AtomicTagInstace == null)
                         {
                             return r;
                         }
                     }
-                        
+
                     string sub_path = string.Join('.', a_split.Skip(1));
                     return keyValues[a_split[0]].GetObjByPath(sub_path);
                 }
-                    
-            }    
+
+            }
             return null;
         }
 
@@ -1357,7 +1394,7 @@ namespace LibHIRT.TagReader
             return ((IEnumerable)keyValues).GetEnumerator();
         }
 
-        
+
     }
     public class RootTagInstance : ParentTagInstance
     {
@@ -1410,13 +1447,14 @@ namespace LibHIRT.TagReader
                 }
                 tag_child_inst.Content_entry = entry;
                 tag_child_inst.Parent = this;
-                if (tag_child_inst.GetType().IsSubclassOf(typeof(ListTagInstance))) {
+                if (tag_child_inst.GetType().IsSubclassOf(typeof(ListTagInstance)))
+                {
                     if (tag_child_inst as ArrayFixLen != null)
-                    { 
+                    {
                     }
                     ((ListTagInstance)tag_child_inst).FillChilds(ref refItCount);
                 }
-                
+
                 else
                 {
 
@@ -1459,7 +1497,7 @@ namespace LibHIRT.TagReader
         }
 
         public List<TagInstance> Childs { get => childs; set => childs = value; }
-        
+
 
         public override object AccessValue => getAccessValues();
         public override object AccessValueExtra => getAccessValuesExtras();
@@ -1510,15 +1548,16 @@ namespace LibHIRT.TagReader
                 if (a_split[0].StartsWith("[") && a_split[0].EndsWith("]") && a_split[0].Length > 2)
                 {
                     int index = int.Parse(a_split[0].Replace("[", "").Replace("]", ""));
-                    if (index >= 0 && index < childs.Count) {
+                    if (index >= 0 && index < childs.Count)
+                    {
                         string sub_path = string.Join('.', a_split.Skip(1));
                         if (a_split.Length == 1)
                             return childs[index];
                         return childs[index].GetObjByPath(sub_path);
                     }
-                        
+
                 }
-                
+
             }
             return null;
         }
@@ -1746,13 +1785,13 @@ namespace LibHIRT.TagReader
         }
         public override void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
         {
-            
+
         }
 
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
-            comment = TagDef.N;          
+            comment = TagDef.N;
             ExeTagInstance();
         }
 

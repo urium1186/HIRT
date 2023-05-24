@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Linq;
 using System.IO;
-using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace HavokScriptToolsCommon
 {
@@ -248,7 +247,7 @@ namespace HavokScriptToolsCommon
             }
         }
 
-        private void AssembleString(string value, MyBinaryWriter bw, bool addNullTerminatorIfEmpty=true)
+        private void AssembleString(string value, MyBinaryWriter bw, bool addNullTerminatorIfEmpty = true)
         {
             if (value.Length != 0 || addNullTerminatorIfEmpty)
             {
@@ -348,7 +347,7 @@ namespace HavokScriptToolsCommon
             {
                 structs.Add(ParseStruct(lex, ref cursor));
             }
-            
+
             return new HksStructure(globalHeader, GetTypeEnum(), functions, 1, structs);
         }
 

@@ -3,12 +3,12 @@
 namespace LibHIRT.Data.Materials
 {
 
-  public class S3DMaterialColor
-  {
+    public class S3DMaterialColor
+    {
 
-    [ScriptingProperty( "colorSetIdx" )]
-    public int ColorSetIndex { get; set; }
+        [ScriptingProperty("colorSetIdx")]
+        public int ColorSetIndex { get; set; }
 
-  }
+    }
 
 }

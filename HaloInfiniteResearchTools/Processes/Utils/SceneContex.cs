@@ -6,10 +6,11 @@ using System.Collections.Generic;
 
 namespace HaloInfiniteResearchTools.Processes.Utils
 {
-    public interface ISceneContext { 
+    public interface ISceneContext
+    {
     }
 
-    public class SceneContext: ISceneContext
+    public class SceneContext : ISceneContext
     {
         public StatusList StatusList { get; }
         public Node RootNode { get; set; }

@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace LibHIRT.Data
+﻿namespace LibHIRT.Data
 {
 
-  public class S3DObjectLodRoot
-  {
+    public class S3DObjectLodRoot
+    {
 
-    public List<uint> ObjectIds { get; set; }
-    public List<uint> MaxObjectLodIndices { get; set; }
-    public List<S3DLodDistance> LodDistances { get; set; }
-    public M3DBox BoundingBox { get; set; }
+        public List<uint> ObjectIds { get; set; }
+        public List<uint> MaxObjectLodIndices { get; set; }
+        public List<S3DLodDistance> LodDistances { get; set; }
+        public M3DBox BoundingBox { get; set; }
 
-  }
+    }
 
 }

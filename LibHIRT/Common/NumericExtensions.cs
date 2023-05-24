@@ -89,7 +89,8 @@ else if (dotProduct < 0)
             return Math.Sqrt(distance);
         }
 
-        public static float getElementAt(this Matrix4x4 matrix, int i, int j) {
+        public static float getElementAt(this Matrix4x4 matrix, int i, int j)
+        {
             if (i == 0 && j == 0)
                 return matrix.M11;
             else if (i == 0 && j == 1)
@@ -120,9 +121,9 @@ else if (dotProduct < 0)
                 return matrix.M42;
             else if (i == 3 && j == 2)
                 return matrix.M43;
-            
+
             return matrix.M44;
-            
+
         }
         // get is a vector direction is point up or down or left or right or forward or backward
         public static bool isVectorDirection(this Vector3 vector, Vector3 direction)
@@ -266,7 +267,7 @@ else if (dotProduct < 0)
             }
             return VectorDirection.None;
         }
-        
+
     }
 
 }

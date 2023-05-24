@@ -1,18 +1,13 @@
 ﻿using HaloInfiniteResearchTools.Common;
 using PropertyChanged;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Models
 {
-   
+
     public class PreferencesModel : ObservableObject
     {
-        
+
 
         #region Properties
 
@@ -42,20 +37,20 @@ namespace HaloInfiniteResearchTools.Models
 
         [OnChangedMethod(nameof(SetGlobalDefaults))]
         public ModelExportOptionsModel ModelExportOptions { get; set; }
-        
+
         [OnChangedMethod(nameof(SetGlobalDefaults))]
         public TagReaderOptionsModel TagReaderOptionsModel { get; set; }
-        
+
         [OnChangedMethod(nameof(SetGlobalDefaults))]
         public TextureExportOptionsModel TextureExportOptions { get; set; }
 
         [OnChangedMethod(nameof(SetGlobalDefaults))]
         public TagStructsDumperOptionsModel TagStructsDumperOptions { get; set; }
-        
+
         public ModelViewerOptionsModel ModelViewerOptions { get; set; }
-        
+
         public TextureViewerOptionsModel TextureViewerOptions { get; set; }
-        
+
         #endregion
 
         #region Constructor

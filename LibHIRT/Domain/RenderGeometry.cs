@@ -6,7 +6,7 @@ namespace LibHIRT.Domain
     {
         List<ObjMesh> _meshes = new List<ObjMesh>();
         public CompressionInfo CompressionInfo { get; set; }
-        public List<ObjMesh> Meshes { get => _meshes;  }
+        public List<ObjMesh> Meshes { get => _meshes; }
 
         // per_mesh_node_map
         public RenderGeometry() { }

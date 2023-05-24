@@ -4,21 +4,21 @@ using System.Collections.Generic;
 namespace HaloInfiniteResearchTools.Services
 {
 
-  public interface IFileTypeService
-  {
+    public interface IFileTypeService
+    {
 
-    #region Data Members
+        #region Data Members
 
-    IReadOnlySet<string> ExtensionsWithEditorSupport { get; }
+        IReadOnlySet<string> ExtensionsWithEditorSupport { get; }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    Type GetViewModelType( Type fileType );
+        Type GetViewModelType(Type fileType);
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }
