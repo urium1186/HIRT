@@ -22,7 +22,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PropertyChanged;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using MaterialCore = HelixToolkit.SharpDX.Core.Model.MaterialCore;
 using PhongMaterialCore = HelixToolkit.SharpDX.Core.Model.PhongMaterialCore;
 using TextureModel = HelixToolkit.SharpDX.Core.TextureModel;
 using LibHIRT.Processes;
@@ -34,10 +33,16 @@ using System.Diagnostics;
 using HaloInfiniteResearchTools.Common.Extensions;
 using SharpDX;
 using LibHIRT.Common;
+using OpenSpartan.Grunt.Models.HaloInfinite;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Text.Json;
+using HaloInfiniteResearchTools.Common.Grunt;
+using System.Windows;
+using SharpDX.Direct2D1.Effects;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
-    
+
 
     [AcceptsFileType(typeof(RenderModelFile))]
     public class RenderModelViewModel : ViewModel, IDisposeWithView
@@ -87,6 +92,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         [OnChangedMethod(nameof(ToggleShowTextures))]
         public bool ShowTextures { get; set; }
         public bool UseFlycam { get; set; }
+        public bool HaveCoreInfo { get; set; }
 
         public ICollectionView Nodes => _nodeCollectionView;
 
@@ -95,6 +101,11 @@ namespace HaloInfiniteResearchTools.ViewModels
         public int MeshCount { get; set; }
         public int VertexCount { get; set; }
         public int FaceCount { get; set; }
+
+        public List<ArmorCore> CoresInfo { get; set; }
+
+        private Dictionary<string, string> CmsJsonPair;
+        private Dictionary<int, TreeViewItemModel> attachments_dict =  new Dictionary<int, TreeViewItemModel>();
 
         public ICommand SearchTermChangedCommand { get; }
 
@@ -147,6 +158,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             _themeConfigurations = new ObservableCollection<TreeViewItemModel>();
 
             ShowTextures = true;
+            HaveCoreInfo = false;
 
             ShowAllCommand = new Command(ShowAllNodes);
             HideAllCommand = new Command(HideAllNodes);
@@ -158,7 +170,6 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             ExportModelCommand = new AsyncCommand(ExportModel);
 
-            
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
@@ -175,6 +186,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             Options = GetPreferences().ModelViewerOptions;
             UseFlycam = Options.DefaultToFlycam;
 
+            await LoadCoresAsync();
             var convertProcess = new ConvertRenderModelToAssimpSceneProcess(_file);
             await RunProcess(convertProcess);
 
@@ -664,7 +676,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             return result;
         }
 
-        private void SetAtachmentToRegions(Assimp.Scene attachnodeMesh, TagInstance attachmentDef, TreeViewItemModel meshs, TreeViewItemModel regions)
+        private void SetAtachmentToRegions(Assimp.Scene attachnodeMesh, TagInstance attachmentDef, TreeViewItemModel meshs, TreeViewItemModel regions, int tag_id)
         {
             var tempRMD = this._renderModelDef.TagInstance;
             var markerGroup = this._renderModelDef.Marker_groups;
@@ -759,6 +771,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                             var meshs_copy = meshs.copy() as TreeViewItemModel;
                             meshs_copy.SetValue(ItemHelper.ParentProperty, tempTVIM);
                             tempTVIM.Children.Add(meshs_copy);
+                            attachments_dict[tag_id] = meshs_copy;
 
                             tempTVIM.SetValue(ItemHelper.ParentProperty, tvmAttachments);
                             tvmAttachments.Children.Add(tempTVIM);
@@ -949,13 +962,14 @@ namespace HaloInfiniteResearchTools.ViewModels
                     }
                     if (!found)
                         continue;
-                    SetAtachmentToRegions(convertProcess.Result, modelAttachment, temp_tvm, (TreeViewItemModel)parent.Children[0]);
+                    SetAtachmentToRegions(convertProcess.Result, modelAttachment, temp_tvm, (TreeViewItemModel)parent.Children[0], tagRef.Ref_id_int);
                     TreeViewItemModel temp1 = new TreeViewItemModel
                     {
                         Header = modelAttachment["Variant"].AccessValue.ToString()
                     };
                     
                     temp_tvm.SetValue(ItemHelper.ParentProperty, keyValuePairs[att_csm_type.Selected]);
+                    
                     keyValuePairs[att_csm_type.Selected].Children.Add(temp_tvm);
                 }
             }
@@ -1169,6 +1183,246 @@ namespace HaloInfiniteResearchTools.ViewModels
 
 
 
+        }
+
+        public void SelectCore(ArmorCore armorCore)
+        {
+            if (this.CmsJsonPair!= null)
+            {
+                string jsonString_temp = CmsJsonPair[armorCore.Themes[0].ThemePath];
+                ArmorTheme tempArmorTheme = (ArmorTheme)JsonSerializer.Deserialize(jsonString_temp, typeof(ArmorTheme), JsonSerializerFix.SerializerOptions);
+
+                HideAllCommand.Execute(true);
+
+                SelectRegionsDatas(tempArmorTheme.CoreRegionData.BaseRegionData);
+
+                SelectArmorCorePart(armorCore.Themes[0].GlovePath);
+                SelectArmorCorePart(armorCore.Themes[0].HelmetPath);
+                SelectArmorCorePart(armorCore.Themes[0].KneePadPath);
+                SelectArmorCorePart(armorCore.Themes[0].RightShoulderPadPath);
+                SelectArmorCorePart(armorCore.Themes[0].LeftShoulderPadPath);
+
+                SelectArmorCoreAttach(armorCore.Themes[0].ChestAttachmentPath);
+                SelectArmorCoreAttach(armorCore.Themes[0].HelmetAttachmentPath);
+                SelectArmorCoreAttach(armorCore.Themes[0].HipAttachmentPath);
+                SelectArmorCoreAttach(armorCore.Themes[0].WristAttachmentPath);
+                if (CmsJsonPair.ContainsKey("bodyCustomization.json")) {
+                    string bodyCustomization_temp = CmsJsonPair["bodyCustomization.json"];
+                    BodyCustomization bodyCustomization = (BodyCustomization)JsonSerializer.Deserialize(bodyCustomization_temp, typeof(BodyCustomization), JsonSerializerFix.SerializerOptions);
+                    SelectBodyCustomization(bodyCustomization, tempArmorTheme.CoreRegionData);
+                }
+                
+            }
+        }
+
+        private void SelectArmorCorePart(string path) {
+            if (CmsJsonPair.ContainsKey(path)) {
+                try
+                {
+                    ArmorCorePart _armorCorePart = (ArmorCorePart)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCorePart), JsonSerializerFix.SerializerOptions);
+                    SelectRegionsDatas(_armorCorePart.RegionData);
+                }
+                catch (Exception noImop)
+                {
+
+                }
+            }
+        }
+        
+        private void SelectArmorCoreAttach(string path) {
+            if (CmsJsonPair.ContainsKey(path)) {
+                try
+                {
+                    ArmorCoreAttach _armorCorePart = (ArmorCoreAttach)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCoreAttach), JsonSerializerFix.SerializerOptions);
+                    if (attachments_dict.ContainsKey(_armorCorePart.TagId))
+                    {
+                        var temp = attachments_dict[_armorCorePart.TagId];
+                        SelectInTreeViewItemModel(temp);
+                    }
+                }
+                catch (Exception noImop)
+                {
+
+                }
+            }
+        }
+
+        private void SelectBodyCustomization(BodyCustomization bodyCustomization, CoreRegionData coreRegionData) {
+            if (bodyCustomization.BodyType == "Small")
+            {
+                SelectRegionsDatas(coreRegionData.BodyTypeSmallOverrides, false, true);
+                SelectRegionsDatas(coreRegionData.BodyTypeSmallOverrides);
+            }
+            else if (bodyCustomization.BodyType == "Large") {
+                SelectRegionsDatas(coreRegionData.BodyTypeLargeOverrides, false, true);
+                SelectRegionsDatas(coreRegionData.BodyTypeLargeOverrides);
+            }
+            switch (bodyCustomization.LeftArm)
+            {
+                case "Full":
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftArmOverrides.Full, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftArmOverrides.Full);
+                    break; 
+                case "Half":
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftArmOverrides.Half, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftArmOverrides.Half);
+                    break; 
+                case "Extremity":
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftArmOverrides.Extremity, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftArmOverrides.Extremity);
+                    break; 
+                default:
+                    break;
+            }
+            
+            switch (bodyCustomization.RightArm)
+            {
+                case "Full":
+                    SelectRegionsDatas(coreRegionData.ProstheticRightArmOverrides.Full, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticRightArmOverrides.Full);
+                    break; 
+                case "Half":
+                    SelectRegionsDatas(coreRegionData.ProstheticRightArmOverrides.Half, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticRightArmOverrides.Half);
+                    break; 
+                case "Extremity":
+                    SelectRegionsDatas(coreRegionData.ProstheticRightArmOverrides.Extremity, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticRightArmOverrides.Extremity);
+                    break; 
+                default:
+                    break;
+            }
+
+            switch (bodyCustomization.LeftLeg)
+            {
+                case "Full":
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftLegOverrides.Full, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftLegOverrides.Full);
+                    break;
+                case "Half":
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftLegOverrides.Half, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftLegOverrides.Half);
+                    break;
+                case "Extremity":
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftLegOverrides.Extremity, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticLeftLegOverrides.Extremity);
+                    break;
+                default:
+                    break;
+            }
+            
+            switch (bodyCustomization.RightLeg)
+            {
+                case "Full":
+                    SelectRegionsDatas(coreRegionData.ProstheticRightLegOverrides.Full, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticRightLegOverrides.Full);
+                    break;
+                case "Half":
+                    SelectRegionsDatas(coreRegionData.ProstheticRightLegOverrides.Half, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticRightLegOverrides.Half);
+                    break;
+                case "Extremity":
+                    SelectRegionsDatas(coreRegionData.ProstheticRightLegOverrides.Extremity, false, true);
+                    SelectRegionsDatas(coreRegionData.ProstheticRightLegOverrides.Extremity);
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+        private void SelectRegionsDatas(List<RegionData>? regionsDatas, bool value=true, bool allRegion = false)
+        {
+            foreach (RegionData region_data in regionsDatas)
+            {
+                foreach (var region_ch in _regions)
+                {
+                    if (region_ch.Header == region_data.RegionId.MIdentifier.ToString())
+                    {
+                        foreach (var permu_ch in region_ch.Children)
+                        {
+                            if (allRegion)
+                            {
+                                permu_ch.IsChecked = value;
+                                if (permu_ch is TreeViewItemModel)
+                                {
+                                    foreach (var mesh_ch in (permu_ch as TreeViewItemModel).Children)
+                                    {
+                                        mesh_ch.IsChecked = value;
+                                        ((mesh_ch as TreeViewItemChModel).Value as ModelNodeModel).IsVisible = value;
+                                    }
+                                }
+                            }
+                            else {
+                                if (permu_ch.Header == region_data.PermutationId.MIdentifier.ToString())
+                                {
+                                    permu_ch.IsChecked = value;
+                                    if (permu_ch is TreeViewItemModel)
+                                    {
+                                        foreach (var mesh_ch in (permu_ch as TreeViewItemModel).Children)
+                                        {
+                                            mesh_ch.IsChecked = value;
+                                            ((mesh_ch as TreeViewItemChModel).Value as ModelNodeModel).IsVisible = value;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SelectInTreeViewItemModel(TreeViewItemModel parent) {
+            foreach (var mesh_ch in parent.Children)
+            {
+                if (mesh_ch is TreeViewItemChModel)
+                {
+                    //(mesh_ch as CheckedModel).IsChecked = true;
+                    ItemHelper.SetIsChecked((DependencyObject)mesh_ch, true);
+                    //((mesh_ch as TreeViewItemChModel).Value as ModelNodeModel).IsVisible = true;
+                }
+                else if (mesh_ch is TreeViewItemModel)
+                {
+                    SelectInTreeViewItemModel(mesh_ch as TreeViewItemModel);
+                }
+                
+            }
+        }
+
+        protected async Task LoadCoresAsync()
+        {
+            var objLock = new object();
+
+
+            try
+            {
+                var process = new GetArmorCoresFromJsonProcess();
+                process.Completed += GetArmorCoresFromJsonProcess_Completed;
+                await RunProcess(process);
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                lock (objLock)
+                {
+
+                }
+
+            }
+        }
+
+        private void GetArmorCoresFromJsonProcess_Completed(object? sender, EventArgs e)
+        {
+            this.CoresInfo = ((GetArmorCoresFromJsonProcess)sender).Result;
+            if (this.CoresInfo != null && this.CoresInfo.Count > 0)
+                HaveCoreInfo = true;
+            this.CmsJsonPair = ((GetArmorCoresFromJsonProcess)sender).CmsJsonPair;
         }
 
         #endregion

@@ -292,7 +292,7 @@ namespace LibHIRT.TagReader
                 _tagFile = new TagFile();
                 _tagFile.readIn(_f);
 
-                if (_tagLayout==null)
+                if (_tagLayout==null || _tagLayout.Count == 0)
                     return;
 
                 
