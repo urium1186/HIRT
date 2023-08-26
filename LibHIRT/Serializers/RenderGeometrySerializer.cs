@@ -413,7 +413,7 @@ namespace LibHIRT.Serializers
                         }
                         if (obj_mesh.VertType == VertType.dq_skinned || obj_mesh.VertType == VertType.skinned)
                         {
-                            Debug.Assert(vert.Count==0);
+                            // Debug.Assert(vert.Count==0);
                         }
                     }
                     /*

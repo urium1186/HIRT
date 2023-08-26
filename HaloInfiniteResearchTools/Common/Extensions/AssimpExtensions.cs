@@ -1,8 +1,5 @@
 ﻿using Assimp;
-using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using LibHIRT.Domain.RenderModel;
-using LibHIRT.TagReader;
 using SharpDX;
 using System;
 

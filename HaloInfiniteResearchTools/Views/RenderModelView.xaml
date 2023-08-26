@@ -150,6 +150,27 @@
                                     <Separator />
                                     <MenuItem Header="Hide LODs" Command="{Binding HideLODsCommand}" />
                                     <MenuItem Header="Hide Volumes" Command="{Binding HideVolumesCommand}" />
+                                    <Separator Visibility="{Binding HaveCoreInfo, Converter={StaticResource BoolVisibilityConverter}}"/>
+                                    <ComboBox Name="CoreSelectorComboBox"
+                                               Visibility="{Binding HaveCoreInfo, Converter={StaticResource BoolVisibilityConverter}}"
+                                              ItemsSource="{Binding CoresInfo}"
+                                              SelectionChanged="CoreSelectorComboBox_SelectionChanged"
+                                              >
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition></ColumnDefinition>
+                                                        <ColumnDefinition></ColumnDefinition>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="Show core " VerticalAlignment="Center" Margin="5"></TextBlock>
+                                                    <TextBlock Grid.Column="1" Text="{Binding CoreId}" VerticalAlignment="Center" Margin="5"></TextBlock>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                        
+                                    </ComboBox>
+
                                 </ContextMenu>
                             </Button.ContextMenu>
                             <Button.Style>
@@ -259,7 +280,7 @@
                         <controls:CheckedTreeControl TreeItems="{Binding Path=Variants, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid> 
                 </TabItem>
-                <TabItem Header="CustumCOnfig">
+                <TabItem Header="CustumConfig">
                     <Grid>
                         <controls:CheckedTreeControl TreeItems="{Binding Path=ThemeConfigurationsTVIM, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid> 

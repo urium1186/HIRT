@@ -39,11 +39,11 @@
                 <Separator />
                 <MenuItem Header="Preferences" Command="{Binding EditPreferencesCommand}" />
             </MenuItem>
-            <MenuItem Header="Help" IsEnabled="false">
-                <MenuItem Header="Tutorial Video"
+            <MenuItem Header="Help" >
+                <MenuItem Header="Tutorial Video" IsEnabled="false"
                           Command="{Binding ShowWebPageCommand}"
                           CommandParameter="https://www.youtube.com/watch?v=hfji1ik2wFk" />
-                <MenuItem Header="GitHub"
+                <MenuItem Header="GitHub" IsEnabled="false"
                           Command="{Binding ShowWebPageCommand}"
                           CommandParameter="https://github.com/Wildenhaus/Index"/>
                 <MenuItem Header="Discord"

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Forms.Design;
 using System.Windows.Input;
 using WpfHexaEditor.Core.MethodExtention;
@@ -32,13 +33,15 @@ namespace HaloInfiniteResearchTools.ViewModels
         bool _onlyVertexShaders = true;
         string _spliters = "";
         private string _pathExport;
-
+        private ConnectXboxServicesResult connectXSR;
 
         public ICommand ProcessTextCommand { get; }
         public ICommand BCInSVToTxtCommand { get; }
         public ICommand ProcessAllBytecodeToTxtCommand { get; }
         public ICommand GenerateFromStrValueCommand { get; }
         public ICommand CheckInUseCommand { get; }
+        public ICommand ProcessLoginCommand { get; }
+        public ICommand WebApiCommand { get; }
 
 
 
@@ -53,6 +56,91 @@ namespace HaloInfiniteResearchTools.ViewModels
             ProcessAllBytecodeToTxtCommand = new AsyncCommand(ProcessAllBytecodeToTx);
             GenerateFromStrValueCommand = new Command(GenerateFromStrValue);
             CheckInUseCommand = new Command(CheckInUseAction);
+            ProcessLoginCommand = new Command(ProcessLogin);
+            WebApiCommand = new Command(CallApi);
+        }
+
+        private async void ProcessLogin()
+        {
+            using (var progress = ShowProgress())
+            {
+                progress.IsIndeterminate = true;
+                progress.Status = "Login";
+
+                var objLock = new object();
+                
+                    
+                    try
+                    {
+                    var process = new ConnectXboxServicesProcess();
+                    process.Completed += ConnectXboxServicesProcess_Completed;
+                    await RunProcess(process);
+
+                }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        lock (objLock)
+                        {
+                            progress.CompletedUnits++;
+                        }
+
+                    }
+                
+
+
+            }
+
+        }
+
+        private async void ConnectXboxServicesProcess_Completed(object? sender, EventArgs e)
+        {
+            connectXSR = (sender as ConnectXboxServicesProcess).Result;
+
+        }
+
+        private async void CallApi()
+        {
+            //throw new NotImplementedException();
+            using (var progress = ShowProgress())
+            {
+                progress.IsIndeterminate = true;
+                progress.Status = "Login";
+
+                var objLock = new object();
+
+
+                try
+                {
+                    var process = new GetFromXboxWebApiProcess(connectXSR);
+                    process.Completed += GetFromXboxWebApiProcess_Completed;
+                    await RunProcess(process);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    lock (objLock)
+                    {
+                      progress.CompletedUnits++;
+                    }
+
+                }
+
+
+
+            }
+        }
+
+        private void GetFromXboxWebApiProcess_Completed(object? sender, EventArgs e)
+        {
+            
         }
 
         private void CheckInUseAction()

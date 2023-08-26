@@ -7,6 +7,10 @@ using System.Diagnostics;
 using System.IO;
 using SharpDX;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using System.CodeDom.Compiler;
 
 namespace LibHIRT.TagReader.Dumper
 {
@@ -21,17 +25,21 @@ namespace LibHIRT.TagReader.Dumper
             IndentChars = "\t",
         };
         private long startAddress = 0;
+        private long lastAddress = 0;
         private int tagCount = 0;
         private string outDIR = "";
         private HashSet<int> unique_items_7 = new HashSet<int>();
 
         private HashSet<string> unique_string_used = new HashSet<string>();
         private Stack<string> _37Stack= new Stack<string>();
+        private Dictionary<string, long> tags = new Dictionary<string, long>();
+        private long[] startAddressList;
 
         public Mem M { get => m; set => m = value; }
         public string OutDIR { get => outDIR; set => outDIR = value; }
         public long StartAddress { get => startAddress; set => startAddress = value; }
         public int TagCount { get => tagCount; set => tagCount = value; }
+
 
         /*
 private HashSet<int> unique_items_1 = new HashSet<int>();
@@ -48,7 +56,7 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
         #region Other
         public async Task Dump()
         {
-
+            //string assd = BitConverter.ToString(BitConverter.GetBytes("tmlh".ToCharArray()[0])).Replace("-", "");
             if (outDIR.Length > 1)
             {
                 if (m.OpenProcess("HaloInfinite.exe"))
@@ -66,47 +74,153 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
         private async Task Scan()
         {
             SetStatus("Scanning for starting address...");
-            await AoBScanTTGS();
-            if (startAddress == 0 || m.ReadLong((startAddress + 12).ToString("X")) != 7013337615930712659)
-                await AoBScan();
+
+            //await AoBScanTTGS();
+            //if (startAddress == 0 || m.ReadLong((startAddress + 12).ToString("X")) != 7013337615930712659)
+            //await AoBScan();
+            await AoBScan_aTags();
+            //await AoBScanTags();
             //startAddress = 2178283012096;
             Console.WriteLine(startAddress.ToString());
-            if (startAddress != 0)
+            try
             {
-                SetStatus("Address Found: " + startAddress.ToString("X"));
-
-                int warnings = 0;
-                long curAddress = startAddress;
-                bool scanning = true;
-
-                while (scanning)
+                if (startAddress != 0)
                 {
-                    if (m.ReadInt((curAddress + 80).ToString("X")) == 257)
+                    SetStatus("Address Found: " + startAddress.ToString("X"));
+                    tags.Clear();
+                    foreach (var item in startAddressList)
                     {
-                        tagCount++;
-                        curAddress += 88;
-                        warnings = 0;
+                        startAddress = item;
+                        SearchTagsCounts();
+                        SearchTagsCounts(false);
+                    }
+
+                    //tagCount = 475;
+                    SetStatus("Found " + tags.Count + " tag structs!");
+                    DumpStructs();
+                    printSaveLogUniqueStr();
+                    SetStatus("Done!");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                ;
+            }
+            
+        }
+
+        private void SearchTagsCounts(bool toFront = true)
+        {
+            int warnings = 0;
+            long curAddress = startAddress;
+            bool scanning = true;
+
+            while (scanning)
+            {
+                //string tempTag = m.ReadString((curAddress + 12).ToString("X"), "", 8);
+                string tempTag = m.ReadString((curAddress + 12).ToString("X"), "", 4);
+                if (validatedTagGroupName(tempTag))
+                {
+                    tagCount++;
+                    /*if (tags.ContainsKey(tempTag.Substring(0, 4)) && curAddress != tags[tempTag.Substring(0, 4)]) {
+                        tags["_1"+tempTag.Substring(0, 4)] = curAddress;
                     }
                     else
-                    {
-                        warnings++;
+                    {*/
+                     tags[tempTag.Substring(0, 4)] = curAddress;
+                    //}
+                    
+                    lastAddress = curAddress;
+                    if (toFront)
                         curAddress += 88;
-                    }
+                    else
+                        curAddress -= 88;
+                    warnings = 0;
+                }
+                else
+                {
+                    scanning = false;
+                }
+            }
+        }
+        /*private long SearchTagsCountsBack()
+        {
+            int warnings = 0;
+            long curAddress = startAddress;
+            bool scanning = true;
 
-                    if (warnings > 3)
-                    {
-                        scanning = false;
-                    }
+            while (scanning)
+            {
+                //string tempT = m.ReadString((curAddress + 12).ToString("X"), "", 8);
+                string tempT = m.ReadString((curAddress + 12).ToString("X"), "", 4);
+                if (validatedTagGroupName(tempT))
+                {
+                    tagCount++;
+                    tags[tempT.Substring(0, 4)] = curAddress;
+                    curAddress -= 88;
+                    warnings = 0;
+                }
+                else
+                {
+                    scanning = false;
+                }
+            }
+            return curAddress;
+        }*/
+
+        private static bool validatedTagGroupName(string tempT)
+        {
+            return tempT != "" && !LibHIRT.Utils.Utils.HasNonASCIIChars(tempT) && tempT.IndexOf("  ")==-1 && tempT.Length>=4;
+        }
+
+        private void SearchTagsCountsOld()
+        {
+            int warnings = 0;
+            long curAddress = startAddress;
+            bool scanning = true;
+
+            while (scanning)
+            {
+                if (m.ReadInt((curAddress + 80).ToString("X")) == 257)
+                {
+                    tagCount++;
+                    curAddress += 88;
+                    warnings = 0;
+                }
+                else
+                {
+                    warnings++;
+                    curAddress += 88;
                 }
 
-                SetStatus("Found " + tagCount + " tag structs!");
-                DumpStructs();
-                printSaveLogUniqueStr();
-                SetStatus("Done!");
+                if (warnings > 3)
+                {
+                    scanning = false;
+                }
             }
         }
 
-        private async Task AoBScan()
+        private async Task AoBScan()//hlmt tmlh 746D6C68
+        {
+            
+            long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 74 6D 6C 68 67 61 54 61", true, false)).ToArray();
+            startAddress = results[0];
+        }
+        
+        private async Task AoBScanTags()
+        {
+            long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 53 62 6F 47 67 61 54 61", true, false)).ToArray();
+            startAddressList = results;
+        }  
+        
+        private async Task AoBScan_aTags()
+        {
+            long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 67 61 54 61 FF FF FF FF", true, false)).ToArray();
+            startAddressList = results;
+        }  
+
+        private async Task AoBScanOld()
         {
             long[] results = (await m.AoBScan("?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 53 62 6F 47 67 61 54 61", true, false)).ToArray();
             startAddress = results[0];
@@ -131,7 +245,14 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
             try
             {
                 List<string> list = new List<string>();
-                for (int iteration_index = 0; iteration_index < tagCount; iteration_index++)
+                //startAddress -= 35200;
+                //for (int iteration_index = 0; iteration_index < tagCount; iteration_index++)
+                int iteration_index = 0;
+                string str_bytes_tags = "";
+                byte[] debug_init = m.ReadBytes((startAddress-(10*88)).ToString("X"), 10*88);
+                string str_bytes_init = BitConverter.ToString(debug_init).Replace("-", "");
+                long current_tag_struct_Address = 0;
+                foreach (var tag in tags)
                 {
                     string temp_filename = outDIR + @"\dump" + iteration_index + ".xml";
                     _37Stack.Clear();
@@ -141,17 +262,24 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                         textWriter.WriteStartDocument();
                         textWriter.WriteComment(" saved from url=(0016)http://localhost ");
                         textWriter.WriteStartElement("root");
-                        long offset_from_start = iteration_index * 88;
-                        long current_tag_struct_Address = startAddress + offset_from_start;
+                        //long offset_from_start = iteration_index * 88;
+                        //long current_tag_struct_Address = startAddress + offset_from_start;
+                        current_tag_struct_Address = tag.Value;
                         long gdshgfjasdf = (current_tag_struct_Address);
-                        string group_name_thingo = m.ReadString((current_tag_struct_Address + 12).ToString("X"), "", 4);
+                        //string group_name_thingo = m.ReadString((current_tag_struct_Address + 12).ToString("X"), "", 4);
+                        string group_name_thingo = tag.Key;
+                        // Debug.Assert(tag.Key == group_name_thingo);
                         addUniqueString(group_name_thingo);
                         var taggroup = new string(group_name_thingo.Reverse().ToArray());
                         addUniqueString(taggroup);
-                        if (taggroup == "ttag")
+                        if (taggroup == "")
                         {
+                            continue;
                         }
 
+                        byte[] debug = m.ReadBytes(current_tag_struct_Address.ToString("X"), 88);
+                        string str_bytes = BitConverter.ToString(debug).Replace("-", "");
+                        str_bytes_tags+=str_bytes;
                         GetGDLS(m.ReadLong((current_tag_struct_Address + 32).ToString("X")));
 
                         textWriter.WriteEndElement();
@@ -183,7 +311,11 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                             list.Add(s33);
                         }
                     }
+                    iteration_index++;
                 }
+
+                byte[] debug_end = m.ReadBytes((lastAddress + (10 * 88)).ToString("X"), 10 * 88);
+                string str_bytes_end = BitConverter.ToString(debug_end).Replace("-", "");
             }
             catch (Exception e)
             {

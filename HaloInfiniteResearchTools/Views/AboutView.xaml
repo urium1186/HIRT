@@ -11,6 +11,100 @@
            Height="450" Width="800">
     <TabControl TabStripPlacement="Left">
 
+        <TabItem Header="HIRT">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <!--
+                    <Image Source="pack://application:,,,/H2AIndex;component/Index.png"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           Grid.Column="0"
+                           Height="125"
+                           Width="125"/>
+-->
+                    <Label Content="Halo Infinite Research Tool" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <Image Height="280" Width="280" Source="/Views/WhatsApp Image 2023-07-10 at 11.56.57.jpg">
+                        <Image.OpacityMask>
+                            <ImageBrush ImageSource="/Views/WhatsApp Image 2023-07-10 at 11.56.57.jpg"/>
+                        </Image.OpacityMask>
+                    </Image>
+
+                </StackPanel>
+
+                <Rectangle Grid.Column="1" Width="1" Margin="0,10">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                            <GradientStop Color="Transparent" Offset="0.1"/>
+                            <GradientStop Color="{DynamicResource Color.Primary.1.Background.Disabled}" Offset="0.5" />
+                            <GradientStop Color="Transparent" Offset="0.9"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center">
+
+                    <StackPanel Orientation="Horizontal" Margin="0,30">
+                        <Border
+                                IsHitTestVisible="True"
+                                Cursor="Hand">
+                            <Border.Background>
+                                <ImageBrush ImageSource="/Views/unnamed.jpg"/>
+                            </Border.Background>
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" 
+                                              Command="{Binding ShowWebPageCommand}"
+                                              CommandParameter="https://ko-fi.com/hausdev" />
+                            </Border.InputBindings>
+                            <Path Fill="White" 
+                                      Height="32"
+                                      Width="32"
+                                      Stretch="Uniform"
+                                       />
+                        </Border>
+                        <TextBlock Background="Transparent"
+                                   IsHitTestVisible="True"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Cursor="Hand">
+                        </TextBlock>
+                        <Label Content="Developed by urium86" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <Label Content="Contributors" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" />
+
+                        <Rectangle Height="1" Margin="10,0">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                    <GradientStop Color="Transparent" Offset="0.0"/>
+                                    <GradientStop Color="{DynamicResource Color.Primary.1.Border.Disabled}" Offset="0.35" />
+                                    <GradientStop Color="{DynamicResource Color.Primary.1.Border.Disabled}" Offset="0.65"/>
+                                    <GradientStop Color="Transparent" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+
+                        <Label Content="Surasia" FontSize="18" HorizontalAlignment="Center" Padding="0" />
+                        <Label Content="Coarforge" FontSize="18" HorizontalAlignment="Center" Padding="0" />
+                        <Label Content="Plastered_Crab" FontSize="18" HorizontalAlignment="Center" Padding="0" />
+                        <Label Content="xxzxx" FontSize="18" HorizontalAlignment="Center" Padding="0" />
+                        <Label Content="All in discord server" FontSize="18" HorizontalAlignment="Center" Padding="0" />
+                    </StackPanel>
+
+                </StackPanel>
+
+            </Grid>
+
+        </TabItem>
         <TabItem Header="Index">
 
             <Grid>

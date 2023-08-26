@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -117,8 +118,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             /*var see = LibHIRT.Utils.UIDebug.debugValues;
             var intese =LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["3"].Intersect(LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["2"]);*/
             
-            FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
-            //FileContext.SearchTermChangedCommand.Execute("");
+            //FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
+            FileContext.SearchTermChangedCommand.Execute("");
         }
 
         #endregion

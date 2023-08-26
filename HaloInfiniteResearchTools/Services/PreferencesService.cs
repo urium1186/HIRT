@@ -87,8 +87,12 @@ namespace HaloInfiniteResearchTools.Services
 
         private string GetPreferencesPath()
         {
-            var userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userPath, "H2AIndex.prefs");
+            /*var userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string directory_path = Path.Combine(userPath, "HIRT");
+            if (!Directory.Exists(directory_path))
+                Directory.CreateDirectory(directory_path);
+            return Path.Combine(directory_path, "HIRT.prefs");*/
+            return LibHIRT.Utils.Utils.GetPreferencesPath();
         }
 
         private void EnsurePreferencesAreSet()

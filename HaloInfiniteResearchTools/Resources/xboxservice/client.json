@@ -1,0 +1,5 @@
+{
+    "client_id":"c19eff3f-24a3-4069-a173-d74d820b561b",
+    "client_secret":"",
+    "redirect_url":"http://localhost:8080/auth/callback"
+}

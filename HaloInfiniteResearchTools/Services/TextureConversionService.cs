@@ -161,6 +161,7 @@ namespace HaloInfiniteResearchTools.Services
             switch (pict.Type)
             {
                 case "2D texture":
+
                     img = TexHelper.Instance.Initialize2D(format, pict.Width, pict.Height, 1, pict.MipMapCount, CP_FLAGS.NONE);
                     break;
                 case "3D texture":

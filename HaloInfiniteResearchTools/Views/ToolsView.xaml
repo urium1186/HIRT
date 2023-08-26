@@ -75,6 +75,21 @@
                 </Grid>
 
             </TabItem>
+            <TabItem Header="Online Tools">
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="13*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" >
+                        <Button x:Name="Login" Content="Login" Command="{Binding ProcessLoginCommand}"></Button>
+                        <Button x:Name="WebApi" Content="WebApi" Command="{Binding WebApiCommand}"></Button>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
         </TabControl>
     </Grid>
 </view:View>

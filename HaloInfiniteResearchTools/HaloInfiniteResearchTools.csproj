@@ -8,10 +8,23 @@
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <StartupObject>HaloInfiniteResearchTools.App</StartupObject>
+    <ApplicationIcon>IconHIRT.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DirectXTexNet" Version="1.0.3" />
+    <None Remove="Views\unnamed.jpg" />
+    <None Remove="Views\WhatsApp Image 2023-07-10 at 11.56.57.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="IconHIRT.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DirectXTexNet" Version="1.0.3">
+      
+    </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
     <PackageReference Include="Javi.ExplorerTreeView" Version="1.0.4" />
     <PackageReference Include="JSONTreeView" Version="1.1.0" />
@@ -26,6 +39,9 @@
 	  <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.21.1" />
 	  <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="11.2.1" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+	  <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
+	  <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.55.0" />
+	  <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.55.0" />
 	  <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
 	  <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 	  <PackageReference Include="OpenSpartan.Grunt" Version="0.1.12" />
@@ -38,6 +54,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>AppSettings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -94,6 +115,12 @@
     <None Update="Resources\shaders\spirv-cross\spirv-cross.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\xboxservice\client.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\xboxservice\tokens.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -102,6 +129,18 @@
 
   <ItemGroup>
     <Folder Include="Resources\shaders\dxc\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\unnamed.jpg" />
+    <Resource Include="Views\WhatsApp Image 2023-07-10 at 11.56.57.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
