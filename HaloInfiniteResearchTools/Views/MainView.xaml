@@ -40,12 +40,12 @@
                 <MenuItem Header="Preferences" Command="{Binding EditPreferencesCommand}" />
             </MenuItem>
             <MenuItem Header="Help" >
-                <MenuItem Header="Tutorial Video" IsEnabled="false"
+                <MenuItem Header="Tutorial Video" IsEnabled="true"
                           Command="{Binding ShowWebPageCommand}"
-                          CommandParameter="https://www.youtube.com/watch?v=hfji1ik2wFk" />
-                <MenuItem Header="GitHub" IsEnabled="false"
+                          CommandParameter="https://www.youtube.com/watch?v=n2BYuAeiXgc" />
+                <MenuItem Header="GitHub" IsEnabled="true"
                           Command="{Binding ShowWebPageCommand}"
-                          CommandParameter="https://github.com/Wildenhaus/Index"/>
+                          CommandParameter="https://github.com/urium1186/HIRT"/>
                 <MenuItem Header="Discord"
                           Command="{Binding ShowWebPageCommand}"
                           CommandParameter="https://discord.com/invite/haloarchive" />

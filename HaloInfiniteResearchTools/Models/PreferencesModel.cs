@@ -35,7 +35,7 @@ namespace HaloInfiniteResearchTools.Models
         [DefaultValue(false)]
         public bool LoadH2ADirectoryOnStartup { get; set; }
 
-        public string H2ADirectoryPath { get; set; }
+        public string HIDirectoryPath { get; set; }
 
         [OnChangedMethod(nameof(SetGlobalDefaults))]
         public string DefaultExportPath { get; set; }

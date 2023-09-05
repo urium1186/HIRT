@@ -103,9 +103,9 @@ namespace HaloInfiniteResearchTools.ViewModels
             //FileContext.HiContext.TagTemplatePath = prefs.TagStructsDumperOptions.XmlOutputPath;
             if (prefs.LoadH2ADirectoryOnStartup)
             {
-                if (Directory.Exists(prefs.H2ADirectoryPath))
+                if (Directory.Exists(prefs.HIDirectoryPath))
                 {
-                    var process = new OpenFilesProcess(prefs.H2ADirectoryPath);
+                    var process = new OpenFilesProcess(null, prefs.HIDirectoryPath);
                     process.Completed += OpenFilesProcess_Completed;
                     await RunProcess(process);
                 }
@@ -130,12 +130,12 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             var filePaths = await ShowOpenFileDialog(
               title: "Open File",
-              initialDirectory: GetPreferences().H2ADirectoryPath); // TODO: Add filter
+              initialDirectory: GetPreferences().HIDirectoryPath); // TODO: Add filter
 
             if (filePaths == null)
                 return;
 
-            var process = new OpenFilesProcess(filePaths);
+            var process = new OpenFilesProcess(null, filePaths);
 
             process.Completed += OpenFilesProcess_Completed;
             await RunProcess(process);
@@ -157,12 +157,12 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             var directoryPath = await ShowFolderBrowserDialog(
               title: "Open Directory",
-              defaultPath: GetPreferences().H2ADirectoryPath);
+              defaultPath: GetPreferences().HIDirectoryPath);
 
             if (directoryPath == null)
                 return;
 
-            var process = new OpenFilesProcess(directoryPath);
+            var process = new OpenFilesProcess(null, directoryPath);
 
             process.Completed += OpenFilesProcess_Completed;
             await RunProcess(process);

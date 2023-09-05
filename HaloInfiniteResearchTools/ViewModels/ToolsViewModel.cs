@@ -66,7 +66,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 progress.IsIndeterminate = true;
                 progress.Status = "Login";
-
+                
                 var objLock = new object();
                 
                     
@@ -128,7 +128,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
                     lock (objLock)
                     {
-                      progress.CompletedUnits++;
+                      //progress.CompletedUnits++;
                     }
 
                 }

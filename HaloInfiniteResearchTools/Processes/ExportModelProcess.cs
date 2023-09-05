@@ -46,6 +46,22 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
+        public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, IServiceProvider? serviceProvider) : base(serviceProvider) {
+            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+
+            _file = file;
+            _modelOptions = modelOptions.DeepCopy();
+            _textureOptions = textureOptions.DeepCopy();
+
+            if (_modelOptions.CreateDirectoryForModel)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(_file.Name);
+                _modelOptions.OutputPath = Path.Combine(_modelOptions.OutputPath, fileName);
+            }
+
+            _textureOptions.OutputPath = _modelOptions.OutputPath;
+            _textureOptions.ExportAllMips = false;
+        }
         public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions)
         {
             _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
@@ -332,7 +348,7 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = true;
             Status = "Filtering Meshes";
 
-            var lodRemover = new SceneLodRemover(_scene, _modelOptions,_nodes);
+            var lodRemover = new SceneLodRemover(_scene, _modelOptions,_nodes, ServiceProvider);
             _scene = lodRemover.RecreateScene();
         }
 
@@ -374,9 +390,9 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public SceneLodRemover(Scene scene, ModelExportOptionsModel options, ObservableCollection<ModelNodeModel> nodes)
+        public SceneLodRemover(Scene scene, ModelExportOptionsModel options, ObservableCollection<ModelNodeModel> nodes, IServiceProvider serviceProvider)
         {
-            var serviceProvider = ((App)App.Current).ServiceProvider;
+            
             _meshIdentifierService = serviceProvider.GetRequiredService<IMeshIdentifierService>();
             _nodes = nodes;
             OldScene = scene;

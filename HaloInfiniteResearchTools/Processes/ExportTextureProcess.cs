@@ -81,20 +81,24 @@ namespace HaloInfiniteResearchTools.Processes
       if ( _options.OutputFileFormat != TextureFileFormat.DDS )
       {
 
-        try
-        {
-          await LoadTexture();
+                try
+                {
+                    await LoadTexture();
 
-          if ( IsTextureNormalMap() )
-            await ProcessNormalMaps();
+                    if (IsTextureNormalMap())
+                        await ProcessNormalMaps();
 
-          await WriteOutputFiles();
-        }
-        finally
-        {
-          _texture?.Dispose();
-          _imageCollection?.Dispose();
-        }
+                    await WriteOutputFiles();
+                }
+                catch (Exception ex) { 
+                    
+
+                }
+                finally
+                {
+                    _texture?.Dispose();
+                    _imageCollection?.Dispose();
+                }
       }
       else
         await ExportRawDds();

@@ -8,8 +8,12 @@
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <StartupObject>HaloInfiniteResearchTools.App</StartupObject>
+    <StartupObject>HaloInfiniteResearchTools.EntryPoint</StartupObject>
     <ApplicationIcon>IconHIRT.ico</ApplicationIcon>
+    <PackageIcon>download.jpeg</PackageIcon>
+    <PackageProjectUrl>https://github.com/urium1186/HIRT</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/urium1186/HIRT.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +29,7 @@
     <PackageReference Include="DirectXTexNet" Version="1.0.3">
       
     </PackageReference>
+	  <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
     <PackageReference Include="Javi.ExplorerTreeView" Version="1.0.4" />
     <PackageReference Include="JSONTreeView" Version="1.1.0" />
@@ -129,6 +134,13 @@
 
   <ItemGroup>
     <Folder Include="Resources\shaders\dxc\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Jorge\Downloads\download.jpeg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
