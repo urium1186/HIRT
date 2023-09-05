@@ -269,13 +269,25 @@ namespace LibHIRT.Files
           where TFile : class, ISSpaceFile
           => _files.Values.OfType<TFile>();
 
-        public IEnumerable<ISSpaceFile> GetFiles(string searchPattern)
+        public IEnumerable<ISSpaceFile> GetFilesOnNames(string searchPattern)
         {
             searchPattern = searchPattern.ToLower();
 
             foreach (var file in _files.Values)
                 if (file.Name.ToLower().Contains(searchPattern))
                     yield return file;
+        }
+        
+        public IEnumerable<ISSpaceFile> GetFiles(string searchPattern)
+        {
+            searchPattern = searchPattern.ToLower();
+
+            foreach (var file in _files.Values) {
+                string in_S = file.Path_string == null? file.InDiskPath : file.Path_string;
+                if (in_S.ToLower().Contains(searchPattern))
+                    yield return file;
+            }
+            
         }
 
         public IEnumerable<TFile> GetFiles<TFile>(string searchPattern)

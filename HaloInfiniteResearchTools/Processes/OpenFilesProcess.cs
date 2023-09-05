@@ -35,7 +35,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public OpenFilesProcess(params string[] paths)
+        public OpenFilesProcess( IServiceProvider? serviceProvider, params string[] paths) : base(serviceProvider)
         {
             _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
             _inputPaths = paths;

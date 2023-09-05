@@ -3,6 +3,21 @@
     "HaloInfiniteResearchTools": {
       "commandName": "Project",
       "nativeDebugging": false
+    },
+    "ListTags": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\nlist\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"mode\"\r\n-o \"D:\\borrar.txt\"",
+      "nativeDebugging": false
+    },
+    "Export RenderModel": {
+      "commandName": "Project",
+      "commandLineArgs": "model\r\nexport\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"mode\"\r\n-o \"D:\\borrar.txt\"",
+      "nativeDebugging": false
+    },
+    "Export Texture": {
+      "commandName": "Project",
+      "commandLineArgs": "texture\r\nexport\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1923937792\"\r\n-o \"D:\\texture\"\r\n-e \"JPEG\"",
+      "nativeDebugging": false
     }
   }
 }
