@@ -37,6 +37,7 @@ namespace HaloInfiniteResearchTools.Cli
                     cmd.Options[0],
                     cmd.Options[1],
                     cmd.Options[2])));
+            AddCommand(new ExportTagInstance());
             /*
             AddCommand(
                 new Command("unpack", "Unpack a bond file")

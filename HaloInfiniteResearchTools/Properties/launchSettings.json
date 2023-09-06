@@ -18,6 +18,16 @@
       "commandName": "Project",
       "commandLineArgs": "texture\r\nexport\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1923937792\"\r\n-o \"D:\\texture\"\r\n-e \"JPEG\"",
       "nativeDebugging": false
+    },
+    "Export Tag onpath": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\nexport\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1910587951\"\r\n-o \"D:\\texture\"\r\n-pi false",
+      "nativeDebugging": false
+    },
+    "Export Tag onmodule": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\nexport\r\nonmodule\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\\pc\\globals\\forge\\forge_objects-rtx-new.module\"\r\n-ti \"-1910587951\"\r\n-o \"D:\\texture\"\r\n-pi false",
+      "nativeDebugging": false
     }
   }
 }

@@ -7,6 +7,7 @@ using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.Services.Abstract;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
+using HaloInfiniteResearchTools.Views;
 using LibHIRT.Domain;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
@@ -62,6 +63,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand WriteTagCommand { get; }
         public ICommand TagGoToTemplateCommand { get; }
         public ICommand RenderGeomGenOpenCommand { get; }
+        public ICommand ExportModelCommand { get; }
 
         public string JsonFile { get;  set ; }
         public Stream FileStream { get;  set ; }
@@ -109,10 +111,17 @@ namespace HaloInfiniteResearchTools.ViewModels
             WriteTagCommand = new AsyncCommand(WriteTag);
             TagGoToTemplateCommand = new AsyncCommand<TagInstance>(TagGoToTemplate);
             RenderGeomGenOpenCommand = new AsyncCommand<RenderGeometryTag>(RenderGeomGenOpen);
+            //ExportModelCommand = new AsyncCommand(ExportModel);
             _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
             _tabService = serviceProvider.GetService<ITabService>();
             _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
-            
+
+        }
+
+        private async Task ExportModel()
+        {
+            Tuple<ModelExportOptionsModel, TextureExportOptionsModel> result = (Tuple<ModelExportOptionsModel, TextureExportOptionsModel>)await ShowViewModal<ModelExportOptionsView>();
+            await _dViewerControlModel.ExportModel(result);
         }
 
         private async Task WriteTo(TagInstance arg)
@@ -126,7 +135,8 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             if (arg == null)
                 return;
-            _dViewerControlModel.RenderGeometryTag = arg;   
+            _dViewerControlModel.RenderGeometryTag = arg;
+            _dViewerControlModel.ExtExportModelCommand = new AsyncCommand(ExportModel);
             await _dViewerControlModel.Initialize();
             
             RenderGeomViewerEnable = 1; 

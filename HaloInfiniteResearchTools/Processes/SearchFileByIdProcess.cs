@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
 {
-    public class OpenFilesProcess : ProcessBase<IEnumerable<string>>
+    public class SearchFileByIdProcess : ProcessBase<IEnumerable<ISSpaceFile>>
     {
 
         #region Data Members
@@ -18,15 +18,16 @@ namespace HaloInfiniteResearchTools.Processes
         private readonly IHIFileContext _fileContext;
 
         private IEnumerable<string> _inputPaths;
+        private int _id;
         private string[] _filePaths;
 
-        private List<string> _filesLoaded;
+        private List<ISSpaceFile> _filesLoaded;
 
         #endregion
 
         #region Properties
 
-        public override IEnumerable<string> Result
+        public override IEnumerable<ISSpaceFile> Result
         {
             get => _filesLoaded;
         }
@@ -35,12 +36,13 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public OpenFilesProcess( IServiceProvider? serviceProvider, params string[] paths) : base(serviceProvider)
+        public SearchFileByIdProcess( IServiceProvider? serviceProvider,int id, params string[] paths) : base(serviceProvider)
         {
             _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
             _inputPaths = paths;
+            _id = id;
 
-            _filesLoaded = new List<string>();
+            _filesLoaded = new List<ISSpaceFile>();
         }
 
         #endregion
@@ -60,7 +62,7 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = _filePaths.Length == 1;
             
             var objLock = new object();
-            Parallel.ForEach(_filePaths, filePath =>
+            Parallel.ForEach(_filePaths, (filePath, state) =>
             {
                 var fileName = Path.GetFileName(filePath);
                 var fi = new FileInfo(filePath);
@@ -69,16 +71,17 @@ namespace HaloInfiniteResearchTools.Processes
                 Status = Status + "\n" + temp;
                 try
                 {
-                   
-                   
-                    if (!_fileContext.OpenFile(filePath)) {
+
+                    var fileR = _fileContext.OpenFileWithIdInModule(filePath, _id);
+                    if (fileR == null) {
                         
                         StatusList.AddWarning(fileName, "Failed to open file.");
                     }   
                     else {
                         Status = Status.Replace("\n" + temp, "");
-                        _filesLoaded.Add(fileName);
+                        _filesLoaded.Add(fileR);
                         StatusList.AddMessage(fileName, "Open file.");
+                        state.Stop();
                     }
                         
                 }
