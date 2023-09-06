@@ -18,10 +18,11 @@ namespace HaloInfiniteResearchTools.Processes
     {
         private List<ISSpaceFile> _files;
         private string _dir_path;
-        public ExportFilesToJsonProcess(ISSpaceFile file, IServiceProvider? serviceProvider) : base(serviceProvider) {
+        public ExportFilesToJsonProcess(ISSpaceFile file, string outfile, IServiceProvider? serviceProvider) : base(serviceProvider) {
             _files = new List<ISSpaceFile> { file };
-            _dir_path = file.Name;
+            _dir_path = outfile;
             Console.WriteLine(file.Name);
+            Console.WriteLine(_dir_path);
         }
         public ExportFilesToJsonProcess(List<ISSpaceFile> files, string dir_path)
         {

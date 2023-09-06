@@ -66,7 +66,7 @@ namespace HaloInfiniteResearchTools.Cli
             //Console.WriteLine(founds.ToList().EnumerateToString());
             foreach (var item in founds)
             {
-                var exportProcess = new ExportFilesToJsonProcess(item, EntryPoint.ServiceProvider);
+                var exportProcess = new ExportFilesToJsonProcess(item, _outfile.FullName, EntryPoint.ServiceProvider);
                 Console.WriteLine(item.Name);
                 await exportProcess.Execute();
             }
