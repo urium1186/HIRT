@@ -43,6 +43,7 @@ namespace LibHIRT.Files
         bool OpenDirectory(string path);
         bool OpenFile(string filePath);
         bool OpenFromRuntime(string filePath);
+        ISSpaceFile OpenFileWithIdInModule(string modulePath, int id);
 
         #endregion
 
@@ -223,6 +224,38 @@ namespace LibHIRT.Files
             return filesAdded;
         }
 
+        public ISSpaceFile SearchInFile(ISSpaceFile file, int id)
+        {
+            
+
+            SSpaceFile temp = file as ModuleFile;
+
+            if (temp != null)
+            {
+                
+            }
+            else
+            {
+                int global_id = file.TryGetGlobalId();
+                var temp_s = Mmr3HashLTU.getMmr3HashFromInt(global_id);
+                if (global_id == id)
+                    return file;
+                else
+                {
+                }
+
+            }
+
+            foreach (var childFile in file.Children)
+            {
+                var result =  SearchInFile(childFile, id);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
+
         public void AddFileToDirList(ISSpaceFile file)
         {
             if (!(file.GetType().IsSubclassOf(typeof(SSpaceFile))) || (file.GetType().IsSubclassOf(typeof(SSpaceContainerFile)))) {
@@ -300,7 +333,7 @@ namespace LibHIRT.Files
             var files = Directory.EnumerateFiles(path, "*.module", SearchOption.AllDirectories);
             //foreach ( var file in files )
             //  filesAdded |= OpenFile( file );
-            Parallel.ForEach(files, file => OpenFile(file));
+            Parallel.ForEach(files, file => filesAdded |= OpenFile(file));
 
             return filesAdded;
         }
@@ -376,6 +409,35 @@ namespace LibHIRT.Files
             TagStructMem result = null;
             _runtimeTagLoader.TagsList.TryGetValue(tagRef.Ref_id, out result);
             return result;
+        }
+
+        public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id)
+        {   
+            var fileExt = Path.GetExtension(modulePath);
+            if (!File.Exists(modulePath))
+                return null;
+
+            HIRTStream stream;
+            if (fileExt == ".module")
+            {
+                if (modulePath.Contains("\\ds\\"))
+                    return null;
+                stream = HIRTDecompressionStream.FromFile(modulePath);
+            }
+            else
+                return null;
+
+            try
+            {
+                stream.AcquireLock();
+                var file = SSpaceFileFactory.CreateFile(modulePath, stream, 0, stream.Length, "");
+                if (file is null)
+                    return null;
+                file.InDiskPath = modulePath;
+                return SearchInFile(file, id);
+
+            }
+            finally { stream.ReleaseLock(); }
         }
 
         #endregion

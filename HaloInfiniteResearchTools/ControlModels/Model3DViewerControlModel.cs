@@ -37,6 +37,7 @@ using LibHIRT.Common;
 using HaloInfiniteResearchTools.ViewModels;
 using LibHIRT.Serializers;
 using HaloInfiniteResearchTools.Processes.Utils;
+using OpenSpartan.Grunt.Models.HaloInfinite;
 
 namespace HaloInfiniteResearchTools.ControlModel
 {
@@ -110,6 +111,7 @@ namespace HaloInfiniteResearchTools.ControlModel
         public ICommand CollapseAllCommand { get; }
 
         public ICommand ExportModelCommand { get; }
+        public ICommand ExtExportModelCommand { get; set; }
         public ObservableCollection<TreeViewItemModel> Regions { get => _regions; set => _regions = value; }
         public ModelInfoToRM ModelInfo { get; set; }
         public ListTagInstance ThemeConfigurations { get; set; }
@@ -187,6 +189,7 @@ namespace HaloInfiniteResearchTools.ControlModel
 
             Options = GetPreferences().ModelViewerOptions;
             UseFlycam = Options.DefaultToFlycam;
+            
             if (RenderGeometryTag == null)
                 return;
             var renderGeometry = RenderGeometrySerializer.Deserialize(null, _file, RenderGeometryTag);
@@ -534,17 +537,17 @@ namespace HaloInfiniteResearchTools.ControlModel
             MaxMoveSpeed = BASELINE_MAX_SPEED * coef;
         }
 
-        private async Task ExportModel()
-        {
-            var result = await ShowViewModal<ModelExportOptionsView>();
+        public async Task ExportModel(Tuple<ModelExportOptionsModel, TextureExportOptionsModel> result) {
             if (!(result is Tuple<ModelExportOptionsModel, TextureExportOptionsModel> options))
                 return;
 
             var modelOptions = options.Item1;
             var textureOptions = options.Item2;
-
-            var exportProcess = new ExportModelProcess(_file, _assimpScene, _renderModelDef, modelOptions, textureOptions, _nodes);
-            //var exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
+            ExportModelProcess exportProcess;
+            if (_assimpScene!=null)
+                exportProcess = new ExportModelProcess(_file, _assimpScene, _renderModelDef, modelOptions, textureOptions, _nodes);
+            else
+                exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
             await RunProcess(exportProcess);
 
             for (int i = 0; i < _secundaryMesh.Count; i++)
@@ -554,8 +557,43 @@ namespace HaloInfiniteResearchTools.ControlModel
                 await RunProcess(exportProcessN);
 
             }
+        }
+        private async Task ExportModel()
+        {
+            try
+            {
+                if (ExtExportModelCommand != null) {
+                    ExtExportModelCommand.Execute(this);
+                    return;
+                }
+                    
+                var result = await ShowViewModal<ModelExportOptionsView>();
+                if (!(result is Tuple<ModelExportOptionsModel, TextureExportOptionsModel> options))
+                    return;
+
+                var modelOptions = options.Item1;
+                var textureOptions = options.Item2;
+
+                var exportProcess = new ExportModelProcess(_file, _assimpScene, _renderModelDef, modelOptions, textureOptions, _nodes);
+                //var exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
+                await RunProcess(exportProcess);
+
+                for (int i = 0; i < _secundaryMesh.Count; i++)
+                {
+                    var temp = _secundaryMesh[i];
+                    var exportProcessN = new ExportModelProcess(temp.Item1, temp.Item3, temp.Item2, modelOptions, textureOptions, _nodes);
+                    await RunProcess(exportProcessN);
+
+                }
 
 
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            
 
 
 

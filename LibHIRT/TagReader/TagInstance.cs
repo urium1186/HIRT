@@ -7,7 +7,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-
+using System.Text.Json.Serialization;
 using TagStruct = LibHIRT.TagReader.Headers.TagStruct;
 
 namespace LibHIRT.TagReader
@@ -64,24 +64,31 @@ namespace LibHIRT.TagReader
             this.addressStart = addressStart;
             this.offset = offset;
         }
-
+        [JsonInclude]
         public HeaderTableEntry? Entry { get => entry; set => entry = value; }
+        [JsonInclude]
         public TagLayouts.C TagDef { get => tagDef;}
+        [System.Text.Json.Serialization.JsonIgnore]
         public TagStruct? Content_entry { get => content_entry; set => content_entry = value; }
+        [JsonInclude]
         public long Offset { get => offset; set => offset = value; }
+        [JsonInclude]
         public TagInstance? Parent { get => parent; set { parent = value;} }
+        
+        [JsonInclude]
         public long Inst_parent_offset { get => inst_parent_offset; set => inst_parent_offset = value; }
-
+        [JsonInclude]
         public long GetTagSize => TagDef?.S ?? 0;
-
+        [System.Text.Json.Serialization.JsonIgnore]
         public virtual object AccessValue { get => new { AddressStart = addressStart, Offset = offset }; set { ; } }
+        [System.Text.Json.Serialization.JsonIgnore]
         public virtual object AccessValueExtra => new {
             Value = AccessValue,
             AddressStart = addressStart,
             Offset = offset,
             InstOffset = parent == null? Offset : parent.Offset + Offset
         };
-
+        [JsonInclude]
         public long Inst_global_address { get {
               
                 return inst_global_address; 
@@ -91,13 +98,16 @@ namespace LibHIRT.TagReader
         protected virtual long GetInFileOffset() {
             return ((Content_entry?.Field_data_block?.OffsetPlus ?? 0 ) + InstanceParentOffset);
         }
-
+        [JsonInclude]
         public string FieldName { get ; set ; }
         public TagInstance Self => this;
-
+        [JsonInclude]
         public long InFileOffset { get => GetInFileOffset(); }
+        [JsonInclude]
         public long InstanceParentOffset { get; set; }
+        
         protected long Inst_address { get => inst_address; set => inst_address = value; }
+        [JsonInclude]
         public bool NoAllowEdit { get { 
                 return _noAllowEdit ; 
             } 
