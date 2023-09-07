@@ -21,6 +21,7 @@ namespace LibHIRT.Files
         private ISSpaceFile _parent;
         private ISSpaceFile _ref_parent;
         private IList<ISSpaceFile> _children;
+        private List<ISSpaceFile> _resource;
         private Dictionary<int, ISSpaceFile> _ref_children;
 
         private string _name;
@@ -48,6 +49,7 @@ namespace LibHIRT.Files
 
         public ISSpaceFile Parent => _parent;
         public IEnumerable<ISSpaceFile> Children => _children;
+        public List<ISSpaceFile> Resource => _resource;
 
         public string Name => _name;
         public string Extension => _extension;
@@ -114,6 +116,7 @@ namespace LibHIRT.Files
 
             _parent = parent;
             _children = new List<ISSpaceFile>();
+            _resource = new List<ISSpaceFile>();
         }
 
         ~SSpaceFile()

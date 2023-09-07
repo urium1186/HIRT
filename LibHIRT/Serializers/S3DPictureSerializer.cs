@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using LibHIRT.Data.Textures;
 using LibHIRT.Files;
 using LibHIRT.TagReader;
+using static System.Net.WebRequestMethods;
 using static LibHIRT.Assertions;
 using String = System.String;
 
@@ -83,12 +84,17 @@ namespace LibHIRT.Serializers
                         full_size += temp_z;
                         string sub_ext = String.Format("[{0}:bitmap resource handle.chunk{0}]", index);
                         string chunkPath = _file.Path_string + sub_ext;
-                        if ((_file as SSpaceFile).FileMemDescriptor.ResourceFiles.Count > index) {
+                        /*if ((_file as SSpaceFile).FileMemDescriptor.ResourceFiles.Count > index) {
                             chunkPath = (_file as SSpaceFile).FileMemDescriptor.ResourceFiles[index].Path_string;
+                        }*/
+                        ISSpaceFile _File = null;
+                        if ((_file as SSpaceFile).Resource.Count > index)
+                        {
+                            _File = (_file as SSpaceFile).Resource[index];
                         }
-                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
-                        if (file != null && file.File != null) {
-                            var stream = file.File.GetStream();
+                       // FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
+                        if (_File != null) {
+                            var stream = _File.GetStream();
                             if (stream != null)
                             {
                                 //Debug.Assert(stream.Length == temp_z);

@@ -43,7 +43,7 @@ namespace LibHIRT.Files
         bool OpenDirectory(string path);
         bool OpenFile(string filePath);
         bool OpenFromRuntime(string filePath);
-        ISSpaceFile OpenFileWithIdInModule(string modulePath, int id);
+        ISSpaceFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource);
 
         #endregion
 
@@ -227,23 +227,20 @@ namespace LibHIRT.Files
         public ISSpaceFile SearchInFile(ISSpaceFile file, int id)
         {
             
-
-            SSpaceFile temp = file as ModuleFile;
-
-            if (temp != null)
+            if (file is ModuleFile)
             {
                 
             }
             else
             {
                 int global_id = file.TryGetGlobalId();
-                
+                _filesGlobalIdLockUp.TryAdd(global_id, file);
                 if (global_id == id) {
-                    _filesGlobalIdLockUp.TryAdd(global_id, file);
                     return file;
                 }   
                 else
                 {
+                    
                 }
 
             }
@@ -413,7 +410,7 @@ namespace LibHIRT.Files
             return result;
         }
 
-        public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id)
+        public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id,bool load_resource = false)
         {
             if (_filesGlobalIdLockUp.ContainsKey(id))
                 return _filesGlobalIdLockUp[id];

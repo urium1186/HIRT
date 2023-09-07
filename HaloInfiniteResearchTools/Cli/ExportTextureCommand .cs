@@ -66,7 +66,7 @@ namespace HaloInfiniteResearchTools.Cli
                 return;
             }
             int id = int.Parse(infile);
-            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, deploy_dir.FullName);
+            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, true,deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");

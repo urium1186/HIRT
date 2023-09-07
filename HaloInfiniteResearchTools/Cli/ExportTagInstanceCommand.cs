@@ -89,7 +89,7 @@ namespace HaloInfiniteResearchTools.Cli
                 return;
             }
             int id = _tif? int.Parse(infile) : Mmr3HashLTU.fromStrHash(infile);
-            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, deploy_dir.FullName);
+            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, false,deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");
@@ -102,7 +102,7 @@ namespace HaloInfiniteResearchTools.Cli
             _consout = bool.Parse(consout);
             _tif = bool.Parse(tif);
             int id = _tif ? int.Parse(infile) : Mmr3HashLTU.fromStrHash(infile);
-            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, deploy_dir.FullName);
+            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, false, deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");

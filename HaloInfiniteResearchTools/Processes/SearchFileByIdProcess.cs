@@ -18,6 +18,7 @@ namespace HaloInfiniteResearchTools.Processes
         private readonly IHIFileContext _fileContext;
 
         private IEnumerable<string> _inputPaths;
+        private bool _load_resource;
         private int _id;
         private string[] _filePaths;
 
@@ -36,10 +37,11 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public SearchFileByIdProcess( IServiceProvider? serviceProvider,int id, params string[] paths) : base(serviceProvider)
+        public SearchFileByIdProcess( IServiceProvider? serviceProvider,int id, bool load_resource,params string[] paths) : base(serviceProvider)
         {
             _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
             _inputPaths = paths;
+            _load_resource = load_resource;
             _id = id;
 
             _filesLoaded = new List<ISSpaceFile>();
@@ -72,7 +74,7 @@ namespace HaloInfiniteResearchTools.Processes
                 try
                 {
 
-                    var fileR = _fileContext.OpenFileWithIdInModule(filePath, _id);
+                    var fileR = _fileContext.OpenFileWithIdInModule(filePath, _id, _load_resource);
                     if (fileR == null) {
                         
                         StatusList.AddWarning(fileName, "Failed to open file.");
