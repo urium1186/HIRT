@@ -11,7 +11,7 @@
     },
     "Export RenderModel": {
       "commandName": "Project",
-      "commandLineArgs": "model\r\nexport\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"mode\"\r\n-o \"D:\\borrar.txt\"",
+      "commandLineArgs": "model\r\nexport\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-mn \"1035284876\"\r\n-o \"D:\\borrar.txt\"",
       "nativeDebugging": false
     },
     "Export Texture": {

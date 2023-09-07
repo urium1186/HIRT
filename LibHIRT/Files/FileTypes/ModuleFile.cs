@@ -410,7 +410,14 @@ namespace LibHIRT.Files.FileTypes
                     (childFile as SSpaceFile).FileMemDescriptor = entry;
                     if (!(childFile is null)) {
                         _filesIndexLookup[i] = childFile;
-                        
+                        if (entry.ParentOffResource != -1)
+                        {
+                            ISSpaceFile tempP;
+                            if (_filesIndexLookup.TryGetValue(entry.ParentOffResource, out tempP))
+                            {
+                                ((SSpaceFile)tempP).Resource.Add(childFile);
+                            };
+                        }
                         lock (_filesGlobalIdLookup)
                         {
                             if (!_filesGlobalIdLookup.ContainsKey(entry.GlobalTagId1))

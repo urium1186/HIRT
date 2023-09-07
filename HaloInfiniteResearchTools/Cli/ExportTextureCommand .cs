@@ -18,6 +18,7 @@ using System.Windows.Markup;
 using System.Windows.Shapes;
 using HaloInfiniteResearchTools.Common.Enumerations;
 using System.Xml.Linq;
+using LibHIRT.TagReader;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -64,18 +65,24 @@ namespace HaloInfiniteResearchTools.Cli
                 Console.WriteLine("no soupurted extension.");
                 return;
             }
-                
-            var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
+            int id = int.Parse(infile);
+            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, true,deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");
+            /*var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
+            process.Completed += OpenFilesProcessExport_Completed;
+            await process.Execute();
+            Console.WriteLine("Tags listed to");*/
+
         }
 
         private async void OpenFilesProcessExport_Completed(object? sender, EventArgs e)
         {
             try
             {
-                var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<PictureFile>(_infile);
+                //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<PictureFile>(_infile);
+                var founds = ((SearchFileByIdProcess)sender).Result;
                 if (founds != null && founds.Count() != 0)
                 {
 
@@ -92,10 +99,12 @@ namespace HaloInfiniteResearchTools.Cli
                     foreach (var item in founds)
                     {
 
-
-                        var exportProcess = new ExportTextureProcess(item, textureOptions);
-                        //var exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
-                        await exportProcess.Execute();
+                        if (item is PictureFile) {
+                            var exportProcess = new ExportTextureProcess((PictureFile)item, textureOptions);
+                            //var exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
+                            await exportProcess.Execute();
+                        }
+                        
                     }
 
 

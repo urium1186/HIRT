@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -499,7 +500,7 @@ namespace LibHIRT.Serializers
 
                     while (chunk_i < mesh_R.StreamingChunks.Length && mesh_R.StreamingChunks[chunk_i].BufferEnd <= item.BufferSize && mesh_R.StreamingChunks[chunk_i].BufferEnd != 0)
                     {
-                        string chunkPath = "";
+                        /*string chunkPath = "";
                         if (_file.FileMemDescriptor.ResourceFiles.Count > chunk_i)
                         {
                             chunkPath = _file.FileMemDescriptor.ResourceFiles[chunk_i].Path_string;
@@ -508,11 +509,17 @@ namespace LibHIRT.Serializers
                         {
                             chunkPath = pathFile + string.Format("[{0}:mesh resource.chunk{0}]", chunk_i);
                         }
+                        
+                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;*/
                         var chunk = mesh_R.StreamingChunks[chunk_i];
-                        FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
-                        if (file != null && file.File != null)
+                        ISSpaceFile _File = null;
+                        if ((_file as SSpaceFile).Resource.Count > chunk_i)
                         {
-                            var stream = file.File.GetStream();
+                            _File = (_file as SSpaceFile).Resource[chunk_i];
+                        }
+                        if (_File != null)
+                        {
+                            var stream = _File.GetStream();
                             if (stream != null)
                             {
                                 //Debug.Assert(stream.Length == temp_z);
@@ -522,7 +529,7 @@ namespace LibHIRT.Serializers
                             }
                         }
                         else
-                            throw new Exception("No exist the file: " + chunkPath);
+                            throw new Exception("No exist the resource file.");
 
 
                         chunk_i++;
