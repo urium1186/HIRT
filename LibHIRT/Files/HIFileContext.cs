@@ -237,9 +237,11 @@ namespace LibHIRT.Files
             else
             {
                 int global_id = file.TryGetGlobalId();
-                var temp_s = Mmr3HashLTU.getMmr3HashFromInt(global_id);
-                if (global_id == id)
+                
+                if (global_id == id) {
+                    _filesGlobalIdLockUp.TryAdd(global_id, file);
                     return file;
+                }   
                 else
                 {
                 }
@@ -412,7 +414,10 @@ namespace LibHIRT.Files
         }
 
         public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id)
-        {   
+        {
+            if (_filesGlobalIdLockUp.ContainsKey(id))
+                return _filesGlobalIdLockUp[id];
+
             var fileExt = Path.GetExtension(modulePath);
             if (!File.Exists(modulePath))
                 return null;

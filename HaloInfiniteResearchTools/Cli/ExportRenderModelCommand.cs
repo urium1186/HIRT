@@ -44,15 +44,23 @@ namespace HaloInfiniteResearchTools.Cli
         {
             _infile = infile;
             _outfile = outfile;
-            var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
+
+            int id = int.Parse(infile);
+            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");
+            /*
+            var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
+            process.Completed += OpenFilesProcessExport_Completed;
+            await process.Execute();
+            Console.WriteLine("Tags listed to");*/
         }
 
         private async void OpenFilesProcessExport_Completed(object? sender, EventArgs e)
         {
-            var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<RenderModelFile>(_infile);
+            //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<RenderModelFile>(_infile);
+            var founds = ((SearchFileByIdProcess)sender).Result;
             if (founds != null && founds.Count() != 0) {
                 Models.ModelExportOptionsModel modelOptions = new Models.ModelExportOptionsModel();
                 Models.TextureExportOptionsModel textureOptions = new Models.TextureExportOptionsModel();
@@ -64,14 +72,12 @@ namespace HaloInfiniteResearchTools.Cli
                 modelOptions.OverwriteExisting = true;
                 foreach (var item in founds)
                 {
-
-                    
-                    var exportProcess = new ExportModelProcess(item, modelOptions, textureOptions, EntryPoint.ServiceProvider);
-                    //var exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
-                    await exportProcess.Execute();
+                    if (item is RenderModelFile) {
+                        var exportProcess = new ExportModelProcess(item, modelOptions, textureOptions, EntryPoint.ServiceProvider);
+                        //var exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
+                        await exportProcess.Execute();
+                    }
                 }
-                
-
             }
 
             Console.WriteLine("Termino el proceso");
