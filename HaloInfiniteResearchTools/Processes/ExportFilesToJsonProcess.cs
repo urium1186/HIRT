@@ -9,20 +9,27 @@ using System.Text;
 using System.Threading.Tasks;
 using HaloInfiniteResearchTools.Common;
 using Microsoft.Extensions.DependencyInjection;
-
-
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Diagnostics;
 
 namespace HaloInfiniteResearchTools.Processes
 {
-    public class ExportFilesToJsonProcess : ProcessBase<IEnumerable<string>>
+    public class ExportFilesToJsonProcess : ProcessBase<List<string>>
     {
         private List<ISSpaceFile> _files;
         private string _dir_path;
-        public ExportFilesToJsonProcess(ISSpaceFile file, string outfile, IServiceProvider? serviceProvider) : base(serviceProvider) {
+        private bool _advmode;
+        private bool _outConsole;
+        private List<string> _jsonFiles;
+
+        public ExportFilesToJsonProcess(ISSpaceFile file, string outfile, IServiceProvider? serviceProvider, bool advmode = false, bool outConsole = false) : base(serviceProvider) {
             _files = new List<ISSpaceFile> { file };
             _dir_path = outfile;
-            Console.WriteLine(file.Name);
-            Console.WriteLine(_dir_path);
+            _advmode = advmode;
+            _outConsole = outConsole;
+            _jsonFiles = new List<string>();
+
         }
         public ExportFilesToJsonProcess(List<ISSpaceFile> files, string dir_path)
         {
@@ -30,7 +37,7 @@ namespace HaloInfiniteResearchTools.Processes
             _dir_path = dir_path;
         }
 
-        public override IEnumerable<string> Result => throw new NotImplementedException();
+        public override List<string> Result => _jsonFiles;
 
         protected override async Task OnExecuting()
         {
@@ -41,9 +48,9 @@ namespace HaloInfiniteResearchTools.Processes
             UnitName = _files.Count > 1 ? "files opened" : "file opened";
             TotalUnits = _files.Count;
             IsIndeterminate = _files.Count == 1;
-
+            _jsonFiles.Clear();
             var objLock = new object();
-            Parallel.ForEach(_files, filePath =>
+            Parallel.ForEach(_files,async filePath =>
             {
                 var fileName = filePath.Name;
                 
@@ -52,13 +59,34 @@ namespace HaloInfiniteResearchTools.Processes
                     if (filePath.TagGroup != "����") {
                         var temp_file = filePath as SSpaceFile;
                         string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
-                        string path_file = dir_path  + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1)+".json";
+                        string path_file = dir_path  + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1) + (_advmode? "_ADV.json" : ".json");
                         if (!Directory.Exists(dir_path))
                             Directory.CreateDirectory(dir_path);
                         if (!File.Exists(path_file)) {
-                            string jstonToWrite = (filePath as SSpaceFile).Deserialized?.Root?.ToJson();
-                            if (!string.IsNullOrEmpty(jstonToWrite))
+                            var options = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve };
+
+                            string jstonToWrite = "";
+                            if (!_advmode)
+                                jstonToWrite = (filePath as SSpaceFile).Deserialized?.Root?.ToJson();
+                            else {
+                                var process_js = new ReadTagInstanceProcess((LibHIRT.Files.Base.IHIRTFile)filePath);
+                                await process_js.Execute();
+                                if (process_js.TagParse.RootTagInst != null)
+                                {
+                                    jstonToWrite = JsonSerializer.Serialize(process_js.TagParse.RootTagInst, options);
+                                
+                                }
+                                
+                            } 
+                                
+
+                            if (!string.IsNullOrEmpty(jstonToWrite)) {
+                                _jsonFiles.Add(jstonToWrite);
+                                if (_outConsole)
+                                    Console.WriteLine(jstonToWrite);
                                 File.WriteAllText(path_file, jstonToWrite);
+                            }
+                                
                         }
                              
                     }

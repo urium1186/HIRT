@@ -21,12 +21,22 @@
     },
     "Export Tag onpath": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\nexport\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1910587951\"\r\n-o \"D:\\texture\"\r\n-pi false",
+      "commandLineArgs": "tags\r\nexport\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1910587951\"\r\n-tif \"true\"\r\n-o \"D:\\texture\"\r\n-jp false\r\n-co false",
       "nativeDebugging": false
     },
     "Export Tag onmodule": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\nexport\r\nonmodule\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\\pc\\globals\\forge\\forge_objects-rtx-new.module\"\r\n-ti \"-1910587951\"\r\n-o \"D:\\texture\"\r\n-pi false",
+      "commandLineArgs": "tags\r\nexport\r\nonmodule\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\\pc\\globals\\forge\\forge_objects-rtx-new.module\"\r\n-ti \"-1910587951\"\r\n-tif true\r\n-o \"D:\\texture\"\r\n-jp true\r\n-co true",
+      "nativeDebugging": false
+    },
+    "Export Json Surasia": {
+      "commandName": "Project",
+      "commandLineArgs": "json\r\nexport\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-o \"C:\\Users\\jeffr\\Documents\\CR4B Tool GitHub\\CR4B Tool v17\\Export Assets Here\\Halo Infinite Exports\\1526369664\"\r\n -mn \"1526369664\"",
+      "nativeDebugging": false
+    },
+    "Export Tag onmodule normal": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\nexport\r\nonmodule\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\\pc\\globals\\forge\\forge_objects-rtx-new.module\"\r\n-ti \"-1910587951\"\r\n-tif true\r\n-o \"D:\\texture\"\r\n-jp false\r\n-co true",
       "nativeDebugging": false
     }
   }
