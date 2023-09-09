@@ -13,8 +13,7 @@ jobs:
         uses: actions/checkout@v1
       - name: Build DotNET
         run: |
-           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe $Env:GITHUB_WORKSPACE\HaloInfiniteResearchTools.sln
+          'dotnet build HaloInfiniteResearchTools/HaloInfiniteResearchTools.sln /property:GenerateFullPaths=true /consoleloggerparameters:No'
       - uses: actions/upload-artifact@v3
         with:
           name: build
