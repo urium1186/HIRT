@@ -9,12 +9,17 @@ jobs:
   build:
     runs-on: [windows-latest]
     steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@latest
+        with:
+          dotnet-version: '6.0.x'
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@latest
       - name: Build DotNET
         run: |
-          'dotnet build HaloInfiniteResearchTools/HaloInfiniteResearchTools.sln /property:GenerateFullPaths=true /consoleloggerparameters:No'
-      - uses: actions/upload-artifact@v3
+          cd HaloInfiniteResearchTools
+          'dotnet build'
+      - uses: actions/upload-artifact@latest
         with:
           name: build
           path: 'HaloInfiniteResearchTools/bin/*'
