@@ -15,11 +15,10 @@ jobs:
           dotnet-version: '6.0.x'
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install dependencies
-        run: dotnet restore
       - name: Build DotNET
         run: |
           cd HaloInfiniteResearchTools
+          'dotnet restore'
           'dotnet build --configuration Release'
       - uses: actions/upload-artifact@v3
         with:
