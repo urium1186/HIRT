@@ -6,7 +6,7 @@
   </h1>
 </a>
 
-# [Download](https://example.com)
+# [Download](https://github.com/urium1186/HIRT/releases/latest)
 
 **HIRT** is a research tool written in C# that features a variety of utilities for extracting assets and tags from Halo Infinite. It features both a CLI and GUI which can:
 
