@@ -23,6 +23,7 @@ namespace LibHIRT.ModuleUnpacker
         public string Magic { get; set; } // 4 byte
         public int Version { get; set; } // 
         public long ModuleId { get; set; }
+        public int ModuleIntId { get; set; }
         public int FilesCount { get; set; }
         public int ManifestCount { get; set; }
 
@@ -97,6 +98,7 @@ namespace LibHIRT.ModuleUnpacker
             Magic = Encoding.ASCII.GetString(ModuleHeader, 0, 4);
             Version = BitConverter.ToInt32(ModuleHeader, 4);
             ModuleId = BitConverter.ToInt64(ModuleHeader, 8);
+            ModuleIntId = BitConverter.ToInt32(ModuleHeader, 8);
             extra.Add(BitConverter.ToInt32(ModuleHeader, 8));
             extra.Add(BitConverter.ToInt32(ModuleHeader, 12));
             FilesCount = BitConverter.ToInt32(ModuleHeader, 16);

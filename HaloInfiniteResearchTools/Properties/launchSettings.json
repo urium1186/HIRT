@@ -38,6 +38,11 @@
       "commandName": "Project",
       "commandLineArgs": "tags\r\nexport\r\nonmodule\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\\pc\\globals\\forge\\forge_objects-rtx-new.module\"\r\n-ti \"-1910587951\"\r\n-tif true\r\n-o \"D:\\texture\"\r\n-jp false\r\n-co true",
       "nativeDebugging": false
+    },
+    "ExportRenderGeometryIn": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\nexport_rg\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1133850351\"\r\n-tif \"true\"\r\n-o \"D:\\fbx\"\r\n-ft false\r\n-tp \"\"",
+      "nativeDebugging": false
     }
   }
 }

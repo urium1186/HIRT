@@ -107,6 +107,12 @@ namespace HaloInfiniteResearchTools.Processes.Utils
         }
         private void AddFaces(MeshLOD meshLOD)
         {
+            if (meshLOD.IndexBufferIndex.Count == 0) {
+                for (int i = 0; i < meshLOD.Vertexs.Length; i++)
+                {
+                    meshLOD.IndexBufferIndex.Add((uint)i);
+                }
+            }
             S3DFace[] faces = DeserializeFaces(meshLOD.IndexBufferIndex);
             foreach (var face in faces)
             {

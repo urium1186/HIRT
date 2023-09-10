@@ -74,7 +74,7 @@ namespace LibHIRT.Files
 
         private readonly SemaphoreSlim _fileLock;
         private ConcurrentDictionary<string, ISSpaceFile> _files;
-        private static ConcurrentDictionary<string, ModuleFile> _filesModuleGlobalIdLockUp;
+        private static ConcurrentDictionary<int, ModuleFile> _filesModuleGlobalIdLockUp;
         private static ConcurrentDictionary<int, ISSpaceFile> _filesGlobalIdLockUp;
         private static DirModel _rootDir = new DirModel("Root");
         private string _selectedJsonstring;
@@ -91,7 +91,7 @@ namespace LibHIRT.Files
             get => _files;
         }
 
-        public static ConcurrentDictionary<string, ModuleFile> FilesModuleGlobalIdLockUp { get => _filesModuleGlobalIdLockUp; }
+        public static ConcurrentDictionary<int, ModuleFile> FilesModuleGlobalIdLockUp { get => _filesModuleGlobalIdLockUp; }
         public static DirModel RootDir => _rootDir;
         
 
@@ -119,7 +119,7 @@ namespace LibHIRT.Files
         {
             _fileLock = new SemaphoreSlim(1);
             _files = new ConcurrentDictionary<string, ISSpaceFile>();
-            _filesModuleGlobalIdLockUp = new ConcurrentDictionary<string, ModuleFile>();
+            _filesModuleGlobalIdLockUp = new ConcurrentDictionary<int, ModuleFile>();
             _filesGlobalIdLockUp = new ConcurrentDictionary<int, ISSpaceFile>();
             _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
             
@@ -195,8 +195,10 @@ namespace LibHIRT.Files
 
             if (temp != null )
             {
-                if (!_filesModuleGlobalIdLockUp.ContainsKey(temp.Name))
-                    _filesModuleGlobalIdLockUp.TryAdd(temp.Name, (ModuleFile)file);
+                if (!_filesModuleGlobalIdLockUp.ContainsKey(temp.TryGetGlobalId()))
+                    _filesModuleGlobalIdLockUp.TryAdd(temp.TryGetGlobalId(), (ModuleFile)file);
+                else { 
+                }
             }
             else {
                 int global_id = file.TryGetGlobalId();
@@ -339,7 +341,8 @@ namespace LibHIRT.Files
 
         public bool OpenFile(string filePath)
         {
-            var fileName = filePath.GetHashCode()+"__" + Path.GetFileName(filePath);
+            //var fileName = filePath.GetHashCode()+"__" + Path.GetFileName(filePath);
+            var fileName = Path.GetFileName(filePath);
             var fileExt = Path.GetExtension(fileName);
 
             HIRTStream stream;

@@ -38,6 +38,7 @@ namespace HaloInfiniteResearchTools.Cli
                     cmd.Options[1],
                     cmd.Options[2])));
             AddCommand(new ExportTagInstance());
+            AddCommand(new ExportRenderGeometryOnTagInstanceCommand());
             /*
             AddCommand(
                 new Command("unpack", "Unpack a bond file")

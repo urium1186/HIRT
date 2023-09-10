@@ -105,7 +105,10 @@ namespace LibHIRT.Files
           ISSpaceFile parent = null)
         {
             _hash= name.GetHashCode();
-            _name = _hash.ToString() + SanitizeName(name);
+            //_name = _hash.ToString() + SanitizeName(name);
+            _name = SanitizeName(name);
+            if (parent!=null && parent is ModuleFile)
+                _name= (((ModuleFile)parent).TryGetGlobalId().ToString())+ "_" + _name;
             _extension = Path.GetExtension(_name);
 
             _baseStream = baseStream;
@@ -247,6 +250,8 @@ namespace LibHIRT.Files
 
         public int TryGetGlobalId()
         {
+            if (this is ModuleFile)
+                return ((ModuleFile)this).ModuleHeader.ModuleIntId;
             if (fileMemDescriptor != null) {
                 return fileMemDescriptor.GlobalTagId1;
             }

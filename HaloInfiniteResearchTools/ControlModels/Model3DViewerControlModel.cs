@@ -22,28 +22,22 @@ using Microsoft.Extensions.DependencyInjection;
 using PropertyChanged;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using MaterialCore = HelixToolkit.SharpDX.Core.Model.MaterialCore;
 using PhongMaterialCore = HelixToolkit.SharpDX.Core.Model.PhongMaterialCore;
 using TextureModel = HelixToolkit.SharpDX.Core.TextureModel;
 using LibHIRT.Processes;
 using LibHIRT.Domain.RenderModel;
 using HaloInfiniteResearchTools.Controls;
 using LibHIRT.TagReader;
-using System.Diagnostics;
-
-using HaloInfiniteResearchTools.Common.Extensions;
 using SharpDX;
-using LibHIRT.Common;
 using HaloInfiniteResearchTools.ViewModels;
 using LibHIRT.Serializers;
 using HaloInfiniteResearchTools.Processes.Utils;
-using OpenSpartan.Grunt.Models.HaloInfinite;
 
 namespace HaloInfiniteResearchTools.ControlModel
 {
 
 
-    
+
     public class Model3DViewerControlModel : ViewModel, IDisposeWithView
     {
 
@@ -197,14 +191,14 @@ namespace HaloInfiniteResearchTools.ControlModel
             var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
             await RunProcess(convertProcess);
 
-
+            _assimpScene = convertProcess.Result;
 
             using (var prog = ShowProgress())
             {
                 prog.Status = "Preparing Viewer";
                 prog.IsIndeterminate = true;
 
-                await PrepareModelViewer(convertProcess.Result);
+                await PrepareModelViewer(_assimpScene);
             };
         }
 
