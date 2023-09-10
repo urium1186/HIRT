@@ -380,10 +380,10 @@ namespace LibHIRT.Files.FileTypes
                 }
                 catch (Exception ex)
                 {
-                    string module_name = Name.Split("__")[1];    
+                    //string module_name = Name.Split("__")[1];    
                     foreach (var item in HIFileContext.FilesModuleGlobalIdLockUp)
                     {
-                       string name = item.Key.Split("__")[1];
+                       //string name = item.Key.Split("__")[1];
                         // module_name == name && 
                         if (item.Value.FilesGlobalIdLookup.ContainsKey(_gloabalId)) {
                             var r = item.Value.FilesGlobalIdLookup[_gloabalId];

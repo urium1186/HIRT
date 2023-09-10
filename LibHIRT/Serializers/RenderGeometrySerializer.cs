@@ -1,20 +1,11 @@
 ﻿using LibHIRT.Domain;
 using LibHIRT.Domain.DX;
 using LibHIRT.Domain.Geometry;
-using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
-using SharpDX;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Serializers
 {

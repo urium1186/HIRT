@@ -34,11 +34,9 @@ using HaloInfiniteResearchTools.Common.Extensions;
 using SharpDX;
 using LibHIRT.Common;
 using OpenSpartan.Grunt.Models.HaloInfinite;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Text.Json;
 using HaloInfiniteResearchTools.Common.Grunt;
 using System.Windows;
-using SharpDX.Direct2D1.Effects;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
