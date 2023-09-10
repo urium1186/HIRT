@@ -1,7 +1,7 @@
 <a href="https://discord.com/invite/haloarchive">
   <h1 align="center">
     <picture>
-      <img height="170px" src="./resources/logo.svg">
+      <img width="1000px" src="./resources/logo.svg">
     </picture>
   </h1>
 </a>
