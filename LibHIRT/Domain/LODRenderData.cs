@@ -3,10 +3,10 @@
 
 namespace LibHIRT.Domain
 {
-    public class MeshLOD
+    public class LODRenderData
     {
-        public MeshPart[] Parts { get; set; }
-        public MeshSubPart[] SubParts { get; set; }
+        public s_part[] Parts { get; set; }
+        public s_subpart[] SubParts { get; set; }
         
         public SSPVertex[] Vertexs { get; set; }
 
@@ -46,9 +46,9 @@ namespace LibHIRT.Domain
 
         int vert_count = 0;
         SSPVertex[] vertexs;
-        private ObjMesh _meshContainer;
+        private s_mesh _meshContainer;
 
-        public MeshLOD(ObjMesh mesh) {
+        public LODRenderData(s_mesh mesh) {
             _meshContainer = mesh;
         }
     }

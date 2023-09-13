@@ -17,8 +17,8 @@ namespace HaloInfiniteResearchTools.Processes.Utils
         public Dictionary<string, Bone> BoneNames { get; }
         public Dictionary<uint, uint> VertexLookup { get; }
         public short SkinCompoundId { get; }
-        private readonly ObjMesh _object;
-        public MeshBuilder(ISceneContext context, ObjMesh obj, S3DGeometrySubMesh submesh)
+        private readonly s_mesh _object;
+        public MeshBuilder(ISceneContext context, s_mesh obj, S3DGeometrySubMesh submesh)
         {
             _context = context;
             _object = obj;
@@ -81,7 +81,7 @@ namespace HaloInfiniteResearchTools.Processes.Utils
             return mesh;
         }
 
-        private void AddVertices(MeshLOD meshLOD)
+        private void AddVertices(LODRenderData meshLOD)
         {
             uint offset = 0;
             if (meshLOD.Vertexs == null)
@@ -105,7 +105,7 @@ namespace HaloInfiniteResearchTools.Processes.Utils
             }
             return salida;
         }
-        private void AddFaces(MeshLOD meshLOD)
+        private void AddFaces(LODRenderData meshLOD)
         {
             if (meshLOD.IndexBufferIndex.Count == 0) {
                 for (int i = 0; i < meshLOD.Vertexs.Length; i++)
@@ -124,7 +124,7 @@ namespace HaloInfiniteResearchTools.Processes.Utils
                 Mesh.Faces.Add(assimpFace);
             }
         }
-        private void AddInterleavedData(MeshLOD meshLOD)
+        private void AddInterleavedData(LODRenderData meshLOD)
         {
             if (meshLOD.Vertexs == null)
                 return;

@@ -2,36 +2,27 @@
 using HaloInfiniteResearchTools.ControlModel;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
-using HaloInfiniteResearchTools.Processes.Utils;
 using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.Services.Abstract;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
 using HaloInfiniteResearchTools.Views;
-using LibHIRT.Domain;
+using LibHIRT.Common;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.Processes;
-using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
 using LibHIRT.TagReader.Headers;
 using Microsoft.Extensions.DependencyInjection;
-using OpenSpartan.Grunt.Models.HaloInfinite;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using WSF.IDs;
 using static LibHIRT.TagReader.TagLayouts;
-using static System.Windows.Forms.Design.AxImporter;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -115,6 +106,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
             _tabService = serviceProvider.GetService<ITabService>();
             _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
+            
 
         }
 

@@ -48,16 +48,47 @@ namespace LibHIRT.Serializers
             string file_name = Path.GetFileNameWithoutExtension(_filePath);
             for (int i = 0; i < temp.Childs.Count; i++)
             {
-                ObjMesh t_m = processMeshInst(temp.Childs[i], obj, tempMP, i);
+                s_mesh t_m = processMeshInst(temp.Childs[i], obj, tempMP, i);
                 t_m.Name = file_name + "_mesh_" + i.ToString().PadLeft(pad, '0');
                 obj.Meshes.Add(t_m);
             }
         }
 
-        private ObjMesh processMeshInst(TagInstance mesh, RenderGeometry obj, RenderGeometryMeshPackage mesh_package, int m_i = -1)
+        private int GetMaterialIndexOfPart(s_part[] parts, int vert_index) {
+            foreach (var part in parts)
+            {
+                if (part.IndexStart >= vert_index && (vert_index < (part.IndexStart + part.IndexCount)))
+                    return part.MaterialIndex;
+            }
+            return-1;
+        }
+
+        private LODRenderData processLODRenderData(CompoundTagInstance tagInstance, s_mesh mesh) {
+            LODRenderData result = new LODRenderData(mesh);
+            ListTagInstance parts = (ListTagInstance)tagInstance["parts"];
+            result.Parts = new s_part[parts.Count];
+            for (int i = 0; i < parts.Count; i++)
+            {
+                var item = parts[i];
+                result.Parts[i] = new s_part()
+                {
+                    MaterialIndex = (short)item["material index"].AccessValue,  
+                    TransparentSortingIndex = (short)item["transparent sorting index"].AccessValue,  
+                    IndexStart = (int)item["index start"].AccessValue,  
+                    IndexCount = (int)item["index count"].AccessValue,
+                    PerMeshPartConstantsOffset = (int)item["perMeshPartConstantsOffset"].AccessValue,
+                    PartType = (sbyte)item["part type"].AccessValue,
+                    BudgetVertexCount = (short)item["budget vertex count"].AccessValue,
+                };
+                
+            }
+            return result;
+        }
+
+        private s_mesh processMeshInst(TagInstance mesh, RenderGeometry obj, RenderGeometryMeshPackage mesh_package, int m_i = -1)
         {
 
-            ObjMesh obj_mesh = new ObjMesh();
+            s_mesh obj_mesh = new s_mesh();
 
             obj_mesh.CloneIndex = (Int16)mesh["clone index"].AccessValue;
             obj_mesh.RigidNodeIndex = (sbyte)mesh["rigid node index"].AccessValue;
@@ -95,7 +126,7 @@ namespace LibHIRT.Serializers
                 {
                     var lod = lod_render_data[i];
                     // if not (self.minLOD <= lod_i <= self.maxLOD):
-                    var obj_lod = new MeshLOD(obj_mesh);
+                    var obj_lod = processLODRenderData((CompoundTagInstance)lod, obj_mesh);
                     obj_lod.IndexBufferIndex.Clear();
                     short index_i = (short)lod["index buffer index"].AccessValue;
                     if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers.Length > 0) {
@@ -319,6 +350,7 @@ namespace LibHIRT.Serializers
                         for (int j = 0; j < tempPosition.count; j++)
                         {
                             SSPVertex temp = new SSPVertexStatic();
+                            temp.MatIndex= GetMaterialIndexOfPart(obj_lod.Parts, j);
                             byte[] buffer = new byte[tempPosition.stride];
                             msPosition.Read(buffer, 0, tempPosition.stride);
                             var vals = FormatReader.ReadWordVector4DNormalized(buffer);

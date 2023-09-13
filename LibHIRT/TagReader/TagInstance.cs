@@ -38,7 +38,7 @@ namespace LibHIRT.TagReader
 
 
     }
-    public class TagInstance : ITagInstance, INotifyPropertyChanged
+    public class TagInstance : ITagInstance, INotifyPropertyChanged, IDisposable
     {
 
         protected TagLayouts.C tagDef;
@@ -164,6 +164,11 @@ namespace LibHIRT.TagReader
         public virtual void WriteIn(Stream f, long offset = -1, TagHeader? header = null)
         {
             throw new NotImplementedException();
+        }
+
+        public virtual void Dispose()
+        {
+            ;
         }
     }
     #region Atomic

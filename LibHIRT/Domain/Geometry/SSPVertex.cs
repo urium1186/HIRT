@@ -40,6 +40,7 @@ namespace LibHIRT.Domain.Geometry
 
         public int FixBone { get; set; }
         public int? Index { get; set; }
+        public int? MatIndex { get; set; }
 
         public override SSPGeometryElementType ElementType
         {
