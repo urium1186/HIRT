@@ -1,29 +1,19 @@
 ﻿
 using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
-using Microsoft.Extensions.DependencyInjection;
-using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
-using System.Windows.Shapes;
 using HaloInfiniteResearchTools.Common.Enumerations;
-using System.Xml.Linq;
-using static System.Windows.Forms.Design.AxImporter;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using LibHIRT.TagReader;
 using LibHIRT.Processes;
 using LibHIRT.Serializers;
+using LibHIRT.Exporters;
+using Aspose.ThreeD.Shading;
+using Assimp.Configs;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -37,6 +27,7 @@ namespace HaloInfiniteResearchTools.Cli
         private string _tg_path;
         private bool _tif;
         private List<RenderGeometryTag> rendersGeometrys;
+        private List<Material> _materialList;
 
         public ExportRenderGeometryOnTagInstanceCommand() : base("export_rg", "export render geometry (fbx) in tag")
         {
@@ -135,20 +126,35 @@ namespace HaloInfiniteResearchTools.Cli
                             rendersGeometrys = new List<RenderGeometryTag>();
                         else
                             rendersGeometrys.Clear();
+                        if (_materialList == null)
+                            _materialList = new List<Material>();
+                        else
+                            _materialList.Clear();
                         var readProcess = new ReadTagInstanceProcess((LibHIRT.Files.Base.IHIRTFile)item);
                         readProcess.OnInstanceLoadEvent += ExportProcess_OnInstanceLoadEvent;
 
                         await readProcess.Execute();
+                        int i = 0;
                         foreach (var item_rg in rendersGeometrys)
                         {
                             if (item_rg == null)
                                 continue;
                             var renderGeometry = RenderGeometrySerializer.Deserialize(null, (SSpaceFile)item, item_rg);
 
-                            var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, ((SSpaceFile)item).FileMemDescriptor.GlobalTagId1.ToString("X"));
-                            await convertProcess.Execute();
-                            var exportProcess = new ExportModelProcess((SSpaceFile)item, convertProcess.Result, null, modelOptions, textureOptions, null);
-                            await exportProcess.Execute();
+                            if (true)
+                            {
+                                string filename = Path.GetFileNameWithoutExtension(item.Name) + (rendersGeometrys.Count>1?"_"+i.ToString():"");
+                                RenderGeometryExporter.Export(renderGeometry, _outfile.FullName, filename, _materialList);
+                            }
+                            else {
+                                var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, ((SSpaceFile)item).FileMemDescriptor.GlobalTagId1.ToString("X"));
+                                await convertProcess.Execute();
+                                var exportProcess = new ExportModelProcess((SSpaceFile)item, convertProcess.Result, null, modelOptions, textureOptions, null);
+                                await exportProcess.Execute();
+                            }
+
+
+                            i++;
                         }
                         //                        Console.WriteLine(exportProcess.Result);
                         /*
@@ -182,6 +188,29 @@ namespace HaloInfiniteResearchTools.Cli
                 if (rendersGeometrys == null)
                     rendersGeometrys = new List<RenderGeometryTag>();
                 rendersGeometrys.Add((RenderGeometryTag)e);
+            }
+            if (e.TagDef.N == "materials" && e is Tagblock) {
+                // initialize PBR material object
+                using (var list = (e as Tagblock))
+                {
+                    foreach (var item in list)
+                    {
+                        PbrMaterial mat = new PbrMaterial();
+
+                        mat.Name = (item["material"] as TagRef).Ref_id;
+
+                        // an almost metal material
+
+                        mat.MetallicFactor = 0.9;
+
+                        // material surface is very rough
+
+                        mat.RoughnessFactor = 0.9;
+                        
+                        _materialList.Add(mat);
+                    }
+                }
+                
             }
         }
     }

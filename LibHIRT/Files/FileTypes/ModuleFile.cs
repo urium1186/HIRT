@@ -336,7 +336,7 @@ namespace LibHIRT.Files.FileTypes
                         };
                     }
                     else {
-                        entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleId + "-index-"+index.ToString();
+                        entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-index-"+index.ToString();
                     }
                 }
                 else {

@@ -174,7 +174,7 @@ namespace LibHIRT.Processes
             }
         }
 
-        private void AddMeshNodes(List<ObjMesh> objects)
+        private void AddMeshNodes(List<s_mesh> objects)
         {
             Status = "Building Meshes";
             IsIndeterminate = true;
@@ -197,7 +197,7 @@ namespace LibHIRT.Processes
             }
         }
 
-        private void AddSubMeshes(ObjMesh obj)
+        private void AddSubMeshes(s_mesh obj)
         {
             var node = new Node($"{obj.Name}_{obj.Name}", _context.RootNode);
             _context.RootNode.Children.Add(node);

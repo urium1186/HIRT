@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibHIRT.Domain
 {
-    public class MeshSubPart
+    public class s_subpart
     {
         public int IndexStart { set; get; }
         public int IndexCount { set; get; }

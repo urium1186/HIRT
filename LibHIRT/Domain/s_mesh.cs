@@ -1,9 +1,9 @@
 ﻿
 namespace LibHIRT.Domain
 {
-    public class ObjMesh
+    public class s_mesh
     {
-        List<MeshLOD> _LODRenderData;
+        List<LODRenderData> _LODRenderData;
         public string Name { get; set; }
 
         public int RigidNodeIndex { get; set; }
@@ -16,12 +16,12 @@ namespace LibHIRT.Domain
         public AttachmentInfo AttachmentInfo { get; set; }
 
 
-        public List<MeshLOD> LODRenderData
+        public List<LODRenderData> LODRenderData
         {
             get
             {
                 if (_LODRenderData==null)
-                    _LODRenderData= new List<MeshLOD>();    
+                    _LODRenderData= new List<LODRenderData>();    
                 return _LODRenderData;
             }
         }

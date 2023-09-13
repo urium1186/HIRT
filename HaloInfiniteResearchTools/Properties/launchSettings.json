@@ -6,7 +6,7 @@
     },
     "ListTags": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\nlist\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"mode\"\r\n-o \"D:\\borrar.txt\"",
+      "commandLineArgs": "tags\r\nlist\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"-index-\"\r\n-o \"D:\\borrar.txt\"",
       "nativeDebugging": false
     },
     "Export RenderModel": {
@@ -41,7 +41,17 @@
     },
     "ExportRenderGeometryIn": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\nexport_rg\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1133850351\"\r\n-tif \"true\"\r\n-o \"D:\\fbx\"\r\n-ft false\r\n-tp \"\"",
+      "commandLineArgs": "tags\r\nexport_rg\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"-1782684738\"\r\n-tif \"true\"\r\n-o \"D:\\fbx_test\"\r\n-ft \"false\"\r\n-tp \"\"",
+      "nativeDebugging": false
+    },
+    "DebugTagIndex": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\ndebug\r\nindex\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"-index-\"\r\n-o \"D:\\borrar.txt\"",
+      "nativeDebugging": false
+    },
+    "Tag Unpack": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\npakage\r\nunpack\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-st \"-index-1\"\r\n-o \"D:\\HaloInfiniteStuft\\Extracted\\UnPacked\\s4\\FileEntrys\"",
       "nativeDebugging": false
     }
   }
