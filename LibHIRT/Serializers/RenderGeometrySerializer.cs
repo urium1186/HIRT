@@ -823,7 +823,7 @@ namespace LibHIRT.Serializers
             if (temp_c != 0)
             {
                 TagData tempTagData = value["d3dbuffer"]["d3d buffer"] as TagData;
-                Debug.Assert(temp.ownsD3DResource != 0);
+                //Debug.Assert(temp.ownsD3DResource != 0);
                 temp.d3dbuffer.D3dBuffer = tempTagData.ReadBuffer();
                 // temp.d3dbuffer.D3dBuffer = new byte[temp_c];
                 

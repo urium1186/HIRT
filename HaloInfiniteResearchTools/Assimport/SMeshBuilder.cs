@@ -1,42 +1,24 @@
 ﻿using Assimp;
 using LibHIRT.Data.Geometry;
-using LibHIRT.Data;
 using LibHIRT.Domain;
-using LibHIRT.Processes;
 using System.Collections.Generic;
 using HaloInfiniteResearchTools.Common.Extensions;
 using System.Numerics;
 
-namespace HaloInfiniteResearchTools.Processes.Utils
+namespace HaloInfiniteResearchTools.Assimport
 {
-    public class MeshBuilder
+    public static class SMeshBuilder
     {
-        private readonly ISceneContext _context;
-        public Mesh Mesh { get; }
-        public Dictionary<short, Bone> Bones { get; }
-        public Dictionary<string, Bone> BoneNames { get; }
-        public Dictionary<uint, uint> VertexLookup { get; }
-        public short SkinCompoundId { get; }
-        private readonly s_mesh _object;
-        public MeshBuilder(ISceneContext context, s_mesh obj, S3DGeometrySubMesh submesh)
+        
+        public static Mesh Build(s_mesh _object, short lodIndex, string meshName, List<int> materialsIndexList)
         {
-            _context = context;
-            _object = obj;
-
-            var meshName = _object.Name;
-
-            Mesh = new Mesh(meshName, PrimitiveType.Triangle);
-
-            Bones = new Dictionary<short, Bone>();
-            BoneNames = new Dictionary<string, Bone>();
-            VertexLookup = new Dictionary<uint, uint>();
-        }
-        public Mesh Build()
-        {
-            AddVertices(_object.LODRenderData[0]);
-            AddFaces(_object.LODRenderData[0]);
-            AddInterleavedData(_object.LODRenderData[0]);
-            return Mesh;
+            var mesh = new Mesh(meshName, PrimitiveType.Triangle);
+            var verLU = AddVertices(mesh, _object.LODRenderData[lodIndex]);
+            AddFaces(mesh,_object.LODRenderData[lodIndex], verLU);
+            AddInterleavedData(mesh,_object.LODRenderData[lodIndex]);
+            if (materialsIndexList!=null && materialsIndexList.Count> _object.LODRenderData[lodIndex].Parts[0].MaterialIndex)
+                mesh.MaterialIndex = materialsIndexList[_object.LODRenderData[lodIndex].Parts[0].MaterialIndex];
+            return mesh;
         }
 
 
@@ -81,20 +63,22 @@ namespace HaloInfiniteResearchTools.Processes.Utils
             return mesh;
         }
 
-        private void AddVertices(LODRenderData meshLOD)
+        private static Dictionary<uint, uint> AddVertices(Mesh onMesh, LODRenderData meshLOD)
         {
+            Dictionary<uint, uint> vertexLookup = new Dictionary<uint, uint>();
             uint offset = 0;
             if (meshLOD.Vertexs == null)
-                return;
+                return vertexLookup;
 
             foreach (var vertex in meshLOD.Vertexs)
             {
-                Mesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
+                onMesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
 
-                VertexLookup.Add(offset++, (uint)VertexLookup.Count);
+                vertexLookup.Add(offset++, (uint)vertexLookup.Count);
             }
+            return vertexLookup;
         }
-        private S3DFace[] DeserializeFaces(List<uint> vert_index)
+        private static S3DFace[] DeserializeFaces(List<uint> vert_index)
         {
             S3DFace[] salida = new S3DFace[vert_index.Count / 3];
             int nFace = 0;
@@ -105,9 +89,10 @@ namespace HaloInfiniteResearchTools.Processes.Utils
             }
             return salida;
         }
-        private void AddFaces(LODRenderData meshLOD)
+        private static void AddFaces(Mesh onMesh, LODRenderData meshLOD, Dictionary<uint, uint> vertexLookup)
         {
-            if (meshLOD.IndexBufferIndex.Count == 0) {
+            if (meshLOD.IndexBufferIndex.Count == 0 && meshLOD.Vertexs!= null)
+            {
                 for (int i = 0; i < meshLOD.Vertexs.Length; i++)
                 {
                     meshLOD.IndexBufferIndex.Add((uint)i);
@@ -117,14 +102,14 @@ namespace HaloInfiniteResearchTools.Processes.Utils
             foreach (var face in faces)
             {
                 var assimpFace = new Face();
-                assimpFace.Indices.Add((int)VertexLookup[face[0]]);
-                assimpFace.Indices.Add((int)VertexLookup[face[1]]);
-                assimpFace.Indices.Add((int)VertexLookup[face[2]]);
+                assimpFace.Indices.Add((int)vertexLookup[face[0]]);
+                assimpFace.Indices.Add((int)vertexLookup[face[1]]);
+                assimpFace.Indices.Add((int)vertexLookup[face[2]]);
 
-                Mesh.Faces.Add(assimpFace);
+                onMesh.Faces.Add(assimpFace);
             }
         }
-        private void AddInterleavedData(LODRenderData meshLOD)
+        private static void AddInterleavedData(Mesh onMesh, LODRenderData meshLOD)
         {
             if (meshLOD.Vertexs == null)
                 return;
@@ -134,26 +119,26 @@ namespace HaloInfiniteResearchTools.Processes.Utils
                 Vector4 uvVector = default;
                 uvVector.X = vertex.UV0.Value.X;
                 uvVector.Y = vertex.UV0.Value.Y;
-                AddVertexUV(0, uvVector);
+                AddVertexUV(onMesh,0, uvVector);
                 if (vertex.UV1 != null)
                 {
                     Vector4 uvVector1 = default;
                     uvVector.X = vertex.UV1.Value.X;
                     uvVector.Y = vertex.UV1.Value.Y;
-                    AddVertexUV(1, uvVector1);
+                    AddVertexUV(onMesh,1, uvVector1);
                 }
                 if (vertex.UV2 != null)
                 {
                     Vector4 uvVector2 = default;
                     uvVector.X = vertex.UV2.Value.X;
                     uvVector.Y = vertex.UV2.Value.Y;
-                    AddVertexUV(2, uvVector2);
+                    AddVertexUV(onMesh, 2, uvVector2);
                 }
 
             }
         }
 
-        private void AddVertexUV(byte uvChannel, Vector4 uvVector)
+        private static void AddVertexUV(Mesh onMesh, byte uvChannel, Vector4 uvVector)
         {
             /*if (!_submesh.UvScaling.TryGetValue(uvChannel, out var scaleFactor))
                 scaleFactor = 1;*/
@@ -162,14 +147,14 @@ namespace HaloInfiniteResearchTools.Processes.Utils
             var scaleVector = new Vector3D(scaleFactor);
             var scaledUvVector = uvVector.ToAssimp3D(false) * scaleVector;
 
-            Mesh.TextureCoordinateChannels[uvChannel].Add(scaledUvVector);
+            onMesh.TextureCoordinateChannels[uvChannel].Add(scaledUvVector);
 
             /* This is a bit confusing, but this property denotes the size of the UV element.
              * E.g. setting it to 2 means there is a U and a V.
              * I don't know how 4D UVs work, but if we ever add support for them, we'd need to
              * adjust this accordingly.
              */
-            Mesh.UVComponentCount[uvChannel] = 2;
+            onMesh.UVComponentCount[uvChannel] = 2;
         }
 
     }

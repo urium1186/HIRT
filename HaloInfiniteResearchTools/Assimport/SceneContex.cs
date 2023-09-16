@@ -1,36 +1,38 @@
 ﻿using Assimp;
 using HaloInfiniteResearchTools.Common;
-using LibHIRT.Domain;
 using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace HaloInfiniteResearchTools.Processes.Utils
+namespace HaloInfiniteResearchTools.Assimport
 {
-    internal class RenderGeometrySceneContext : ISceneContext
+    public interface ISceneContext
+    {
+        public Scene Scene { get; }
+    }
+
+    public class SceneContext : ISceneContext
     {
         public StatusList StatusList { get; }
         public Node RootNode { get; set; }
         public Scene Scene { get; set; }
-        private RenderGeometry tpl;
+        private RenderModelDefinition tpl;
+        private HIRTStream stream;
         private StatusList statusList;
 
         public Dictionary<short, Node> Nodes { get; }
         public Dictionary<string, Node> NodeNames { get; }
 
         public Dictionary<short, MeshBuilder> SkinCompounds { get; }
-        public RenderGeometry Tpl { get => tpl; set => tpl = value; }
+        public RenderModelDefinition Tpl { get => tpl; set => tpl = value; }
 
-        public RenderGeometrySceneContext(RenderGeometry tpl, StatusList statusList, Scene _parentScene = null)
+        public SceneContext(RenderModelDefinition tpl, HIRTStream stream, StatusList statusList, Scene _parentScene = null)
         {
             this.tpl = tpl;
+            this.stream = stream;
             this.statusList = statusList;
-            this.NodeNames = new Dictionary<string, Node>();
-            this.Nodes = new Dictionary<short, Node>();
+            NodeNames = new Dictionary<string, Node>();
+            Nodes = new Dictionary<short, Node>();
             StatusList = statusList;
             if (_parentScene != null)
             {

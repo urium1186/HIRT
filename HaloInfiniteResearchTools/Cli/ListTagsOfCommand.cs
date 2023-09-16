@@ -39,6 +39,7 @@ namespace HaloInfiniteResearchTools.Cli
                     cmd.Options[2])));
             AddCommand(new ExportTagInstance());
             AddCommand(new ExportRenderGeometryOnTagInstanceCommand());
+            AddCommand(new ExportSbpsCommand());
             AddCommand(new DebugTagCommand());
             AddCommand(new UnpackTagInstanceCommand());
             /*

@@ -14,6 +14,7 @@ using LibHIRT.Serializers;
 using LibHIRT.Exporters;
 using Aspose.ThreeD.Shading;
 using Assimp.Configs;
+using LibHIRT.Processes.OnGeometry;
 
 namespace HaloInfiniteResearchTools.Cli
 {

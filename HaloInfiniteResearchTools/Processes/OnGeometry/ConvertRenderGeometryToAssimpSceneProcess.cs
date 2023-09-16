@@ -1,26 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Assimp;
+using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Extensions;
 using HaloInfiniteResearchTools.Processes;
-using HaloInfiniteResearchTools.Processes.Utils;
-using LibHIRT.Common;
 using LibHIRT.Data;
 using LibHIRT.Domain;
-using LibHIRT.Domain.RenderModel;
-using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
-using LibHIRT.Serializers;
-using LibHIRT.TagReader;
 
 
-namespace LibHIRT.Processes
+namespace LibHIRT.Processes.OnGeometry
 {
 
     public class ConvertRenderGeometryToAssimpSceneProcess : ProcessBase<Scene>

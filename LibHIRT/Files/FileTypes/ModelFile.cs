@@ -31,7 +31,7 @@ namespace LibHIRT.Files.FileTypes
         public RenderModelFile GetRenderModel()
         {
             if (_result == null) {
-                _result = GenericSerializer.Deserialize(GetStream(), this);
+                _result = GenericSerializer.Deserialize(GetStream(), this, null);
             }
             
             var ref_id = (_result["render model"] as TagRef)?.Ref_id_int;
@@ -49,7 +49,7 @@ namespace LibHIRT.Files.FileTypes
         {
             if (_result == null)
             {
-                _result = GenericSerializer.Deserialize(GetStream(), this);
+                _result = GenericSerializer.Deserialize(GetStream(), this, null);
             }
 
 

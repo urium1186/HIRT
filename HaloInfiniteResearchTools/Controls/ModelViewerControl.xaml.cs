@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.ControlModel;
+using HaloInfiniteResearchTools.ControlsModel;
 using HaloInfiniteResearchTools.ViewModels;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;

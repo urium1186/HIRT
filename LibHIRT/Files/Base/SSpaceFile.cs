@@ -3,6 +3,7 @@ using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
+using LibHIRT.TagReader;
 using LibHIRT.TagReader.Headers;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace LibHIRT.Files
         private bool _isInitialized;
         private bool _isDisposed;
 
-        private string _inDiskPath="";
+        private string _inDiskPath = "";
 
         #endregion
 
@@ -70,30 +71,30 @@ namespace LibHIRT.Files
 
         public string Path_string => fileMemDescriptor?.Path_string;
 
-        public string TagGroup { get { return _tagGroup==null?fileMemDescriptor?.TagGroupRev: _tagGroup; }
-            set { _tagGroup = value; } } 
+        public string TagGroup { get { return _tagGroup == null ? fileMemDescriptor?.TagGroupRev : _tagGroup; }
+            set { _tagGroup = value; } }
 
         public string InDiskPath { get => _inDiskPath; set => _inDiskPath = value; }
 
         public ISSpaceFile RefParent { get => _ref_parent; set => _ref_parent = value; }
 
-        public Dictionary<int, ISSpaceFile> RefChildren { get { 
+        public Dictionary<int, ISSpaceFile> RefChildren { get {
                 if (_ref_children == null)
-                    _ref_children= new Dictionary<int, ISSpaceFile>();
-                return _ref_children; 
-            } 
+                    _ref_children = new Dictionary<int, ISSpaceFile>();
+                return _ref_children;
+            }
         }
 
         private DinamycType? _deserialized;
-        public DinamycType? Deserialized
+
+        public bool IsDeserialized { get => _deserialized != null; }
+        public DinamycType? Deserialized(EventHandler<ITagInstance> _onDeserialized= null)
         {
-            get
-            {
-                if (_deserialized == null)
-                    _deserialized = GenericSerializer.Deserialize(GetStream(), this);
-                GetStream().Seek(0, SeekOrigin.Begin);  
-                return _deserialized;
-            }
+           if (_deserialized == null)
+                _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized);
+            GetStream().Seek(0, SeekOrigin.Begin);  
+            return _deserialized;
+           
         }
 
         #endregion

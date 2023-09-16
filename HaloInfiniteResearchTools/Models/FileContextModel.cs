@@ -411,6 +411,7 @@ namespace HaloInfiniteResearchTools.Models
             _searchTerm = searchTerm;
             
            // _throttler.Execute();
+
             _throttlerDir.Execute();
         }
 

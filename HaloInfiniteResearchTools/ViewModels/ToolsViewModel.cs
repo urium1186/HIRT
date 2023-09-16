@@ -318,7 +318,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private List<ShaderBytecodeFile> getAllShaderByteCodeIn(ShaderVariantFile file)
         {
-            var root = file.Deserialized?.Root;
+            var root = file.Deserialized()?.Root;
             List<ShaderBytecodeFile> result = new List<ShaderBytecodeFile>();
 
             if (root == null)
