@@ -53,6 +53,11 @@
       "commandName": "Project",
       "commandLineArgs": "tags\r\npakage\r\nunpack\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-st \"-index-1\"\r\n-o \"D:\\HaloInfiniteStuft\\Extracted\\UnPacked\\s4\\FileEntrys\"",
       "nativeDebugging": false
+    },
+    "ExportSbps": {
+      "commandName": "Project",
+      "commandLineArgs": "tags\r\nexport_sbps\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"771214116\"\r\n-tif \"true\"\r\n-o \"D:\\fbx_test\"",
+      "nativeDebugging": false
     }
   }
 }

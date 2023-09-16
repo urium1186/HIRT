@@ -1,5 +1,5 @@
 ﻿using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.ControlModel;
+using HaloInfiniteResearchTools.ControlsModel;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
@@ -127,14 +127,16 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             if (arg == null)
                 return;
+
             _dViewerControlModel.RenderGeometryTag = arg;
             _dViewerControlModel.ExtExportModelCommand = new AsyncCommand(ExportModel);
-            await _dViewerControlModel.Initialize();
-            
-            RenderGeomViewerEnable = 1; 
-            SelectedTabIndex = 4;
+            using (var prog = ShowProgress())
+            {
+                await _dViewerControlModel.Initialize();
 
-            
+                RenderGeomViewerEnable = 1;
+                SelectedTabIndex = 4;
+            }
         }
 
         private  async Task TagGoToBin(TagInstance arg)
@@ -449,7 +451,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 switch (classHash)
                 {
                     case "9B6D4747FC4FE0CCB27AC58D817D912A":
-                        decompileShaderAsync((TagInstance)e);
+                        //decompileShaderAsync((TagInstance)e);
                         break; 
                     case "36C8F698C54393CD883131BA77BABD05":
                         

@@ -85,6 +85,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TextureExportOptionsView>();
             services.AddTransient<ToolBinaryExplorerView>();
             services.AddTransient<ToolsView>();
+            services.AddTransient<ScenarioStructureBspView>();
         }
 
         private void ConfigureViewModels(IServiceCollection services)
@@ -109,6 +110,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TextureExportOptionsViewModel>();
             services.AddTransient<ToolBinaryExplorerViewModel>();
             services.AddTransient<ToolsViewModel>();
+            services.AddTransient<ScenarioStructureBspViewModel>();
         }
 
         private void ConfigureWindows(IServiceCollection services)

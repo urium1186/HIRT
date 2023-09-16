@@ -28,7 +28,7 @@ namespace LibHIRT.Files.FileTypes
         {
             if (_result == null)
             {
-                _result = GenericSerializer.Deserialize(GetStream(), this);
+                _result = GenericSerializer.Deserialize(GetStream(), this, null);
             }
             
             var fil_id = HIFileContext.GetFileFrom((_result["Themes"] as ListTagInstance)[0]["Model"] as TagRef, (ModuleFile)Parent);
@@ -43,7 +43,7 @@ namespace LibHIRT.Files.FileTypes
         public ListTagInstance GetThemeConfigurations() {
             if (_result == null)
             {
-                _result = GenericSerializer.Deserialize(GetStream(), this);
+                _result = GenericSerializer.Deserialize(GetStream(), this, null);
             }
 
             return (ListTagInstance)(_result["Themes"] as ListTagInstance)[0]["Theme Configurations"];

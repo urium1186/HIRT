@@ -22,11 +22,16 @@ namespace LibHIRT.TagReader.Common
 
         public bool unloaded;
 
-        public DinamycType Deserialized { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
 
         public string Name => ObjectId;
 
         public string TagGroup => TagGroupMem;
+
+        public DinamycType? Deserialized(EventHandler<ITagInstance> _onDeserialized)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class GroupTagStruct

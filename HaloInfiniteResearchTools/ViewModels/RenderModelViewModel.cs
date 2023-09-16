@@ -37,6 +37,7 @@ using OpenSpartan.Grunt.Models.HaloInfinite;
 using System.Text.Json;
 using HaloInfiniteResearchTools.Common.Grunt;
 using System.Windows;
+using LibHIRT.Processes.OnGeometry;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -793,6 +794,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             var m_rts = marker["Rotation"] as Point3D;
             var m_scl = marker["Scale"] as Point3D;
             var node = (_renderModelDef.TagInstance["nodes"] as ListTagInstance)[node_index];
+            
             SharpDX.Matrix result = SharpDX.Matrix.Identity;
             SharpDX.Matrix rotM = SharpDX.Matrix.Identity;
             SharpDX.Quaternion rot = new SharpDX.Quaternion {

@@ -18,7 +18,7 @@ namespace LibHIRT.Files.FileTypes
             get
             {
                 if (_deserialized == null)
-                    _deserialized = GenericSerializer.Deserialize(GetStream(), this);
+                    _deserialized = GenericSerializer.Deserialize(GetStream(), this, null);
                 return _deserialized;
             }
         }

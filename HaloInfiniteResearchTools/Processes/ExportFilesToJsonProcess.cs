@@ -67,7 +67,7 @@ namespace HaloInfiniteResearchTools.Processes
 
                             string jstonToWrite = "";
                             if (!_advmode)
-                                jstonToWrite = (filePath as SSpaceFile).Deserialized?.Root?.ToJson();
+                                jstonToWrite = (filePath as SSpaceFile).Deserialized()?.Root?.ToJson();
                             else {
                                 var process_js = new ReadTagInstanceProcess((LibHIRT.Files.Base.IHIRTFile)filePath);
                                 await process_js.Execute();

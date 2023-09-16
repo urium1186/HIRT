@@ -426,7 +426,7 @@ namespace LibHIRT.Files.FileTypes
                                 if (Mmr3HashLTU.ForceFillData && (childFile.TagGroup != "����" || (childFile as SSpaceFile).FileMemDescriptor.GlobalTagId1 != -1)) {
                                     try
                                     {
-                                        var _deserialized = GenericSerializer.Deserialize(childFile.GetStream(), childFile as IHIRTFile);
+                                        var _deserialized = GenericSerializer.Deserialize(childFile.GetStream(), childFile as IHIRTFile, null);
                                         _deserialized = null;
                                     }
                                     catch (Exception exp1)

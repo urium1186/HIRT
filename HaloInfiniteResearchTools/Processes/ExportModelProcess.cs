@@ -22,6 +22,7 @@ using LibHIRT.Domain.RenderModel;
 using HaloInfiniteResearchTools.ViewModels;
 using System.Collections.ObjectModel;
 using Assimp.Unmanaged;
+using LibHIRT.Processes.OnGeometry;
 
 namespace HaloInfiniteResearchTools.Processes
 {

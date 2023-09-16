@@ -21,10 +21,10 @@ using HaloInfiniteResearchTools.Services.Abstract;
 using LibHIRT.Domain;
 using LibHIRT.Processes;
 using System.IO;
-using HaloInfiniteResearchTools.Processes.Utils;
 using HelixToolkit.SharpDX.Core.Model;
 using LibHIRT.TagReader;
 using System.Security.Policy;
+using HaloInfiniteResearchTools.Assimport;
 
 namespace HaloInfiniteResearchTools.Controls
 {

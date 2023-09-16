@@ -31,9 +31,13 @@ using LibHIRT.TagReader;
 using SharpDX;
 using HaloInfiniteResearchTools.ViewModels;
 using LibHIRT.Serializers;
-using HaloInfiniteResearchTools.Processes.Utils;
+using HaloInfiniteResearchTools.Assimport;
+using System.Data.Entity;
+using HaloInfiniteResearchTools.Processes.OnGeometry;
+using HaloInfiniteResearchTools.UI.Modals;
+using System.Diagnostics;
 
-namespace HaloInfiniteResearchTools.ControlModel
+namespace HaloInfiniteResearchTools.ControlsModel
 {
 
 
@@ -53,7 +57,7 @@ namespace HaloInfiniteResearchTools.ControlModel
         private Dictionary<string, ModelNodeModel> _nodesNameLookUp;
         private ICollectionView _nodeCollectionView;
 
-        private Assimp.Scene _assimpScene;
+        private HISceneContext _context;
         private RenderModelDefinition _renderModelDef;
         private Dictionary<string, Assimp.Node> _marker_lookup;
         private Dictionary<string, TextureModel> _loadedTextures;
@@ -63,6 +67,7 @@ namespace HaloInfiniteResearchTools.ControlModel
         private ObservableCollection<TreeViewItemModel> _themeConfigurations;
         private HelixToolkitScene _sceneHelixToolkit;
         private List<(SSpaceFile, RenderModelDefinition, Assimp.Scene)> _secundaryMesh;
+        private Assimp.Scene _assimpScene;
 
         public ISceneContext MyGeometrySceneContex { get; set; }
 
@@ -186,20 +191,37 @@ namespace HaloInfiniteResearchTools.ControlModel
             
             if (RenderGeometryTag == null)
                 return;
-            var renderGeometry = RenderGeometrySerializer.Deserialize(null, _file, RenderGeometryTag);
 
-            var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
-            await RunProcess(convertProcess);
+            _context = new HISceneContext(_file.Name);
 
-            _assimpScene = convertProcess.Result;
+            ProcessBase convertProcess = null;
 
-            using (var prog = ShowProgress())
+            if (_file is ScenarioStructureBspFile)
             {
-                prog.Status = "Preparing Viewer";
-                prog.IsIndeterminate = true;
+                convertProcess = new LoadSbpsToContextProcess(_context, _file as ScenarioStructureBspFile, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
+            }
+            else {
+                var renderGeometry = RenderGeometrySerializer.Deserialize(null, _file, RenderGeometryTag);
+                convertProcess = new AddRenderGeometryToContextProcess(_context, renderGeometry, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
+            }
+
+
+            //var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
+
+
+            
+
+                await Task.Factory.StartNew(convertProcess.Execute, TaskCreationOptions.LongRunning);
+                await convertProcess.CompletionTask;
+
+                _assimpScene = _file is ScenarioStructureBspFile ? ((LoadSbpsToContextProcess)convertProcess).Result : ((AddRenderGeometryToContextProcess)convertProcess).Result;
 
                 await PrepareModelViewer(_assimpScene);
-            };
+
+            //await RunProcess(convertProcess);
+                
+                
+            
         }
 
         protected override void OnDisposing()

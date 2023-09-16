@@ -5,24 +5,21 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using System.Windows.Interop;
 using Assimp;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Extensions;
 using HaloInfiniteResearchTools.Processes;
-using LibHIRT;
 using LibHIRT.Data;
 using LibHIRT.Data.Geometry;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.Serializers.Geometry;
-using LibHIRT.TagReader.Headers;
 
-namespace LibHIRT.Processes
+namespace LibHIRT.Processes.OnGeometry
 {
 
-  public class ConvertModelToAssimpSceneOldProcess : ProcessBase<Scene>
+    public class ConvertModelToAssimpSceneOldProcess : ProcessBase<Scene>
   {
 
     #region Data Members
@@ -521,7 +518,7 @@ namespace LibHIRT.Processes
       }
       catch ( AssertionFailedException ex )
       {
-        _context.StatusList.AddWarning( Mesh.Name, "Failed to read mesh interleaved data." );
+        _context.StatusList.AddWarning( Mesh.Name, "Failed to read meshs interleaved data." );
         return null;
       }
       finally { Stream.ReleaseLock(); }
