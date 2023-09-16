@@ -1,6 +1,4 @@
-﻿using LibHIRT.Common;
-
-namespace LibHIRT.Files.Base
+﻿namespace LibHIRT.Files.Base
 {
     public abstract class SSpaceContainerFile : SSpaceFile
     {
@@ -35,7 +33,7 @@ namespace LibHIRT.Files.Base
             var dataStartOffset = CalculateTrueChildOffset(offset);
             var dataEndOffset = dataStartOffset + size;
 
-            return SSpaceFileFactory.CreateFile(name, BaseStream, dataStartOffset, dataEndOffset, signature,this);
+            return SSpaceFileFactory.CreateFile(name, BaseStream, dataStartOffset, dataEndOffset, signature, this);
         }
 
         protected long CalculateTrueChildOffset(long offset)
@@ -50,7 +48,7 @@ namespace LibHIRT.Files.Base
 
         protected virtual void ReadChildren()
         {
-            
+
 
         }
 

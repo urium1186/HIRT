@@ -1,6 +1,4 @@
-﻿using HaloInfiniteResearchTools.ViewModels;
-
-namespace HaloInfiniteResearchTools.Views
+﻿namespace HaloInfiniteResearchTools.Views
 {
     /// <summary>
     /// Interaction logic for MainView.xaml
@@ -11,7 +9,7 @@ namespace HaloInfiniteResearchTools.Views
         {
             InitializeComponent();
 
-           
+
         }
 
     }

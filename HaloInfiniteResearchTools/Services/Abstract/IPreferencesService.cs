@@ -1,27 +1,27 @@
-﻿using System.Threading.Tasks;
-using HaloInfiniteResearchTools.Models;
+﻿using HaloInfiniteResearchTools.Models;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Services
 {
 
-  public interface IPreferencesService
-  {
+    public interface IPreferencesService
+    {
 
-    #region Properties
+        #region Properties
 
-    PreferencesModel Preferences { get; }
+        PreferencesModel Preferences { get; }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    Task Initialize();
+        Task Initialize();
 
-    Task<PreferencesModel> LoadPreferences();
-    Task SavePreferences();
+        Task<PreferencesModel> LoadPreferences();
+        Task SavePreferences();
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

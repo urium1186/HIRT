@@ -1,12 +1,4 @@
 ﻿using LibHIRT.TagReader;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Domain.RenderModel
 {
@@ -19,7 +11,8 @@ namespace LibHIRT.Domain.RenderModel
         public int clone_name_id;
         public string clone_name;
     }
-    public struct render_model_region {
+    public struct render_model_region
+    {
         public int name_id;
         public string name;
 
@@ -27,7 +20,7 @@ namespace LibHIRT.Domain.RenderModel
     }
     public class RenderModelDefinition
     {
-        
+
         render_model_region[] _regions;
         RenderGeometry _render_geometry;
         RenderModelMarkerGroup[] _marker_groups;

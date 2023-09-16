@@ -1,16 +1,16 @@
 ﻿namespace HaloInfiniteResearchTools.Common.Enumerations
 {
 
-  public enum TextureFileFormat
-  {
+    public enum TextureFileFormat
+    {
 
-    DDS,
-    TGA,
-    JPEG,
-    PNG,
-    EXR,
-    QOI
+        DDS,
+        TGA,
+        JPEG,
+        PNG,
+        EXR,
+        QOI
 
-  }
+    }
 
 }

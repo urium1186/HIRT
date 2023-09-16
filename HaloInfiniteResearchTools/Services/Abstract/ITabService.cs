@@ -7,21 +7,21 @@ namespace HaloInfiniteResearchTools.Services
 {
 
     public interface ITabService
-  {
+    {
 
-    #region Properties
+        #region Properties
 
-    TabContextModel TabContext { get; }
+        TabContextModel TabContext { get; }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    bool CreateTabForFile( ISSpaceFile file, out ITab tab, bool forceGeneric = false);
-    bool CreateTabForFile(TagStructMem file, out ITab tab, bool forceGeneric = false);
+        bool CreateTabForFile(ISSpaceFile file, out ITab tab, bool forceGeneric = false);
+        bool CreateTabForFile(TagStructMem file, out ITab tab, bool forceGeneric = false);
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

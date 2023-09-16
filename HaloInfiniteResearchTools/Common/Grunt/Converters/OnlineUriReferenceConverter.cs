@@ -1,11 +1,7 @@
 ﻿using OpenSpartan.Grunt.Models.ApiIngress;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Common.Grunt.Converters
 {
@@ -18,10 +14,11 @@ namespace HaloInfiniteResearchTools.Common.Grunt.Converters
                 reader.Skip();
                 return new OnlineUriReference();
             }
-            else {
+            else
+            {
                 reader.Read();
                 return null;
-                
+
             }
 
             //string @string = reader.Read();

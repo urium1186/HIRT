@@ -8,7 +8,7 @@ namespace HaloInfiniteResearchTools.Common.Extensions
 
     public static class AssimpExtensions
     {
-        
+
         public static Assimp.Matrix4x4 calculateGlobalTransformation(this Node node)
         {
             var initT = node.Transform;
@@ -22,7 +22,7 @@ namespace HaloInfiniteResearchTools.Common.Extensions
                 parent = parent.Parent;
             }
             return initT;
-        } 
+        }
         public static Matrix calculateGlobalTransformation(this SceneNode node)
         {
             var initT = node.ModelMatrix;
@@ -160,11 +160,11 @@ namespace HaloInfiniteResearchTools.Common.Extensions
             q.Y = (float)(sy * cp * sr + cy * sp * cr);
             q.Z = (float)(sy * cp * cr - cy * sp * sr);
             return q;
-        }   
+        }
 
-       
 
-         
+
+
 
     }
 

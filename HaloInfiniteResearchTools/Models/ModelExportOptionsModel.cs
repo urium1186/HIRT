@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
-using DeepCopy;
+﻿using DeepCopy;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Enumerations;
+using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace HaloInfiniteResearchTools.Models
 {

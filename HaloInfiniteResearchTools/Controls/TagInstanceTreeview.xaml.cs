@@ -33,7 +33,7 @@ namespace HaloInfiniteResearchTools.Controls
             get => (ICommand)GetValue(TagRefGenOpenCommandProperty);
             set => SetValue(TagRefGenOpenCommandProperty, value);
         }
-        
+
         public static readonly DependencyProperty RenderGeomGenOpenCommandProperty = DependencyProperty.Register(
          nameof(RenderGeomGenOpenCommand),
          typeof(ICommand),
@@ -57,7 +57,7 @@ namespace HaloInfiniteResearchTools.Controls
             get => (ICommand)GetValue(TagToJsonCommandProperty);
             set => SetValue(TagToJsonCommandProperty, value);
         }
-        
+
         public static readonly DependencyProperty TagGoToBinCommandProperty = DependencyProperty.Register(
          nameof(TagGoToBinCommand),
          typeof(ICommand),
@@ -69,7 +69,7 @@ namespace HaloInfiniteResearchTools.Controls
             get => (ICommand)GetValue(TagGoToBinCommandProperty);
             set => SetValue(TagGoToBinCommandProperty, value);
         }
-        
+
         public static readonly DependencyProperty WriteToCommandProperty = DependencyProperty.Register(
          nameof(WriteToCommand),
          typeof(ICommand),
@@ -81,7 +81,7 @@ namespace HaloInfiniteResearchTools.Controls
             get => (ICommand)GetValue(WriteToCommandProperty);
             set => SetValue(WriteToCommandProperty, value);
         }
-        
+
         public static readonly DependencyProperty TagGoToTemplateCommandProperty = DependencyProperty.Register(
          nameof(TagGoToTemplateCommand),
          typeof(ICommand),
@@ -136,7 +136,7 @@ namespace HaloInfiniteResearchTools.Controls
                 return;
             TagGoToTemplateCommand?.Execute(temp.DataContext);
         }
-        
+
 
 
         private void MenuItem_ToggleEditClick(object sender, RoutedEventArgs e)

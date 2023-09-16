@@ -1,14 +1,10 @@
-﻿using LibHIRT.TagReader.Readers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.ModuleUnpacker
 {
-    enum HiModuleType { 
+    enum HiModuleType
+    {
         NoDotaFile = -1,
         Normal = 0,
         NoExtedHD = 1,
@@ -48,18 +44,18 @@ namespace LibHIRT.ModuleUnpacker
 
         public int ResourceListOffset { get => (int)(StringTableOffset + StringsSize); }
         public int ResourceListSize { get => (int)(ResourceCount * 4); }
-        public int ResourceListTypeSize { get =>  4; }
+        public int ResourceListTypeSize { get => 4; }
         public int BlockListOffset { get => ResourceListOffset + ResourceListSize; }
         public int BlockListSize { get => (int)(BlockCount * 20); }
-        public int BlockListTypeSize { get =>  20; }
+        public int BlockListTypeSize { get => 20; }
         public int FileDataOffset { get; set; }
         //public int FileDataSize { get => 0; }
         public int FileEntrysOffset { get => (72); }
         public int FileEntrysSize { get => (FilesCount * 88); }
         public int FileEntrysTypeSize { get => (88); }
         public int StringTableOffset { get => FileEntrysSize + 72 + 8; }
-        
-        
+
+
         public Dictionary<int, string> Strings { get; set; }
         public int Data_size { get => data_size; set => data_size = value; }
         public uint Unk0x30 { get => unk0x30; set => unk0x30 = value; }
@@ -90,7 +86,8 @@ namespace LibHIRT.ModuleUnpacker
             Console.WriteLine("File TagData Offset: 0x" + FileDataOffset.ToString("X8"));
         }
 
-        public void ReadIn(byte[] ModuleHeader) {
+        public void ReadIn(byte[] ModuleHeader)
+        {
             _loaded = false;
             // size 72 
             //moduleHeaderBytes = ModuleHeader;
@@ -157,9 +154,9 @@ namespace LibHIRT.ModuleUnpacker
                     Debug.Assert(Unk0x18 == -1);
                 else
                     if (_dataOffset == 4096 && tmp == 80)
-                        Debug.Assert(Unk0x18 == -1);
-                    else
-                        Debug.Assert(Unk0x18 != -1);
+                    Debug.Assert(Unk0x18 == -1);
+                else
+                    Debug.Assert(Unk0x18 != -1);
             }
             if (Unk0x18 == -1)
             {
@@ -171,15 +168,16 @@ namespace LibHIRT.ModuleUnpacker
                 Debug.Assert(ResourceCount == 0);
                 Debug.Assert(ManifestCount == -1);
             }
-            else {
+            else
+            {
                 Debug.Assert(_dataOffset >= 4096);
             }
             Debug.Assert((ManifestCount == -1) || (ManifestCount == 0 && Hd1_delta == 0 && unk0x18 == 1));
-            Debug.Assert((ManifestCount == -1 && ((unk0x18 == -1) || (unk0x18 == 0 && (Hd1_delta != 0 || Data_size!=0 || BlockCount != 0)))) || (ManifestCount == 0));
+            Debug.Assert((ManifestCount == -1 && ((unk0x18 == -1) || (unk0x18 == 0 && (Hd1_delta != 0 || Data_size != 0 || BlockCount != 0)))) || (ManifestCount == 0));
             if (Unk0x18 == 0)
             {
-                Debug.Assert(BlockCount != 0);    
-                Debug.Assert(FilesCount != 0);    
+                Debug.Assert(BlockCount != 0);
+                Debug.Assert(FilesCount != 0);
             }
             else if (Unk0x18 == 1)
             {
@@ -194,11 +192,11 @@ namespace LibHIRT.ModuleUnpacker
             if (Hd1_delta != 0)
             {
                 Debug.Assert(ResourceCount != 0);
-                
+
             }
             if (ResourceCount == 0 && BlockCount != 0)
             {
-                
+
                 Debug.Assert(Hd1_delta == 0);
             }
 
@@ -206,6 +204,6 @@ namespace LibHIRT.ModuleUnpacker
 
             _loaded = true;
         }
-    
+
     }
 }

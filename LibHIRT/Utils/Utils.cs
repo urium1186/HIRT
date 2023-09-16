@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Utils
+﻿namespace LibHIRT.Utils
 {
     public static class Utils
     {
@@ -25,13 +19,16 @@ namespace LibHIRT.Utils
             return (System.Text.Encoding.UTF8.GetByteCount(str) != str.Length);
         }
 
-        public static string CreatePathFromString(string p_path, string root_path = "", string parent_folder = "") {
+        public static string CreatePathFromString(string p_path, string root_path = "", string parent_folder = "")
+        {
 
-            if (string.IsNullOrEmpty(root_path) || !Directory.Exists(root_path)) {
+            if (string.IsNullOrEmpty(root_path) || !Directory.Exists(root_path))
+            {
                 //root_path = Directory.GetCurrentDirectory();
                 root_path = GetUserAppPath();
             }
-            if (!root_path.EndsWith('\\')) {
+            if (!root_path.EndsWith('\\'))
+            {
                 root_path = root_path + "\\";
             }
             if (!string.IsNullOrEmpty(root_path))

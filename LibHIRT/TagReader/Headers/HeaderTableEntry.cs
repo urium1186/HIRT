@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace LibHIRT.TagReader.Headers
 {
-    public abstract class HeaderTableEntry: BinaryReader
+    public abstract class HeaderTableEntry : BinaryReader
     {
         string fieldName = "";
         protected HeaderTableEntry(Stream input) : base(input)
@@ -23,7 +18,7 @@ namespace LibHIRT.TagReader.Headers
         }
 
         public abstract void ReadIn();
-        public abstract int GetSize{ get; }
+        public abstract int GetSize { get; }
         public string FieldName { get => fieldName; set => fieldName = value; }
     }
 }

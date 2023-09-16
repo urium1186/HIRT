@@ -1,28 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using HaloInfiniteResearchTools.Services.Abstract;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using HaloInfiniteResearchTools.Services.Abstract;
 
 namespace HaloInfiniteResearchTools.Services
 {
 
-  public class MeshIdentifierService : IMeshIdentifierService
-  {
-
-    #region Data Members
-
-    private readonly string[] _lodStrings = new string[]
+    public class MeshIdentifierService : IMeshIdentifierService
     {
+
+        #region Data Members
+
+        private readonly string[] _lodStrings = new string[]
+        {
       "_lod1",
       "_lod2",
       "_lod3",
       ".lod1",
       ".lod2",
       ".lod3",
-    };
+        };
 
-    private readonly string[] _volumeStrings = new string[]
-    {
+        private readonly string[] _volumeStrings = new string[]
+        {
       "occ",
       "oclud",
       "_o#",
@@ -30,53 +30,53 @@ namespace HaloInfiniteResearchTools.Services
       "rays",
       "shadowcaster",
       "shadow_caster",
-    };
+        };
 
-    #endregion
+        #endregion
 
-    #region Properties
+        #region Properties
 
-    public Regex LodRegex { get; }
-    public Regex VolumeRegex { get; }
-    public Regex LodOrVolumeRegex { get; }
+        public Regex LodRegex { get; }
+        public Regex VolumeRegex { get; }
+        public Regex LodOrVolumeRegex { get; }
 
-    #endregion
+        #endregion
 
-    #region Constructor
+        #region Constructor
 
-    public MeshIdentifierService()
-    {
-      LodRegex = BuildRegex( _lodStrings );
-      VolumeRegex = BuildRegex( _volumeStrings );
-      LodOrVolumeRegex = BuildRegex( _lodStrings.Concat( _volumeStrings ) );
+        public MeshIdentifierService()
+        {
+            LodRegex = BuildRegex(_lodStrings);
+            VolumeRegex = BuildRegex(_volumeStrings);
+            LodOrVolumeRegex = BuildRegex(_lodStrings.Concat(_volumeStrings));
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public bool IsLod(string name)
+          => LodRegex.IsMatch(name);
+
+        public bool IsVolume(string name)
+          => VolumeRegex.IsMatch(name);
+
+        public bool IsLodOrVolume(string name)
+          => LodOrVolumeRegex.IsMatch(name);
+
+        #endregion
+
+        #region Private Methods
+
+        private static Regex BuildRegex(IEnumerable<string> regexStrings)
+        {
+            var strList = string.Join('|', regexStrings);
+            var regexStr = "(?=(" + strList + "))";
+
+            return new Regex(regexStr, RegexOptions.IgnoreCase);
+        }
+
+        #endregion
+
     }
-
-    #endregion
-
-    #region Public Methods
-
-    public bool IsLod( string name )
-      => LodRegex.IsMatch( name );
-
-    public bool IsVolume( string name )
-      => VolumeRegex.IsMatch( name );
-
-    public bool IsLodOrVolume( string name )
-      => LodOrVolumeRegex.IsMatch( name );
-
-    #endregion
-
-    #region Private Methods
-
-    private static Regex BuildRegex( IEnumerable<string> regexStrings )
-    {
-      var strList = string.Join( '|', regexStrings );
-      var regexStr = "(?=(" + strList + "))";
-
-      return new Regex( regexStr, RegexOptions.IgnoreCase );
-    }
-
-    #endregion
-
-  }
 }

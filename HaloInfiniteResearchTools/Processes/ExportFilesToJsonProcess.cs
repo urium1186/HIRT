@@ -1,17 +1,12 @@
-﻿using LibHIRT.Files;
-using LibHIRT.Serializers;
+﻿using HaloInfiniteResearchTools.Common;
+using LibHIRT.Files;
 using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HaloInfiniteResearchTools.Common;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Diagnostics;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -23,7 +18,8 @@ namespace HaloInfiniteResearchTools.Processes
         private bool _outConsole;
         private List<string> _jsonFiles;
 
-        public ExportFilesToJsonProcess(ISSpaceFile file, string outfile, IServiceProvider? serviceProvider, bool advmode = false, bool outConsole = false) : base(serviceProvider) {
+        public ExportFilesToJsonProcess(ISSpaceFile file, string outfile, IServiceProvider? serviceProvider, bool advmode = false, bool outConsole = false) : base(serviceProvider)
+        {
             _files = new List<ISSpaceFile> { file };
             _dir_path = outfile;
             _advmode = advmode;
@@ -50,58 +46,62 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = _files.Count == 1;
             _jsonFiles.Clear();
             var objLock = new object();
-            Parallel.ForEach(_files,async filePath =>
+            Parallel.ForEach(_files, async filePath =>
             {
                 var fileName = filePath.Name;
-                
+
                 try
                 {
-                    if (filePath.TagGroup != "����") {
+                    if (filePath.TagGroup != "����")
+                    {
                         var temp_file = filePath as SSpaceFile;
                         string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
-                        string path_file = dir_path  + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1) + (_advmode? "_ADV.json" : ".json");
+                        string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1) + (_advmode ? "_ADV.json" : ".json");
                         if (!Directory.Exists(dir_path))
                             Directory.CreateDirectory(dir_path);
-                        if (!File.Exists(path_file)) {
+                        if (!File.Exists(path_file))
+                        {
                             var options = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve };
 
                             string jstonToWrite = "";
                             if (!_advmode)
                                 jstonToWrite = (filePath as SSpaceFile).Deserialized()?.Root?.ToJson();
-                            else {
+                            else
+                            {
                                 var process_js = new ReadTagInstanceProcess((LibHIRT.Files.Base.IHIRTFile)filePath);
                                 await process_js.Execute();
                                 if (process_js.TagParse.RootTagInst != null)
                                 {
                                     jstonToWrite = JsonSerializer.Serialize(process_js.TagParse.RootTagInst, options);
-                                
-                                }
-                                
-                            } 
-                                
 
-                            if (!string.IsNullOrEmpty(jstonToWrite)) {
+                                }
+
+                            }
+
+
+                            if (!string.IsNullOrEmpty(jstonToWrite))
+                            {
                                 _jsonFiles.Add(jstonToWrite);
                                 if (_outConsole)
                                     Console.WriteLine(jstonToWrite);
                                 File.WriteAllText(path_file, jstonToWrite);
                             }
-                                
+
                         }
-                             
+
                     }
 
-                   /* if (!_fileContext.OpenFile(filePath))
-                    {
+                    /* if (!_fileContext.OpenFile(filePath))
+                     {
 
-                        StatusList.AddWarning(fileName, "Failed to open file.");
-                    }
-                    else
-                    {
-                        Status = Status.Replace("\n" + temp, "");
-                        _filesLoaded.Add(fileName);
-                        StatusList.AddMessage(fileName, "Open file.");
-                    }*/
+                         StatusList.AddWarning(fileName, "Failed to open file.");
+                     }
+                     else
+                     {
+                         Status = Status.Replace("\n" + temp, "");
+                         _filesLoaded.Add(fileName);
+                         StatusList.AddMessage(fileName, "Open file.");
+                     }*/
 
                 }
                 catch (Exception ex)

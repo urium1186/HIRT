@@ -1,5 +1,4 @@
-﻿using System.IO;
-using LibHIRT.Common;
+﻿using LibHIRT.Common;
 using LibHIRT.Data;
 using static LibHIRT.Assertions;
 

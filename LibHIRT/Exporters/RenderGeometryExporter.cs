@@ -1,10 +1,9 @@
-﻿using Aspose.ThreeD.Shading;
-using Aspose.ThreeD;
+﻿using Aspose.ThreeD;
+using Aspose.ThreeD.Deformers;
 using Aspose.ThreeD.Formats;
+using Aspose.ThreeD.Shading;
 using LibHIRT.Domain;
 using LibHIRT.Exporters.Converters;
-using Aspose.ThreeD.Deformers;
-using System.Xml.Linq;
 
 namespace LibHIRT.Exporters
 {
@@ -12,7 +11,8 @@ namespace LibHIRT.Exporters
     {
         static private FbxSaveOptions _saveOpts;
 
-        static RenderGeometryExporter() {
+        static RenderGeometryExporter()
+        {
             _saveOpts = new FbxSaveOptions(FileFormat.FBX7500Binary);
             /*
              // Generates the legacy material properties.
@@ -28,27 +28,30 @@ namespace LibHIRT.Exporters
 
         }
 
-        public static bool Export(RenderGeometry renderGeometry, string path,string name) {
+        public static bool Export(RenderGeometry renderGeometry, string path, string name)
+        {
             return Export(renderGeometry, path, name, null, null);
         }
-        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials) {
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials)
+        {
             return Export(renderGeometry, path, name, materials, null);
         }
-        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Bone> bones) {
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Bone> bones)
+        {
             return Export(renderGeometry, path, name, null, bones);
         }
-        
-        public static bool Export(RenderGeometry renderGeometry,string  path,string name, List<Material> materials, List<Bone> bones)
+
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials, List<Bone> bones)
         {
             try
             {
                 Scene scene = new Scene();
-                
-               
+
+
 
                 // create a box to which the material will be applied
                 RenderGeometryConverter temp_convert = new RenderGeometryConverter(renderGeometry, materials);
-                
+
 
                 scene.RootNode.AddChildNode(temp_convert.BuildFullEntity());
 
@@ -69,5 +72,5 @@ namespace LibHIRT.Exporters
         }
     }
 
-   
+
 }

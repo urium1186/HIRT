@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace LibHIRT.TagReader.Headers
 {
     public class TagDependency : HeaderTableEntry
     {
-        
+
         private string tagGroup = "";
         private string tagGroupRev = "";
         private int name_offset = -1;
@@ -67,16 +61,17 @@ namespace LibHIRT.TagReader.Headers
             f.Seek(header.DependencyOffset, SeekOrigin.Begin);
             for (int i = 0; i < header.TagFileHeaderInst.DependencyCount; i++)
             {
-                TagDependency entry = new (f);
+                TagDependency entry = new(f);
                 entry.ReadIn();
-                entries.Add(entry);  
+                entries.Add(entry);
             }
         }
 
         public override TagDependency readTableItem(Stream f, TagHeader header, int pos)
         {
-            if (pos >= 0 && pos < header.TagFileHeaderInst.DependencyCount) {
-                f.Seek(header.DependencyOffset+pos*24, SeekOrigin.Begin);
+            if (pos >= 0 && pos < header.TagFileHeaderInst.DependencyCount)
+            {
+                f.Seek(header.DependencyOffset + pos * 24, SeekOrigin.Begin);
                 TagDependency entry = new(f);
                 entry.ReadIn();
                 return entry;

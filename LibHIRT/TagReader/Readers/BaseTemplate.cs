@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.TagReader.Readers
+﻿namespace LibHIRT.TagReader.Readers
 {
     public class BaseTemplate : IBaseTemplate
     {
@@ -26,7 +20,7 @@ namespace LibHIRT.TagReader.Readers
             throw new NotImplementedException();
         }
 
-        public void Load(bool force= false)
+        public void Load(bool force = false)
         {
             throw new NotImplementedException();
         }

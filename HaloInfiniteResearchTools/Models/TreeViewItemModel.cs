@@ -1,5 +1,4 @@
-﻿using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.Controls;
+﻿using HaloInfiniteResearchTools.Controls;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -22,7 +21,7 @@ namespace HaloInfiniteResearchTools.Models
         //T Value { get; set; }
     }
 
-    public abstract class CheckedModel: DependencyObject,ICheckedModel
+    public abstract class CheckedModel : DependencyObject, ICheckedModel
     {
         public string Header { get; set; }
         public object Tag { get; set; }
@@ -49,11 +48,12 @@ namespace HaloInfiniteResearchTools.Models
 
         public override ICheckedModel copy()
         {
-            TreeViewItemModel result = new TreeViewItemModel() { 
+            TreeViewItemModel result = new TreeViewItemModel()
+            {
                 IsChecked = IsChecked,
                 IsSelected = IsSelected,
                 Header = Header,
-                Tag = Tag,  
+                Tag = Tag,
             };
             foreach (CheckedModel child in Children)
             {
@@ -80,12 +80,13 @@ namespace HaloInfiniteResearchTools.Models
 
         public override ICheckedModel copy()
         {
-            var r =new TreeViewItemChModel { 
+            var r = new TreeViewItemChModel
+            {
                 Header = Header,
                 IsSelected = IsSelected,
-                Value = Value,  
+                Value = Value,
                 Tag = Tag,
-                IsChecked = IsChecked,  
+                IsChecked = IsChecked,
             };
 
             return r;

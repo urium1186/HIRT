@@ -1,27 +1,19 @@
 ﻿using LibHIRT.Utils;
-using SharpDX.Win32;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Security.Policy;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.TagReader.Headers
 {
     public class TagReferenceFixup : HeaderTableEntry
     {
-        int fieldBlock ;
+        int fieldBlock;
         int fieldOffset;
         int nameOffset;
         int dependencyIndex;
         TagDependency tagDependency;
         TagStruct parentStruct;
         string strPath = "";
-        
+
 
         public TagReferenceFixup(Stream input) : base(input)
         {
@@ -44,17 +36,17 @@ namespace LibHIRT.TagReader.Headers
         public TagDependency TagDependency { get => tagDependency; set => tagDependency = value; }
         public TagStruct ParentStruct { get => parentStruct; set => parentStruct = value; }
         public string StrPath { get => strPath; set => strPath = value; }
-        
+
 
         public override void ReadIn()
         {
-            var init_pos = BaseStream.Position; 
+            var init_pos = BaseStream.Position;
             fieldBlock = ReadInt32();
             fieldOffset = ReadInt32();
             nameOffset = ReadInt32();
             dependencyIndex = ReadInt32();
             var final_pos = BaseStream.Position;
-            Debug.Assert(final_pos-init_pos == GetSize);    
+            Debug.Assert(final_pos - init_pos == GetSize);
         }
 
     }
@@ -72,20 +64,21 @@ namespace LibHIRT.TagReader.Headers
             f.Seek(header.TagReferenceOffset, SeekOrigin.Begin);
             var init_pos = f.Position;
             byte[] buffer = new byte[header.TagFileHeaderInst.TagReferenceCount * 16];
-            f.Read(buffer, 0, header.TagFileHeaderInst.TagReferenceCount* 16);
+            f.Read(buffer, 0, header.TagFileHeaderInst.TagReferenceCount * 16);
             var final_pos = f.Position;
             Debug.Assert(final_pos - init_pos == header.TagFileHeaderInst.TagReferenceCount * 16);
             Stream f_stream = new MemoryStream(buffer);
             for (int i = 0; i < header.TagFileHeaderInst.TagReferenceCount; i++)
             {
-                
+
                 TagReferenceFixup entry = new TagReferenceFixup(f_stream);
                 entry.ReadIn();
                 var temp_offset = (header.TagReferenceOffset + (header.TagFileHeaderInst.TagReferenceCount * 0x10)) + entry.NameOffset;
-                
+
                 //entry.StrPath = UtilBinaryReader.readStringFromOffset(new BinaryReader(f), temp_offset, true);
                 entries.Add(entry);
-                if (entry.FieldBlock >= dataReferenceTableField.TagStructTableField.Data_block_table.Entries.Count) {
+                if (entry.FieldBlock >= dataReferenceTableField.TagStructTableField.Data_block_table.Entries.Count)
+                {
                     Debug.Assert(DebugConfig.NoCheckFails);
                 }
                 var db = dataReferenceTableField.TagStructTableField.Data_block_table.Entries[entry.FieldBlock];
@@ -108,12 +101,13 @@ namespace LibHIRT.TagReader.Headers
                     entry.TagDependency = tagDependencyTableField.Entries[entry.DependencyIndex];
                     Debug.Assert(entry.NameOffset == entry.TagDependency.Name_offset);
                 }
-                else {
+                else
+                {
                     var lo = true;
                 }
-                entry.ParentStruct.L_tag_ref.Add(entry);    
+                entry.ParentStruct.L_tag_ref.Add(entry);
             }
-            
+
             var offset_1 = f.Position;
             var lastPos = offset_1 + header.TagFileHeaderInst.StringTableSize;
             var br = new BinaryReader(f);
@@ -126,19 +120,20 @@ namespace LibHIRT.TagReader.Headers
 
         public override TagReferenceFixup readTableItem(Stream f, TagHeader header, int pos)
         {
-            if (pos >= 0 && pos < header.TagFileHeaderInst.TagReferenceCount) {
-                f.Seek(header.TagReferenceOffset + pos*16, SeekOrigin.Begin);
+            if (pos >= 0 && pos < header.TagFileHeaderInst.TagReferenceCount)
+            {
+                f.Seek(header.TagReferenceOffset + pos * 16, SeekOrigin.Begin);
                 TagReferenceFixup entry = new TagReferenceFixup(f);
                 entry.ReadIn();
                 var temp_offset = (header.TagReferenceOffset + (header.TagFileHeaderInst.TagReferenceCount * 0x10)) + entry.NameOffset;
 
                 entry.StrPath = UtilBinaryReader.readStringFromOffset(new BinaryReader(f), temp_offset, true);
-                
+
                 /*if (entry.FieldBlock >= dataReferenceTableField.TagStructTableField.Data_block_table.Entries.Count)
                 {
                     Debug.Assert(DebugConfig.NoCheckFails);
                 }*/
-                var db = dataReferenceTableField.TagStructTableField.Data_block_table.GetTableEntry(f,header, entry.FieldBlock);
+                var db = dataReferenceTableField.TagStructTableField.Data_block_table.GetTableEntry(f, header, entry.FieldBlock);
                 foreach (var tag_i in dataReferenceTableField.TagStructTableField.Entries)
                 {
                     if (tag_i.Field_data_block == db)

@@ -1,17 +1,17 @@
-﻿using System;
-using HaloInfiniteResearchTools.ViewModels;
+﻿using HaloInfiniteResearchTools.ViewModels;
 using HaloInfiniteResearchTools.Views;
+using System;
 
 namespace HaloInfiniteResearchTools.Services
 {
 
-  public interface IViewService
-  {
+    public interface IViewService
+    {
 
-    IView GetView( IViewModel viewModel );
+        IView GetView(IViewModel viewModel);
 
-    IView GetViewWithDefaultViewModel( Type viewType );
+        IView GetViewWithDefaultViewModel(Type viewType);
 
-  }
+    }
 
 }

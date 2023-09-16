@@ -1,12 +1,12 @@
 ﻿using Assimp;
 using HaloInfiniteResearchTools.Models;
-using HaloInfiniteResearchTools.ViewModels;
 using System.Linq;
 using System.Windows;
 
 namespace HaloInfiniteResearchTools.Controls
 {
-    public class ParNodes { 
+    public class ParNodes
+    {
         public Scene Attach { get; set; }
         public Node Marker { get; set; }
     }
@@ -14,7 +14,7 @@ namespace HaloInfiniteResearchTools.Controls
     public class ItemHelper : DependencyObject
     {
         public static readonly DependencyProperty IsCheckedProperty = DependencyProperty.RegisterAttached("IsChecked", typeof(bool?), typeof(ItemHelper), new PropertyMetadata(false, new PropertyChangedCallback(OnIsCheckedPropertyChanged)));
-        
+
         private static void OnIsCheckedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is IParentModel<ICheckedModel> && ((bool?)e.NewValue).HasValue)
@@ -24,19 +24,22 @@ namespace HaloInfiniteResearchTools.Controls
             if (d is TreeViewItemChModel)
             {/**/
                 var ch = d as TreeViewItemChModel;
-                if (ch != null) {
-                    if (ch.Value != null) {
+                if (ch != null)
+                {
+                    if (ch.Value != null)
+                    {
                         var node = ch.Value as ModelNodeModel;
-                        
-                        if (node!= null)
+
+                        if (node != null)
                         {
-                            node.Node.Tag = GetParentAttachmentTransform(ch); 
-                            
+                            node.Node.Tag = GetParentAttachmentTransform(ch);
+
                             node.IsVisible = (bool)e.NewValue;
                         }
                     }
                 }
-                int _checked = ((d as TreeViewItemChModel).GetValue(ItemHelper.ParentProperty) as TreeViewItemModel).Children.Where(x => {
+                int _checked = ((d as TreeViewItemChModel).GetValue(ItemHelper.ParentProperty) as TreeViewItemModel).Children.Where(x =>
+                {
                     return ItemHelper.GetIsChecked((DependencyObject)x) == true;
                 }).Count();
                 int _unchecked = ((d as TreeViewItemChModel).GetValue(ItemHelper.ParentProperty) as TreeViewItemModel).Children.Where(x => ItemHelper.GetIsChecked((DependencyObject)x) == false).Count();
@@ -79,9 +82,10 @@ namespace HaloInfiniteResearchTools.Controls
             TreeViewItemModel parent = (element.GetValue(ItemHelper.ParentProperty) as TreeViewItemModel);
             while (noStop)
             {
-                
-                if (parent == null || parent.Tag is ParNodes) { 
-                    noStop= false;
+
+                if (parent == null || parent.Tag is ParNodes)
+                {
+                    noStop = false;
                 }
                 if (noStop)
                     parent = (parent.GetValue(ItemHelper.ParentProperty) as TreeViewItemModel);

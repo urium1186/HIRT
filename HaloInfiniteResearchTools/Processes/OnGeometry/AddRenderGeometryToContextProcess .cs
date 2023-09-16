@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Assimp;
+using HaloInfiniteResearchTools.Assimport;
+using LibHIRT.Domain;
 using System.Threading;
 using System.Threading.Tasks;
-using Assimp;
-using HaloInfiniteResearchTools.Assimport;
-using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.Common.Extensions;
-using HaloInfiniteResearchTools.Processes;
-using LibHIRT.Data;
-using LibHIRT.Domain;
 
 
 namespace HaloInfiniteResearchTools.Processes.OnGeometry

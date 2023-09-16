@@ -6,10 +6,7 @@ using OpenSpartan.Grunt.Models;
 using OpenSpartan.Grunt.Util;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -20,7 +17,8 @@ using System.Web;
 
 namespace HaloInfiniteResearchTools.Processes
 {
-    public class ConnectXboxServicesResult {
+    public class ConnectXboxServicesResult
+    {
         XboxTicket extendedTicket;
         HaloInfiniteClientFix client;
 
@@ -30,7 +28,7 @@ namespace HaloInfiniteResearchTools.Processes
     public class ConnectXboxServicesProcess : ProcessBase<ConnectXboxServicesResult>
     {
         HttpListener _httpListener = new HttpListener();
-        
+
         bool do_not_stop = true;
         bool do_not_stop_listener = true;
         ConcurrentDictionary<string, bool> _stateLookup;
@@ -89,7 +87,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+
             XboxAuthenticationClient manager = new();
             var clientConfig = ConfigurationReader.ReadConfiguration<ClientConfiguration>(AppDomain.CurrentDomain.BaseDirectory + "Resources\\xboxservice\\client.json");
             var url = manager.GenerateAuthUrl(clientConfig.ClientId, clientConfig.RedirectUrl);
@@ -106,7 +104,7 @@ namespace HaloInfiniteResearchTools.Processes
             if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Resources\\xboxservice\\tokens.json"))
             {
                 LogWriter.LogWrite("Trying to use local tokens...");
-                
+
                 // If a local token file exists, load the file.
                 currentOAuthToken = ConfigurationReader.ReadConfiguration<OAuthToken>(AppDomain.CurrentDomain.BaseDirectory + "Resources\\xboxservice\\tokens.json");
             }
@@ -170,7 +168,7 @@ namespace HaloInfiniteResearchTools.Processes
             }).GetAwaiter().GetResult();
 
             HaloInfiniteClient client = new(haloToken.Token, extendedTicket.DisplayClaims.Xui[0].XUID);
-            
+
             // Test getting the clearance for local execution.
             string localClearance = string.Empty;
             Task.Run(async () =>
@@ -189,11 +187,12 @@ namespace HaloInfiniteResearchTools.Processes
             }).GetAwaiter().GetResult();
 
             HaloInfiniteClientFix clientFix = new(client.SpartanToken, client.Xuid, client.ClearanceToken);
-            result = new ConnectXboxServicesResult { 
-             Client= clientFix,
-             ExtendedTicket = extendedTicket,
+            result = new ConnectXboxServicesResult
+            {
+                Client = clientFix,
+                ExtendedTicket = extendedTicket,
             };
-            if (_responseThread!=null && _responseThread.IsAlive)
+            if (_responseThread != null && _responseThread.IsAlive)
             {
                 do_not_stop_listener = false;
             }
@@ -233,20 +232,21 @@ namespace HaloInfiniteResearchTools.Processes
 
         void ResponseThread()
         {
-            while (_stateLookup.ContainsKey("do_not_stop_listener") && _stateLookup["do_not_stop_listener"] )
+            while (_stateLookup.ContainsKey("do_not_stop_listener") && _stateLookup["do_not_stop_listener"])
             {
                 HttpListenerContext context = _httpListener.GetContext(); // get a context
                                                                           // Now, you'll find the request URL in context.Request.Url
 
 
-                if (context != null && context.Request != null) {
+                if (context != null && context.Request != null)
+                {
                     var body = context.Request.RawUrl;
 
                     Uri myUri = context.Request.Url;
 
                     ret_code = HttpUtility.ParseQueryString(myUri.Query).Get("code");
 
-                    _stateLookup["do_not_stop"]  = false;
+                    _stateLookup["do_not_stop"] = false;
 
                     byte[] _responseArray = Encoding.UTF8.GetBytes("<html><head><title>Localhost server -- port 5000</title></head>" +
                     "<body>Welcome to the <strong>Localhost server</strong> -- <em>port 5000!</em></body></html>"); // get the bytes to response
@@ -257,7 +257,7 @@ namespace HaloInfiniteResearchTools.Processes
                     _stateLookup["do_not_stop_listener"] = false;
                     _httpListener.Close();
                 }
-                
+
             }
         }
 
@@ -298,12 +298,12 @@ namespace HaloInfiniteResearchTools.Processes
             StarServerLocalHost();
             OpenUrl(url);
 
-            while (_stateLookup.ContainsKey("do_not_stop") && _stateLookup["do_not_stop"] )
+            while (_stateLookup.ContainsKey("do_not_stop") && _stateLookup["do_not_stop"])
             { }
             LogWriter.LogWrite("Your code:");
             //var code = Console.ReadLine();
             var code = ret_code;
-            
+
             var currentOAuthToken = new OAuthToken();
 
             // If no local token file exists, request a new set of tokens.

@@ -1,15 +1,10 @@
 ﻿using HaloInfiniteResearchTools.Common;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
-using System;
-using static System.Windows.Forms.Design.AxImporter;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using LibHIRT.Processes;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
+using HelixToolkit.SharpDX.Core.Assimp;
+using LibHIRT.Files.FileTypes;
+using System;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -31,7 +26,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         protected override async Task OnInitializing()
         {
-            
+
             ReadTagInstanceProcess readTag = new ReadTagInstanceProcess(File);
             readTag.OnInstanceLoadEvent += ReadTag_OnInstanceLoadEvent;
             await RunProcess(readTag);
@@ -46,10 +41,11 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private void ReadTag_OnInstanceLoadEvent(object? sender, LibHIRT.TagReader.ITagInstance e)
         {
-            if (e is LibHIRT.TagReader.FlagGroup && e.TagDef.xmlPath.Item2.Contains("transform flags")) { 
+            if (e is LibHIRT.TagReader.FlagGroup && e.TagDef.xmlPath.Item2.Contains("transform flags"))
+            {
                 var tra_fl = e as LibHIRT.TagReader.FlagGroup;
                 if (tra_fl.Options_v[0])
-                { 
+                {
                 }
             }
         }

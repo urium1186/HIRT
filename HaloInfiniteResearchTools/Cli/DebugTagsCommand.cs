@@ -3,7 +3,6 @@ using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using Microsoft.Extensions.DependencyInjection;
-using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -12,9 +11,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
-using System.Windows.Shapes;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -67,7 +63,7 @@ namespace HaloInfiniteResearchTools.Cli
         {
             _type_tag = type_tag;
             _outfile = outfile;
-            var process = new OpenFilesProcess( EntryPoint.ServiceProvider, deploy_dir.FullName);
+            var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
             process.Completed += OpenFilesProcess_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");
@@ -78,10 +74,11 @@ namespace HaloInfiniteResearchTools.Cli
             //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("."+ _type_tag);
             var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles(_type_tag);
             StringBuilder outPutPath = new StringBuilder();
-            foreach (SSpaceFile _file  in founds) {
+            foreach (SSpaceFile _file in founds)
+            {
                 //outPutPath.AppendLine(file.Path_string);
                 //if (_file.Name.Contains("-index-") && _file.FileMemDescriptor.GlobalTagId1 == -1)
-                if (_file.Name== "2085921000_2085921000-index-1")
+                if (_file.Name == "2085921000_2085921000-index-1")
                 {
                     if (_file.FileMemDescriptor.Resource_count == 0)
                         CheckFileT0(_file);
@@ -91,8 +88,8 @@ namespace HaloInfiniteResearchTools.Cli
             //File.WriteAllText(_outfile.FullName, outPutPath.ToString());
 
             Console.WriteLine(outPutPath);
-            Console.WriteLine("Tags listed to "+ founds.Count().ToString());
-            
+            Console.WriteLine("Tags listed to " + founds.Count().ToString());
+
         }
 
         private static void CheckFileT0(SSpaceFile _file)
@@ -102,7 +99,7 @@ namespace HaloInfiniteResearchTools.Cli
             byte[] temp = new byte[4];
             stre.Read(temp);
             int count_inf = BitConverter.ToInt32(temp);
-            List< Dictionary<string, object> > list = new List< Dictionary<string, object> >();
+            List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
             for (int i = 0; i < count_inf; i++)
             {
                 var item = ReadInfoChunk(stre, _file);
@@ -110,20 +107,21 @@ namespace HaloInfiniteResearchTools.Cli
             }
         }
 
-        private static Dictionary<string, object> ReadInfoChunk(HIRTStream stre,SSpaceFile _file)
+        private static Dictionary<string, object> ReadInfoChunk(HIRTStream stre, SSpaceFile _file)
         {
-            Dictionary<string,object> result = new Dictionary<string, object>();
+            Dictionary<string, object> result = new Dictionary<string, object>();
             byte[] temp = new byte[4];
             stre.Read(temp);
             result["globalId"] = BitConverter.ToInt32(temp);
-            if ( !(_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey((int)result["globalId"])) { 
+            if (!(_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey((int)result["globalId"]))
+            {
                 Debug.Assert(false);
             }
             stre.Read(temp);
             result["type"] = BitConverter.ToInt32(temp);
             Debug.Assert((int)result["type"] == 1);
             stre.Read(temp);
-            result["GlobalSome"]  = BitConverter.ToInt32(temp);
+            result["GlobalSome"] = BitConverter.ToInt32(temp);
             stre.Read(temp);
             result["RefNegative"] = BitConverter.ToInt32(temp);
             byte[] tempS = new byte[2];
@@ -132,7 +130,8 @@ namespace HaloInfiniteResearchTools.Cli
             stre.Read(temp);
             int cantRef = BitConverter.ToInt32(temp);
             result["cantRef"] = cantRef;
-            if (cantRef > 0) {
+            if (cantRef > 0)
+            {
                 List<int> regsId = new List<int>();
                 for (int i = 0; i < cantRef; i++)
                 {

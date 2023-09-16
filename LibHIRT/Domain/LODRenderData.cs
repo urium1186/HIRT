@@ -7,7 +7,7 @@ namespace LibHIRT.Domain
     {
         public s_part[] Parts { get; set; }
         public s_subpart[] SubParts { get; set; }
-        
+
         public SSPVertex[] Vertexs { get; set; }
 
         public Flags LodFlags { get; set; }
@@ -15,19 +15,29 @@ namespace LibHIRT.Domain
 
         Dictionary<BufferVertType, int[]> _vertexBufferIndices;
         List<uint> _indexBufferIndex;
-        public int Vert_count { get => vert_count; 
-            set { vert_count = value; 
-                vertexs= new SSPVertex[vert_count];
-            } }
+        public int Vert_count
+        {
+            get => vert_count;
+            set
+            {
+                vert_count = value;
+                vertexs = new SSPVertex[vert_count];
+            }
+        }
 
         public string Name { get; set; }
 
         List<SSPFace> _faces;
 
-        public Dictionary<BufferVertType, int[]> VertexBufferIndices { get { 
+        public Dictionary<BufferVertType, int[]> VertexBufferIndices
+        {
+            get
+            {
                 if (_vertexBufferIndices == null)
-                    _vertexBufferIndices =  new Dictionary<BufferVertType, int[]>();
-                return _vertexBufferIndices; } }
+                    _vertexBufferIndices = new Dictionary<BufferVertType, int[]>();
+                return _vertexBufferIndices;
+            }
+        }
 
         public List<uint> IndexBufferIndex
         {
@@ -39,16 +49,22 @@ namespace LibHIRT.Domain
             }
         }
 
-        public List<SSPFace> Faces { get { 
+        public List<SSPFace> Faces
+        {
+            get
+            {
                 if (_faces == null)
                     _faces = new List<SSPFace>();
-                return _faces; } }
+                return _faces;
+            }
+        }
 
         int vert_count = 0;
         SSPVertex[] vertexs;
         private s_mesh _meshContainer;
 
-        public LODRenderData(s_mesh mesh) {
+        public LODRenderData(s_mesh mesh)
+        {
             _meshContainer = mesh;
         }
     }

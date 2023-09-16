@@ -7,8 +7,8 @@
         public string ParentOffset { get; }
         public string FileOffset { get; }
         public string Type { get; }
-        public string Size { get;  }
-        public List<FieldModel> Childrens { get;  }
+        public string Size { get; }
+        public List<FieldModel> Childrens { get; }
 
 
     }

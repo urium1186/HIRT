@@ -1,9 +1,7 @@
 ﻿using DeepCopy;
 using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.Common.Enumerations;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace HaloInfiniteResearchTools.Models
 {
@@ -38,11 +36,15 @@ namespace HaloInfiniteResearchTools.Models
         [DefaultValue("")]
         public string OutputPath { get; set; }
         [DefaultValue(-1)]
-        public long LastStartAddress { get=>long.Parse(_lastStartAddressS); 
-            set=> _lastStartAddressS = value.ToString(); }
+        public long LastStartAddress
+        {
+            get => long.Parse(_lastStartAddressS);
+            set => _lastStartAddressS = value.ToString();
+        }
         [JsonIgnore]
         [DefaultValue("-1")]
-        public string LastStartAddressS {
+        public string LastStartAddressS
+        {
             get { return _lastStartAddressS; }
             set
             {
@@ -54,8 +56,8 @@ namespace HaloInfiniteResearchTools.Models
             }
         }
 
-        
-        
+
+
 
         #endregion
 

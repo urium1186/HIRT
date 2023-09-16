@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using HaloInfiniteResearchTools.Common;
+﻿using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
@@ -12,6 +7,11 @@ using HaloInfiniteResearchTools.Views;
 using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyChanged;
+using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using HaloInfiniteResearchTools.ViewModels;
+using HaloInfiniteResearchTools.ViewModels.Abstract;
+using System;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
-using HaloInfiniteResearchTools.ViewModels;
-using HaloInfiniteResearchTools.ViewModels.Abstract;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HaloInfiniteResearchTools.Views
 {

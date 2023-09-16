@@ -1,20 +1,18 @@
 ﻿
+using Aspose.ThreeD.Shading;
+using HaloInfiniteResearchTools.Common.Enumerations;
 using HaloInfiniteResearchTools.Processes;
+using LibHIRT.Exporters;
 using LibHIRT.Files;
+using LibHIRT.Processes.OnGeometry;
+using LibHIRT.Serializers;
+using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
-using HaloInfiniteResearchTools.Common.Enumerations;
-using LibHIRT.TagReader;
-using LibHIRT.Processes;
-using LibHIRT.Serializers;
-using LibHIRT.Exporters;
-using Aspose.ThreeD.Shading;
-using Assimp.Configs;
-using LibHIRT.Processes.OnGeometry;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -42,7 +40,7 @@ namespace HaloInfiniteResearchTools.Cli
                     new Option<string?>(new string[] { "--from_tp", "-ft" }, "true or false, create from  tag path"),
                     new Option<string?>(new string[] { "--tg_path", "-tp" }, "tag path,  if true from_tp the tagpath to use"),
             }.Also(cmd => cmd.SetHandler(
-                (DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string ext , string consout, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, ext, consout, true, ctx),
+                (DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string ext, string consout, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, ext, consout, true, ctx),
                 cmd.Options[0],
                 cmd.Options[1],
                 cmd.Options[2],
@@ -61,7 +59,7 @@ namespace HaloInfiniteResearchTools.Cli
                     new Option<string?>(new string[] { "--from_tp", "-ft" }, "true or false, create from  tag path"),
                     new Option<string?>(new string[] { "--tg_path", "-tp" }, "tag path,  if true from_tp the tagpath to use"),
             }.Also(cmd => cmd.SetHandler(
-                (FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string from_tp,  string tg_path, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, from_tp, tg_path, true, ctx),
+                (FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string from_tp, string tg_path, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, from_tp, tg_path, true, ctx),
                 cmd.Options[0],
                 cmd.Options[1],
                 cmd.Options[2],
@@ -79,12 +77,13 @@ namespace HaloInfiniteResearchTools.Cli
             _tg_path = tg_path;
             _tif = bool.Parse(tif);
 
-            if (!deploy_dir.Exists || deploy_dir.Extension != ".module") {
+            if (!deploy_dir.Exists || deploy_dir.Extension != ".module")
+            {
                 Console.WriteLine("Must be a module file");
                 return;
             }
-            int id = _tif? int.Parse(infile) : Mmr3HashLTU.fromStrHash(infile);
-            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, false,deploy_dir.FullName);
+            int id = _tif ? int.Parse(infile) : Mmr3HashLTU.fromStrHash(infile);
+            var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, false, deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");
@@ -110,7 +109,7 @@ namespace HaloInfiniteResearchTools.Cli
                 var founds = ((SearchFileByIdProcess)sender).Result;
                 if (founds != null && founds.Count() != 0)
                 {
-                   
+
                     Models.ModelExportOptionsModel modelOptions = new Models.ModelExportOptionsModel();
                     Models.TextureExportOptionsModel textureOptions = new Models.TextureExportOptionsModel();
                     modelOptions.OutputFileFormat = Common.Enumerations.ModelFileFormat.FBX;
@@ -144,10 +143,11 @@ namespace HaloInfiniteResearchTools.Cli
 
                             if (true)
                             {
-                                string filename = Path.GetFileNameWithoutExtension(item.Name) + (rendersGeometrys.Count>1?"_"+i.ToString():"");
+                                string filename = Path.GetFileNameWithoutExtension(item.Name) + (rendersGeometrys.Count > 1 ? "_" + i.ToString() : "");
                                 RenderGeometryExporter.Export(renderGeometry, _outfile.FullName, filename, _materialList);
                             }
-                            else {
+                            else
+                            {
                                 var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, ((SSpaceFile)item).FileMemDescriptor.GlobalTagId1.ToString("X"));
                                 await convertProcess.Execute();
                                 var exportProcess = new ExportModelProcess((SSpaceFile)item, convertProcess.Result, null, modelOptions, textureOptions, null);
@@ -169,28 +169,30 @@ namespace HaloInfiniteResearchTools.Cli
 
                     }
 
-                    
+
 
                 }
             }
             catch (Exception ex)
             {
 
-                Console.WriteLine("Error: "+ ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
-            
+
 
             Console.WriteLine("Termino el proceso");
         }
 
         private void ExportProcess_OnInstanceLoadEvent(object? sender, ITagInstance e)
         {
-            if (e is RenderGeometryTag) {
+            if (e is RenderGeometryTag)
+            {
                 if (rendersGeometrys == null)
                     rendersGeometrys = new List<RenderGeometryTag>();
                 rendersGeometrys.Add((RenderGeometryTag)e);
             }
-            if (e.TagDef.N == "materials" && e is Tagblock) {
+            if (e.TagDef.N == "materials" && e is Tagblock)
+            {
                 // initialize PBR material object
                 using (var list = (e as Tagblock))
                 {
@@ -207,11 +209,11 @@ namespace HaloInfiniteResearchTools.Cli
                         // material surface is very rough
 
                         mat.RoughnessFactor = 0.9;
-                        
+
                         _materialList.Add(mat);
                     }
                 }
-                
+
             }
         }
     }

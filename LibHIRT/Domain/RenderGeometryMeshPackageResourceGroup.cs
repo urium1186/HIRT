@@ -1,13 +1,9 @@
 ﻿using LibHIRT.Domain.DX;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Domain
 {
-    public struct s_render_geometry_api_resource {
+    public struct s_render_geometry_api_resource
+    {
         public RasterizerVertexBuffer[] PcVertexBuffers;
         public RasterizerIndexBuffer[] PcIndexBuffers;
         public StreamingGeometryMesh[] StreamingMeshes;

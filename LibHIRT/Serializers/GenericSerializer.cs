@@ -1,8 +1,6 @@
 ﻿using LibHIRT.Domain;
-using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
-using System.Reflection;
 
 namespace LibHIRT.Serializers
 {
@@ -35,7 +33,7 @@ namespace LibHIRT.Serializers
         private void OnInstanceLoad(object? sender, ITagInstance e)
         {
             if (OnInstanceLoadEvent != null)
-               OnInstanceLoadEvent.Invoke(sender, e);
+                OnInstanceLoadEvent.Invoke(sender, e);
         }
 
     }

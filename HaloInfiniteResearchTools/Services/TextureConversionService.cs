@@ -1,4 +1,9 @@
-﻿using System;
+﻿using DirectXTexNet;
+using HaloInfiniteResearchTools.Models;
+using ImageMagick;
+using LibHIRT.Data.Textures;
+using LibHIRT.Files.FileTypes;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,11 +12,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using DirectXTexNet;
-using HaloInfiniteResearchTools.Models;
-using ImageMagick;
-using LibHIRT.Data.Textures;
-using LibHIRT.Files.FileTypes;
 
 namespace HaloInfiniteResearchTools.Services
 {
@@ -188,10 +188,11 @@ namespace HaloInfiniteResearchTools.Services
             var srcData = pict.Data;
             var pDestLen = img.GetPixelsSize();
             var pDest = img.GetPixels();
-            if (pDestLen < srcData.Length) {
-                byte[] bufer= new byte[pDestLen];
+            if (pDestLen < srcData.Length)
+            {
+                byte[] bufer = new byte[pDestLen];
                 _ = new MemoryStream(pict.Data).Read(bufer);
-                srcData= bufer;
+                srcData = bufer;
             }
             Debug.Assert(pDestLen >= srcData.Length, "Source data will not fit in the destination image.");
 
