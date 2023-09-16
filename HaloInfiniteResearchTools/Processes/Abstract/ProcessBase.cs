@@ -1,11 +1,10 @@
-﻿using System;
+﻿using HaloInfiniteResearchTools.Common;
+using PropertyChanged;
+using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using HaloInfiniteResearchTools.Common;
-using Microsoft.Extensions.DependencyInjection;
-using PropertyChanged;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -98,7 +97,7 @@ namespace HaloInfiniteResearchTools.Processes
             _tcs = new TaskCompletionSource();
             _cancelCts = new CancellationTokenSource();
             CancelCommand = new FireOnceCommand(Cancel);
-            _serviceProvider = App.Current == null?EntryPoint.ServiceProvider : ((App)App.Current).ServiceProvider;
+            _serviceProvider = App.Current == null ? EntryPoint.ServiceProvider : ((App)App.Current).ServiceProvider;
         }
 
         protected ProcessBase(IServiceProvider? serviceProvider)

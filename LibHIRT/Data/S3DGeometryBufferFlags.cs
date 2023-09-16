@@ -1,19 +1,17 @@
-﻿using System;
-
-namespace LibHIRT.Data
+﻿namespace LibHIRT.Data
 {
 
-  /* These flags denote how the geometry buffers are shaped.
-   * Named flags are based on strings found in the disassembly.
-   * 
-   * For additional research, there is a spreadsheet that tracks
-   * data that has been encountered:
-   * https://docs.google.com/spreadsheets/d/1YAFcRvIEESG6aeuveKjJKSIPZGbV2F4LRl4yNKBtcvw/edit?usp=sharing
-   */
+    /* These flags denote how the geometry buffers are shaped.
+     * Named flags are based on strings found in the disassembly.
+     * 
+     * For additional research, there is a spreadsheet that tracks
+     * data that has been encountered:
+     * https://docs.google.com/spreadsheets/d/1YAFcRvIEESG6aeuveKjJKSIPZGbV2F4LRl4yNKBtcvw/edit?usp=sharing
+     */
 
-  [Flags]
-  public enum S3DGeometryBufferFlags : ulong
-  {
+    [Flags]
+    public enum S3DGeometryBufferFlags : ulong
+    {
     #pragma warning disable format
     // @formatter:off — disable formatter after this line
 

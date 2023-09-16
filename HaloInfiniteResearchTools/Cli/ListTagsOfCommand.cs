@@ -1,19 +1,13 @@
 ﻿
 using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
 using Microsoft.Extensions.DependencyInjection;
-using SharpDX.DirectWrite;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
-using System.Windows.Shapes;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -71,7 +65,7 @@ namespace HaloInfiniteResearchTools.Cli
         {
             _type_tag = type_tag;
             _outfile = outfile;
-            var process = new OpenFilesProcess( EntryPoint.ServiceProvider, deploy_dir.FullName);
+            var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
             process.Completed += OpenFilesProcess_Completed;
             await process.Execute();
             Console.WriteLine("Tags listed to");
@@ -79,17 +73,18 @@ namespace HaloInfiniteResearchTools.Cli
 
         private void OpenFilesProcess_Completed(object? sender, EventArgs e)
         {
-            var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("."+ _type_tag);
+            var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("." + _type_tag);
             StringBuilder outPutPath = new StringBuilder();
-            foreach (var file in founds) {
+            foreach (var file in founds)
+            {
                 outPutPath.AppendLine(file.Path_string);
             }
             //FileStream fileStream= new FileStream(_outfile.FullName,FileMode.OpenOrCreate, FileAccess.ReadWrite);
             File.WriteAllText(_outfile.FullName, outPutPath.ToString());
 
             Console.WriteLine(outPutPath);
-            Console.WriteLine("Tags listed to "+ founds.Count().ToString());
-            
+            Console.WriteLine("Tags listed to " + founds.Count().ToString());
+
         }
     }
 }

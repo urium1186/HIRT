@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Security.Policy;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.TagReader.Headers
 {
-    public struct TagStructInfo {
+    public struct TagStructInfo
+    {
         public long property_addres = 0;
         public int n_childs = -1;
 
@@ -34,8 +27,8 @@ namespace LibHIRT.TagReader.Headers
         DataBlock? field_data_block = null;
         DataBlock? data_parent = null;
         TagStruct? parent = null;
-        List<TagStruct> childs =new List<TagStruct>();
-        List<DataReference> l_function = new List<DataReference> ();
+        List<TagStruct> childs = new List<TagStruct>();
+        List<DataReference> l_function = new List<DataReference>();
         List<TagReferenceFixup> l_tag_ref = new List<TagReferenceFixup>();
         int parent_entry_index = -1;
         int entry_index = -1;
@@ -60,7 +53,7 @@ namespace LibHIRT.TagReader.Headers
 
         public int Field_data_block_index { get => field_data_block_index; set => field_data_block_index = value; }
         public short Unknown_property_bool_0_1 { get => unknown_property_bool_0_1; set => unknown_property_bool_0_1 = value; }
-        
+
         public int Parent_field_data_block_index { get => parent_field_data_block_index; set => parent_field_data_block_index = value; }
         public int Field_offset { get => field_offset; set => field_offset = value; }
         public DataBlock? Field_data_block { get => field_data_block; set => field_data_block = value; }
@@ -69,7 +62,7 @@ namespace LibHIRT.TagReader.Headers
         public List<TagStruct> Childs { get => childs; set => childs = value; }
         public int Parent_entry_index { get => parent_entry_index; set => parent_entry_index = value; }
         public int Entry_index { get => entry_index; set => entry_index = value; }
-        
+
         public string Type_ { get => type_; set => type_ = value; }
         public string Field_name { get => field_name; set => field_name = value; }
         public List<List<byte>> Bin_datas { get => bin_datas; set => bin_datas = value; }
@@ -83,9 +76,9 @@ namespace LibHIRT.TagReader.Headers
 
         public override void ReadIn()
         {
-            var bytes =ReadBytes(16);
+            var bytes = ReadBytes(16);
             _UID = BitConverter.ToString(bytes).Replace("-", "");
-            var byt = BitConverter.GetBytes(BitConverter.ToInt64(bytes,0));
+            var byt = BitConverter.GetBytes(BitConverter.ToInt64(bytes, 0));
             _UID1 = BitConverter.ToString(byt).Replace("-", "");
             byt = BitConverter.GetBytes(BitConverter.ToInt64(bytes, 8));
             _UID2 = BitConverter.ToString(byt).Replace("-", "");
@@ -95,19 +88,21 @@ namespace LibHIRT.TagReader.Headers
             field_data_block_index = ReadInt32();
             parent_field_data_block_index = ReadInt32();
             field_offset = ReadInt32();
-            if (typeIdTg == TagStructType.Root) { 
-            
+            if (typeIdTg == TagStructType.Root)
+            {
+
             }
         }
 
-        public TagStructInfo readTagStructInfo() {
+        public TagStructInfo readTagStructInfo()
+        {
             var address_to_back = BaseStream.Position;
             var info = new TagStructInfo();
             switch (typeIdTg)
             {
                 case TagStructType.Root:
                     info.property_addres = 0;
-                    info.n_childs= 1;
+                    info.n_childs = 1;
                     if (parent_field_data_block_index != -1)
                     {
                         throw new Exception("Root no debe pertenecer a otro campo");
@@ -123,7 +118,7 @@ namespace LibHIRT.TagReader.Headers
                     BaseStream.Seek(info.property_addres + 12, SeekOrigin.Begin);
                     info.n_childs = ReadInt32();
                     Debug.Assert(info.n_childs == 0, "ExternalFileDescriptor no debe tener hijos, ya que estan en archivo aparte");
-                    if (info.n_childs !=0)
+                    if (info.n_childs != 0)
                     {
 
                         //throw new Exception("ExternalFileDescriptor no debe tener hijos, ya que estan en archivo aparte");
@@ -161,18 +156,19 @@ namespace LibHIRT.TagReader.Headers
             {
                 return blocks;
             }
-            else if (typeIdTg == TagStructType.ExternalFileDescriptor )
+            else if (typeIdTg == TagStructType.ExternalFileDescriptor)
             {
                 if (info.n_childs != 0)
                 {
                     BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
                     Debug.Assert(info.n_childs == 0, "Error de interpretacion de Datos, ya q son externos");
                     //throw new Exception("Error de interpretacion de Datos, ya q son externos");
-                    if (unknown_property_bool_0_1 == 0) {
+                    if (unknown_property_bool_0_1 == 0)
+                    {
                         Debug.Assert(field_data_block.Size % info.n_childs == 0);
                     }
                 }
-                if (unknown_property_bool_0_1 !=0)
+                if (unknown_property_bool_0_1 != 0)
                 {
                     BaseStream.Seek(field_data_block.OffsetPlus, SeekOrigin.Begin);
                     byte[] buffer = new byte[field_data_block.Size];
@@ -184,39 +180,42 @@ namespace LibHIRT.TagReader.Headers
             }
             else
             {
-                if (info.n_childs==0)
+                if (info.n_childs == 0)
                 {
-                    if (field_data_block_index != -1) {
+                    if (field_data_block_index != -1)
+                    {
                         BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
-                        
+
                         throw new Exception("Si no tiene hijos, el refernce deberia ser -1");
-                        
+
                     }
-                        
+
                     BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
                     return blocks;
                 }
                 else
                 {
-                    if (field_data_block == null) {
+                    if (field_data_block == null)
+                    {
                         BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
                         if (typeIdTg != TagStructType.ResourceHandle)
                             throw new Exception("Error de algo en archivo, cambiar");
                         else
                         {
-                            Debug.Assert(info.n_childs==1);
+                            Debug.Assert(info.n_childs == 1);
                             byte[] buffer = new byte[0];
                             blocks.Add(new List<byte>(buffer));
                             return blocks;
                         }
                     }
 
-                        
+
                     int div = field_data_block.Size / info.n_childs; //quotient is 1
                     int mod = field_data_block.Size % info.n_childs; //remainder is 2
                     if (mod != 0)
                         throw new Exception(" Deberia ser 0 siempre el resto");
-                    else { 
+                    else
+                    {
                         if (field_data_block.Size == 0)
                             throw new Exception("  Deberia ser moyor q 0, de lo contrario seria un bloke vacio, error division 0");
                         BaseStream.Seek(field_data_block.OffsetPlus, SeekOrigin.Begin);
@@ -236,7 +235,8 @@ namespace LibHIRT.TagReader.Headers
             return blocks;
         }
 
-        public int getInstanceIndexInParent() {
+        public int getInstanceIndexInParent()
+        {
             if (bin_datas.Count != 0)
             {
                 int temp = bin_datas[0].Count;
@@ -258,7 +258,7 @@ namespace LibHIRT.TagReader.Headers
         {
             if (data_block_table == null)
                 throw new Exception("Neeed almost a DataBlockTable");
-            
+
             f.Seek(header.TagStructOffset, SeekOrigin.Begin);
             for (int i = 0; i < header.TagFileHeaderInst.TagStructCount; i++)
             {
@@ -281,13 +281,13 @@ namespace LibHIRT.TagReader.Headers
                     }
                 }
 
-                entry.Entry_index= entries.Count;
+                entry.Entry_index = entries.Count;
                 entry.Bin_datas = entry.readDataEntry();
                 foreach (var item in entry.Bin_datas)
                 {
                     entry.Bin_datas_hex.Add(BitConverter.ToString(item.ToArray()).Replace("-", ""));
                 }
-                entries.Add(entry); 
+                entries.Add(entry);
             }
         }
 
@@ -296,8 +296,8 @@ namespace LibHIRT.TagReader.Headers
             if (data_block_table == null)
                 throw new Exception("Neeed almost a DataBlockTable");
 
-            f.Seek(header.TagStructOffset + pos* 32, SeekOrigin.Begin);
-            if  (pos < header.TagFileHeaderInst.TagStructCount)
+            f.Seek(header.TagStructOffset + pos * 32, SeekOrigin.Begin);
+            if (pos < header.TagFileHeaderInst.TagStructCount)
             {
                 TagStruct entry = new TagStruct(f);
                 entry.ReadIn();
@@ -309,16 +309,16 @@ namespace LibHIRT.TagReader.Headers
                 if (header.TagFileHeaderInst.DataBlockCount > entry.Parent_field_data_block_index && entry.Parent_field_data_block_index > -1)
                 {
                     entry.Data_parent = (DataBlock?)data_block_table.GetTableEntry(f, header, entry.Parent_field_data_block_index);
-                    var p_i = getContentEntryByRefIndex(entry.Parent_field_data_block_index,f, header, pos);
+                    var p_i = getContentEntryByRefIndex(entry.Parent_field_data_block_index, f, header, pos);
                     if (p_i != -99999)
                     {
                         entry.Parent_entry_index = p_i;
-                        entry.Parent = GetTableEntry(f, header,p_i);
+                        entry.Parent = GetTableEntry(f, header, p_i);
                         entry.Parent.Childs.Add(entry);
                     }
                 }
 
-                entry.Entry_index =pos+1;
+                entry.Entry_index = pos + 1;
                 entry.Bin_datas = entry.readDataEntry();
                 foreach (var item in entry.Bin_datas)
                 {
@@ -329,7 +329,8 @@ namespace LibHIRT.TagReader.Headers
             return null;
         }
 
-        protected int getContentEntryByRefIndex(int ref_index) {
+        protected int getContentEntryByRefIndex(int ref_index)
+        {
             int count = 0;
             int entry_found = -99999;
             for (int i = 0; i < entries.Count; i++)
@@ -352,7 +353,7 @@ namespace LibHIRT.TagReader.Headers
             int entry_found = -99999;
             for (int i = 0; i < pos; i++)
             {
-                if (GetTableEntry(f,header,i).Field_data_block_index == ref_index)
+                if (GetTableEntry(f, header, i).Field_data_block_index == ref_index)
                 {
                     count++;
                     entry_found = i;

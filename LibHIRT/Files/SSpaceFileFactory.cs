@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using LibHIRT.Common;
 using System.Linq.Expressions;
 using System.Reflection;
-using LibHIRT.Common;
-using Microsoft.VisualBasic.FileIO;
 using static LibHIRT.Assertions;
 
 namespace LibHIRT.Files
@@ -81,7 +76,7 @@ namespace LibHIRT.Files
             var signature = reader.ReadStringNullTerminated(maxLength: 32);
             reader.BaseStream.Position = 0;
             Assert(signature == "mohd4", $"Module wit signature worn");
-            
+
             return signature;
         }
 

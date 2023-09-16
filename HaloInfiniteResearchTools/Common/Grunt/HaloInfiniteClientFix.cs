@@ -1,19 +1,19 @@
-﻿using OpenSpartan.Grunt.Core;
+﻿using HaloInfiniteResearchTools.Common.Extensions;
+using HaloInfiniteResearchTools.Common.Grunt.Converters;
+using HaloInfiniteResearchTools.Common.Grunt.Util;
+using OpenSpartan.Grunt.Core;
 using OpenSpartan.Grunt.Models;
-using System.Net.Http;
+using OpenSpartan.Grunt.Models.HaloInfinite;
 using OpenSpartan.Grunt.Util;
-using System.Threading.Tasks;
-using System.IO;
-using System.Net.Http.Headers;
-using System.Net;
 using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using HaloInfiniteResearchTools.Common.Extensions;
 using System.Text.Json.Serialization;
-using HaloInfiniteResearchTools.Common.Grunt.Converters;
-using OpenSpartan.Grunt.Models.HaloInfinite;
-using HaloInfiniteResearchTools.Common.Grunt.Util;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Common.Grunt
 {
@@ -73,7 +73,7 @@ namespace HaloInfiniteResearchTools.Common.Grunt
             defaultInterpolatedStringHandler.Append(flightId);
             return await haloInfiniteClient.ExecuteAPIRequestFix<InGameItem>(defaultInterpolatedStringHandler.ToString(), HttpMethod.Get, useSpartanToken: true, useClearance: true, GlobalConstants.HALO_WAYPOINT_USER_AGENT);
         }
-         public async Task<HaloApiResultContainer<ArmorTheme, HaloApiErrorContainer>> GameCmsGetArmorTheme(string itemPath, string flightId)
+        public async Task<HaloApiResultContainer<ArmorTheme, HaloApiErrorContainer>> GameCmsGetArmorTheme(string itemPath, string flightId)
         {
             HaloInfiniteClientFix haloInfiniteClient = this;
             StringBuilder defaultInterpolatedStringHandler = new StringBuilder();
@@ -166,10 +166,10 @@ namespace HaloInfiniteResearchTools.Common.Grunt
                         catch (Exception exs)
                         {
 
-                           
-                        } 
+
+                        }
                     }
-                    
+
                 }
             }
 

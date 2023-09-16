@@ -1,9 +1,4 @@
-﻿using OpenSpartan.Grunt.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace OpenSpartan.Grunt.Models.HaloInfinite
 {
@@ -14,20 +9,20 @@ namespace OpenSpartan.Grunt.Models.HaloInfinite
         public string DefaultOptionPath { get; set; }
         public List<string>? OptionPaths { get; set; }
     }
-    
+
     [IsAutomaticallySerializable]
     public class ItemOffRegionOptions : ItemOptions
     {
-        
+
         public List<RegionData>? OffRegionInfo { get; set; }
     }
-     [IsAutomaticallySerializable]
+    [IsAutomaticallySerializable]
     public class ItemHelmetOptions : ItemOptions
     {
-        
+
         public List<HelmetOptions>? Options { get; set; }
     }
-    public class HelmetOptions 
+    public class HelmetOptions
     {
         public string HelmetPath { get; set; }
         public ItemOptions? HelmetAttachments { get; set; }

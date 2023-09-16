@@ -1,39 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using LibHIRT.Common;
+﻿using LibHIRT.Common;
 
 namespace LibHIRT.Serializers.Configurations
 {
 
-  public class StaticBinaryScriptingSerializer<T> : BinaryScriptingSerializer<T>
+    public class StaticBinaryScriptingSerializer<T> : BinaryScriptingSerializer<T>
     where T : class, new()
-  {
-
-    #region Data Members
-
-    private readonly Dictionary<Type, IScriptingSerializer> _serializerCache
-      = new Dictionary<Type, IScriptingSerializer>();
-
-    #endregion
-
-    #region Overrides
-
-    protected override Dictionary<Type, IScriptingSerializer> GetSerializerCache()
-      => _serializerCache;
-
-    protected override void ReadProperty( BinaryReader reader, T obj )
     {
-      var propertyName = reader.ReadStringNullTerminated();
-      var unk_01 = reader.ReadUInt32(); // TODO
-      var dataType = ReadDataType( reader );
 
-      var propertyValue = ReadValue( reader, dataType, propertyName );
-      SetPropertyValue( obj, propertyName, propertyValue );
+        #region Data Members
+
+        private readonly Dictionary<Type, IScriptingSerializer> _serializerCache
+          = new Dictionary<Type, IScriptingSerializer>();
+
+        #endregion
+
+        #region Overrides
+
+        protected override Dictionary<Type, IScriptingSerializer> GetSerializerCache()
+          => _serializerCache;
+
+        protected override void ReadProperty(BinaryReader reader, T obj)
+        {
+            var propertyName = reader.ReadStringNullTerminated();
+            var unk_01 = reader.ReadUInt32(); // TODO
+            var dataType = ReadDataType(reader);
+
+            var propertyValue = ReadValue(reader, dataType, propertyName);
+            SetPropertyValue(obj, propertyName, propertyValue);
+        }
+
+        #endregion
+
     }
-
-    #endregion
-
-  }
 
 }

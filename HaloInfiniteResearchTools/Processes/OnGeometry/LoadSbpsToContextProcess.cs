@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
-using Assimp;
+﻿using Assimp;
 using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Common.Extensions;
 using LibHIRT.Common;
@@ -11,14 +6,17 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
-using OpenSpartan.Grunt.Models.HaloInfinite;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes.OnGeometry
 {
 
     public class LoadSbpsToContextProcess : ProcessBase<Scene>
     {
-        
+
 
         #region Data Members
 
@@ -65,8 +63,8 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             if (root == null) { return; }
             Node nodeRoot = new Node(_prefixMeshName);
 
-            ListTagInstance tagBlock = (ListTagInstance)root["instanced geometry instances"]; 
-            if (tagBlock == null) { return;}
+            ListTagInstance tagBlock = (ListTagInstance)root["instanced geometry instances"];
+            if (tagBlock == null) { return; }
             for (int i = 0; (i < tagBlock.Count); i++) // && i<5000
             {
                 TagRef tr_rtgo = tagBlock[i]["Runtime geo mesh reference"] as TagRef;
@@ -83,14 +81,15 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                 }*/
                 SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
                 TagInstance rootRtgo = rtgo_file.Deserialized()?.Root;
-                int meshIndex =(Int16) tagBlock[i]["Runtime geo mesh index"].AccessValue;
+                int meshIndex = (Int16)tagBlock[i]["Runtime geo mesh index"].AccessValue;
                 var renderGeometry = RenderGeometrySerializer.Deserialize(null, rtgo_file, (RenderGeometryTag)rootRtgo["render geometry"]);
                 string name = rtgo_file.Name;
-                if (name.Contains("207352254_1C26EF0A")) { 
-                
+                if (name.Contains("207352254_1C26EF0A"))
+                {
+
                 }
-                
-                Node temp = _context.AddRenderGeometry(_prefixMeshName+ rtgo_file.Name, renderGeometry, null, new List<int> { meshIndex }, true);
+
+                Node temp = _context.AddRenderGeometry(_prefixMeshName + rtgo_file.Name, renderGeometry, null, new List<int> { meshIndex }, true);
                 ListTagInstance per_mesh_data = (rootRtgo["Per Mesh Data"] as ListTagInstance);
                 /*
                 if (per_mesh_data != null && per_mesh_data.Count > meshIndex) {
@@ -121,7 +120,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
                     //temp.Transform = NumericExtensions.TRS(meshrot_mat, traslation, scale).ToAssimp();
                 }*/
-                
+
                 var scaleTagG = (Point3D)tagBlock[i]["scale"];
                 //var rotTag = per_mesh_data[meshIndex]["Scale"];
                 var positionTagG = (Point3D)tagBlock[i]["position"];
@@ -155,7 +154,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                 //nodeRoot.Children.Add(onBps);
                 nodeRoot.Children.Add(temp);
             }
-            _context.Scene.RootNode= nodeRoot;
+            _context.Scene.RootNode = nodeRoot;
             /*Node temp = _context.AddRenderGeometry(_prefixMeshName, _renderGeometry);
             _context.Scene.RootNode = temp;*/
         }

@@ -1,11 +1,9 @@
-﻿using HaloInfiniteResearchTools.Models;
-using LibHIRT.Files;
+﻿using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
@@ -37,7 +35,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public SearchFileByIdProcess( IServiceProvider? serviceProvider,int id, bool load_resource,params string[] paths) : base(serviceProvider)
+        public SearchFileByIdProcess(IServiceProvider? serviceProvider, int id, bool load_resource, params string[] paths) : base(serviceProvider)
         {
             _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
             _inputPaths = paths;
@@ -62,7 +60,7 @@ namespace HaloInfiniteResearchTools.Processes
             UnitName = _filePaths.Length > 1 ? "files opened" : "file opened";
             TotalUnits = _filePaths.Length;
             IsIndeterminate = _filePaths.Length == 1;
-            
+
             var objLock = new object();
             Parallel.ForEach(_filePaths, (filePath, state) =>
             {
@@ -75,17 +73,19 @@ namespace HaloInfiniteResearchTools.Processes
                 {
 
                     var fileR = _fileContext.OpenFileWithIdInModule(filePath, _id, _load_resource);
-                    if (fileR == null) {
-                        
+                    if (fileR == null)
+                    {
+
                         StatusList.AddWarning(fileName, "Failed to open file.");
-                    }   
-                    else {
+                    }
+                    else
+                    {
                         Status = Status.Replace("\n" + temp, "");
                         _filesLoaded.Add(fileR);
                         StatusList.AddMessage(fileName, "Open file.");
                         state.Stop();
                     }
-                        
+
                 }
                 catch (Exception ex)
                 {
@@ -93,11 +93,12 @@ namespace HaloInfiniteResearchTools.Processes
                 }
                 finally
                 {
-                    lock (objLock) {
+                    lock (objLock)
+                    {
                         Status = Status.Replace("\n" + temp, "");
                         CompletedUnits++;
                     }
-                        
+
                 }
             });
         }

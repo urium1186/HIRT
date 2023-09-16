@@ -5,7 +5,7 @@ namespace HaloInfiniteResearchTools.Views
     /// <summary>
     /// Interaction logic for ShaderBytecodeView.xaml
     /// </summary>
-    public partial class ShaderBytecodeView :  View<ShaderBytecodeViewModel>
+    public partial class ShaderBytecodeView : View<ShaderBytecodeViewModel>
     {
         public ShaderBytecodeView()
         {

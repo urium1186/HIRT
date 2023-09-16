@@ -9,13 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Forms.Design;
 using System.Windows.Input;
-using WpfHexaEditor.Core.MethodExtention;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -66,30 +62,30 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 progress.IsIndeterminate = true;
                 progress.Status = "Login";
-                
+
                 var objLock = new object();
-                
-                    
-                    try
-                    {
+
+
+                try
+                {
                     var process = new ConnectXboxServicesProcess();
                     process.Completed += ConnectXboxServicesProcess_Completed;
                     await RunProcess(process);
 
                 }
-                    catch (Exception ex)
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    lock (objLock)
                     {
-                        throw ex;
+                        progress.CompletedUnits++;
                     }
-                    finally
-                    {
-                        lock (objLock)
-                        {
-                            progress.CompletedUnits++;
-                        }
 
-                    }
-                
+                }
+
 
 
             }
@@ -128,7 +124,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
                     lock (objLock)
                     {
-                      //progress.CompletedUnits++;
+                        //progress.CompletedUnits++;
                     }
 
                 }
@@ -140,7 +136,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private void GetFromXboxWebApiProcess_Completed(object? sender, EventArgs e)
         {
-            
+
         }
 
         private void CheckInUseAction()
@@ -279,7 +275,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                     progress.UnitName = sh_bc.Count() > 1 ? "files opened" : "file opened";
                     progress.TotalUnits = sh_bc.Count();
-                    progress.IsIndeterminate = sh_bc.Count()==1;
+                    progress.IsIndeterminate = sh_bc.Count() == 1;
 
                     var objLock = new object();
                     foreach (var sh in sh_bc)

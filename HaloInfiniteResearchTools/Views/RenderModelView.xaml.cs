@@ -1,7 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using HaloInfiniteResearchTools.ViewModels;
+﻿using HaloInfiniteResearchTools.ViewModels;
 using OpenSpartan.Grunt.Models.HaloInfinite;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace HaloInfiniteResearchTools.Views
 {
@@ -72,7 +72,8 @@ namespace HaloInfiniteResearchTools.Views
 
         private void CoreSelectorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.DataContext != null && this.DataContext is RenderModelViewModel) {
+            if (this.DataContext != null && this.DataContext is RenderModelViewModel)
+            {
                 (this.DataContext as RenderModelViewModel).SelectCore((ArmorCore)(sender as ComboBox).SelectedItem);
             }
         }

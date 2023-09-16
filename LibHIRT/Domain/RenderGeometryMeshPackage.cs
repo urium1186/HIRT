@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Domain
+﻿namespace LibHIRT.Domain
 {
     public class RenderGeometryMeshPackage
     {
-        public struct ResourceLookup {
+        public struct ResourceLookup
+        {
             public Int16 ResourceGroupIndex;
             public Int16 GroupItemIndex;
         }

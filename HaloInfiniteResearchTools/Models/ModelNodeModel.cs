@@ -1,12 +1,12 @@
 ﻿using HaloInfiniteResearchTools.Controls;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX;
 
 namespace HaloInfiniteResearchTools.Models
 {

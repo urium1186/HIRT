@@ -15,7 +15,7 @@ namespace HaloInfiniteResearchTools.Processes
         string _json_path = "";
         private List<ArmorCore> _listArmorCores = null;
 
-        public Dictionary<string,string> CmsJsonPair { get; set; }
+        public Dictionary<string, string> CmsJsonPair { get; set; }
 
         private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
         {
@@ -30,7 +30,7 @@ namespace HaloInfiniteResearchTools.Processes
             }
         };
 
-        public GetArmorCoresFromJsonProcess(string _json_path="")
+        public GetArmorCoresFromJsonProcess(string _json_path = "")
         {
             _json_path = _json_path;
         }
@@ -52,7 +52,7 @@ namespace HaloInfiniteResearchTools.Processes
 
                     bool all_cores = await GetAllArmorCoresOfPlayer();
 
-                   
+
                 }
                 catch (Exception expe)
                 {
@@ -79,19 +79,19 @@ namespace HaloInfiniteResearchTools.Processes
 
                     all_Save = await LoadCmsArmorThemeFromDisk(item.Themes[0].ThemePath);
                     string s_result = "";
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].CoatingPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].VisorPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].ArmorFxPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].GlovePath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].ChestAttachmentPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].HelmetAttachmentPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].HelmetPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].HipAttachmentPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].KneePadPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].MythicFxPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].RightShoulderPadPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].LeftShoulderPadPath);
-                    s_result = await LoadCmsItemFromDisk( item.Themes[0].WristAttachmentPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].CoatingPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].VisorPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].ArmorFxPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].GlovePath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].ChestAttachmentPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].HelmetAttachmentPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].HelmetPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].HipAttachmentPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].KneePadPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].MythicFxPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].RightShoulderPadPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].LeftShoulderPadPath);
+                    s_result = await LoadCmsItemFromDisk(item.Themes[0].WristAttachmentPath);
 
                 }
             }
@@ -101,10 +101,10 @@ namespace HaloInfiniteResearchTools.Processes
 
         private async Task<string> LoadCmsItemFromDisk(string themepath)
         {
-            
+
             string full_path = LibHIRT.Utils.Utils.CreatePathFromString(themepath, "", "json");
 
-            if ( System.IO.File.Exists(full_path) )
+            if (System.IO.File.Exists(full_path))
             {
                 string jsonString_temp = System.IO.File.ReadAllText(full_path);
                 CmsJsonPair[themepath] = jsonString_temp;
@@ -112,13 +112,13 @@ namespace HaloInfiniteResearchTools.Processes
             }
             return "";
         }
-        
+
         private async Task<object> LoadCmsItemFromDisk(string themepath, Type ret_type)
         {
-            
+
             string full_path = LibHIRT.Utils.Utils.CreatePathFromString(themepath, "", "json");
 
-            if ( System.IO.File.Exists(full_path) )
+            if (System.IO.File.Exists(full_path))
             {
                 string jsonString_temp = System.IO.File.ReadAllText(full_path);
                 CmsJsonPair[themepath] = jsonString_temp;
@@ -126,15 +126,15 @@ namespace HaloInfiniteResearchTools.Processes
             }
             return null;
         }
-        
-        private async Task<bool> LoadCmsArmorThemeFromDisk(string themepath, bool save_options_paths= false)
+
+        private async Task<bool> LoadCmsArmorThemeFromDisk(string themepath, bool save_options_paths = false)
         {
             bool error = false;
             ArmorTheme theme_temp = (ArmorTheme)await LoadCmsItemFromDisk(themepath, typeof(ArmorTheme));
-            
-           
+
+
             bool all_Save = false;
-            if (theme_temp != null )
+            if (theme_temp != null)
             {
                 string theme_fileName = LibHIRT.Utils.Utils.CreatePathFromString(themepath, "", "json");
                 //string jsonString = JsonSerializer.Serialize(theme_wlv_c13d0b38.Result);
@@ -171,8 +171,8 @@ namespace HaloInfiniteResearchTools.Processes
 
             }
             return error;
-        } 
-        
+        }
+
         private async Task<bool> SaveCmsOptionPathsToDisk(List<string> paths)
         {
             bool error = false;
@@ -186,5 +186,5 @@ namespace HaloInfiniteResearchTools.Processes
         }
     }
 
-   
+
 }

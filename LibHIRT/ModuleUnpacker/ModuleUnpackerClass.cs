@@ -12,19 +12,20 @@
         {
             HiModule module = new HiModule();
             module.ReadIn(new BinaryReader(fileStream));
-            
+
             return module;
         }
         public static HiModule ReadModule(string filePath)
         {
             HiModule module = new HiModule();
             module.ReadIn(filePath);
-            
+
             return module;
         }
 
-        public static void AddFileToDirList(HiModuleFileEntry fileEntry) {
-            var dirSplit = fileEntry.Path_string.Split(@"\");  
+        public static void AddFileToDirList(HiModuleFileEntry fileEntry)
+        {
+            var dirSplit = fileEntry.Path_string.Split(@"\");
             /*if (_rootDir == null) {
                 _rootDir = new DirModel("Root"); 
             }
@@ -43,6 +44,6 @@
             tempDir.Dirs[dirSplit[dirSplit.Length - 1]].Parent= tempDir;    
             */
         }
-      
+
     }
 }

@@ -1,4 +1,26 @@
-﻿using HaloInfiniteResearchTools.Common;
+﻿using HaloInfiniteResearchTools.Assimport;
+using HaloInfiniteResearchTools.Common;
+using HaloInfiniteResearchTools.Controls;
+using HaloInfiniteResearchTools.Models;
+using HaloInfiniteResearchTools.Processes;
+using HaloInfiniteResearchTools.Processes.OnGeometry;
+using HaloInfiniteResearchTools.Services;
+using HaloInfiniteResearchTools.Services.Abstract;
+using HaloInfiniteResearchTools.ViewModels;
+using HaloInfiniteResearchTools.ViewModels.Abstract;
+using HaloInfiniteResearchTools.Views;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using LibHIRT.Domain.RenderModel;
+using LibHIRT.Files;
+using LibHIRT.Files.FileTypes;
+using LibHIRT.Serializers;
+using LibHIRT.TagReader;
+using Microsoft.Extensions.DependencyInjection;
+using PropertyChanged;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,34 +30,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using HaloInfiniteResearchTools.Models;
-using HaloInfiniteResearchTools.Processes;
-using HaloInfiniteResearchTools.Services;
-using HaloInfiniteResearchTools.Services.Abstract;
-using HaloInfiniteResearchTools.ViewModels.Abstract;
-using HaloInfiniteResearchTools.Views;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX;
-using Microsoft.Extensions.DependencyInjection;
-using PropertyChanged;
-using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
 using PhongMaterialCore = HelixToolkit.SharpDX.Core.Model.PhongMaterialCore;
 using TextureModel = HelixToolkit.SharpDX.Core.TextureModel;
-using LibHIRT.Processes;
-using LibHIRT.Domain.RenderModel;
-using HaloInfiniteResearchTools.Controls;
-using LibHIRT.TagReader;
-using SharpDX;
-using HaloInfiniteResearchTools.ViewModels;
-using LibHIRT.Serializers;
-using HaloInfiniteResearchTools.Assimport;
-using System.Data.Entity;
-using HaloInfiniteResearchTools.Processes.OnGeometry;
-using HaloInfiniteResearchTools.UI.Modals;
-using System.Diagnostics;
 
 namespace HaloInfiniteResearchTools.ControlsModel
 {
@@ -131,7 +127,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
         {
             _file = file;
             _loadedTextures = new Dictionary<string, TextureModel>();
-            
+
 
             _secundaryMesh = new List<(SSpaceFile, RenderModelDefinition, Assimp.Scene)>();
 
@@ -165,13 +161,13 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
             ExportModelCommand = new AsyncCommand(ExportModel);
 
-            PropertyChanged += Model3DViewerControlModel_PropertyChanged; 
+            PropertyChanged += Model3DViewerControlModel_PropertyChanged;
 
         }
 
         private void Model3DViewerControlModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            
+
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
@@ -188,7 +184,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
             Options = GetPreferences().ModelViewerOptions;
             UseFlycam = Options.DefaultToFlycam;
-            
+
             if (RenderGeometryTag == null)
                 return;
 
@@ -200,7 +196,8 @@ namespace HaloInfiniteResearchTools.ControlsModel
             {
                 convertProcess = new LoadSbpsToContextProcess(_context, _file as ScenarioStructureBspFile, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
             }
-            else {
+            else
+            {
                 var renderGeometry = RenderGeometrySerializer.Deserialize(null, _file, RenderGeometryTag);
                 convertProcess = new AddRenderGeometryToContextProcess(_context, renderGeometry, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
             }
@@ -209,19 +206,19 @@ namespace HaloInfiniteResearchTools.ControlsModel
             //var convertProcess = new ConvertRenderGeometryToAssimpSceneProcess(renderGeometry, _file.FileMemDescriptor.GlobalTagId1.ToString("X"));
 
 
-            
 
-                await Task.Factory.StartNew(convertProcess.Execute, TaskCreationOptions.LongRunning);
-                await convertProcess.CompletionTask;
 
-                _assimpScene = _file is ScenarioStructureBspFile ? ((LoadSbpsToContextProcess)convertProcess).Result : ((AddRenderGeometryToContextProcess)convertProcess).Result;
+            await Task.Factory.StartNew(convertProcess.Execute, TaskCreationOptions.LongRunning);
+            await convertProcess.CompletionTask;
 
-                await PrepareModelViewer(_assimpScene);
+            _assimpScene = _file is ScenarioStructureBspFile ? ((LoadSbpsToContextProcess)convertProcess).Result : ((AddRenderGeometryToContextProcess)convertProcess).Result;
+
+            await PrepareModelViewer(_assimpScene);
 
             //await RunProcess(convertProcess);
-                
-                
-            
+
+
+
         }
 
         protected override void OnDisposing()
@@ -340,7 +337,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
             var importer = new Importer();
             importer.ToHelixToolkitScene(assimpScene, out var scene);
 
-            
+
             _sceneHelixToolkit = scene;
 
             AddNodeModels(scene.Root);
@@ -363,9 +360,9 @@ namespace HaloInfiniteResearchTools.ControlsModel
                 Model.AddNode(scene.Root);
                 CalculateMoveSpeed(scene);
                 UpdateMeshInfo();
-                MyGeometrySceneContex = new RenderGeometrySceneContext(null,null);
-                
-                
+                MyGeometrySceneContex = new RenderGeometrySceneContext(null, null);
+
+
                 Viewport.Items.Clear();
                 Viewport.Items.Add(Model);
             });
@@ -432,7 +429,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
             }
         }
 
-        
+
         private void ShowAllNodes()
         {
             foreach (var node in Traverse(_nodes))
@@ -553,14 +550,15 @@ namespace HaloInfiniteResearchTools.ControlsModel
             MaxMoveSpeed = BASELINE_MAX_SPEED * coef;
         }
 
-        public async Task ExportModel(Tuple<ModelExportOptionsModel, TextureExportOptionsModel> result) {
+        public async Task ExportModel(Tuple<ModelExportOptionsModel, TextureExportOptionsModel> result)
+        {
             if (!(result is Tuple<ModelExportOptionsModel, TextureExportOptionsModel> options))
                 return;
 
             var modelOptions = options.Item1;
             var textureOptions = options.Item2;
             ExportModelProcess exportProcess;
-            if (_assimpScene!=null)
+            if (_assimpScene != null)
                 exportProcess = new ExportModelProcess(_file, _assimpScene, _renderModelDef, modelOptions, textureOptions, _nodes);
             else
                 exportProcess = new ExportModelProcess(_file, _sceneHelixToolkit, _renderModelDef, modelOptions, textureOptions, _nodes);
@@ -578,11 +576,12 @@ namespace HaloInfiniteResearchTools.ControlsModel
         {
             try
             {
-                if (ExtExportModelCommand != null) {
+                if (ExtExportModelCommand != null)
+                {
                     ExtExportModelCommand.Execute(this);
                     return;
                 }
-                    
+
                 var result = await ShowViewModal<ModelExportOptionsView>();
                 if (!(result is Tuple<ModelExportOptionsModel, TextureExportOptionsModel> options))
                     return;
@@ -609,7 +608,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
                 throw ex;
             }
-            
+
 
 
 

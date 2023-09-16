@@ -1,15 +1,14 @@
-﻿using System.IO;
+﻿using Microsoft.Win32;
+using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;
-using Microsoft.Win32;
-using WpfHexaEditor.Core.CharacterTable;
-using WpfHexaEditor.Core;
-using WpfHexaEditor.Dialog;
-using LibHIRT.Common;
 using WpfHexaEditor;
-using System;
+using WpfHexaEditor.Core;
+using WpfHexaEditor.Core.CharacterTable;
+using WpfHexaEditor.Dialog;
 
 namespace HaloInfiniteResearchTools.Controls
 {
@@ -18,7 +17,7 @@ namespace HaloInfiniteResearchTools.Controls
     /// </summary>
     public partial class BinaryExplorer : UserControl
     {
-                
+
         public static readonly DependencyProperty FileStreamProperty = DependencyProperty.Register("FileStream", typeof(Stream), typeof(BinaryExplorer), new
            PropertyMetadata(null, new PropertyChangedCallback(OnFileStreamChanged)));
 
@@ -38,14 +37,14 @@ namespace HaloInfiniteResearchTools.Controls
         private void OnFileStreamChanged(DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue != null)
-            { 
+            {
                 HexEdit.Stream = (Stream)e.NewValue;
                 if (BytesReadView.FileStream == null)
                     BytesReadView.FileStream = (Stream)e.NewValue;
             }// RefreshJsonTree(e.NewValue.ToString());
         }
 
-        public static readonly DependencyProperty PositionOnCurrentStreamProperty= DependencyProperty.Register("PositionOnCurrentStream", typeof(long), typeof(BinaryExplorer), new
+        public static readonly DependencyProperty PositionOnCurrentStreamProperty = DependencyProperty.Register("PositionOnCurrentStream", typeof(long), typeof(BinaryExplorer), new
            PropertyMetadata(0L, new PropertyChangedCallback(OnPositionOnCurrentStreamChanged)));
 
         public long PositionOnCurrentStream
@@ -64,7 +63,7 @@ namespace HaloInfiniteResearchTools.Controls
         private void OnPositionOnCurrentStreamChanged(DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue != null)
-            { 
+            {
                 long position = (long)e.NewValue;
                 HexEdit.SetPosition(position, 1);
             }// RefreshJsonTree(e.NewValue.ToString());
@@ -249,7 +248,7 @@ namespace HaloInfiniteResearchTools.Controls
             var filename = ti.ToolTip.ToString();
             if (!File.Exists(filename)) return;
 
-            HexEdit.Stream= new FileStream(filename, FileMode.Open);
+            HexEdit.Stream = new FileStream(filename, FileMode.Open);
 
             //Setstate 
             if (ti.Tag is XDocument doc)
@@ -288,18 +287,21 @@ namespace HaloInfiniteResearchTools.Controls
             //    ((HexEditor)sender).Stream = new FileStream(((HexEditor)sender).FileName, FileMode.Open);
             if (BytesReadView.FileStream != tempS.Stream)
                 BytesReadView.FileStream = HexEdit.Stream;
-            if (BytesReadView.FileStream == null) {
+            if (BytesReadView.FileStream == null)
+            {
                 BytesReadView.FileStream = FileStream;
             }
-             
-            if (temp!=-1 && BytesReadView.FileStream != null && BytesReadView.FileStream.CanRead && temp < BytesReadView.FileStream.Length) {
+
+            if (temp != -1 && BytesReadView.FileStream != null && BytesReadView.FileStream.CanRead && temp < BytesReadView.FileStream.Length)
+            {
                 BytesReadView.FileStream.Position = temp;
                 BytesReadView.Refresh();
             }
-            
+
         }
 
-        Stream GetStreamFromExClipboard() {
+        Stream GetStreamFromExClipboard()
+        {
             try
             {
                 byte[] result = Convert.FromHexString(Clipboard.GetText());
@@ -311,13 +313,14 @@ namespace HaloInfiniteResearchTools.Controls
 
 
             }
-            
+
 
         }
 
         private void OpenClipboardMenu_Click(object sender, RoutedEventArgs e)
         {
-            if (HexEdit.Stream != null) {
+            if (HexEdit.Stream != null)
+            {
                 HexEdit.Stream.Close();
                 HexEdit.Stream.Dispose();
                 HexEdit.Stream = null;

@@ -1,22 +1,22 @@
 ﻿using Assimp;
+using HaloInfiniteResearchTools.Common.Extensions;
 using LibHIRT.Data.Geometry;
 using LibHIRT.Domain;
 using System.Collections.Generic;
-using HaloInfiniteResearchTools.Common.Extensions;
 using System.Numerics;
 
 namespace HaloInfiniteResearchTools.Assimport
 {
     public static class SMeshBuilder
     {
-        
+
         public static Mesh Build(s_mesh _object, short lodIndex, string meshName, List<int> materialsIndexList)
         {
             var mesh = new Mesh(meshName, PrimitiveType.Triangle);
             var verLU = AddVertices(mesh, _object.LODRenderData[lodIndex]);
-            AddFaces(mesh,_object.LODRenderData[lodIndex], verLU);
-            AddInterleavedData(mesh,_object.LODRenderData[lodIndex]);
-            if (materialsIndexList!=null && materialsIndexList.Count> _object.LODRenderData[lodIndex].Parts[0].MaterialIndex)
+            AddFaces(mesh, _object.LODRenderData[lodIndex], verLU);
+            AddInterleavedData(mesh, _object.LODRenderData[lodIndex]);
+            if (materialsIndexList != null && materialsIndexList.Count > _object.LODRenderData[lodIndex].Parts[0].MaterialIndex)
                 mesh.MaterialIndex = materialsIndexList[_object.LODRenderData[lodIndex].Parts[0].MaterialIndex];
             return mesh;
         }
@@ -91,7 +91,7 @@ namespace HaloInfiniteResearchTools.Assimport
         }
         private static void AddFaces(Mesh onMesh, LODRenderData meshLOD, Dictionary<uint, uint> vertexLookup)
         {
-            if (meshLOD.IndexBufferIndex.Count == 0 && meshLOD.Vertexs!= null)
+            if (meshLOD.IndexBufferIndex.Count == 0 && meshLOD.Vertexs != null)
             {
                 for (int i = 0; i < meshLOD.Vertexs.Length; i++)
                 {
@@ -119,13 +119,13 @@ namespace HaloInfiniteResearchTools.Assimport
                 Vector4 uvVector = default;
                 uvVector.X = vertex.UV0.Value.X;
                 uvVector.Y = vertex.UV0.Value.Y;
-                AddVertexUV(onMesh,0, uvVector);
+                AddVertexUV(onMesh, 0, uvVector);
                 if (vertex.UV1 != null)
                 {
                     Vector4 uvVector1 = default;
                     uvVector.X = vertex.UV1.Value.X;
                     uvVector.Y = vertex.UV1.Value.Y;
-                    AddVertexUV(onMesh,1, uvVector1);
+                    AddVertexUV(onMesh, 1, uvVector1);
                 }
                 if (vertex.UV2 != null)
                 {

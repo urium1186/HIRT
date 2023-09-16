@@ -1,5 +1,4 @@
-﻿using OpenSpartan.Grunt.Models.HaloInfinite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -15,12 +14,12 @@ namespace HaloInfiniteResearchTools.Processes
 
         public GetFromXboxWebApiProcess(ConnectXboxServicesResult _connectXbox)
         {
-            
+
             connectXbox = _connectXbox;
             DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(38, 4);
             defaultInterpolatedStringHandler.AppendFormatted("/inventory/armor/themes/007-000-lone-wolf-0903655e.json");
             // connectXbox.Client = new HaloInfiniteClientFix(connectXbox.Client.SpartanToken, connectXbox.Client.Xuid, connectXbox.Client.ClearanceToken);
-            
+
         }
 
         protected async override Task OnExecuting()
@@ -71,7 +70,7 @@ namespace HaloInfiniteResearchTools.Processes
                         System.IO.File.WriteAllText(fileName, jsonString);
                     }
 
-                   
+
                 }
                 catch (Exception expe)
                 {
@@ -104,29 +103,29 @@ namespace HaloInfiniteResearchTools.Processes
                 {
                     //var theme_wlv_c13d0b38 = await connectXbox.Client.GameCmsGetItem("/inventory/armor/themes/007-000-lone-wolf-0903655e.json", connectXbox.Client.ClearanceToken);
                     bool all_Save = false;
-                    
+
                     all_Save = await SaveCmsArmorThemeToDisk(item.Themes[0].ThemePath);
 
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].CoatingPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].VisorPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].ArmorFxPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].GlovePath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].ChestAttachmentPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].HelmetAttachmentPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].HelmetPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].HipAttachmentPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].KneePadPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].MythicFxPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].RightShoulderPadPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].LeftShoulderPadPath);
-                    all_Save = await SaveCmsItemToDisk( item.Themes[0].WristAttachmentPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].CoatingPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].VisorPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].ArmorFxPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].GlovePath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].ChestAttachmentPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].HelmetAttachmentPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].HelmetPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].HipAttachmentPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].KneePadPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].MythicFxPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].RightShoulderPadPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].LeftShoulderPadPath);
+                    all_Save = await SaveCmsItemToDisk(item.Themes[0].WristAttachmentPath);
 
                 }
             }
 
-            
 
-            
+
+
 
 
             return true;
@@ -146,8 +145,8 @@ namespace HaloInfiniteResearchTools.Processes
             }
             return false;
         }
-        
-        private async Task<bool> SaveCmsArmorThemeToDisk(string themepath, bool save_options_paths= false)
+
+        private async Task<bool> SaveCmsArmorThemeToDisk(string themepath, bool save_options_paths = false)
         {
             var theme_temp = await connectXbox.Client.GameCmsGetArmorTheme("/" + themepath.ToLower(), connectXbox.Client.ClearanceToken);
             bool error = false;
@@ -171,8 +170,9 @@ namespace HaloInfiniteResearchTools.Processes
                 all_Save = await SaveCmsItemToDisk(theme_temp.Result.ArmorFx.DefaultOptionPath);
                 all_Save = await SaveCmsItemToDisk(theme_temp.Result.MythicFx.DefaultOptionPath);
 
-                
-                if (save_options_paths) {
+
+                if (save_options_paths)
+                {
                     error = await SaveCmsOptionPathsToDisk(theme_temp.Result.Visors.OptionPaths);
                     error = await SaveCmsOptionPathsToDisk(theme_temp.Result.ArmorFx.OptionPaths);
                     error = await SaveCmsOptionPathsToDisk(theme_temp.Result.ChestAttachments.OptionPaths);
@@ -184,13 +184,13 @@ namespace HaloInfiniteResearchTools.Processes
                     error = await SaveCmsOptionPathsToDisk(theme_temp.Result.RightShoulderPads.OptionPaths);
                     error = await SaveCmsOptionPathsToDisk(theme_temp.Result.WristAttachments.OptionPaths);
                 }
-                
-                
-                   
+
+
+
             }
             return error;
-        } 
-        
+        }
+
         private async Task<bool> SaveCmsOptionPathsToDisk(List<string> paths)
         {
             bool error = false;
@@ -204,5 +204,5 @@ namespace HaloInfiniteResearchTools.Processes
         }
     }
 
-   
+
 }

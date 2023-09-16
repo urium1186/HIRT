@@ -1,16 +1,12 @@
 ﻿
 using HaloInfiniteResearchTools.Processes;
+using LibHIRT.Files;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
-using HaloInfiniteResearchTools.Common.Enumerations;
-using LibHIRT.TagReader;
-using LibHIRT.Files;
-using Microsoft.Extensions.DependencyInjection;
-using LibHIRT.Common;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -40,15 +36,17 @@ namespace HaloInfiniteResearchTools.Cli
             _searchterm = searchterm;
             _output = output;
 
-            if (!deploy_dir.Exists) {
+            if (!deploy_dir.Exists)
+            {
                 Console.WriteLine("Must be a valid path");
                 return;
             }
-            
+
             var process = new OpenFilesProcess(EntryPoint.ServiceProvider, deploy_dir.FullName);
             process.Completed += OpenFilesProcessExport_Completed;
             await process.Execute();
-            if (process.StatusList.Count != 0) {
+            if (process.StatusList.Count != 0)
+            {
                 foreach (var item in process.StatusList)
                 {
                     Console.WriteLine("Status info " + item);
@@ -64,12 +62,12 @@ namespace HaloInfiniteResearchTools.Cli
                 var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles(_searchterm);
                 if (founds != null && founds.Count() != 0)
                 {
-                    
+
                     foreach (var item in founds)
                     {
-                        string path = Path.Combine(_output.FullName, ((SSpaceFile)item).FileMemDescriptor.Path_string.Replace("����","no_tag_group")+ ".bin");
+                        string path = Path.Combine(_output.FullName, ((SSpaceFile)item).FileMemDescriptor.Path_string.Replace("����", "no_tag_group") + ".bin");
                         Directory.CreateDirectory(Path.GetDirectoryName(path));
-                        byte[] _out= new byte[item.GetStream().Length];
+                        byte[] _out = new byte[item.GetStream().Length];
                         item.GetStream().Seek(0, SeekOrigin.Begin);
                         item.GetStream().Read(_out);
                         File.WriteAllBytes(path, _out);
@@ -81,9 +79,9 @@ namespace HaloInfiniteResearchTools.Cli
             catch (Exception ex)
             {
 
-                Console.WriteLine("Error: "+ ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
-            
+
 
             Console.WriteLine("Termino el proceso");
         }

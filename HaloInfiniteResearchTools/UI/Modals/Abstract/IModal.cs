@@ -5,22 +5,22 @@ using System.Windows.Markup;
 namespace HaloInfiniteResearchTools.UI.Modals
 {
 
-  public interface IModal : IAddChild, IDisposable
-  {
+    public interface IModal : IAddChild, IDisposable
+    {
 
-    #region Properties
+        #region Properties
 
-    Task<object> Task { get; }
+        Task<object> Task { get; }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    Task Show();
-    Task Hide();
+        Task Show();
+        Task Hide();
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

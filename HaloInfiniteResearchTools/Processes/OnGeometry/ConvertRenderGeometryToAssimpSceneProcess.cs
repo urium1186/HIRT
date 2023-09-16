@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Assimp;
+﻿using Assimp;
 using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Extensions;
 using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Data;
 using LibHIRT.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace LibHIRT.Processes.OnGeometry
@@ -20,7 +20,7 @@ namespace LibHIRT.Processes.OnGeometry
 
         #region Data Members
 
-        
+
 
         private RenderGeometrySceneContext _context;
         private readonly RenderGeometry _renderGeometry;
@@ -59,7 +59,7 @@ namespace LibHIRT.Processes.OnGeometry
 
         protected override async Task OnExecuting()
         {
-            _context = new RenderGeometrySceneContext(_renderGeometry, StatusList, _parentScene); 
+            _context = new RenderGeometrySceneContext(_renderGeometry, StatusList, _parentScene);
 
             ConvertObjects();
             /*
@@ -85,7 +85,7 @@ namespace LibHIRT.Processes.OnGeometry
                 {
                     _context.Scene.RootNode = _context.RootNode = rootNode;
                 }
-                
+
                 AddMeshNodes(_context.Tpl.Meshes);
             }
             catch (Exception ex)
@@ -247,9 +247,9 @@ namespace LibHIRT.Processes.OnGeometry
         }
 
         #endregion
-        
+
 
     }
 
-   
+
 }

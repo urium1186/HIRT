@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Utils
+﻿namespace LibHIRT.Utils
 {
     public class LogWriter
     {
-        private static  string m_exePath = string.Empty;
+        private static string m_exePath = string.Empty;
         public LogWriter(string logMessage)
         {
             LogWrite(logMessage);
@@ -17,7 +10,7 @@ namespace LibHIRT.Utils
         public static void LogWrite(string logMessage)
         {
             //m_exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            m_exePath =  Utils.GetUserAppPath()
+            m_exePath = Utils.GetUserAppPath()
 ;
             try
             {

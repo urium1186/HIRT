@@ -32,15 +32,15 @@ namespace HaloInfiniteResearchTools.Controls
         private void OnJsonStringChanged(DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue != null)
-                RefreshJsonTree( e.NewValue.ToString());
+                RefreshJsonTree(e.NewValue.ToString());
         }
 
         public JsonTreeView()
         {
             InitializeComponent();
         }
-        
-        
+
+
         protected void RefreshJsonTree(string jsonstring)
         {
             try
@@ -54,7 +54,7 @@ namespace HaloInfiniteResearchTools.Controls
 
                 throw ex;
             }
-            
+
         }
 
     }

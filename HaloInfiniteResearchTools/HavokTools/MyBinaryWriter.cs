@@ -1,6 +1,5 @@
-﻿using System;
+﻿using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Buffers.Binary;
 
 namespace HavokScriptToolsCommon
 {
@@ -8,7 +7,7 @@ namespace HavokScriptToolsCommon
     {
         private readonly List<byte> data;
         private bool littleEndian;
-        public MyBinaryWriter(bool littleEndian=true)
+        public MyBinaryWriter(bool littleEndian = true)
         {
             this.littleEndian = littleEndian;
             data = new List<byte>();
@@ -130,7 +129,7 @@ namespace HavokScriptToolsCommon
             data.AddRange(value);
         }
 
-        public void Pad(int padding, byte value=0)
+        public void Pad(int padding, byte value = 0)
         {
             if (data.Count % padding != 0)
             {

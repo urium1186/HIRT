@@ -74,7 +74,7 @@ else if (dotProduct < 0)
                    //Matrix4x4.CreateScale(scale) *
                    Matrix4x4.CreateTranslation(translation);
         }
-        
+
         public static Matrix4x4 TRS(this GlmSharp.mat3 meshrot_mat, GlmSharp.vec3 position, GlmSharp.vec3 scale)
         {
 
@@ -87,7 +87,7 @@ else if (dotProduct < 0)
                 meshtransform.m20, meshtransform.m21, meshtransform.m22, meshtransform.m23,
                 meshtransform.m30, meshtransform.m31, meshtransform.m32, meshtransform.m33
                 );
-            return result; 
+            return result;
         }
         public static Matrix4x4 TRS(this Vector3 translation, Quaternion rotation, Vector3 scale)
         {
@@ -96,29 +96,32 @@ else if (dotProduct < 0)
                    Matrix4x4.CreateTranslation(translation);
         }
 
-        public static GlmSharp.mat3 GetRoitationFrom(this Vector3 forward, Vector3 left, Vector3 up) {
-           
+        public static GlmSharp.mat3 GetRoitationFrom(this Vector3 forward, Vector3 left, Vector3 up)
+        {
+
             GlmSharp.mat3 meshrot_mat = new GlmSharp.mat3(
-                new GlmSharp.vec3( forward.X, forward.Y, forward.Z ),
+                new GlmSharp.vec3(forward.X, forward.Y, forward.Z),
                 new GlmSharp.vec3(left.X, left.Y, left.Z),
                 new GlmSharp.vec3(up.X, up.Y, up.Z)
                 );
 
             return meshrot_mat;
         }
-        public static Quaternion GetRoitationFrom(this Vector3 forward, Vector3 up) {
+        public static Quaternion GetRoitationFrom(this Vector3 forward, Vector3 up)
+        {
             return INTERNAL_CALL_LookRotation(forward, up);
         }
 
-        private static Quaternion INTERNAL_CALL_LookRotation(Vector3 forward, Vector3 up) {
+        private static Quaternion INTERNAL_CALL_LookRotation(Vector3 forward, Vector3 up)
+        {
             Vector3 right = Vector3.Normalize(Vector3.Cross(up, forward));
             return INTERNAL_CALL_LookRotation(forward, up, right);
         }
-        private static Quaternion INTERNAL_CALL_LookRotation(Vector3 forward,Vector3 up, Vector3 right)
+        private static Quaternion INTERNAL_CALL_LookRotation(Vector3 forward, Vector3 up, Vector3 right)
         {
 
             forward = Vector3.Normalize(forward);
-            
+
             up = Vector3.Cross(forward, right);
             var m00 = right.X;
             var m01 = right.Y;
@@ -186,7 +189,8 @@ else if (dotProduct < 0)
             return Math.Sqrt(distance);
         }
 
-        public static float getElementAt(this Matrix4x4 matrix, int i, int j) {
+        public static float getElementAt(this Matrix4x4 matrix, int i, int j)
+        {
             if (i == 0 && j == 0)
                 return matrix.M11;
             else if (i == 0 && j == 1)
@@ -217,9 +221,9 @@ else if (dotProduct < 0)
                 return matrix.M42;
             else if (i == 3 && j == 2)
                 return matrix.M43;
-            
+
             return matrix.M44;
-            
+
         }
         // get is a vector direction is point up or down or left or right or forward or backward
         public static bool isVectorDirection(this Vector3 vector, Vector3 direction)
@@ -363,7 +367,7 @@ else if (dotProduct < 0)
             }
             return VectorDirection.None;
         }
-        
+
     }
 
 }

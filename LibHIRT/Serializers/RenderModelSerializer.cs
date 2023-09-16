@@ -48,7 +48,7 @@ namespace LibHIRT.Serializers
             ReadBoneNodes(obj);
             ReadMarkerGroups(obj);
             RenderGeometry temp = new RenderGeometry();
-            
+
             ReadRenderGeometry(ref temp);
             obj.Render_geometry = temp;
         }

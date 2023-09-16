@@ -5,25 +5,25 @@ using System.Windows.Media.Animation;
 namespace HaloInfiniteResearchTools.Common.Extensions
 {
 
-  public static class StoryboardExtensions
-  {
-
-    public static Task BeginAsync( this Storyboard storyboard )
+    public static class StoryboardExtensions
     {
-      var tcs = new TaskCompletionSource<object>();
 
-      void OnCompleted( object sender, EventArgs e )
-      {
-        tcs.SetResult( null );
-        storyboard.Completed -= OnCompleted;
-      }
+        public static Task BeginAsync(this Storyboard storyboard)
+        {
+            var tcs = new TaskCompletionSource<object>();
 
-      storyboard.Completed += OnCompleted;
+            void OnCompleted(object sender, EventArgs e)
+            {
+                tcs.SetResult(null);
+                storyboard.Completed -= OnCompleted;
+            }
 
-      storyboard.Begin();
-      return tcs.Task;
+            storyboard.Completed += OnCompleted;
+
+            storyboard.Begin();
+            return tcs.Task;
+        }
+
     }
-
-  }
 
 }

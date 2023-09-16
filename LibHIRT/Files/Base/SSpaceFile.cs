@@ -5,11 +5,6 @@ using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Headers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.Files
@@ -71,14 +66,20 @@ namespace LibHIRT.Files
 
         public string Path_string => fileMemDescriptor?.Path_string;
 
-        public string TagGroup { get { return _tagGroup == null ? fileMemDescriptor?.TagGroupRev : _tagGroup; }
-            set { _tagGroup = value; } }
+        public string TagGroup
+        {
+            get { return _tagGroup == null ? fileMemDescriptor?.TagGroupRev : _tagGroup; }
+            set { _tagGroup = value; }
+        }
 
         public string InDiskPath { get => _inDiskPath; set => _inDiskPath = value; }
 
         public ISSpaceFile RefParent { get => _ref_parent; set => _ref_parent = value; }
 
-        public Dictionary<int, ISSpaceFile> RefChildren { get {
+        public Dictionary<int, ISSpaceFile> RefChildren
+        {
+            get
+            {
                 if (_ref_children == null)
                     _ref_children = new Dictionary<int, ISSpaceFile>();
                 return _ref_children;
@@ -88,13 +89,13 @@ namespace LibHIRT.Files
         private DinamycType? _deserialized;
 
         public bool IsDeserialized { get => _deserialized != null; }
-        public DinamycType? Deserialized(EventHandler<ITagInstance> _onDeserialized= null)
+        public DinamycType? Deserialized(EventHandler<ITagInstance> _onDeserialized = null)
         {
-           if (_deserialized == null)
+            if (_deserialized == null)
                 _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized);
-            GetStream().Seek(0, SeekOrigin.Begin);  
+            GetStream().Seek(0, SeekOrigin.Begin);
             return _deserialized;
-           
+
         }
 
         #endregion
@@ -105,11 +106,11 @@ namespace LibHIRT.Files
           long dataStartOffset, long dataEndOffset,
           ISSpaceFile parent = null)
         {
-            _hash= name.GetHashCode();
+            _hash = name.GetHashCode();
             //_name = _hash.ToString() + SanitizeName(name);
             _name = SanitizeName(name);
-            if (parent!=null && parent is ModuleFile)
-                _name= (((ModuleFile)parent).TryGetGlobalId().ToString())+ "_" + _name;
+            if (parent != null && parent is ModuleFile)
+                _name = (((ModuleFile)parent).TryGetGlobalId().ToString()) + "_" + _name;
             _extension = Path.GetExtension(_name);
 
             _baseStream = baseStream;
@@ -144,7 +145,7 @@ namespace LibHIRT.Files
 
         public virtual HIRTStream GetStream()
           => GetFromFileDescriptor();
-          //=> new HIRTStreamSegment(_baseStream, _dataStartOffset, SizeInBytes);
+        //=> new HIRTStreamSegment(_baseStream, _dataStartOffset, SizeInBytes);
 
         #endregion
 
@@ -207,20 +208,23 @@ namespace LibHIRT.Files
 
         public Stream GetMemoryStream_()
         {
-            if (_baseStream != null) {
-                 
+            if (_baseStream != null)
+            {
+
             }
-            if (fileMemDescriptor != null) { 
+            if (fileMemDescriptor != null)
+            {
                 var paret = (Parent as ModuleFile);
                 if (paret != null)
                 {
-                    return paret.GetMemoryStreamFromFile(fileMemDescriptor); 
+                    return paret.GetMemoryStreamFromFile(fileMemDescriptor);
                 }
             }
             return new MemoryStream();
         }
 
-        protected HIRTStream GetFromFileDescriptor() {
+        protected HIRTStream GetFromFileDescriptor()
+        {
             if (_baseStream != null)
             {
                 return _baseStream;
@@ -243,7 +247,7 @@ namespace LibHIRT.Files
             if (fileMemDescriptor != null)
             {
                 string temp = fileMemDescriptor.TagGroupRev;
-                ;  
+                ;
                 return TagXmlParse.GetXmlPath(ref temp);
             }
             return "";
@@ -253,10 +257,12 @@ namespace LibHIRT.Files
         {
             if (this is ModuleFile)
                 return ((ModuleFile)this).ModuleHeader.ModuleIntId;
-            if (fileMemDescriptor != null) {
+            if (fileMemDescriptor != null)
+            {
                 return fileMemDescriptor.GlobalTagId1;
             }
-            if (_baseStream != null) { 
+            if (_baseStream != null)
+            {
                 TagFile temp = new TagFile();
                 return temp.tryReadGlobalId(_baseStream);
             }

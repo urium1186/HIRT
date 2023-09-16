@@ -3,25 +3,25 @@
 namespace HaloInfiniteResearchTools.Services.Abstract
 {
 
-  public interface IMeshIdentifierService
-  {
+    public interface IMeshIdentifierService
+    {
 
-    #region Properties
+        #region Properties
 
-    Regex LodRegex { get; }
-    Regex VolumeRegex { get; }
-    Regex LodOrVolumeRegex { get; }
+        Regex LodRegex { get; }
+        Regex VolumeRegex { get; }
+        Regex LodOrVolumeRegex { get; }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    bool IsLod( string name );
-    bool IsVolume( string name );
-    bool IsLodOrVolume( string name );
+        bool IsLod(string name);
+        bool IsVolume(string name);
+        bool IsLodOrVolume(string name);
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

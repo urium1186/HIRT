@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Assimp;
+﻿using Assimp;
 using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Extensions;
@@ -17,6 +11,12 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace LibHIRT.Processes.OnGeometry
@@ -34,7 +34,7 @@ namespace LibHIRT.Processes.OnGeometry
         private Scene _parentScene;
         private Assimp.Matrix4x4 _initialTransform;
         private Node skl_nodes;
-        
+
         private Dictionary<string, Node> _marker_lookup;
 
         #endregion
@@ -141,7 +141,8 @@ namespace LibHIRT.Processes.OnGeometry
             CompletedUnits = 0;
             TotalUnits = marker_groups.Length;
             _marker_lookup = new Dictionary<string, Node>();
-            foreach (var group in marker_groups) {
+            foreach (var group in marker_groups)
+            {
                 foreach (var marker in group.Markers)
                 {
                     if (!_context.NodeNames.ContainsKey(nodes1[marker.NodeIndex].Name))
@@ -209,7 +210,8 @@ namespace LibHIRT.Processes.OnGeometry
             }*/
         }
 
-        private void AddSklNodes(ModelBone[] nodes1, ListTagInstance nodes) {
+        private void AddSklNodes(ModelBone[] nodes1, ListTagInstance nodes)
+        {
             Status = "Initializing Nodes";
             UnitName = "Nodes Initialized";
             CompletedUnits = 0;
@@ -218,7 +220,7 @@ namespace LibHIRT.Processes.OnGeometry
             _context.RootNode.Children.Add(skl_nodes);
             AddSklNodesRecursive(nodes1, nodes, nodes1[0], skl_nodes);
         }
-        
+
         private void AddSklNodesRecursive(ModelBone[] nodes1, ListTagInstance nodes, ModelBone rootBone, Node parentNode)
         {
 
@@ -260,9 +262,10 @@ namespace LibHIRT.Processes.OnGeometry
                 ModelBone.calculateGlobalTransformation(rootBone);
 
             node.Transform = rootBone.LocalTransform.ToAssimp();
-            
-            if (node.calculateGlobalTransformation().Equals(rootBone.GlobalTransform)) { 
-            
+
+            if (node.calculateGlobalTransformation().Equals(rootBone.GlobalTransform))
+            {
+
             };
             //foreach (var submesh in obj.SubMeshes)
             //{
@@ -294,12 +297,12 @@ namespace LibHIRT.Processes.OnGeometry
             */
 
             CompletedUnits++;
-            if (next_sibling_node_index!=-1)
+            if (next_sibling_node_index != -1)
                 AddSklNodesRecursive(nodes1, nodes, nodes1[next_sibling_node_index], parentNode);
-            if (first_child_node_index!=-1)
+            if (first_child_node_index != -1)
                 AddSklNodesRecursive(nodes1, nodes, nodes1[first_child_node_index], node);
 
-             
+
         }
 
 
@@ -496,5 +499,5 @@ namespace LibHIRT.Processes.OnGeometry
 
     }
 
-   
+
 }

@@ -20,8 +20,8 @@ namespace LibHIRT.Domain
         {
             get
             {
-                if (_LODRenderData==null)
-                    _LODRenderData= new List<LODRenderData>();    
+                if (_LODRenderData == null)
+                    _LODRenderData = new List<LODRenderData>();
                 return _LODRenderData;
             }
         }

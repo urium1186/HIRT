@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibHIRT.Files
+﻿namespace LibHIRT.Files
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class FileExtensionAttribute : Attribute

@@ -18,7 +18,8 @@ namespace LibHIRT.Exporters.Converters
             _materials = materials;
         }
 
-        public Mesh BuildMesh(string name,s_mesh objMesh, int lod,out List<int> mat_indexs) {
+        public Mesh BuildMesh(string name, s_mesh objMesh, int lod, out List<int> mat_indexs)
+        {
             Mesh temp = new Mesh(name);
 
             mat_indexs = AddVertexInfo(temp, objMesh.LODRenderData[lod].Vertexs);
@@ -27,39 +28,42 @@ namespace LibHIRT.Exporters.Converters
             return temp;
         }
 
-        public Node BuildFullEntity() {
+        public Node BuildFullEntity()
+        {
             Node temp = new Node("root");
-            
+
             for (int i = 0; i < _renderGeometry.Meshes.Count; i++)
             {
-                Node temp_n = temp.CreateChildNode(BuildMesh("mesh_" + i.ToString(), _renderGeometry.Meshes[i], 0,out var mat_indexs)); 
+                Node temp_n = temp.CreateChildNode(BuildMesh("mesh_" + i.ToString(), _renderGeometry.Meshes[i], 0, out var mat_indexs));
                 temp_n.Materials.Clear();
                 foreach (var item in mat_indexs)
                 {
                     if (item >= 0 && item < _materials.Count)
                         temp_n.Materials.Add(_materials[item]);
-                    else { 
-                    
+                    else
+                    {
+
                     }
                 }
 
-                
+
             }
             return temp;
         }
 
-        private void AddMaterialsToMesh(Mesh m) {
-            VertexElementMaterial vertexElementMaterial= (VertexElementMaterial)m.GetElement(VertexElementType.Material);
+        private void AddMaterialsToMesh(Mesh m)
+        {
+            VertexElementMaterial vertexElementMaterial = (VertexElementMaterial)m.GetElement(VertexElementType.Material);
 
         }
 
         protected List<int> AddVertexInfo(Mesh mesh, SSPVertex[] vertexs)
         {
             VertexElementUV elementUV0 = mesh.CreateElementUV(TextureMapping.Diffuse);
-            VertexElementUV elementUV1 = null; 
+            VertexElementUV elementUV1 = null;
             VertexElementUV elementUV2 = null;
             VertexElementMaterial vertexElementMaterial = (VertexElementMaterial)mesh.CreateElement(VertexElementType.Material);
-            List<int> material_list =  new List<int>();
+            List<int> material_list = new List<int>();
 
             if (vertexs[0].UV1 != null)
                 elementUV1 = mesh.CreateElementUV(TextureMapping.Ambient);
@@ -68,27 +72,29 @@ namespace LibHIRT.Exporters.Converters
 
             foreach (var item in vertexs)
             {
-                mesh.ControlPoints.Add(new Aspose.ThreeD.Utilities.Vector4( item.X, item.Y, item.Z));
-                elementUV0.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV0.Value.X, item.UV0.Value.Y,0));
+                mesh.ControlPoints.Add(new Aspose.ThreeD.Utilities.Vector4(item.X, item.Y, item.Z));
+                elementUV0.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV0.Value.X, item.UV0.Value.Y, 0));
                 int mat_index = 0;
                 if (material_list.Contains((int)item.MatIndex))
                     mat_index = material_list.IndexOf((int)item.MatIndex);
-                else {
+                else
+                {
                     material_list.Add((int)item.MatIndex);
                     mat_index = material_list.Count;
                 }
                 vertexElementMaterial.Indices.Add(mat_index);
-                if (elementUV1!=null)
-                    elementUV1.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV1.Value.X, item.UV1.Value.Y,0));
-                if (elementUV2!=null)
-                    elementUV2.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV2.Value.X, item.UV2.Value.Y,0));
-                
+                if (elementUV1 != null)
+                    elementUV1.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV1.Value.X, item.UV1.Value.Y, 0));
+                if (elementUV2 != null)
+                    elementUV2.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV2.Value.X, item.UV2.Value.Y, 0));
+
             }
             return material_list;
-        } 
+        }
 
-        protected void AddFace(Mesh mesh,IndexBufferType indexBufferType, List<uint> indices) {
-            
+        protected void AddFace(Mesh mesh, IndexBufferType indexBufferType, List<uint> indices)
+        {
+
             switch (indexBufferType)
             {
                 case IndexBufferType.DEFAULT:
@@ -105,9 +111,10 @@ namespace LibHIRT.Exporters.Converters
                         {
                             mesh.CreatePolygon(i + 0, i + 1, i + 2);
                         }
-                        
+
                     }
-                    else {
+                    else
+                    {
                         Debug.Assert(indices.Count % 3 == 0);
                         for (int i = 0; i < indices.Count; i += 3)
                         {
