@@ -3,8 +3,8 @@
 namespace HaloInfiniteResearchTools.ViewModels.Abstract
 {
 
-  public interface IDisposeWithView : IDisposable
-  {
-  }
+    public interface IDisposeWithView : IDisposable
+    {
+    }
 
 }

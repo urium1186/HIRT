@@ -1,16 +1,9 @@
-﻿using HaloInfiniteResearchTools.Models;
-using LibHIRT.Files;
-using LibHIRT.TagReader.Headers;
-using LibHIRT.TagReader;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static LibHIRT.TagReader.TagLayouts;
+﻿using LibHIRT.Files;
 using LibHIRT.Files.Base;
+using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
+using System;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -66,7 +59,7 @@ namespace HaloInfiniteResearchTools.Processes
                 }
 
             }
-           
+
         }
 
         private void TagParse_OnInstanceLoadEvent(object? sender, ITagInstance e)

@@ -3,12 +3,12 @@
 namespace LibHIRT.Data.Materials
 {
 
-  public class S3DMaterialTangent
-  {
+    public class S3DMaterialTangent
+    {
 
-    [ScriptingProperty( "uvSetIdx" )]
-    public int UvSetIndex { get; set; }
+        [ScriptingProperty("uvSetIdx")]
+        public int UvSetIndex { get; set; }
 
-  }
+    }
 
 }

@@ -54,16 +54,18 @@ namespace LibHIRT.Serializers
             }
         }
 
-        private int GetMaterialIndexOfPart(s_part[] parts, int vert_index) {
+        private int GetMaterialIndexOfPart(s_part[] parts, int vert_index)
+        {
             foreach (var part in parts)
             {
                 if (part.IndexStart >= vert_index && (vert_index < (part.IndexStart + part.IndexCount)))
                     return part.MaterialIndex;
             }
-            return-1;
+            return -1;
         }
 
-        private LODRenderData processLODRenderData(CompoundTagInstance tagInstance, s_mesh mesh) {
+        private LODRenderData processLODRenderData(CompoundTagInstance tagInstance, s_mesh mesh)
+        {
             LODRenderData result = new LODRenderData(mesh);
             ListTagInstance parts = (ListTagInstance)tagInstance["parts"];
             result.Parts = new s_part[parts.Count];
@@ -72,15 +74,15 @@ namespace LibHIRT.Serializers
                 var item = parts[i];
                 result.Parts[i] = new s_part()
                 {
-                    MaterialIndex = (short)item["material index"].AccessValue,  
-                    TransparentSortingIndex = (short)item["transparent sorting index"].AccessValue,  
-                    IndexStart = (int)item["index start"].AccessValue,  
+                    MaterialIndex = (short)item["material index"].AccessValue,
+                    TransparentSortingIndex = (short)item["transparent sorting index"].AccessValue,
+                    IndexStart = (int)item["index start"].AccessValue,
                     IndexCount = (int)item["index count"].AccessValue,
                     PerMeshPartConstantsOffset = (int)item["perMeshPartConstantsOffset"].AccessValue,
                     PartType = (sbyte)item["part type"].AccessValue,
                     BudgetVertexCount = (short)item["budget vertex count"].AccessValue,
                 };
-                
+
             }
             return result;
         }
@@ -93,17 +95,18 @@ namespace LibHIRT.Serializers
             obj_mesh.CloneIndex = (Int16)mesh["clone index"].AccessValue;
             obj_mesh.RigidNodeIndex = (sbyte)mesh["rigid node index"].AccessValue;
             obj_mesh.VertType = (VertType)((EnumGroup)mesh["vertex type"]).SelectedIndex;
-            
+
             obj_mesh.IndexBufferType = (IndexBufferType)((EnumGroup)mesh["index buffer type"]).SelectedIndex;
             obj_mesh.UseDualQuat = (sbyte)mesh["use dual quat"].AccessValue != 0;
             ListTagInstance lod_render_data = mesh["LOD render data"] as ListTagInstance;
             HashSet<short[]> indices = new HashSet<short[]>();
-            if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingMeshes.Length > 0) {
+            if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingMeshes.Length > 0)
+            {
                 var str_mesh = mesh_package.MeshResourceGroups[0].MeshResource[0].StreamingMeshes[m_i];
                 var max = -1;
                 var min = int.MaxValue;
                 short count_nz = 0;
-                
+
                 for (int w = 0; w < str_mesh.MeshLodChunks.Length; w++)
                 {
 
@@ -115,7 +118,7 @@ namespace LibHIRT.Serializers
                     indices.Add(b);
                 }
             }
-            
+
 
             if (lod_render_data != null && lod_render_data.Count > 0)
             {
@@ -129,7 +132,8 @@ namespace LibHIRT.Serializers
                     var obj_lod = processLODRenderData((CompoundTagInstance)lod, obj_mesh);
                     obj_lod.IndexBufferIndex.Clear();
                     short index_i = (short)lod["index buffer index"].AccessValue;
-                    if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers.Length > 0) {
+                    if (mesh_package.MeshResourceGroups.Length > 0 && mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers.Length > 0)
+                    {
                         var index_buff = mesh_package.MeshResourceGroups[0].MeshResource[0].PcIndexBuffers[index_i];
                         if (index_buff.d3dbuffer.D3dBuffer == null)
                         {
@@ -268,7 +272,7 @@ namespace LibHIRT.Serializers
                             default:
                                 break;
                         }
-                       
+
 
                         RasterizerVertexBuffer tempPosition = vert_buffers[PcVertexBuffersUsage.Position];
                         if (tempPosition.d3dbuffer.D3dBuffer == null)
@@ -350,7 +354,7 @@ namespace LibHIRT.Serializers
                         for (int j = 0; j < tempPosition.count; j++)
                         {
                             SSPVertex temp = new SSPVertexStatic();
-                            temp.MatIndex= GetMaterialIndexOfPart(obj_lod.Parts, j);
+                            temp.MatIndex = GetMaterialIndexOfPart(obj_lod.Parts, j);
                             byte[] buffer = new byte[tempPosition.stride];
                             msPosition.Read(buffer, 0, tempPosition.stride);
                             var vals = FormatReader.ReadWordVector4DNormalized(buffer);
@@ -392,7 +396,8 @@ namespace LibHIRT.Serializers
                                     valsUV.Item2 * uv2_scale.M23 + uv2_scale.M21
                                     );
                             }
-                            if (GetBlendInfo) {
+                            if (GetBlendInfo)
+                            {
                                 if (blendIndices0 != null && blendIndices0.count == tempPosition.count)
                                 {
                                     buffer = new byte[blendIndices0.stride];
@@ -405,16 +410,18 @@ namespace LibHIRT.Serializers
                                     buffer = new byte[blendWeights0.stride];
                                     msBlendWeights0.Read(buffer, 0, blendWeights0.stride);
                                     Vector3 re = Vector3.One;
-                                    if (blendWeights0.format == PcVertexBuffersFormat.f_10_10_10_normalized) {
-                                        
-                                        
+                                    if (blendWeights0.format == PcVertexBuffersFormat.f_10_10_10_normalized)
+                                    {
+
+
                                         re = (Vector3)FormatReader.Read(blendWeights0.format, buffer);
                                         temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, 1);
 
-                                        if (obj_mesh.VertType == VertType.dq_skinned )
+                                        if (obj_mesh.VertType == VertType.dq_skinned)
                                         {
                                             Debug.Assert(blendWeights0.d3dbuffer.Usage == 8);
-                                        }else  if ( obj_mesh.VertType == VertType.skinned)
+                                        }
+                                        else if (obj_mesh.VertType == VertType.skinned)
                                         {
                                             Debug.Assert(blendWeights0.d3dbuffer.Usage == 8);
                                         }
@@ -423,8 +430,10 @@ namespace LibHIRT.Serializers
                                         {
                                             countVOOB++;
                                             string vert_S = temp.Position.X.ToString() + temp.Position.Y.ToString() + temp.Position.Z.ToString();
-                                            if (re.X + re.Y + re.Z != 0) {
-                                                if (!vert.Contains(vert_S)) {
+                                            if (re.X + re.Y + re.Z != 0)
+                                            {
+                                                if (!vert.Contains(vert_S))
+                                                {
                                                     vert.Add(vert_S);
                                                 }
                                             }
@@ -432,7 +441,7 @@ namespace LibHIRT.Serializers
                                     }
                                 }
                             }
-                            
+
                             obj_lod.Vertexs[j] = temp;
                         }
                         if (obj_mesh.VertType == VertType.dq_skinned || obj_mesh.VertType == VertType.skinned)
@@ -826,7 +835,7 @@ namespace LibHIRT.Serializers
                 //Debug.Assert(temp.ownsD3DResource != 0);
                 temp.d3dbuffer.D3dBuffer = tempTagData.ReadBuffer();
                 // temp.d3dbuffer.D3dBuffer = new byte[temp_c];
-                
+
             }
 
 

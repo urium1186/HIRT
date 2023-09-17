@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 
 namespace HavokScriptToolsCommon
 {
@@ -64,7 +62,7 @@ namespace HavokScriptToolsCommon
 
     public enum HksVarargFlags
     {
-        HASARG   = 1 << 0,
+        HASARG = 1 << 0,
         ISVARARG = 1 << 1,
         NEEDSARG = 1 << 2
     }

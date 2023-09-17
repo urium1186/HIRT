@@ -3,12 +3,12 @@
 namespace LibHIRT.Data.Materials
 {
 
-  public class S3DMaterialAuxiliaryTextures
-  {
+    public class S3DMaterialAuxiliaryTextures
+    {
 
-    [ScriptingProperty( "mask" )]
-    public S3DMaterialMask Mask { get; set; }
+        [ScriptingProperty("mask")]
+        public S3DMaterialMask Mask { get; set; }
 
-  }
+    }
 
 }

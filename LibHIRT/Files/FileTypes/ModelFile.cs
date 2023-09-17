@@ -1,11 +1,6 @@
 ﻿using LibHIRT.Domain;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Files.FileTypes
 {
@@ -30,19 +25,21 @@ namespace LibHIRT.Files.FileTypes
 
         public RenderModelFile GetRenderModel()
         {
-            if (_result == null) {
+            if (_result == null)
+            {
                 _result = GenericSerializer.Deserialize(GetStream(), this, null);
             }
-            
+
             var ref_id = (_result["render model"] as TagRef)?.Ref_id_int;
             var fil_id = (this.Parent as ModuleFile)?.GetFileByGlobalId((int)ref_id);
-            if (fil_id == null) {
+            if (fil_id == null)
+            {
                 ISSpaceFile file_out;
                 HIFileContext.FilesGlobalIdLockUp.TryGetValue((int)ref_id, out file_out);
                 return file_out == null ? null : (RenderModelFile)file_out;
             }
 
-            return fil_id==null? null: (RenderModelFile)fil_id;
+            return fil_id == null ? null : (RenderModelFile)fil_id;
         }
 
         public ModelInfoToRM GetModelVariants()
@@ -53,11 +50,11 @@ namespace LibHIRT.Files.FileTypes
             }
 
 
-            var variants = _result["variants"] as Tagblock; 
+            var variants = _result["variants"] as Tagblock;
             var runtime_regions = _result["runtime regions"] as Tagblock;
-            
+
             return new ModelInfoToRM { Variants = variants, RuntimeRegions = runtime_regions };
-            
+
         }
     }
 }

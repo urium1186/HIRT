@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace LibHIRT.TagReader.Headers
 {
@@ -24,7 +17,7 @@ namespace LibHIRT.TagReader.Headers
         string bin_data_hex = "";
         bool loaded_bin_data = false;
         string path_file = "";
-        
+
         public DataReference(Stream input) : base(input)
         {
         }
@@ -50,7 +43,7 @@ namespace LibHIRT.TagReader.Headers
         public string Bin_data_hex { get => bin_data_hex; set => bin_data_hex = value; }
         public bool Loaded_bin_data { get => loaded_bin_data; set => loaded_bin_data = value; }
         public string Path_file { get => path_file; set => path_file = value; }
-        
+
         public override void ReadIn()
         {
             //path_file = f.name
@@ -65,7 +58,8 @@ namespace LibHIRT.TagReader.Headers
             field_offset = ReadInt32();
         }
 
-        public byte[] readBinData() {
+        public byte[] readBinData()
+        {
             var pos_on_init = BaseStream.Position;
             BaseStream.Seek(field_data_block.OffsetPlus, SeekOrigin.Begin);
             byte[] r = ReadBytes(field_data_block.Size);
@@ -73,11 +67,12 @@ namespace LibHIRT.TagReader.Headers
             BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
             return r;
         }
-        public byte[] readBinData(int offset, int len) {
+        public byte[] readBinData(int offset, int len)
+        {
             if (field_data_block == null)
                 throw new Exception("The TagData Reference need a field_data_block");
             var pos_on_init = BaseStream.Position;
-            BaseStream.Seek(field_data_block.OffsetPlus+offset, SeekOrigin.Begin);
+            BaseStream.Seek(field_data_block.OffsetPlus + offset, SeekOrigin.Begin);
             if (len > field_data_block.Size)
                 throw new Exception();
             byte[] r = ReadBytes(len);
@@ -127,32 +122,35 @@ namespace LibHIRT.TagReader.Headers
                     {
                         entry.readBinData();
                     }
-                    else {
+                    else
+                    {
                         entry.Bin_data = new List<byte>(entry.Field_data_block.Size);
                     }
                 }
                 entry.Parent_struct.L_function.Add(entry);
-                entries.Add(entry); 
+                entries.Add(entry);
             }
         }
 
         public override DataReference readTableItem(Stream f, TagHeader header, int pos)
         {
-            if (pos > 0 && pos < header.TagFileHeaderInst.DataReferenceCount) {
-                f.Seek(header.DataReferenceOffset+pos* 20, SeekOrigin.Begin);
+            if (pos > 0 && pos < header.TagFileHeaderInst.DataReferenceCount)
+            {
+                f.Seek(header.DataReferenceOffset + pos * 20, SeekOrigin.Begin);
                 DataReference entry = new DataReference(f);
                 entry.ReadIn();
                 if (tagStructTableField.Entries != null && entry.Parent_struct_index < tagStructTableField.Entries.Count)
                 {
                     entry.Parent_struct = tagStructTableField.Entries[entry.Parent_struct_index];
                 }
-                else {
+                else
+                {
                     entry.Parent_struct = tagStructTableField.readTableItem(f, header, entry.Parent_struct_index);
                 }
-                
+
                 if (entry.Field_data_block_index != -1)
                 {
-                    entry.Field_data_block = tagStructTableField.Data_block_table.GetTableEntry(f,header,entry.Field_data_block_index);
+                    entry.Field_data_block = tagStructTableField.Data_block_table.GetTableEntry(f, header, entry.Field_data_block_index);
                     if (read_entry_data)
                     {
                         entry.readBinData();

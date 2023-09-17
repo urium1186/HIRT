@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Domain
+﻿namespace LibHIRT.Domain
 {
     public enum BufferVertType
     {
@@ -84,7 +78,7 @@ namespace LibHIRT.Domain
         Single_Resource = 0,
         N_Meshes_Per_Resource = 1,
     }
-    
+
 
     [Flags]
     public enum IndexBufferType : int

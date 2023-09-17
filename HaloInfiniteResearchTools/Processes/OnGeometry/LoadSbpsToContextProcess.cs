@@ -1,12 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Markup;
 using Assimp;
 using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Common.Extensions;
@@ -22,7 +18,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
     public class LoadSbpsToContextProcess : ProcessBase<Scene>
     {
-        
+
 
         #region Data Members
 
@@ -113,7 +109,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
                     Debug.Assert(!uniqueInstanceMesh.ContainsKey(rtgo_file.FileMemDescriptor.GlobalTagId1));
                     uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1] = new Dictionary<int, int>();
-                    
+
                     TagInstance rootRtgo = rtgo_file.Deserialized()?.Root;
 
                     if (rootRtgo == null)
@@ -137,9 +133,9 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                 return;
             Debug.Assert(rtgo_file.FileMemDescriptor.GlobalTagId1 == tr_rtgo.Ref_id_int);
             int unique_io_index = (short)tagBlock[i]["unique io index"].AccessValue;
-            
+
             int meshIndex = (Int16)tagBlock[i]["Runtime geo mesh index"].AccessValue;
-            
+
             string name = rtgo_file.Name;
             if (name.Contains("207352254_1C26EF0A"))
             {
@@ -155,10 +151,10 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                 temp = new Node(_prefixMeshName + rtgo_file.Name+"_"+i);
                 temp.MeshIndices.Add(uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex]);
             }
-            
-            
+
+
             var scaleTagG = (Point3D)tagBlock[i]["scale"];
-            
+
             var positionTagG = (Point3D)tagBlock[i]["position"];
             GlmSharp.vec3 traslationG = default;
             traslationG.x = positionTagG.X;
@@ -176,7 +172,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
 
             GlmSharp.mat3 meshrot_mat_g = NumericExtensions.GetRoitationFrom(fowardG, leftG, upG);
-           
+
 
             GlmSharp.vec3 scaleG = default;
             scaleG.x = scaleTagG.X;
@@ -185,7 +181,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
             temp.Transform = NumericExtensions.TRS(meshrot_mat_g, traslationG, scaleG).ToAssimp();
             nodeRoot.Children.Add(temp);
-        } 
+        }
 
         void DoSomething(ListTagInstance tagBlock, int i, Node nodeRoot) {
             TagRef tr_rtgo = tagBlock[i]["Runtime geo mesh reference"] as TagRef;

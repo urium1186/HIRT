@@ -1,12 +1,12 @@
 ﻿namespace HaloInfiniteResearchTools.Common.Enumerations
 {
 
-  public enum FileDialogActionType
-  {
+    public enum FileDialogActionType
+    {
 
-    Open,
-    Save
+        Open,
+        Save
 
-  }
+    }
 
 }

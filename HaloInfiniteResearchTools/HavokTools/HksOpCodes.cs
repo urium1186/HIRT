@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HavokScriptToolsCommon
+﻿namespace HavokScriptToolsCommon
 {
     public enum HksOpCode
     {

@@ -1,61 +1,61 @@
-﻿using System;
+﻿using PropertyChanged;
+using System;
 using System.ComponentModel;
-using PropertyChanged;
 
 namespace HaloInfiniteResearchTools.Common
 {
 
-  [AddINotifyPropertyChangedInterface]
-  public abstract class ObservableObject : IDisposable, INotifyPropertyChanged
-  {
+    [AddINotifyPropertyChangedInterface]
+    public abstract class ObservableObject : IDisposable, INotifyPropertyChanged
+    {
 
-    #region Events
+        #region Events
 
 #pragma warning disable CS0067
-    public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
 
-    #endregion
+        #endregion
 
-    #region Data Members
+        #region Data Members
 
-    private bool _isDisposed;
+        private bool _isDisposed;
 
-    #endregion
+        #endregion
 
-    #region Constructor
+        #region Constructor
 
-    ~ObservableObject()
-    {
-      Dispose( false );
+        ~ObservableObject()
+        {
+            Dispose(false);
+        }
+
+        #endregion
+
+        #region IDisposable Methods
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_isDisposed)
+                return;
+
+            if (disposing)
+                OnDisposing();
+
+            _isDisposed = true;
+        }
+
+        protected virtual void OnDisposing()
+        {
+        }
+
+        #endregion
+
     }
-
-    #endregion
-
-    #region IDisposable Methods
-
-    public void Dispose()
-    {
-      Dispose( true );
-    }
-
-    private void Dispose( bool disposing )
-    {
-      if ( _isDisposed )
-        return;
-
-      if ( disposing )
-        OnDisposing();
-
-      _isDisposed = true;
-    }
-
-    protected virtual void OnDisposing()
-    {
-    }
-
-    #endregion
-
-  }
 
 }

@@ -64,5 +64,5 @@ namespace HaloInfiniteResearchTools.Models
         #endregion
 
     }
-   
+
 }

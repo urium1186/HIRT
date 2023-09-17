@@ -1,37 +1,33 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Xml.Linq;
-using LibHIRT.Data.Textures;
+﻿using LibHIRT.Data.Textures;
 using LibHIRT.Files;
 using LibHIRT.TagReader;
-using static System.Net.WebRequestMethods;
+using System.Diagnostics;
 using static LibHIRT.Assertions;
 using String = System.String;
 
 namespace LibHIRT.Serializers
 {
 
-  public class S3DPictureSerializer : SerializerBase<S3DPicture>
-  {
+    public class S3DPictureSerializer : SerializerBase<S3DPicture>
+    {
 
-    #region Constants
+        #region Constants
 
-    private const int SIGNATURE_PICT = 0x50494354; // TCIP
+        private const int SIGNATURE_PICT = 0x50494354; // TCIP
         private static ISSpaceFile? _file;
 
         #endregion
 
         #region Overrides
 
-        protected override void OnDeserialize( BinaryReader reader, S3DPicture pict )
-    {
+        protected override void OnDeserialize(BinaryReader reader, S3DPicture pict)
+        {
             tagParse = new TagParseControl("", "bitm", null, reader.BaseStream);
             tagParse.readFile();
 
             TagInstance bitmap = (TagInstance)tagParse.RootTagInst.GetObjByPath("bitmaps.[0]");
             TagInstance bitmapRH = (TagInstance)bitmap.GetObjByPath("bitmap resource handle.[0]");
-            
+
 
 
             pict.Width = (Int16)tagParse.RootTagInst.GetObjByPath("bitmaps.[0].width").AccessValue;
@@ -45,7 +41,7 @@ namespace LibHIRT.Serializers
             //(new System.Collections.Generic.IDictionaryDebugView<string, object>(new System.Collections.Generic.ICollectionDebugView<object>((new System.Collections.Generic.IDictionaryDebugView<string, object>(((LibHIRT.TagReader.ParentTagInstance)tagParse.RootTagInst).AccessValue).Items[32]).Value).Items[0]).Items[0]).Value
             //Selected bc7_unorm
             var formatValue = 0;
-            
+
             /*
             Assert(Enum.IsDefined(typeof(S3DPictureFormat), format),
               $"Unknown DDS Format Value: {formatValue:X}");
@@ -66,8 +62,9 @@ namespace LibHIRT.Serializers
                 //pict.MipMapCount = bitmapRH_SD.Childs.Count;
                 int full_size = 0;
                 int full_size_f = 0;
-                if (bitmapRH_SD.Childs.Count != 0 && _file != null) {
-                    byte[][] arrays= new byte[bitmapRH_SD.Childs.Count][];
+                if (bitmapRH_SD.Childs.Count != 0 && _file != null)
+                {
+                    byte[][] arrays = new byte[bitmapRH_SD.Childs.Count][];
                     for (int i = 0; i < bitmapRH_SD.Childs.Count; i++)
                     {
                         int temp_z = (int)bitmapRH_SD.Childs[i].GetObjByPath("size").AccessValue;
@@ -92,8 +89,9 @@ namespace LibHIRT.Serializers
                         {
                             _File = (_file as SSpaceFile).Resource[index];
                         }
-                       // FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
-                        if (_File != null) {
+                        // FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
+                        if (_File != null)
+                        {
                             var stream = _File.GetStream();
                             if (stream != null)
                             {
@@ -104,10 +102,10 @@ namespace LibHIRT.Serializers
                                     len = len - 3472;
                                     l_offset = 3472;
                                 }*/
-                                
-                                stream.Seek(l_offset, SeekOrigin.Begin);   
+
+                                stream.Seek(l_offset, SeekOrigin.Begin);
                                 arrays[i] = new byte[len];
-                                
+
                                 stream.Read(arrays[i], 0, (int)len);
                                 full_size_f += (int)len;
                             }
@@ -117,12 +115,13 @@ namespace LibHIRT.Serializers
                     pict.Data = Utils.Utils.Combine(arrays);
                 }
                 if (full_size == 0)
-                    pict.Data =  new byte[full_size_f];
+                    pict.Data = new byte[full_size_f];
             }
-            else {
+            else
+            {
                 pict.Data = tagParse.TagFile.TagHeader.getSesion3Bytes(reader.BaseStream);
-            } 
-            
+            }
+
             /*
       while ( reader.BaseStream.Position < reader.BaseStream.Length )
       {
@@ -158,74 +157,74 @@ namespace LibHIRT.Serializers
       }*/
         }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    public static S3DPicture Deserialize( Stream stream , ISSpaceFile? file= null)
-    {
-      var reader = new BinaryReader( stream );
-      _file = file;
-      return new S3DPictureSerializer().Deserialize( reader );
+        public static S3DPicture Deserialize(Stream stream, ISSpaceFile? file = null)
+        {
+            var reader = new BinaryReader(stream);
+            _file = file;
+            return new S3DPictureSerializer().Deserialize(reader);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void ReadHeader(BinaryReader reader, S3DPicture pict)
+        {
+            Assert(reader.ReadInt32() == SIGNATURE_PICT, "Invalid PICT signature.");
+        }
+
+        private void ReadDimensions(BinaryReader reader, S3DPicture pict)
+        {
+            pict.Width = reader.ReadInt32();
+            pict.Height = reader.ReadInt32();
+            pict.Depth = reader.ReadInt32();
+            pict.Faces = reader.ReadInt32();
+        }
+
+        private void ReadFormat(BinaryReader reader, S3DPicture pict)
+        {
+            var formatValue = reader.ReadInt32();
+            var format = (S3DPictureFormat)formatValue;
+
+            Assert(Enum.IsDefined(typeof(S3DPictureFormat), format),
+              $"Unknown DDS Format Value: {formatValue:X}");
+
+            pict.Format = format;
+        }
+
+        private void ReadMipMaps(BinaryReader reader, S3DPicture pict)
+        {
+            pict.MipMapCount = reader.ReadInt32();
+        }
+
+        private void ReadData(BinaryReader reader, S3DPicture pict, long endOffset)
+        {
+            var dataSize = endOffset - reader.BaseStream.Position;
+
+            pict.Data = new byte[dataSize];
+            reader.Read(pict.Data, 0, (int)dataSize);
+        }
+
+        #endregion
+
+        #region Embedded Types
+
+        private enum PictureSentinel : ushort
+        {
+            Header = 0xF0,
+            Dimensions = 0x0102,
+            Format = 0xF2,
+            MipMaps = 0xF9,
+            Data = 0xFF,
+            Footer = 0x01
+        }
+
+        #endregion
+
     }
-
-    #endregion
-
-    #region Private Methods
-
-    private void ReadHeader( BinaryReader reader, S3DPicture pict )
-    {
-      Assert( reader.ReadInt32() == SIGNATURE_PICT, "Invalid PICT signature." );
-    }
-
-    private void ReadDimensions( BinaryReader reader, S3DPicture pict )
-    {
-      pict.Width = reader.ReadInt32();
-      pict.Height = reader.ReadInt32();
-      pict.Depth = reader.ReadInt32();
-      pict.Faces = reader.ReadInt32();
-    }
-
-    private void ReadFormat( BinaryReader reader, S3DPicture pict )
-    {
-      var formatValue = reader.ReadInt32();
-      var format = ( S3DPictureFormat ) formatValue;
-
-      Assert( Enum.IsDefined( typeof( S3DPictureFormat ), format ),
-        $"Unknown DDS Format Value: {formatValue:X}" );
-
-      pict.Format = format;
-    }
-
-    private void ReadMipMaps( BinaryReader reader, S3DPicture pict )
-    {
-      pict.MipMapCount = reader.ReadInt32();
-    }
-
-    private void ReadData( BinaryReader reader, S3DPicture pict, long endOffset )
-    {
-      var dataSize = endOffset - reader.BaseStream.Position;
-
-      pict.Data = new byte[ dataSize ];
-      reader.Read( pict.Data, 0, ( int ) dataSize );
-    }
-
-    #endregion
-
-    #region Embedded Types
-
-    private enum PictureSentinel : ushort
-    {
-      Header = 0xF0,
-      Dimensions = 0x0102,
-      Format = 0xF2,
-      MipMaps = 0xF9,
-      Data = 0xFF,
-      Footer = 0x01
-    }
-
-    #endregion
-
-  }
 
 }

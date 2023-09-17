@@ -1,9 +1,9 @@
-﻿using System.Windows;
-using System.Windows.Media;
-using HaloInfiniteResearchTools.ViewModels;
+﻿using HaloInfiniteResearchTools.ViewModels;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Search;
+using System.Windows;
+using System.Windows.Media;
 
 namespace HaloInfiniteResearchTools.Views
 {

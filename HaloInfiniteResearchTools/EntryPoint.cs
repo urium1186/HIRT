@@ -4,12 +4,9 @@ using HaloInfiniteResearchTools.Services.Abstract;
 using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools
@@ -45,12 +42,12 @@ namespace HaloInfiniteResearchTools
         {
             if (args != null && args.Length > 0)
             {
-                
+
                 AttachConsole(ATTACH_PARENT_PROCESS);
                 Console.WriteLine("Enabled cmd");
                 OnCliCOnsoleApp();
                 HirtRootCommand? rootCommand = new HirtRootCommand();
-                
+
                 new CommandLineBuilder(rootCommand)
                    .UseDefaults()
                    .UseExceptionHandler(CommandLineExtensions.ExceptionHandler)
@@ -65,7 +62,8 @@ namespace HaloInfiniteResearchTools
             }
         }
 
-        private static async void OnCliCOnsoleApp() {
+        private static async void OnCliCOnsoleApp()
+        {
             var services = new ServiceCollection();
             ConfigureDependencies(services);
             _serviceProvider = services.BuildServiceProvider();

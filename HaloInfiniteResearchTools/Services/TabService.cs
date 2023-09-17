@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using HaloInfiniteResearchTools.Models;
+﻿using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.ViewModels;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader.Common;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace HaloInfiniteResearchTools.Services
 {
@@ -48,7 +48,7 @@ namespace HaloInfiniteResearchTools.Services
 
         #region Public Methods
 
-        public bool CreateTabForFile(ISSpaceFile file, out ITab tab, bool forceGeneric= false)
+        public bool CreateTabForFile(ISSpaceFile file, out ITab tab, bool forceGeneric = false)
         {
             tab = default;
 
@@ -67,13 +67,14 @@ namespace HaloInfiniteResearchTools.Services
                 _type = typeof(GenericFile);
             var viewModelType = _fileTypeService.GetViewModelType(_type);
 
-            if (viewModelType is null) {
+            if (viewModelType is null)
+            {
                 _type = typeof(GenericFile);
                 viewModelType = _fileTypeService.GetViewModelType(_type);
                 if (viewModelType is null)
                     return false;
             }
-                
+
             if (typeof(GenericFile) == viewModelType && NavigateToTab("GenericView_" + file.Name))
             {
                 tab = _tabContext.CurrentTab;
@@ -153,7 +154,7 @@ namespace HaloInfiniteResearchTools.Services
             return tab != null;
         }
 
-       
+
         #endregion
 
     }

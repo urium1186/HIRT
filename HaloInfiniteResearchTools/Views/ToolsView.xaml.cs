@@ -6,7 +6,7 @@ namespace HaloInfiniteResearchTools.Views
     /// <summary>
     /// Interaction logic for ToolsView.xaml
     /// </summary>
-    public partial class ToolsView :  View<ToolsViewModel>
+    public partial class ToolsView : View<ToolsViewModel>
     {
         public ToolsView()
         {
@@ -21,7 +21,8 @@ namespace HaloInfiniteResearchTools.Views
                 {
                     MessageBox.Show("Is in Use");
                 }
-                else {
+                else
+                {
                     MessageBox.Show("Not in Use");
                 }
             }
@@ -35,24 +36,26 @@ namespace HaloInfiniteResearchTools.Views
                 {
                     if ((DataContext as ToolsViewModel).AddUniqueStrValue())
                         MessageBox.Show("Saved to DB");
-                    else {
+                    else
+                    {
                         MessageBox.Show("Not need to save.");
                     }
                 }
                 else
                 {
                     MessageBoxOptions options = default;
-                    var result = MessageBox.Show(App.Current.MainWindow, "Not in Use, do you want to add???", "Save Mmh3",MessageBoxButton.OKCancel,MessageBoxImage.Warning,MessageBoxResult.Cancel);
-                    if (result == MessageBoxResult.OK) {
+                    var result = MessageBox.Show(App.Current.MainWindow, "Not in Use, do you want to add???", "Save Mmh3", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                    if (result == MessageBoxResult.OK)
+                    {
                         (DataContext as ToolsViewModel).AddUniqueStrValue();
                         MessageBox.Show("Saved to DB");
                     }
                 }
-                
+
             }
         }
 
-        
+
 
     }
 }

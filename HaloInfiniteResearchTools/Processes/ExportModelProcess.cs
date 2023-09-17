@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Assimp;
+﻿using Assimp;
 using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Enumerations;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Services.Abstract;
-using Microsoft.Extensions.DependencyInjection;
-using LibHIRT.Data;
 using LibHIRT.Data.Materials;
 using LibHIRT.Data.Textures;
+using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.Serializers.Configurations;
-using LibHIRT.Processes;
-using LibHIRT.Domain.RenderModel;
-using HaloInfiniteResearchTools.ViewModels;
-using System.Collections.ObjectModel;
-using Assimp.Unmanaged;
 using LibHIRT.Processes.OnGeometry;
+using LibHIRT.Serializers.Configurations;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -47,7 +42,8 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, IServiceProvider? serviceProvider) : base(serviceProvider) {
+        public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, IServiceProvider? serviceProvider) : base(serviceProvider)
+        {
             _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
 
             _file = file;
@@ -92,13 +88,13 @@ namespace HaloInfiniteResearchTools.Processes
         public ExportModelProcess(SSpaceFile file, HelixToolkit.SharpDX.Core.Assimp.HelixToolkitScene sceneHelixToolkit, RenderModelDefinition geometryGraph, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, ObservableCollection<ModelNodeModel> nodes)
          : this(file, modelOptions, textureOptions)
         {
-            
+
             using (var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter())
             {
-              exporter.ToAssimpScene(sceneHelixToolkit.Root, out _scene);
+                exporter.ToAssimpScene(sceneHelixToolkit.Root, out _scene);
             }
-            
-            
+
+
             _geometryGraph = geometryGraph;
             _nodes = nodes;
         }
@@ -114,7 +110,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         protected override async Task OnExecuting()
         {
-           
+
             if (!_modelOptions.OverwriteExisting && CheckIfFileExists())
             {
                 StatusList.AddWarning(_outputPath,
@@ -226,7 +222,7 @@ namespace HaloInfiniteResearchTools.Processes
                 StatusList.AddError(_file.Name, "Encountered an error attempting to export material definitions.", ex);
             }
         }
-       
+
 
         private async Task WriteAssimpSceneToFile()
         {
@@ -349,7 +345,7 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = true;
             Status = "Filtering Meshes";
 
-            var lodRemover = new SceneLodRemover(_scene, _modelOptions,_nodes, ServiceProvider);
+            var lodRemover = new SceneLodRemover(_scene, _modelOptions, _nodes, ServiceProvider);
             _scene = lodRemover.RecreateScene();
         }
 
@@ -393,7 +389,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public SceneLodRemover(Scene scene, ModelExportOptionsModel options, ObservableCollection<ModelNodeModel> nodes, IServiceProvider serviceProvider)
         {
-            
+
             _meshIdentifierService = serviceProvider.GetRequiredService<IMeshIdentifierService>();
             _nodes = nodes;
             OldScene = scene;
@@ -412,7 +408,7 @@ namespace HaloInfiniteResearchTools.Processes
         {
             if (Evaluate is null)
                 return OldScene;
-            
+
 
             var oldRoot = OldScene.RootNode;
             var newRoot = AddNode(oldRoot);
@@ -487,7 +483,7 @@ namespace HaloInfiniteResearchTools.Processes
                     var vc = OldScene.Meshes[oldNode.MeshIndices[0]].Vertices.Count;
                     if (vc == 4 || vc == 8)
                         continue;
-                    
+
                 }
                 if (!MeshLookup.TryGetValue(oldMeshIndex, out var newMeshIndex))
                 {
@@ -517,11 +513,12 @@ namespace HaloInfiniteResearchTools.Processes
             }*/
             foreach (var item in _nodes)
             {
-               
-                if ( oldNode.Name.Contains(item.Node.Name) && !item.Node.Visible) {
+
+                if (oldNode.Name.Contains(item.Node.Name) && !item.Node.Visible)
+                {
                     return null;
                 }
-                
+
             }
             var newNode = new Node(oldNode.Name, newParentNode);
             if (newParentNode != null)

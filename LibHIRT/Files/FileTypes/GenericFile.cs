@@ -1,12 +1,4 @@
-﻿using LibHIRT.Domain;
-using LibHIRT.Serializers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Files.FileTypes
+﻿namespace LibHIRT.Files.FileTypes
 {
     [FileSignature("_*.*")]
     [FileExtension(".*")]
@@ -28,8 +20,8 @@ namespace LibHIRT.Files.FileTypes
         {
         }
 
-        
-        
+
+
 
         #endregion
     }

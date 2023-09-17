@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.ModuleUnpacker
+﻿namespace LibHIRT.ModuleUnpacker
 {
     //  # Table 4
     internal class HiModuleBlockEntry
@@ -25,12 +18,12 @@ namespace LibHIRT.ModuleUnpacker
         public void ReadIn(BinaryReader binaryReader)
         {
             comp_offset = binaryReader.ReadInt32();
-            comp_size = binaryReader.ReadInt32();   
+            comp_size = binaryReader.ReadInt32();
             decomp_offset = binaryReader.ReadInt32();
-            decomp_size= binaryReader.ReadInt32();
-            b_compressed= binaryReader.ReadUInt32() == 1; 
+            decomp_size = binaryReader.ReadInt32();
+            b_compressed = binaryReader.ReadUInt32() == 1;
         }
     }
 
-    
+
 }

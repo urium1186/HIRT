@@ -1,16 +1,12 @@
-﻿using HaloInfiniteResearchTools.UI.Modals;
-using HaloInfiniteResearchTools.ViewModels.Abstract;
+﻿using HaloInfiniteResearchTools.Models;
+using HaloInfiniteResearchTools.UI.Modals;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using static System.Windows.Forms.Design.AxImporter;
-using System.Windows.Data;
-using System.Windows;
-using HaloInfiniteResearchTools.Models;
-using HaloInfiniteResearchTools.Common.Enumerations;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -57,7 +53,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             exportBtnEnabledBinding.Source = this;
             BindingOperations.SetBinding(exportBtn, Button.IsEnabledProperty, exportBtnEnabledBinding);
 
-            yield return exportBtn;      
+            yield return exportBtn;
         }
 
         #endregion

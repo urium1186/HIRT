@@ -4,9 +4,9 @@ using HaloInfiniteResearchTools.Models;
 namespace HaloInfiniteResearchTools.Common
 {
 
-  public interface IDeepCopy<T>
-  {
-  }
+    public interface IDeepCopy<T>
+    {
+    }
 
     public static class DeepCopyExtensions
     {
@@ -31,7 +31,7 @@ namespace HaloInfiniteResearchTools.Common
         public static TagStructsDumperOptionsModel DeepCopy(this TagStructsDumperOptionsModel source)
                   => source;
 
-        
+
 
 
     }

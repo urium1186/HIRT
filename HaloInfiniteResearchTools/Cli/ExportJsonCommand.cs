@@ -1,20 +1,12 @@
 ﻿
 using HaloInfiniteResearchTools.Processes;
-using HelixToolkit;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using Microsoft.Extensions.DependencyInjection;
-using SharpDX.DirectWrite;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
-using System.Windows.Shapes;
 
 namespace HaloInfiniteResearchTools.Cli
 {

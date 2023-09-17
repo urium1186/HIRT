@@ -1,51 +1,51 @@
-﻿using System;
+﻿using HaloInfiniteResearchTools.Common;
+using System;
 using System.Threading.Tasks;
-using HaloInfiniteResearchTools.Common;
 
 namespace HaloInfiniteResearchTools.Processes
 {
 
-  public interface IProcess : IProgressData
-  {
+    public interface IProcess : IProgressData
+    {
 
-    #region Events
+        #region Events
 
-    public event EventHandler Completed;
-    public event EventHandler Error;
+        public event EventHandler Completed;
+        public event EventHandler Error;
 
-    #endregion
+        #endregion
 
-    #region Properties
+        #region Properties
 
-    bool CanCancel { get; }
+        bool CanCancel { get; }
 
-    ProcessState State { get; }
+        ProcessState State { get; }
 
-    StatusList StatusList { get; }
+        StatusList StatusList { get; }
 
-    Task CompletionTask { get; }
+        Task CompletionTask { get; }
 
-    #endregion
+        #endregion
 
-    #region Public Methods
+        #region Public Methods
 
-    void Cancel();
+        void Cancel();
 
-    Task Execute();
+        Task Execute();
 
-    #endregion
+        #endregion
 
-  }
+    }
 
-  public interface IProcess<TResult> : IProcess
-  {
+    public interface IProcess<TResult> : IProcess
+    {
 
-    #region Properties
+        #region Properties
 
-    TResult Result { get; }
+        TResult Result { get; }
 
-    #endregion
+        #endregion
 
-  }
+    }
 
 }

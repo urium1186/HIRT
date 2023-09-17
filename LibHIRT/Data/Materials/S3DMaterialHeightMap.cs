@@ -3,15 +3,15 @@
 namespace LibHIRT.Data.Materials
 {
 
-  public class S3DMaterialHeightMap
-  {
+    public class S3DMaterialHeightMap
+    {
 
-    [ScriptingProperty( "colorSetIdx" )]
-    public int ColorSetIndex { get; set; }
+        [ScriptingProperty("colorSetIdx")]
+        public int ColorSetIndex { get; set; }
 
-    [ScriptingProperty( "invert" )]
-    public bool Invert { get; set; }
+        [ScriptingProperty("invert")]
+        public bool Invert { get; set; }
 
-  }
+    }
 
 }

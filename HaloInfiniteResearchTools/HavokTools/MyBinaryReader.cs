@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 
 namespace HavokScriptToolsCommon
 {
@@ -10,7 +10,7 @@ namespace HavokScriptToolsCommon
         private int cursor;
         private bool littleEndian;
         private readonly Stack<int> cursorStack;
-        public MyBinaryReader(byte[] data, bool littleEndian=true)
+        public MyBinaryReader(byte[] data, bool littleEndian = true)
         {
             this.data = data;
             this.littleEndian = littleEndian;

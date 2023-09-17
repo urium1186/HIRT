@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OpenSpartan.Grunt.Models.HaloInfinite
+﻿namespace OpenSpartan.Grunt.Models.HaloInfinite
 {
     [IsAutomaticallySerializable]
     public class ArmorCoreAttach
@@ -19,10 +13,10 @@ namespace OpenSpartan.Grunt.Models.HaloInfinite
     [IsAutomaticallySerializable]
     public class MarkerLocation
     {
-        
+
         public IdentifierName? MarkerName { get; set; }
         public IdentifierName? VariantId { get; set; }
-        
+
     }
 
 

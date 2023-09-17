@@ -67,7 +67,7 @@ namespace LibHIRT.Files
         {
             get => SSpaceFileFactory.SupportedFileExtensions;
         }
-         public static IReadOnlyCollection<string> NoSupportedFileExtensions
+        public static IReadOnlyCollection<string> NoSupportedFileExtensions
         {
             get => SSpaceFileFactory.NoSupportedFileExtensions;
         }
@@ -93,15 +93,20 @@ namespace LibHIRT.Files
 
         public static ConcurrentDictionary<int, ModuleFile> FilesModuleGlobalIdLockUp { get => _filesModuleGlobalIdLockUp; }
         public static DirModel RootDir => _rootDir;
-        
 
 
-        public string TagTemplatePath { get {
+
+        public string TagTemplatePath
+        {
+            get
+            {
                 return TagXmlParse.TagsPath;
             }
-            set {
+            set
+            {
                 TagXmlParse.TagsPath = value;
-            } }
+            }
+        }
 
         public bool RuntimeLoadCompleted { get; private set; }
         public static RuntimeTagLoader RuntimeTagLoader { get => _runtimeTagLoader; }
@@ -122,7 +127,7 @@ namespace LibHIRT.Files
             _filesModuleGlobalIdLockUp = new ConcurrentDictionary<int, ModuleFile>();
             _filesGlobalIdLockUp = new ConcurrentDictionary<int, ISSpaceFile>();
             _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
-            
+
             //SQLiteDriver.CreateTable(connectionDb);
             //SQLiteDriver.InsertMmh3LTU(connectionDb);
             //SQLiteDriver.ReadData(connectionDb);
@@ -137,7 +142,8 @@ namespace LibHIRT.Files
 
         #region Public Methods
 
-        public void InitDbHashTable() {
+        public void InitDbHashTable()
+        {
             Mmr3HashLTU.loadFromDbLtu();
             /*
             if (connectionDb == null)
@@ -176,7 +182,7 @@ namespace LibHIRT.Files
             }
            
             */
-           
+
         }
 
         public bool AddFile(ISSpaceFile file)
@@ -193,24 +199,28 @@ namespace LibHIRT.Files
             }
             SSpaceFile temp = file as ModuleFile;
 
-            if (temp != null )
+            if (temp != null)
             {
                 if (!_filesModuleGlobalIdLockUp.ContainsKey(temp.TryGetGlobalId()))
                     _filesModuleGlobalIdLockUp.TryAdd(temp.TryGetGlobalId(), (ModuleFile)file);
-                else { 
+                else
+                {
                 }
             }
-            else {
+            else
+            {
                 int global_id = file.TryGetGlobalId();
                 var temp_s = Mmr3HashLTU.getMmr3HashFromInt(global_id);
                 if (global_id != -1)
                     _filesGlobalIdLockUp.TryAdd(global_id, file);
-                else { 
+                else
+                {
                 }
 
             }
 
-            foreach (var childFile in file.Children) {
+            foreach (var childFile in file.Children)
+            {
                 filesAdded |= AddFile(childFile);
                 try
                 {
@@ -228,28 +238,29 @@ namespace LibHIRT.Files
 
         public ISSpaceFile SearchInFile(ISSpaceFile file, int id)
         {
-            
+
             if (file is ModuleFile)
             {
-                
+
             }
             else
             {
                 int global_id = file.TryGetGlobalId();
                 _filesGlobalIdLockUp.TryAdd(global_id, file);
-                if (global_id == id) {
+                if (global_id == id)
+                {
                     return file;
-                }   
+                }
                 else
                 {
-                    
+
                 }
 
             }
 
             foreach (var childFile in file.Children)
             {
-                var result =  SearchInFile(childFile, id);
+                var result = SearchInFile(childFile, id);
                 if (result != null)
                     return result;
             }
@@ -259,15 +270,17 @@ namespace LibHIRT.Files
 
         public void AddFileToDirList(ISSpaceFile file)
         {
-            if (!(file.GetType().IsSubclassOf(typeof(SSpaceFile))) || (file.GetType().IsSubclassOf(typeof(SSpaceContainerFile)))) {
+            if (!(file.GetType().IsSubclassOf(typeof(SSpaceFile))) || (file.GetType().IsSubclassOf(typeof(SSpaceContainerFile))))
+            {
                 return;
             }
             lock (_rootDir)
             {
-                
+
                 var dirSplit = string.IsNullOrEmpty(file.Path_string) ? file.Name.Split(@"\") : file.Path_string.Split(@"\");
                 var tempDir = _rootDir;
-                lock (tempDir) {
+                lock (tempDir)
+                {
                     for (int i = 0; i < dirSplit.Length - 1; i++)
                     {
                         if (!tempDir.Dirs.ContainsKey(dirSplit[i]))
@@ -281,8 +294,8 @@ namespace LibHIRT.Files
                     tempDir.Dirs[dirSplit[dirSplit.Length - 1]] = new FileDirModel(file, dirSplit[dirSplit.Length - 1]);
                     tempDir.Dirs[dirSplit[dirSplit.Length - 1]].Parent = tempDir;
                 }
-                 
-                
+
+
             }
 
         }
@@ -311,17 +324,18 @@ namespace LibHIRT.Files
                 if (file.Name.ToLower().Contains(searchPattern))
                     yield return file;
         }
-        
+
         public IEnumerable<ISSpaceFile> GetFiles(string searchPattern)
         {
             searchPattern = searchPattern.ToLower();
 
-            foreach (var file in _files.Values) {
-                string in_S = file.Path_string == null? file.InDiskPath : file.Path_string;
+            foreach (var file in _files.Values)
+            {
+                string in_S = file.Path_string == null ? file.InDiskPath : file.Path_string;
                 if (in_S.ToLower().Contains(searchPattern))
                     yield return file;
             }
-            
+
         }
 
         public IEnumerable<TFile> GetFiles<TFile>(string searchPattern)
@@ -346,11 +360,13 @@ namespace LibHIRT.Files
             var fileExt = Path.GetExtension(fileName);
 
             HIRTStream stream;
-            if (fileExt == ".module") {
+            if (fileExt == ".module")
+            {
                 if (filePath.Contains("\\ds\\"))
                     return false;
                 stream = HIRTDecompressionStream.FromFile(filePath);
-            }else
+            }
+            else
                 stream = HIRTExtractedFileStream.FromFile(filePath);
 
             try
@@ -365,7 +381,8 @@ namespace LibHIRT.Files
             finally { stream.ReleaseLock(); }
         }
 
-        public bool ReadTagOnFile(ISSpaceFile file) {
+        public bool ReadTagOnFile(ISSpaceFile file)
+        {
             var tagParse = new TagParseControl(file.Path_string, file.TagGroup, null, file.GetStream());
             tagParse.readFile();
             _selectedJsonstring = tagParse.RootTagInst.ToJson();
@@ -389,18 +406,21 @@ namespace LibHIRT.Files
             return true;
         }
 
-        public static ISSpaceFile GetFileFrom(TagRef tagRef, ModuleFile init = null) {
+        public static ISSpaceFile GetFileFrom(TagRef tagRef, ModuleFile init = null)
+        {
             if (tagRef == null)
                 return null;
             ISSpaceFile result = null;
-            if (init != null) {
+            if (init != null)
+            {
 
                 result = init.GetFileByGlobalId(tagRef.Ref_id_int);
             }
-            if (result == null) {
+            if (result == null)
+            {
                 FilesGlobalIdLockUp.TryGetValue(tagRef.Ref_id_int, out result);
             }
-            
+
             return result;
         }
 
@@ -413,7 +433,7 @@ namespace LibHIRT.Files
             return result;
         }
 
-        public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id,bool load_resource = false)
+        public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource = false)
         {
             if (_filesGlobalIdLockUp.ContainsKey(id))
                 return _filesGlobalIdLockUp[id];

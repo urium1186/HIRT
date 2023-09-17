@@ -1,24 +1,17 @@
 ﻿
+using Aspose.ThreeD.Shading;
+using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Processes;
+using HaloInfiniteResearchTools.Processes.OnGeometry;
 using LibHIRT.Files;
+using LibHIRT.Files.FileTypes;
+using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
-using HaloInfiniteResearchTools.Common.Enumerations;
-using LibHIRT.TagReader;
-using LibHIRT.Processes;
-using LibHIRT.Serializers;
-using LibHIRT.Exporters;
-using Aspose.ThreeD.Shading;
-using Assimp.Configs;
-using LibHIRT.Processes.OnGeometry;
-using HaloInfiniteResearchTools.Processes.OnGeometry;
-using LibHIRT.Files.FileTypes;
-using HaloInfiniteResearchTools.Assimport;
-using System.Data.Entity;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -48,7 +41,7 @@ namespace HaloInfiniteResearchTools.Cli
                 )));
         }
 
-        private async void ExportToHandler(DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile,  bool v, InvocationContext ctx)
+        private async void ExportToHandler(DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, bool v, InvocationContext ctx)
         {
             _infile = infile;
             _outfile = outfile;
@@ -67,7 +60,7 @@ namespace HaloInfiniteResearchTools.Cli
                 var founds = ((SearchFileByIdProcess)sender).Result;
                 if (founds != null && founds.Count() == 1 && founds.First() is ScenarioStructureBspFile)
                 {
-                   
+
                     Models.ModelExportOptionsModel modelOptions = new Models.ModelExportOptionsModel();
                     Models.TextureExportOptionsModel textureOptions = new Models.TextureExportOptionsModel();
                     modelOptions.OutputFileFormat = Common.Enumerations.ModelFileFormat.FBX;
@@ -89,8 +82,8 @@ namespace HaloInfiniteResearchTools.Cli
                         foreach (var message in readProcess.StatusList)
                         {
                             Console.WriteLine(message.Message);
-                        } 
-                        
+                        }
+
                         var exportProcess = new ExportModelProcess((SSpaceFile)item, _context.Scene, null, modelOptions, textureOptions, null);
                         await exportProcess.Execute();
                         foreach (var message in exportProcess.StatusList)
@@ -110,16 +103,16 @@ namespace HaloInfiniteResearchTools.Cli
 
                     }
 
-                    
+
 
                 }
             }
             catch (Exception ex)
             {
 
-                Console.WriteLine("Error: "+ ex.Message);
+                Console.WriteLine("Error: " + ex.Message);
             }
-            
+
 
             Console.WriteLine("Termino el proceso");
         }

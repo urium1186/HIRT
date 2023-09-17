@@ -65,21 +65,21 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private async Task FileTreeExportJson(DirModel dirModel)
         {
-           if (dirModel == null) { return; }
-           List<ISSpaceFile> files = new List<ISSpaceFile>();
+            if (dirModel == null) { return; }
+            List<ISSpaceFile> files = new List<ISSpaceFile>();
             dirModel.GetAllFiles(files);
             var prefs = GetPreferences();
-            var process = new ExportFilesToJsonProcess(files,prefs.DefaultExportPath);
+            var process = new ExportFilesToJsonProcess(files, prefs.DefaultExportPath);
             await RunProcess(process);
         }
 
         private async Task FileTreeExportRecursiveJson(FileDirModel dirModel)
         {
-           if (dirModel == null) { return; }
-           
-            
+            if (dirModel == null) { return; }
+
+
             var prefs = GetPreferences();
-            var process = new ExportFilesRecursiveToJsonProcess((SSpaceFile)dirModel.File,prefs.DefaultExportPath);
+            var process = new ExportFilesRecursiveToJsonProcess((SSpaceFile)dirModel.File, prefs.DefaultExportPath);
             await RunProcess(process);
         }
 
@@ -112,7 +112,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             //FileContext.SearchTermChangedCommand.Execute("ocgd");
             /*var see = LibHIRT.Utils.UIDebug.debugValues;
             var intese =LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["3"].Intersect(LibHIRT.Utils.UIDebug.debugValues["unk0x08"]["2"]);*/
-            
+
             //FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
             FileContext.SearchTermChangedCommand.Execute("");
         }
@@ -167,7 +167,8 @@ namespace HaloInfiniteResearchTools.ViewModels
         private async Task OpenFileTab(IFileModel fileModel)
         {
             var f_m = fileModel as FileModel;
-            if (f_m != null) {
+            if (f_m != null)
+            {
                 var file = f_m.File;
                 if (!_tabService.CreateTabForFile(file, out _, f_m.GenericView))
                 {
@@ -182,7 +183,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             var h_m = fileModel as TreeHierarchicalModel;
             if (h_m != null)
             {
-                if (!_tabService.CreateTabForFile((TagStructMem)h_m.Value, out _,true))
+                if (!_tabService.CreateTabForFile((TagStructMem)h_m.Value, out _, true))
                 {
                     var fileExt = Path.GetExtension(((TagStructMem)h_m.Value).TagGroup);
                     await ShowMessageModal(
@@ -193,14 +194,14 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
             }
 
-                /*var entry = new List<FileModel>();
-                entry.Add(fileModel);
-                var process = new OpenModuleEntryFileProcess(entry);
-                await RunProcess(process);
-                MainWindow mv = (MainWindow)ServiceProvider.GetService(typeof(MainWindow));
-                mv.UpdateJsonInTree();
-                */
-            }
+            /*var entry = new List<FileModel>();
+            entry.Add(fileModel);
+            var process = new OpenModuleEntryFileProcess(entry);
+            await RunProcess(process);
+            MainWindow mv = (MainWindow)ServiceProvider.GetService(typeof(MainWindow));
+            mv.UpdateJsonInTree();
+            */
+        }
 
         private async Task EditPreferences()
         {
@@ -214,8 +215,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 var viewModel = vm as ToolBinaryExplorerViewModel;
             });
-        } 
-        
+        }
+
         private async Task Tools()
         {
             var result = await ShowViewModal<ToolsView>(vm =>
@@ -224,7 +225,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             });
         }
 
-         private async Task TagStructsDumper()
+        private async Task TagStructsDumper()
         {
             var result = await ShowViewModal<TagStructsDumperView>(vm =>
             {

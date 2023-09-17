@@ -1,10 +1,9 @@
 ﻿using Assimp;
-using LibHIRT.Data.Geometry;
-using LibHIRT.Data;
-using LibHIRT.Domain;
-using LibHIRT.Processes;
-using System.Collections.Generic;
 using HaloInfiniteResearchTools.Common.Extensions;
+using LibHIRT.Data;
+using LibHIRT.Data.Geometry;
+using LibHIRT.Domain;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace HaloInfiniteResearchTools.Assimport

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using LibHIRT.Common;
+﻿using LibHIRT.Common;
 using LibHIRT.Data;
 using LibHIRT.TagReader;
 using static LibHIRT.Assertions;
