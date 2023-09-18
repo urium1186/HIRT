@@ -1,4 +1,5 @@
-﻿using Assimp;
+﻿using Aspose.ThreeD.Utilities;
+using Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using SharpDX;
 using System;
@@ -50,6 +51,7 @@ namespace HaloInfiniteResearchTools.Common.Extensions
               );
         }
 
+       
         public static SharpDX.Matrix ToSharpDX(this System.Numerics.Matrix4x4 m, bool transpose = true)
         {
             if (transpose)

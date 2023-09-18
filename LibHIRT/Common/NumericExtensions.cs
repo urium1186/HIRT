@@ -89,6 +89,57 @@ else if (dotProduct < 0)
                 );
             return result;
         }
+
+        public static Aspose.ThreeD.Utilities.Matrix4 From(this Matrix4x4 mat, bool transpose = true) {
+            if (transpose)
+                mat = System.Numerics.Matrix4x4.Transpose(mat);
+            return new Aspose.ThreeD.Utilities.Matrix4(
+                 mat.M11, mat.M12, mat.M13, mat.M14,
+                 mat.M21, mat.M22, mat.M23, mat.M24,
+                 mat.M31, mat.M32, mat.M33, mat.M34,
+                 mat.M41, mat.M42, mat.M43, mat.M44
+                );
+        }
+        public static double to_positive_angle(this double angle)
+        {
+            angle = angle % 360;
+            if (angle < 0) angle += 360;
+            return angle;
+        }
+        public static double to_positive_angle180(double angle)
+        {
+           return (angle > 180) ? angle - 360 : (angle < -180) ? angle + 360 : angle;
+        }
+
+        public static Aspose.ThreeD.Utilities.Vector3 ToPositiveAngle(this Aspose.ThreeD.Utilities.Vector3 angles)
+        {
+            var x= to_positive_angle180(angles.x.to_positive_angle());
+            var y= to_positive_angle180(angles.y.to_positive_angle());
+            var z= to_positive_angle180(angles.z.to_positive_angle());
+            return new Aspose.ThreeD.Utilities.Vector3(x,y,z);
+        }
+        public static Aspose.ThreeD.Utilities.Matrix4 CoordinateToXNZY(this Aspose.ThreeD.Utilities.Matrix4 matrix)
+        {
+            // (X,Y,Z) -> (X, -Z, Y):
+            var xnzy = new Aspose.ThreeD.Utilities.Matrix4(
+                1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, -1, 0, 0,
+                0, 0, 0, 1);
+            return matrix * xnzy;
+        }
+
+        public static Aspose.ThreeD.Utilities.Matrix4 CoordinateToXZY(this Aspose.ThreeD.Utilities.Matrix4 matrix)
+        {
+            // or (X,Y,Z) -> (X, Z, Y):
+            var xzy = new Aspose.ThreeD.Utilities.Matrix4(
+                1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, 1, 0, 0,
+                0, 0, 0, 1);
+            return matrix * xzy;
+        }
+
         public static Matrix4x4 TRS(this Vector3 translation, Quaternion rotation, Vector3 scale)
         {
             return Matrix4x4.CreateFromQuaternion(rotation) *

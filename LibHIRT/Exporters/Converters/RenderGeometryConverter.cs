@@ -18,7 +18,7 @@ namespace LibHIRT.Exporters.Converters
             _materials = materials;
         }
 
-        public Mesh BuildMesh(string name, s_mesh objMesh, int lod, out List<int> mat_indexs)
+        public static Mesh BuildMesh(string name, s_mesh objMesh, int lod, out List<int> mat_indexs)
         {
             Mesh temp = new Mesh(name);
 
@@ -57,7 +57,7 @@ namespace LibHIRT.Exporters.Converters
 
         }
 
-        protected List<int> AddVertexInfo(Mesh mesh, SSPVertex[] vertexs)
+        protected static List<int> AddVertexInfo(Mesh mesh, SSPVertex[] vertexs)
         {
             VertexElementUV elementUV0 = mesh.CreateElementUV(TextureMapping.Diffuse);
             VertexElementUV elementUV1 = null;
@@ -92,7 +92,7 @@ namespace LibHIRT.Exporters.Converters
             return material_list;
         }
 
-        protected void AddFace(Mesh mesh, IndexBufferType indexBufferType, List<uint> indices)
+        protected static void AddFace(Mesh mesh, IndexBufferType indexBufferType, List<uint> indices)
         {
 
             switch (indexBufferType)

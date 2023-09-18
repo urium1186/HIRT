@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Assimp;
@@ -11,7 +11,6 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
-using OpenSpartan.Grunt.Models.HaloInfinite;
 
 namespace HaloInfiniteResearchTools.Processes.OnGeometry
 {
@@ -128,15 +127,23 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
         }
 
         void AddPerInstanceData(ListTagInstance tagBlock, int i, Node nodeRoot, TagInstance rootRtgo, LibHIRT.Domain.RenderGeometry renderGeometry, SSpaceFile rtgo_file) {
+            /*if (i == 7615 || i == 7617)
+            {
+
+            }
+            else {
+                return;
+            }*/
             TagRef tr_rtgo = tagBlock[i]["Runtime geo mesh reference"] as TagRef;
             if (tr_rtgo == null)
                 return;
+
             Debug.Assert(rtgo_file.FileMemDescriptor.GlobalTagId1 == tr_rtgo.Ref_id_int);
             int unique_io_index = (short)tagBlock[i]["unique io index"].AccessValue;
 
             int meshIndex = (Int16)tagBlock[i]["Runtime geo mesh index"].AccessValue;
 
-            string name = rtgo_file.Name;
+            string name = rtgo_file.FileMemDescriptor.GlobalTagId1.ToString();
             if (name.Contains("207352254_1C26EF0A"))
             {
 
@@ -144,11 +151,12 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             Node temp = null;
             if (!uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1].ContainsKey(meshIndex))
             {
-                temp = _context.AddRenderGeometry(_prefixMeshName + rtgo_file.Name + "_" + i, renderGeometry, null, new List<int> { meshIndex }, true);
+                temp = _context.AddRenderGeometry(name, renderGeometry, null, new List<int> { meshIndex }, true);
+                temp.Name= "instance_" + i;
                 uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex] = temp.MeshIndices[0];
             }
             else {
-                temp = new Node(_prefixMeshName + rtgo_file.Name+"_"+i);
+                temp = new Node("instance_"+i);
                 temp.MeshIndices.Add(uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex]);
             }
 
@@ -178,7 +186,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             scaleG.x = scaleTagG.X;
             scaleG.y = scaleTagG.Y;
             scaleG.z = scaleTagG.Z;
-
+            
             temp.Transform = NumericExtensions.TRS(meshrot_mat_g, traslationG, scaleG).ToAssimp();
             nodeRoot.Children.Add(temp);
         }
