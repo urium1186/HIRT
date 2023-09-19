@@ -3,6 +3,7 @@ using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Shading;
 using LibHIRT.Domain;
 using LibHIRT.Domain.Geometry;
+using LibHIRT.Serializers;
 using System.Diagnostics;
 
 namespace LibHIRT.Exporters.Converters
@@ -22,9 +23,9 @@ namespace LibHIRT.Exporters.Converters
         {
             Mesh temp = new Mesh(name);
 
-            mat_indexs = AddVertexInfo(temp, objMesh.LODRenderData[lod].Vertexs);
+            AddVertexInfo(temp, objMesh.LODRenderData[lod].Vertexs);
 
-            AddFace(temp, objMesh.IndexBufferType, objMesh.LODRenderData[lod].IndexBufferIndex);
+            mat_indexs = AddFace(temp, objMesh.IndexBufferType, objMesh.LODRenderData[lod].IndexBufferIndex, objMesh.LODRenderData[lod].Parts);
             return temp;
         }
 
@@ -57,13 +58,11 @@ namespace LibHIRT.Exporters.Converters
 
         }
 
-        protected static List<int> AddVertexInfo(Mesh mesh, SSPVertex[] vertexs)
+        protected static void AddVertexInfo(Mesh mesh, SSPVertex[] vertexs)
         {
             VertexElementUV elementUV0 = mesh.CreateElementUV(TextureMapping.Diffuse);
             VertexElementUV elementUV1 = null;
             VertexElementUV elementUV2 = null;
-            VertexElementMaterial vertexElementMaterial = (VertexElementMaterial)mesh.CreateElement(VertexElementType.Material);
-            List<int> material_list = new List<int>();
 
             if (vertexs[0].UV1 != null)
                 elementUV1 = mesh.CreateElementUV(TextureMapping.Ambient);
@@ -74,26 +73,29 @@ namespace LibHIRT.Exporters.Converters
             {
                 mesh.ControlPoints.Add(new Aspose.ThreeD.Utilities.Vector4(item.X, item.Y, item.Z));
                 elementUV0.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV0.Value.X, item.UV0.Value.Y, 0));
-                int mat_index = 0;
-                if (material_list.Contains((int)item.MatIndex))
-                    mat_index = material_list.IndexOf((int)item.MatIndex);
-                else
-                {
-                    material_list.Add((int)item.MatIndex);
-                    mat_index = material_list.Count;
-                }
-                vertexElementMaterial.Indices.Add(mat_index);
                 if (elementUV1 != null)
                     elementUV1.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV1.Value.X, item.UV1.Value.Y, 0));
                 if (elementUV2 != null)
                     elementUV2.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV2.Value.X, item.UV2.Value.Y, 0));
 
             }
-            return material_list;
+           
         }
 
-        protected static void AddFace(Mesh mesh, IndexBufferType indexBufferType, List<uint> indices)
+        protected static List<int> AddFace(Mesh mesh, IndexBufferType indexBufferType, List<uint> indices, s_part[] parts)
         {
+            VertexElementMaterial _vertexElementMaterial = (VertexElementMaterial)mesh.CreateElement(VertexElementType.Material);
+            _vertexElementMaterial.MappingMode = MappingMode.Polygon;
+
+            List<int> material_list = new List<int>();
+            /*int mat_index = 0;
+            if (material_list.Contains((int)item.MatIndex))
+                mat_index = material_list.IndexOf((int)item.MatIndex);
+            else
+            {
+                material_list.Add((int)item.MatIndex);
+                mat_index = material_list.Count;
+            }*/
 
             switch (indexBufferType)
             {
@@ -110,6 +112,18 @@ namespace LibHIRT.Exporters.Converters
                         for (int i = 0; i < mesh.ControlPoints.Count; i += 3)
                         {
                             mesh.CreatePolygon(i + 0, i + 1, i + 2);
+                            int mat_ind = RenderGeometrySerializer.GetMaterialIndexByFaceIndex(parts, i);
+                            int mat_index = 0;
+                            if (material_list.Contains(mat_ind))
+                                mat_index = material_list.IndexOf(mat_ind);
+                            else
+                            {
+                                material_list.Add(mat_ind);
+                                mat_index = material_list.Count-1;
+                            }
+                            _vertexElementMaterial.Indices.Add(mat_index);
+                            
+                            
                         }
 
                     }
@@ -118,7 +132,20 @@ namespace LibHIRT.Exporters.Converters
                         Debug.Assert(indices.Count % 3 == 0);
                         for (int i = 0; i < indices.Count; i += 3)
                         {
-                            mesh.CreatePolygon((int)indices[i + 0], (int)indices[i + 1], (int)indices[i + 2]);
+                            int cp_0 = (int)indices[i + 0];
+                            int cp_1 = (int)indices[i + 1];
+                            int cp_2 = (int)indices[i + 2];
+                            mesh.CreatePolygon(cp_0, cp_1, cp_2);
+                            int mat_ind = RenderGeometrySerializer.GetMaterialIndexByFaceIndex(parts, i);
+                            int mat_index = 0;
+                            if (material_list.Contains(mat_ind))
+                                mat_index = material_list.IndexOf(mat_ind);
+                            else
+                            {
+                                material_list.Add(mat_ind);
+                                mat_index = material_list.Count-1;
+                            }
+                            _vertexElementMaterial.Indices.Add(mat_index);
                         }
                     }
                     break;
@@ -131,6 +158,7 @@ namespace LibHIRT.Exporters.Converters
                 default:
                     break;
             }
+            return material_list;
         }
 
     }

@@ -9,11 +9,11 @@ namespace LibHIRT.Exporters
 {
     public static class RenderGeometryExporter
     {
-        static private FbxSaveOptions _saveOpts;
-
+        
         static RenderGeometryExporter()
         {
-            _saveOpts = new FbxSaveOptions(FileFormat.FBX7500Binary);
+            
+            //_saveOpts.GenerateVertexElementMaterial = true;
             /*
              // Generates the legacy material properties.
             _saveOpts.ExportLegacyMaterialProperties = true;
@@ -28,20 +28,20 @@ namespace LibHIRT.Exporters
 
         }
 
-        public static bool Export(RenderGeometry renderGeometry, string path, string name)
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, string format = "dae")
         {
-            return Export(renderGeometry, path, name, null, null);
+            return Export(renderGeometry, path, name,  null, null, format);
         }
-        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials)
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials, string format = "dae")
         {
-            return Export(renderGeometry, path, name, materials, null);
+            return Export(renderGeometry, path, name, materials, null, format);
         }
-        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Bone> bones)
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Bone> bones, string format = "dae")
         {
-            return Export(renderGeometry, path, name, null, bones);
+            return Export(renderGeometry, path, name, null, bones, format);
         }
 
-        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials, List<Bone> bones)
+        public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials, List<Bone> bones, string format = "dae")
         {
             try
             {
@@ -56,9 +56,11 @@ namespace LibHIRT.Exporters
                 scene.RootNode.AddChildNode(temp_convert.BuildFullEntity());
 
                 //boxNode.Material = mat;
-
+                
+                
+                SaveOptions _saveOpts = Aspose3DExporter.GetSaveOptions(format);
                 // save 3d scene into STL format
-                string out_path = Path.Combine(path, name, name + @".fbx");
+                string out_path = Path.Combine(path, name, name + _saveOpts.FileFormat.Extension);
                 Directory.CreateDirectory(Path.GetDirectoryName(out_path));
                 scene.Save(out_path, _saveOpts);
                 return true;
@@ -70,7 +72,11 @@ namespace LibHIRT.Exporters
             }
 
         }
+
+        
     }
+
+    
 
 
 }

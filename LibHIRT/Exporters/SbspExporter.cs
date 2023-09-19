@@ -55,8 +55,9 @@ namespace LibHIRT.Exporters
                 
                 //PolygonModifier.Scale(scene, new Aspose.ThreeD.Utilities.Vector3(0.01));
                 CoordinateSystemTools.ChangeCoordenate(scene.RootNode);
+                SaveOptions _saveOpts = Aspose3DExporter.GetSaveOptions();
                 //boxNode.Material = mat;
-                FbxSaveOptions _saveOpts = new FbxSaveOptions(FileFormat.FBX7500Binary);
+                //FbxSaveOptions _saveOpts = new FbxSaveOptions(FileFormat.FBX7500Binary);
                 //ObjSaveOptions _saveOpts = new ObjSaveOptions();
                 //ColladaSaveOptions _saveOpts = new ColladaSaveOptions();
                 //UsdSaveOptions _saveOpts = new UsdSaveOptions();
