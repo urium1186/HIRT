@@ -27,8 +27,9 @@ namespace HaloInfiniteResearchTools.Cli
         private bool _tif;
         private List<RenderGeometryTag> rendersGeometrys;
         private List<Material> _materialList;
+        private string _format;
 
-        public ExportRenderGeometryOnTagInstanceCommand() : base("export_rg", "export render geometry (fbx) in tag")
+        public ExportRenderGeometryOnTagInstanceCommand() : base("export_rg", "export render geometry (dae) in tag")
         {
             AddCommand(
                new Command("onpath", "Search in folder path")
@@ -37,16 +38,14 @@ namespace HaloInfiniteResearchTools.Cli
                     new Option<string>(new string[] { "--tag_id", "-ti" }, "TagInstance id"),
                     new Option<string>(new string[] { "--tag_id_format", "-tif" }, "true or false, if is int or hash"),
                     new Option<DirectoryInfo?>(new string[] { "--output", "-o" }, "Output dir path"),
-                    new Option<string?>(new string[] { "--from_tp", "-ft" }, "true or false, create from  tag path"),
-                    new Option<string?>(new string[] { "--tg_path", "-tp" }, "tag path,  if true from_tp the tagpath to use"),
+                    new Option<string?>(new string[] { "--export_format", "-ef" }, "Format to export one of this ( dae, fbx), is not dae default"),
             }.Also(cmd => cmd.SetHandler(
-                (DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string ext, string consout, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, ext, consout, true, ctx),
+                (DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string ext, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, ext, true, ctx),
                 cmd.Options[0],
                 cmd.Options[1],
                 cmd.Options[2],
                 cmd.Options[3],
-                cmd.Options[4],
-                cmd.Options[5]
+                cmd.Options[4]
                 )));
 
             AddCommand(
@@ -56,25 +55,23 @@ namespace HaloInfiniteResearchTools.Cli
                     new Option<string>(new string[] { "--tag_id", "-ti" }, "TagInstance id"),
                     new Option<string>(new string[] { "--tag_id_format", "-tif" }, "true or false, if is tag id is int (true) or hash (false)"),
                     new Option<DirectoryInfo?>(new string[] { "--output", "-o" }, "Output dir path"),
-                    new Option<string?>(new string[] { "--from_tp", "-ft" }, "true or false, create from  tag path"),
-                    new Option<string?>(new string[] { "--tg_path", "-tp" }, "tag path,  if true from_tp the tagpath to use"),
+                    new Option<string?>(new string[] { "--export_format", "-ef" }, "Format to export one of this ( dae, fbx), is not dae default"),
             }.Also(cmd => cmd.SetHandler(
-                (FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string from_tp, string tg_path, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, from_tp, tg_path, true, ctx),
+                (FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format, InvocationContext ctx) => ExportToHandler(deploy_dir, infile, tif, outfile, format, true, ctx),
                 cmd.Options[0],
                 cmd.Options[1],
                 cmd.Options[2],
                 cmd.Options[3],
-                cmd.Options[4],
-                cmd.Options[5]
+                cmd.Options[4]
                 )));
         }
 
-        private async void ExportToHandler(FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string from_tp, string tg_path, bool v, InvocationContext ctx)
+        private async void ExportToHandler(FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format,  bool v, InvocationContext ctx)
         {
             _infile = infile;
             _outfile = outfile;
-            _from_tp = bool.Parse(from_tp);
-            _tg_path = tg_path;
+            _format = format;
+            
             _tif = bool.Parse(tif);
 
             if (!deploy_dir.Exists || deploy_dir.Extension != ".module")
@@ -88,12 +85,12 @@ namespace HaloInfiniteResearchTools.Cli
             await process.Execute();
             Console.WriteLine("Tags listed to");
         }
-        private async void ExportToHandler(DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string from_tp, string tg_path, bool v, InvocationContext ctx)
+        private async void ExportToHandler(DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format,bool v, InvocationContext ctx)
         {
             _infile = infile;
             _outfile = outfile;
-            _from_tp = bool.Parse(from_tp);
-            _tg_path = tg_path;
+            _format = format;
+            
             _tif = bool.Parse(tif);
             int id = _tif ? int.Parse(infile) : Mmr3HashLTU.fromStrHash(infile);
             var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, false, deploy_dir.FullName);
@@ -144,7 +141,7 @@ namespace HaloInfiniteResearchTools.Cli
                             if (true)
                             {
                                 string filename = Path.GetFileNameWithoutExtension(item.Name) + (rendersGeometrys.Count > 1 ? "_" + i.ToString() : "");
-                                RenderGeometryExporter.Export(renderGeometry, _outfile.FullName, filename, _materialList);
+                                RenderGeometryExporter.Export(renderGeometry, _outfile.FullName, filename, _materialList, _format);
                             }
                             else
                             {
@@ -196,6 +193,7 @@ namespace HaloInfiniteResearchTools.Cli
                 // initialize PBR material object
                 using (var list = (e as Tagblock))
                 {
+                    int i = 1; 
                     foreach (var item in list)
                     {
                         PbrMaterial mat = new PbrMaterial();
@@ -210,7 +208,10 @@ namespace HaloInfiniteResearchTools.Cli
 
                         mat.RoughnessFactor = 0.9;
 
+                        mat.Albedo = new Aspose.ThreeD.Utilities.Vector3(255/i, 255 / i%2, 0 );
+
                         _materialList.Add(mat);
+                        i++;
                     }
                 }
 

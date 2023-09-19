@@ -1,8 +1,10 @@
 ﻿
 using Aspose.ThreeD.Shading;
 using HaloInfiniteResearchTools.Assimport;
+using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Processes.OnGeometry;
+using LibHIRT.Exporters;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
@@ -12,6 +14,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Cli
 {
@@ -61,34 +64,16 @@ namespace HaloInfiniteResearchTools.Cli
                 if (founds != null && founds.Count() == 1 && founds.First() is ScenarioStructureBspFile)
                 {
 
-                    Models.ModelExportOptionsModel modelOptions = new Models.ModelExportOptionsModel();
-                    Models.TextureExportOptionsModel textureOptions = new Models.TextureExportOptionsModel();
-                    modelOptions.OutputFileFormat = Common.Enumerations.ModelFileFormat.FBX;
-                    modelOptions.CreateDirectoryForModel = true;
-                    modelOptions.ExportTextures = false;
-                    modelOptions.ExportMaterialDefinitions = false;
-                    modelOptions.OutputPath = _outfile.FullName;
-                    modelOptions.OverwriteExisting = true;
+                    
 
                     var item = (ScenarioStructureBspFile)founds.First();
                     {
-                        if (_materialList == null)
-                            _materialList = new List<Material>();
+                        if (false)
+                            await AssimpExport(item);
                         else
-                            _materialList.Clear();
-                        var _context = new HISceneContext(item.Name);
-                        var readProcess = new LoadSbpsToContextProcess(_context, item, item.FileMemDescriptor.GlobalTagId1.ToString("X"));
-                        await readProcess.Execute();
-                        foreach (var message in readProcess.StatusList)
                         {
-                            Console.WriteLine(message.Message);
-                        }
-
-                        var exportProcess = new ExportModelProcess((SSpaceFile)item, _context.Scene, null, modelOptions, textureOptions, null);
-                        await exportProcess.Execute();
-                        foreach (var message in exportProcess.StatusList)
-                        {
-                            Console.WriteLine(message.Message);
+                            string filename = Path.GetFileNameWithoutExtension(item.Name) + "_";
+                            SbspExporter.Export(item, _outfile.FullName, filename);
                         }
 
                         //                        Console.WriteLine(exportProcess.Result);
@@ -115,6 +100,37 @@ namespace HaloInfiniteResearchTools.Cli
 
 
             Console.WriteLine("Termino el proceso");
+        }
+
+        private async Task AssimpExport(ScenarioStructureBspFile item)
+        {
+            Models.ModelExportOptionsModel modelOptions = new Models.ModelExportOptionsModel();
+            Models.TextureExportOptionsModel textureOptions = new Models.TextureExportOptionsModel();
+            modelOptions.OutputFileFormat = Common.Enumerations.ModelFileFormat.FBX;
+            modelOptions.CreateDirectoryForModel = true;
+            modelOptions.ExportTextures = false;
+            modelOptions.ExportMaterialDefinitions = false;
+            modelOptions.OutputPath = _outfile.FullName;
+            modelOptions.OverwriteExisting = true;
+
+            if (_materialList == null)
+                _materialList = new List<Material>();
+            else
+                _materialList.Clear();
+            var _context = new HISceneContext(item.Name);
+            var readProcess = new LoadSbpsToContextProcess(_context, item, item.FileMemDescriptor.GlobalTagId1.ToString("X"));
+            await readProcess.Execute();
+            foreach (var message in readProcess.StatusList)
+            {
+                Console.WriteLine(message.Message);
+            }
+
+            var exportProcess = new ExportModelProcess((SSpaceFile)item, _context.Scene, null, modelOptions, textureOptions, null);
+            await exportProcess.Execute();
+            foreach (var message in exportProcess.StatusList)
+            {
+                Console.WriteLine(message.Message);
+            }
         }
     }
 }

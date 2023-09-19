@@ -56,10 +56,21 @@ namespace LibHIRT.Serializers
 
         private int GetMaterialIndexOfPart(s_part[] parts, int vert_index)
         {
+            // TODO esto esta mal implementado, the index refer to index buffer no to vertexbuffer
             foreach (var part in parts)
             {
-                if (part.IndexStart >= vert_index && (vert_index < (part.IndexStart + part.IndexCount)))
+                if (vert_index >= part.IndexStart && (vert_index < (part.IndexStart + part.IndexCount)))
                     return part.MaterialIndex;
+            }
+            return -1;
+        }
+
+        public static int GetMaterialIndexByFaceIndex(s_part[] parts, int indexFace) {
+            foreach (var part in parts)
+            {
+                if ((part.IndexStart/3) <= indexFace && indexFace<(part.IndexStart + part.IndexCount) / 3){ 
+                    return part.MaterialIndex;
+                }
             }
             return -1;
         }
@@ -354,7 +365,7 @@ namespace LibHIRT.Serializers
                         for (int j = 0; j < tempPosition.count; j++)
                         {
                             SSPVertex temp = new SSPVertexStatic();
-                            temp.MatIndex = GetMaterialIndexOfPart(obj_lod.Parts, j);
+                            //temp.MatIndex = GetMaterialIndexOfPart(obj_lod.Parts, j);
                             byte[] buffer = new byte[tempPosition.stride];
                             msPosition.Read(buffer, 0, tempPosition.stride);
                             var vals = FormatReader.ReadWordVector4DNormalized(buffer);
