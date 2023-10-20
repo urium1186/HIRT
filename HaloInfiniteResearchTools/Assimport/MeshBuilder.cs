@@ -31,6 +31,7 @@ namespace HaloInfiniteResearchTools.Assimport
 
             bones_ref = bones;
             // im not really sure if the indexes go higher than 128, but we'll use a unit anyway
+            use_dual_quat = obj.UseDualQuat;
             bone_index = (uint)obj.RigidNodeIndex;
 
             Mesh = new Mesh(meshName, PrimitiveType.Triangle);
@@ -116,7 +117,7 @@ namespace HaloInfiniteResearchTools.Assimport
                             blend_indicies[0] = (int)vertex.BlendIndices0.Value.X;
                             blend_indicies[1] = (int)vertex.BlendIndices0.Value.Y;
                             blend_indicies[2] = (int)vertex.BlendIndices0.Value.Z;
-                            //blend_indicies[3] = (int)vertex.BlendIndices0.Value.W; // turned off for now, so we only match up the first 3 weights until blend group [1] is implemented 
+                            blend_indicies[3] = (int)vertex.BlendIndices0.Value.W;
                         }
                         if (vertex.BlendWeights0 != null){
                             blend_weights[0] = vertex.BlendWeights0.Value.X;
@@ -124,7 +125,6 @@ namespace HaloInfiniteResearchTools.Assimport
                             blend_weights[2] = vertex.BlendWeights0.Value.Z;
                         }
                     
-                        // NOTE: BLEND INDICIES/WEIGHTS [1] ARE NOT SETUP YET!!! URIUM HAS TO SET THIS UP
                         if (vertex.BlendIndices1 != null){
                             blend_indicies[4] = (int)vertex.BlendIndices1.Value.X;
                             blend_indicies[5] = (int)vertex.BlendIndices1.Value.Y;
@@ -141,10 +141,16 @@ namespace HaloInfiniteResearchTools.Assimport
                         for (int i = 0; i < 8; i++){
                             int? target_bone_index = blend_indicies[i];
                             // if not assigned or potentially invalid index, then skip (we should actually break, as its unlikely the following items would have results)
-                            if (target_bone_index == null || target_bone_index >= 255 || blend_weights[i] == null)
+                            if (target_bone_index == null || target_bone_index >= 255)
                                 continue;
+                            // it turns out unused indexes just copy the previous one (which doesn't cause any issues with the previous code) opposed to being set to 255
+                            // se we're just checking to see if we already added that bone weight entry already
+                            //if (i > 0 && target_bone_index == blend_indicies[i - 1])
+                            //    continue;
+
                             float? weight = blend_weights[i];
-                            if (!use_dual_quat) weight = 1.0f; // i think this is what that means
+                            if (!use_dual_quat) 
+                                weight = 1.0f; // i think this is what that means
 
                             bones_ref[(int)target_bone_index].VertexWeights.Add(new((int)offset, (float)weight));
                         }
