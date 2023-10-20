@@ -6,6 +6,7 @@ using LibHIRT.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace HaloInfiniteResearchTools.Assimport
 {
@@ -112,32 +113,49 @@ namespace HaloInfiniteResearchTools.Assimport
                         // the last two are probably always set to 0 or null or whatever
 
                         float?[] blend_weights = new float?[6];
-
+                        // i think these are supposed to be assigned in groups backwards (IE. [0] = W, [1] = Z, [2] = Y, [3] = X)
+                        // also i swear '3' is a fallback value for indicies that are not actually assigned? (and its also used to index bone[3])
                         if (vertex.BlendIndices0 != null){
                             blend_indicies[0] = (int)vertex.BlendIndices0.Value.X;
                             blend_indicies[1] = (int)vertex.BlendIndices0.Value.Y;
                             blend_indicies[2] = (int)vertex.BlendIndices0.Value.Z;
                             blend_indicies[3] = (int)vertex.BlendIndices0.Value.W;
                         }
-                        if (vertex.BlendWeights0 != null){
-                            blend_weights[0] = vertex.BlendWeights0.Value.X;
-                            blend_weights[1] = vertex.BlendWeights0.Value.Y;
-                            blend_weights[2] = vertex.BlendWeights0.Value.Z;
-                        }
-                    
                         if (vertex.BlendIndices1 != null){
                             blend_indicies[4] = (int)vertex.BlendIndices1.Value.X;
                             blend_indicies[5] = (int)vertex.BlendIndices1.Value.Y;
                             blend_indicies[6] = (int)vertex.BlendIndices1.Value.Z;
                             blend_indicies[7] = (int)vertex.BlendIndices1.Value.W;
                         }
+
+                        if (vertex.BlendWeights0 != null){
+                            blend_weights[0] = vertex.BlendWeights0.Value.X;
+                            blend_weights[1] = vertex.BlendWeights0.Value.Y;
+                            blend_weights[2] = vertex.BlendWeights0.Value.Z;
+                        }
                         if (vertex.BlendWeights1 != null){
                             blend_weights[3] = vertex.BlendWeights1.Value.X;
                             blend_weights[4] = vertex.BlendWeights1.Value.Y;
                             blend_weights[5] = vertex.BlendWeights1.Value.Z;
                         }
-                    
+
+                        // count unique number of bone indexes
+                        int bones_count = 0;
+                        Dictionary<int, bool> bones_used = new();
+                        for (int i = 0; i < 8; i++){
+                            int? target_bone_index = blend_indicies[i];
+                            if (target_bone_index == null)
+                                continue;
+
+                            if (!bones_used.ContainsKey((int)target_bone_index)){
+                                bones_count++;
+                                bones_used[(int)target_bone_index] = true;
+                            }
+                        }
+
                         // and now we iterate through the indexes & assign to bones
+                        float debug_total_measured_weight = 0.0f;
+                        float debug_total_adjusted_weight = 0.0f;
                         for (int i = 0; i < 8; i++){
                             int? target_bone_index = blend_indicies[i];
                             // if not assigned or potentially invalid index, then skip (we should actually break, as its unlikely the following items would have results)
@@ -149,11 +167,29 @@ namespace HaloInfiniteResearchTools.Assimport
                             //    continue;
 
                             float? weight = blend_weights[i];
-                            if (!use_dual_quat) 
+                            if (weight == null)
+                                continue;
+
+                            debug_total_measured_weight += (float)weight;
+                            if (!use_dual_quat || bones_count == 1) // if only one parent bone or not using dual quat, then this bone has full ownership
                                 weight = 1.0f; // i think this is what that means
 
                             bones_ref[(int)target_bone_index].VertexWeights.Add(new((int)offset, (float)weight));
                         }
+                        // error checking stuff
+                        if (use_dual_quat && debug_total_measured_weight == 0.0f && bones_count != 1)
+                        {
+                            // this should NOT happen
+                        }
+                        if (!use_dual_quat && debug_total_measured_weight != 0.0f)
+                        {
+                            // this should also NOT happen
+                        }
+                        if (!use_dual_quat && bones_count != 1)
+                        {
+                            // this should also also NOT happen
+                        }
+
 
 
 
