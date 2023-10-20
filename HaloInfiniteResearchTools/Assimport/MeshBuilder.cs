@@ -4,6 +4,7 @@ using LibHIRT.Data;
 using LibHIRT.Data.Geometry;
 using LibHIRT.Domain;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Numerics;
 
 namespace HaloInfiniteResearchTools.Assimport
@@ -12,22 +13,33 @@ namespace HaloInfiniteResearchTools.Assimport
     {
         private readonly ISceneContext _context;
         public Mesh Mesh { get; }
-        public Dictionary<short, Bone> Bones { get; }
-        public Dictionary<string, Bone> BoneNames { get; }
+
+        private Bone[]? bones_ref;
+        private uint bone_index;
+        private bool use_dual_quat; // no idea what this means
+        //public Dictionary<short, Bone> Bones { get; }
+        //public Dictionary<string, Bone> BoneNames { get; }
         public Dictionary<uint, uint> VertexLookup { get; }
         public short SkinCompoundId { get; }
         private readonly s_mesh _object;
-        public MeshBuilder(ISceneContext context, s_mesh obj, S3DGeometrySubMesh submesh)
+        public MeshBuilder(ISceneContext context, s_mesh obj, S3DGeometrySubMesh submesh, Bone[]? bones)
         {
             _context = context;
             _object = obj;
 
             var meshName = _object.Name;
 
+            bones_ref = bones;
+            // im not really sure if the indexes go higher than 128, but we'll use a unit anyway
+            bone_index = (uint)obj.RigidNodeIndex;
+
             Mesh = new Mesh(meshName, PrimitiveType.Triangle);
 
-            Bones = new Dictionary<short, Bone>();
-            BoneNames = new Dictionary<string, Bone>();
+            if (bones != null)
+                Mesh.Bones.AddRange(bones); // apply the bones
+
+            //Bones = new Dictionary<short, Bone>();
+            //BoneNames = new Dictionary<string, Bone>();
             VertexLookup = new Dictionary<uint, uint>();
         }
         public Mesh Build()
@@ -88,7 +100,63 @@ namespace HaloInfiniteResearchTools.Assimport
 
             foreach (var vertex in meshLOD.Vertexs)
             {
+
                 Mesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
+
+                // assign to bone here
+                if (bones_ref != null){
+                    if (bone_index == 255){ // then this is a weighted vert that may have 1 or more parent bones
+
+                        int?[] blend_indicies = new int?[8];
+                        // the last two are probably always set to 0 or null or whatever
+
+                        float?[] blend_weights = new float?[6];
+
+                        if (vertex.BlendIndices0 != null){
+                            blend_indicies[0] = (int)vertex.BlendIndices0.Value.X;
+                            blend_indicies[1] = (int)vertex.BlendIndices0.Value.Y;
+                            blend_indicies[2] = (int)vertex.BlendIndices0.Value.Z;
+                            //blend_indicies[3] = (int)vertex.BlendIndices0.Value.W; // turned off for now, so we only match up the first 3 weights until blend group [1] is implemented 
+                        }
+                        if (vertex.BlendWeights0 != null){
+                            blend_weights[0] = vertex.BlendWeights0.Value.X;
+                            blend_weights[1] = vertex.BlendWeights0.Value.Y;
+                            blend_weights[2] = vertex.BlendWeights0.Value.Z;
+                        }
+                    
+                        // NOTE: BLEND INDICIES/WEIGHTS [1] ARE NOT SETUP YET!!! URIUM HAS TO SET THIS UP
+                        if (vertex.BlendIndices1 != null){
+                            blend_indicies[4] = (int)vertex.BlendIndices1.Value.X;
+                            blend_indicies[5] = (int)vertex.BlendIndices1.Value.Y;
+                            blend_indicies[6] = (int)vertex.BlendIndices1.Value.Z;
+                            blend_indicies[7] = (int)vertex.BlendIndices1.Value.W;
+                        }
+                        if (vertex.BlendWeights1 != null){
+                            blend_weights[3] = vertex.BlendWeights1.Value.X;
+                            blend_weights[4] = vertex.BlendWeights1.Value.Y;
+                            blend_weights[5] = vertex.BlendWeights1.Value.Z;
+                        }
+                    
+                        // and now we iterate through the indexes & assign to bones
+                        for (int i = 0; i < 8; i++){
+                            int? target_bone_index = blend_indicies[i];
+                            // if not assigned or potentially invalid index, then skip (we should actually break, as its unlikely the following items would have results)
+                            if (target_bone_index == null || target_bone_index >= 255 || blend_weights[i] == null)
+                                continue;
+                            float? weight = blend_weights[i];
+                            if (!use_dual_quat) weight = 1.0f; // i think this is what that means
+
+                            bones_ref[(int)target_bone_index].VertexWeights.Add(new((int)offset, (float)weight));
+                        }
+
+
+
+                    }
+                    // else its a rigid mesh and we assign the singlular bone 
+
+                    else bones_ref[bone_index].VertexWeights.Add(new((int)offset, 1.0f));
+
+                }
 
                 VertexLookup.Add(offset++, (uint)VertexLookup.Count);
             }

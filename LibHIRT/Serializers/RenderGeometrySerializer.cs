@@ -104,7 +104,7 @@ namespace LibHIRT.Serializers
             s_mesh obj_mesh = new s_mesh();
 
             obj_mesh.CloneIndex = (Int16)mesh["clone index"].AccessValue;
-            obj_mesh.RigidNodeIndex = (sbyte)mesh["rigid node index"].AccessValue;
+            obj_mesh.RigidNodeIndex = (byte)(sbyte)mesh["rigid node index"].AccessValue; // this is actually a regular byte, not an sbyte
             obj_mesh.VertType = (VertType)((EnumGroup)mesh["vertex type"]).SelectedIndex;
 
             obj_mesh.IndexBufferType = (IndexBufferType)((EnumGroup)mesh["index buffer type"]).SelectedIndex;

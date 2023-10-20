@@ -196,7 +196,7 @@ namespace LibHIRT.Processes.OnGeometry
 
             //foreach (var submesh in obj.SubMeshes)
             //{
-            var builder = new MeshBuilder(_context, obj, null);
+            var builder = new MeshBuilder(_context, obj, null, null);
             var mesh = builder.Build();
             //var mesh = MeshBuilderNew.CreateCubeMesh(50, mesh_.Name);
 
