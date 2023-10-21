@@ -218,11 +218,15 @@ namespace LibHIRT.Processes.OnGeometry
             TotalUnits = nodes.Count;
             skl_nodes = new Node("skl_nodes", _context.Scene.RootNode);
             _context.RootNode.Children.Add(skl_nodes);
-            AddSklNodesRecursive(nodes1, nodes, nodes1[0], skl_nodes);
+
+            indexable_bones = new Bone[nodes1.Length];
+            AddSklNodesRecursive(nodes1, nodes, 0, skl_nodes);
         }
 
-        private void AddSklNodesRecursive(ModelBone[] nodes1, ListTagInstance nodes, ModelBone rootBone, Node parentNode)
+        Bone[] indexable_bones;
+        private void AddSklNodesRecursive(ModelBone[] nodes1, ListTagInstance nodes, int rootBone_index, Node parentNode)
         {
+            ModelBone rootBone = nodes1[rootBone_index];
 
             int parent_index = rootBone.ParentIndex;
             int first_child_node_index = rootBone.FirstChildIndex;
@@ -263,6 +267,12 @@ namespace LibHIRT.Processes.OnGeometry
 
             node.Transform = rootBone.LocalTransform.ToAssimp();
 
+            // and now setup the bone
+            Bone bone = new();
+            bone.Name = node_name;
+            bone.OffsetMatrix = node.Transform;
+            indexable_bones[rootBone_index] = bone;
+
             if (node.calculateGlobalTransformation().Equals(rootBone.GlobalTransform))
             {
 
@@ -298,9 +308,9 @@ namespace LibHIRT.Processes.OnGeometry
 
             CompletedUnits++;
             if (next_sibling_node_index != -1)
-                AddSklNodesRecursive(nodes1, nodes, nodes1[next_sibling_node_index], parentNode);
+                AddSklNodesRecursive(nodes1, nodes, next_sibling_node_index, parentNode);
             if (first_child_node_index != -1)
-                AddSklNodesRecursive(nodes1, nodes, nodes1[first_child_node_index], node);
+                AddSklNodesRecursive(nodes1, nodes, first_child_node_index, node);
 
 
         }
@@ -311,6 +321,7 @@ namespace LibHIRT.Processes.OnGeometry
 
             return mtr;
         }*/
+
 
         private void AddNodes(List<S3DObject> objects)
         {
@@ -383,7 +394,16 @@ namespace LibHIRT.Processes.OnGeometry
 
             //foreach (var submesh in obj.SubMeshes)
             //{
-            var builder = new MeshBuilder(_context, obj, null);
+            // we actually have to create a duplicate bones array for each mesh, as they need relative vertex indexes i believe
+            Bone[] unique_bones_array = new Bone[indexable_bones.Length];
+            for (int i = 0; i < indexable_bones.Length; i++){
+                Bone duplicated_bone = new Bone();
+                duplicated_bone.Name = indexable_bones[i].Name;
+                duplicated_bone.OffsetMatrix = indexable_bones[i].OffsetMatrix;
+                unique_bones_array[i] = duplicated_bone;
+            }
+
+            var builder = new MeshBuilder(_context, obj, null, unique_bones_array);
             var mesh = builder.Build();
             //var mesh = MeshBuilderNew.CreateCubeMesh(50, mesh_.Name);
 

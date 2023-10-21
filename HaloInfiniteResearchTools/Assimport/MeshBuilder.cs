@@ -4,7 +4,9 @@ using LibHIRT.Data;
 using LibHIRT.Data.Geometry;
 using LibHIRT.Domain;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace HaloInfiniteResearchTools.Assimport
 {
@@ -12,22 +14,36 @@ namespace HaloInfiniteResearchTools.Assimport
     {
         private readonly ISceneContext _context;
         public Mesh Mesh { get; }
-        public Dictionary<short, Bone> Bones { get; }
-        public Dictionary<string, Bone> BoneNames { get; }
+
+        private Bone[]? bones_ref;
+        private uint bone_index;
+        private bool use_dual_quat; // no idea what this means
+        private VertType mesh_type;
+        //public Dictionary<short, Bone> Bones { get; }
+        //public Dictionary<string, Bone> BoneNames { get; }
         public Dictionary<uint, uint> VertexLookup { get; }
         public short SkinCompoundId { get; }
         private readonly s_mesh _object;
-        public MeshBuilder(ISceneContext context, s_mesh obj, S3DGeometrySubMesh submesh)
+        public MeshBuilder(ISceneContext context, s_mesh obj, S3DGeometrySubMesh submesh, Bone[]? bones)
         {
             _context = context;
             _object = obj;
 
             var meshName = _object.Name;
 
+            bones_ref = bones;
+            // im not really sure if the indexes go higher than 128, but we'll use a unit anyway
+            use_dual_quat = obj.UseDualQuat;
+            mesh_type = obj.VertType;
+            bone_index = (uint)obj.RigidNodeIndex;
+
             Mesh = new Mesh(meshName, PrimitiveType.Triangle);
 
-            Bones = new Dictionary<short, Bone>();
-            BoneNames = new Dictionary<string, Bone>();
+            if (bones != null)
+                Mesh.Bones.AddRange(bones); // apply the bones
+
+            //Bones = new Dictionary<short, Bone>();
+            //BoneNames = new Dictionary<string, Bone>();
             VertexLookup = new Dictionary<uint, uint>();
         }
         public Mesh Build()
@@ -88,7 +104,138 @@ namespace HaloInfiniteResearchTools.Assimport
 
             foreach (var vertex in meshLOD.Vertexs)
             {
+
                 Mesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
+
+                // assign to bone here
+                if (bones_ref != null){
+                    if (bone_index == 255){ // then this is a weighted vert that may have 1 or more parent bones
+
+                        int?[] blend_indicies = new int?[8];
+                        // the last two are probably always set to 0 or null or whatever
+
+                        float?[] blend_weights = new float?[6];
+                        if (vertex.BlendIndices0 != null){
+                            blend_indicies[0] = (int)vertex.BlendIndices0.Value.X;
+                            blend_indicies[1] = (int)vertex.BlendIndices0.Value.Y;
+                            blend_indicies[2] = (int)vertex.BlendIndices0.Value.Z;
+                            blend_indicies[3] = (int)vertex.BlendIndices0.Value.W;
+                        }
+                        if (vertex.BlendIndices1 != null){
+                            blend_indicies[4] = (int)vertex.BlendIndices1.Value.X;
+                            blend_indicies[5] = (int)vertex.BlendIndices1.Value.Y;
+                            blend_indicies[6] = (int)vertex.BlendIndices1.Value.Z;
+                            blend_indicies[7] = (int)vertex.BlendIndices1.Value.W;
+                        }
+
+                        if (vertex.BlendWeights0 != null){
+                            blend_weights[0] = vertex.BlendWeights0.Value.X;
+                            blend_weights[1] = vertex.BlendWeights0.Value.Y;
+                            blend_weights[2] = vertex.BlendWeights0.Value.Z;
+                        }
+                        if (vertex.BlendWeights1 != null){
+                            blend_weights[3] = vertex.BlendWeights1.Value.X;
+                            blend_weights[4] = vertex.BlendWeights1.Value.Y;
+                            blend_weights[5] = vertex.BlendWeights1.Value.Z;
+                            if (mesh_type == VertType.dq_skinned){
+                                blend_weights[3] = null; // ignore whatever that extra value is
+                                blend_weights[4] = null;
+                                blend_weights[5] = null;
+                            }
+                        }
+
+                        // to remove duplicates, we iterate through the list backwards, as for some reason duplicates are at the start
+
+                        // count unique number of bone indexes
+                        int bones_count = 0;
+                        for (int i = 7; i >= 0; i--){
+                            int? target_bone_index = blend_indicies[i];
+                            if (target_bone_index == null)
+                                continue;
+
+                            if (i < 7){
+                                if (blend_indicies[i+1] != target_bone_index)
+                                    bones_count++;
+                                continue;
+                            }
+                            // this should probably never happen, but just in case
+                            bones_count++;
+                        }
+
+                        // preprocess to fill in missing values & normalize the weights
+                        float normalization_value = 0.0f;
+                        for (int i = 7; i >= 0; i--){
+                            int? target_bone_index = blend_indicies[i];
+                            if (target_bone_index == null || target_bone_index >= 255) continue;
+                            if (i < 7 && blend_indicies[i + 1] == target_bone_index) break;
+
+                            if (blend_weights[i] == null)
+                                blend_weights[i] = 1.0f;
+                            float? weight = blend_weights[i];
+
+                            normalization_value += (float)weight;
+                        }
+                        normalization_value = 1 / normalization_value;
+
+                        // and now we iterate through the indexes & assign to bones
+                        float debug_total_measured_weight = 0.0f;
+                        float debug_total_adjusted_weight = 0.0f;
+                        for (int i = 7; i >= 0; i--){
+                            int? target_bone_index = blend_indicies[i];
+                            // if not assigned or potentially invalid index, then skip (we should actually break, as its unlikely the following items would have results)
+                            if (target_bone_index == null || target_bone_index >= 255)
+                                continue;
+                            // it turns out unused indexes just copy the previous one (which doesn't cause any issues with the previous code) opposed to being set to 255
+                            // se we're just checking to see if we already added that bone weight entry already
+                            // to do this correctly, we have to iterate through the array backwards, as duplicates are stored at the front
+                            if (i < 7 && blend_indicies[i+1] == target_bone_index)
+                                break; // anything after this is probably also a duplicate
+
+                            float? weight = blend_weights[i] * normalization_value;
+
+                            debug_total_measured_weight += (float)weight;
+                            if (bones_count == 1) // if only one parent bone or not using dual quat, then this bone has full ownership
+                                weight = 1.0f; // i think this is what that means
+
+                            debug_total_adjusted_weight += (float)weight;
+                            bones_ref[(int)target_bone_index].VertexWeights.Add(new((int)offset, (float)weight));
+                        }
+
+                        // ///////////////////// //
+                        // error checking stuff //
+                        // /////////////////// //
+
+                        // VertType.skinned: potentially uses 2 extra blend weights that would be set to 1 by default, and then normalized with the other values (likely in groups of 3)
+                        // VertType.dq_skinned: normal? apparently works the same as skinned but with an extra variable that we dont use
+                        // VertType.rigid_boned: no blend weights, but has blend indices
+                        if (mesh_type != VertType.skinned && mesh_type != VertType.dq_skinned && mesh_type != VertType.rigid_boned)
+                        {
+
+                        }
+                        // total weight should be 1.0f, but i feel like its possible that it doesn't always have to be?
+                        if (debug_total_adjusted_weight != 1.0f)
+                        {
+                             
+                        }
+
+                        // debugging breakpoints
+                        if (mesh_type == VertType.skinned)
+                        {
+
+                        }
+                        if (mesh_type == VertType.dq_skinned)
+                        {
+
+                        }
+
+
+
+                    }
+                    // else its a rigid mesh and we assign the singlular bone 
+
+                    else bones_ref[bone_index].VertexWeights.Add(new((int)offset, 1.0f));
+
+                }
 
                 VertexLookup.Add(offset++, (uint)VertexLookup.Count);
             }

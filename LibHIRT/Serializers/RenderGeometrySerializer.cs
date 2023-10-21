@@ -104,7 +104,7 @@ namespace LibHIRT.Serializers
             s_mesh obj_mesh = new s_mesh();
 
             obj_mesh.CloneIndex = (Int16)mesh["clone index"].AccessValue;
-            obj_mesh.RigidNodeIndex = (sbyte)mesh["rigid node index"].AccessValue;
+            obj_mesh.RigidNodeIndex = (byte)(sbyte)mesh["rigid node index"].AccessValue; // this is actually a regular byte, not an sbyte
             obj_mesh.VertType = (VertType)((EnumGroup)mesh["vertex type"]).SelectedIndex;
 
             obj_mesh.IndexBufferType = (IndexBufferType)((EnumGroup)mesh["index buffer type"]).SelectedIndex;
@@ -416,6 +416,13 @@ namespace LibHIRT.Serializers
                                     (int, int, int, int) resultBI = ((byte, byte, byte, byte))FormatReader.Read(blendIndices0.format, buffer);
                                     temp.BlendIndices0 = new System.Numerics.Vector4(resultBI.Item1, resultBI.Item2, resultBI.Item3, resultBI.Item4);
                                 }
+                                if (blendIndices1 != null && blendIndices1.count == tempPosition.count)
+                                {
+                                    buffer = new byte[blendIndices1.stride];
+                                    msBlendIndices1.Read(buffer, 0, blendIndices1.stride);
+                                    (int, int, int, int) resultBI = ((byte, byte, byte, byte))FormatReader.Read(blendIndices1.format, buffer);
+                                    temp.BlendIndices1 = new System.Numerics.Vector4(resultBI.Item1, resultBI.Item2, resultBI.Item3, resultBI.Item4);
+                                }
                                 if (blendWeights0 != null && blendWeights0.count == tempPosition.count)
                                 {
                                     buffer = new byte[blendWeights0.stride];
@@ -426,7 +433,7 @@ namespace LibHIRT.Serializers
 
 
                                         re = (Vector3)FormatReader.Read(blendWeights0.format, buffer);
-                                        temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, 1);
+                                        temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, float.NaN);
 
                                         if (obj_mesh.VertType == VertType.dq_skinned)
                                         {
@@ -451,6 +458,56 @@ namespace LibHIRT.Serializers
                                         }
                                     }
                                 }
+                                // it had to be done
+                                if (blendWeights1 != null && blendWeights1.count == tempPosition.count)
+                                {
+                                    buffer = new byte[blendWeights1.stride];
+                                    msBlendWeights1.Read(buffer, 0, blendWeights1.stride);
+                                    Vector3 re = Vector3.One;
+                                    if (blendWeights1.format == PcVertexBuffersFormat.f_10_10_10_normalized || blendWeights1.format == PcVertexBuffersFormat.real)
+                                    {
+
+                                        if (blendWeights1.format == PcVertexBuffersFormat.f_10_10_10_normalized){
+                                            re = (Vector3)FormatReader.Read(blendWeights1.format, buffer);
+                                            temp.BlendWeights1 = new System.Numerics.Vector4(re.X, re.Y, re.Z, float.NaN);
+                                        }
+                                        else if (blendWeights1.format == PcVertexBuffersFormat.real){
+                                            float re_f = (float)FormatReader.Read(blendWeights1.format, buffer);
+                                            temp.BlendWeights1 = new System.Numerics.Vector4(re_f, float.NaN, float.NaN, float.NaN);
+                                            re.X = 1; re.Y = 1; re.Z = 1; // i have no idea what this is for
+                                        } else
+                                        {
+                                            // put breakpoint here?
+                                        }
+
+                                        if (obj_mesh.VertType == VertType.dq_skinned)
+                                        {
+                                            // this was just creating an error for me (usage is real so that makes sense that its different)
+                                            //Debug.Assert(blendWeights1.d3dbuffer.Usage == 8);
+                                        }
+                                        else if (obj_mesh.VertType == VertType.skinned)
+                                        {
+                                            //Debug.Assert(blendWeights1.d3dbuffer.Usage == 8);
+                                        }
+                                        // this was also causing problems, because we can have 4 indicies in the first blendIndices, but we can only fit 3 weights in the first blendWeights, so null object reference
+                                        //if (temp.BlendIndices1.Value.X == temp.BlendIndices1.Value.Y && temp.BlendIndices1.Value.X == temp.BlendIndices1.Value.Z && temp.BlendIndices1.Value.X == temp.BlendIndices1.Value.W)
+                                        //{
+                                        //    countVOOB++;
+                                        //    string vert_S = temp.Position.X.ToString() + temp.Position.Y.ToString() + temp.Position.Z.ToString();
+                                        //    if (re.X + re.Y + re.Z != 0)
+                                        //    {
+                                        //        if (!vert.Contains(vert_S))
+                                        //        {
+                                        //            vert.Add(vert_S);
+                                        //        }
+                                        //    }
+                                        //}
+                                    }
+                                }
+
+
+
+
                             }
 
                             obj_lod.Vertexs[j] = temp;
