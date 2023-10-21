@@ -433,7 +433,7 @@ namespace LibHIRT.Serializers
 
 
                                         re = (Vector3)FormatReader.Read(blendWeights0.format, buffer);
-                                        temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, 1);
+                                        temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, float.NaN);
 
                                         if (obj_mesh.VertType == VertType.dq_skinned)
                                         {
@@ -469,11 +469,11 @@ namespace LibHIRT.Serializers
 
                                         if (blendWeights1.format == PcVertexBuffersFormat.f_10_10_10_normalized){
                                             re = (Vector3)FormatReader.Read(blendWeights1.format, buffer);
-                                            temp.BlendWeights1 = new System.Numerics.Vector4(re.X, re.Y, re.Z, 1);
+                                            temp.BlendWeights1 = new System.Numerics.Vector4(re.X, re.Y, re.Z, float.NaN);
                                         }
                                         else if (blendWeights1.format == PcVertexBuffersFormat.real){
                                             float re_f = (float)FormatReader.Read(blendWeights1.format, buffer);
-                                            temp.BlendWeights1 = new System.Numerics.Vector4(re_f, 1, 1, 1);
+                                            temp.BlendWeights1 = new System.Numerics.Vector4(re_f, float.NaN, float.NaN, float.NaN);
                                             re.X = 1; re.Y = 1; re.Z = 1; // i have no idea what this is for
                                         } else
                                         {
