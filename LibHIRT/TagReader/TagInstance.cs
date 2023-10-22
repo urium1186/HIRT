@@ -1101,6 +1101,7 @@ namespace LibHIRT.TagReader
             functAddress_2 = f.ReadUInt64();
             byteOffset = f.ReadInt32();
             byteLengthCount = f.ReadInt32();
+            var size_u = int.Parse(tagDef.E["int3"].ToString());
             //Debug.Assert(functAddress == Constants.ADDRESS_UNSET || functAddress == 0);  
             /*
             if (functAddress != Constants.ADDRESS_UNSET && functAddress != 0) // && f.BaseStream.Position + functAddress < 

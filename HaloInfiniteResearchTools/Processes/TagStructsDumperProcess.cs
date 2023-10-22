@@ -21,11 +21,19 @@ namespace HaloInfiniteResearchTools.Processes
                 structsDumper = new TagStructsDumper();
             structsDumper.OutDIR = optionsModel.OutputPath;
             structsDumper.StartAddress = optionsModel.LastStartAddress;
+            structsDumper.GameLocation = optionsModel.GameLocation;
 
         }
         protected override async Task OnExecuting()
         {
-            await structsDumper.Dump();
+            if (!string.IsNullOrEmpty( optionsModel.SearchTerm))
+            {
+                await structsDumper.SearchInMem(optionsModel.SearchTerm);
+            }
+            else {
+                await structsDumper.Dump();
+            }
+            
             optionsModel.LastStartAddress = structsDumper.StartAddress;
         }
 

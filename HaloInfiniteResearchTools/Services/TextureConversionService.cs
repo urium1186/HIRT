@@ -22,7 +22,7 @@ namespace HaloInfiniteResearchTools.Services
         public Task<TextureModel> LoadTexture(PictureFile file, float previewQuality = 1f)
         {
             var pict = file.Deserialize();
-            return LoadTexture(file.Name, pict, previewQuality);
+            return LoadTexture(file.Name + file.CurrentBitmapIndex.ToString(), pict, previewQuality);
         }
 
         public async Task<TextureModel> LoadTexture(string fileName, S3DPicture file, float previewQuality = 1f)

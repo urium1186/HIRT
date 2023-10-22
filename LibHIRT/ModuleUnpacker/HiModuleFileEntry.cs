@@ -33,10 +33,13 @@ namespace LibHIRT.ModuleUnpacker
         int string_offset; // = gf.read_uint32(fb)  # 0x40 64
         int parent_of_resource;// = gf.read_uint32(fb)  # 0x44 68 data_size????
         byte[] hash; // 80
+        int int_unk1;
+        int int_unk2;
+
         /*
-        int parent_of_resource; // = gf.read_int32(fb)  # 0x44 68, -1 int for one type, not for another
-        string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
-        */
+int parent_of_resource; // = gf.read_int32(fb)  # 0x44 68, -1 int for one type, not for another
+string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
+*/
         string path_string = ""; // = gf.offset_to_string(fb, string_table_offset + t1e.string_offset)
         string save_path = ""; // = gf.offset_to_string(fb, string_table_offset + t1e.string_offset)
         HiModule hiModuleRef;
@@ -44,6 +47,8 @@ namespace LibHIRT.ModuleUnpacker
         List<HiModuleFileEntry> _resourceFiles = new List<HiModuleFileEntry>();
 
         int _index = -1;
+        Int64 long_unk1;
+        Int64 long_unk2;
 
         public HiModuleFileEntry(HiModule hiModuleRef)
         {
@@ -83,12 +88,15 @@ namespace LibHIRT.ModuleUnpacker
         public string Save_path { get => save_path; set => save_path = value; }
         public HiModule HiModuleRef { get => hiModuleRef; }
         public int Index { get => _index; set => _index = value; }
-        public List<HiModuleFileEntry> ResourceFiles { get => _resourceFiles; set => _resourceFiles = value; }
+        public List<HiModuleFileEntry> ResourceFiles { 
+            get => _resourceFiles; 
+            set => _resourceFiles = value; }
         public ISSpaceFile ParentOffResourceRef { get; internal set; }
 
         public void ReadIn(BinaryReader byteStream)
         {
             resource_count = byteStream.ReadInt32(); // 0x00
+            
             parent_file_index = byteStream.ReadInt32();  // 0x04
             unk0x08 = byteStream.ReadInt16(); // 0x08
             var bytes_temp = BitConverter.GetBytes(unk0x08);
@@ -123,6 +131,10 @@ namespace LibHIRT.ModuleUnpacker
             string_offset = byteStream.ReadInt32(); // 0x40
             parent_of_resource = byteStream.ReadInt32(); // 0x44 
             hash = byteStream.ReadBytes(0x10); // 0x4C
+            int_unk1 = BitConverter.ToInt32(hash, 0);
+            int_unk2 = BitConverter.ToInt32(hash, 4);
+            long_unk1 = BitConverter.ToInt64(hash, 0);
+            long_unk2 = BitConverter.ToInt64(hash, 8);
             //if (tagGroupRev != "����") {
             if (tagGroupRev == "levl")
             {

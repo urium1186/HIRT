@@ -12,6 +12,10 @@ namespace LibHIRT.Files.FileTypes
 
         public override string FileTypeDisplay => "Texture (.bitmap)";
 
+        public int BitmapsCount { get; set; }
+        public int CurrentBitmapIndex { get; set; }
+        public int MaxResMipMapIndex { get; set; }
+
         #endregion
 
         #region Constructor
@@ -22,6 +26,9 @@ namespace LibHIRT.Files.FileTypes
           : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
         {
             TagGroup = "bitm";
+            CurrentBitmapIndex = 0;
+            BitmapsCount = 0;
+            MaxResMipMapIndex = 0;
         }
 
         #endregion

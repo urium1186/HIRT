@@ -76,37 +76,56 @@
                         ItemsSource="{Binding Tabs}"
                         SelectedItem="{Binding CurrentTab}">
 
+                <TabControl.Resources>
+                    <ContextMenu x:Key="TabCloseContex">
+                        <MenuItem Header="Close All" Command="{Binding CloseAllTabCommand}"/>
+                        <MenuItem Header="Close Others" Command="{Binding CloseOthersTabCommand}"/>
+                        <MenuItem Header="Close all left" Command="{Binding CloseLeftTabCommand}"/>
+                        <MenuItem Header="Close all right" Command="{Binding CloseRightTabCommand}"/>
+                    </ContextMenu>
+                </TabControl.Resources>
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type  TabItem}">
+                        <Setter Property="ContextMenu" Value="{StaticResource TabCloseContex}" />
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+
+                </TabControl.ItemContainerStyle>
                 <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type m:ITab}">
-                        <DockPanel Background="{DynamicResource TabItem.Selected.Background}" IsHitTestVisible="True" HorizontalAlignment="Stretch">
-                            <DockPanel.InputBindings>
-                                <MouseBinding Command="{Binding CloseCommand}" Gesture="MiddleClick" />
-                            </DockPanel.InputBindings>
+                        <Border CornerRadius="6,6,0,0" BorderBrush="Gray" Background="{DynamicResource TabItem.Selected.Background}" BorderThickness="1" DockPanel.Dock="Top">
+                            <DockPanel Background="Transparent" IsHitTestVisible="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
 
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" />
-                            <Button DockPanel.Dock="Right"
+                                <DockPanel.InputBindings>
+                                    <MouseBinding Command="{Binding CloseCommand}" Gesture="MiddleClick" />
+                                </DockPanel.InputBindings>
+
+                                
+                                    <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" />
+                                    <Button DockPanel.Dock="Right"
                                     HorizontalAlignment="Right"
                                     HorizontalContentAlignment="Right"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     Command="{Binding CloseCommand}" >
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="Transparent" HorizontalAlignment="Right">
-                                            <Path Data="M0,0 L6,6 M6,0 L0,6" StrokeThickness="2" VerticalAlignment="Center" Margin="5,2,0,0" Stroke="{TemplateBinding Foreground}" />
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.Static}"/>
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="False">
-                                                <Setter Property="Foreground" Value="{DynamicResource TreeViewItem.MouseOver.Border}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                        </DockPanel>
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="Transparent" HorizontalAlignment="Right">
+                                                    <Path Data="M0,0 L6,6 M6,0 L0,6" StrokeThickness="2" VerticalAlignment="Center" Margin="5,2,0,0" Stroke="{TemplateBinding Foreground}" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.Static}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource TreeViewItem.MouseOver.Border}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                            </DockPanel>
+                        </Border>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate>
@@ -114,6 +133,7 @@
                         <ContentPresenter Content="{Binding View}" />
                     </DataTemplate>
                 </TabControl.ContentTemplate>
+
             </TabControl>
 
         </Grid>

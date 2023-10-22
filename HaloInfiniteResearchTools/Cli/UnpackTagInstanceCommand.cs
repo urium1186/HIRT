@@ -65,7 +65,10 @@ namespace HaloInfiniteResearchTools.Cli
 
                     foreach (var item in founds)
                     {
-                        string path = Path.Combine(_output.FullName, ((SSpaceFile)item).FileMemDescriptor.Path_string.Replace("����", "no_tag_group") + ".bin");
+                        string path = Path.Combine(_output.FullName, ((SSpaceFile)item).FileMemDescriptor?.Path_string.Replace("����", "no_tag_group") + ".bin");
+                        if (string.IsNullOrEmpty(path))
+                            continue;
+                        path = path.Replace("*", "");
                         Directory.CreateDirectory(Path.GetDirectoryName(path));
                         byte[] _out = new byte[item.GetStream().Length];
                         item.GetStream().Seek(0, SeekOrigin.Begin);

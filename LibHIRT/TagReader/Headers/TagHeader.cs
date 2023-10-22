@@ -30,10 +30,10 @@ namespace LibHIRT.TagReader.Headers
             private int version;
 
             [FieldOffset(8)]
-            private ulong typeHash; // this is unic for TagGroups
+            private long typeHash; // this is unic for TagGroups
 
             [FieldOffset(16)]
-            private ulong assetChecksum;
+            private long assetChecksum;
 
             [FieldOffset(24)]
             private int dependencyCount;
@@ -88,8 +88,9 @@ namespace LibHIRT.TagReader.Headers
 
             public int Magic { get => magic; set => magic = value; }
             public int Version { get => version; set => version = value; }
-            public ulong TypeHash { get => typeHash; set => typeHash = value; }
-            public ulong AssetChecksum { get => assetChecksum; set => assetChecksum = value; }
+            public long TypeHash { get => typeHash; set => typeHash = value; }
+            public string TypeHashStr { get => typeHash.ToString("X").Length == 15? "0"+typeHash.ToString("X") : typeHash.ToString("X");  }
+            public long AssetChecksum { get => assetChecksum; set => assetChecksum = value; }
             public int DependencyCount { get => dependencyCount; set => dependencyCount = value; }
             public int DataBlockCount { get => dataBlockCount; set => dataBlockCount = value; }
             public int TagStructCount { get => tagStructCount; set => tagStructCount = value; }

@@ -256,6 +256,10 @@ namespace HaloInfiniteResearchTools.ViewModels
                     if (tagParse.TagFile != null)
                     {
                         string hash = BitConverter.ToString(BitConverter.GetBytes(tagParse.TagFile.TagHeader.TagFileHeaderInst.TypeHash)).Replace("-", "");
+                        var t = _file.FileMemDescriptor.ParentOffResourceRef?.TagGroup;
+                        if (t == "����") {
+                            t = ((SSpaceFile)_file.FileMemDescriptor.ParentOffResourceRef)?.FileMemDescriptor.ParentOffResourceRef.TagGroup;
+                        }
                         var tempTaglay = tagParse.getSubTaglayoutFrom(_file.FileMemDescriptor.ParentOffResourceRef?.TagGroup, hash);
                         if (tempTaglay != null)
                         {
@@ -451,7 +455,12 @@ namespace HaloInfiniteResearchTools.ViewModels
                     default:
                         break;
                 }
-                string classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
+                string classHash = "";
+                var has = ((TagInstance)e).TagDef.E?.ContainsKey("hash");
+                if (has != null && has == true)
+                    classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
+                else { 
+                }
                 switch (classHash)
                 {
                     case "9B6D4747FC4FE0CCB27AC58D817D912A":

@@ -1,6 +1,7 @@
 ﻿
 using LibHIRT.TagReader.Headers;
 using Memory;
+using System;
 using System.Diagnostics;
 
 using static LibHIRT.TagReader.TagLayouts;
@@ -48,7 +49,7 @@ namespace LibHIRT.TagReader
             Dictionary<long, C?> result = null;
             foreach (var item in tagLayout)
             {
-                if (item.Value.E != null && item.Value.E.ContainsKey("hashTagRelated-0") && item.Value.E["hashTagRelated-0"].ToString() == hash)
+                if (item.Value.E != null && item.Value.E.ContainsKey("hashTR0") && item.Value.E["hashTR0"].ToString() == hash)
                 {
                     result = new Dictionary<long, C?>();
                     result[0] = item.Value;
@@ -327,7 +328,14 @@ namespace LibHIRT.TagReader
         {
             _rootTagInst.ReadIn();
         }
-
+        string invertHex(string ex) {
+            string inverted = "";
+            for (int i = ex.Length-2; i >= 0; i-=2)
+            {
+                inverted+=(ex.Substring(i, 2));
+            }
+            return inverted;
+        }
         public void readTagsAndCreateInstances(ref CompoundTagInstance instance_parent)
         {
             List<CompoundTagInstance> tagBlocks = new List<CompoundTagInstance>();
@@ -335,9 +343,16 @@ namespace LibHIRT.TagReader
             {
             }
             instance_parent.Content_entry.Field_name = instance_parent.TagDef.N;
+            if (instance_parent is RootTagInstance) {
+                if (instance_parent.TagDef.E != null && instance_parent.TagDef.E.ContainsKey("hashTR0"))
+                {
+                    Debug.Assert(invertHex(_tagFile.TagHeader.TagFileHeaderInst.TypeHashStr) == instance_parent.TagDef.E["hashTR0"].ToString());
+                }
+            }
             if (instance_parent.TagDef.E != null && instance_parent.TagDef.E.ContainsKey("hash"))
             {
-                //Debug.Assert(instance_parent.Content_entry.UID == instance_parent.TagDef.E["hash"].ToString());
+                Debug.Assert(instance_parent.Content_entry.UID == instance_parent.TagDef.E["hash"].ToString());
+                //Debug.Assert(instance_parent.TagDef.E["hash"].ToString().Substring(0,16) == instance_parent.Content_entry.UID1); 
             }
             else
             {

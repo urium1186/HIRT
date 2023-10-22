@@ -10,6 +10,10 @@ namespace HaloInfiniteResearchTools.Models
         #region Events
 
         event EventHandler CloseRequested;
+        event EventHandler CloseAllTabRequested;
+        event EventHandler CloseOthersTabRequested;
+        event EventHandler CloseLeftTabRequested;
+        event EventHandler CloseRightTabRequested;
 
         #endregion
 
@@ -19,6 +23,10 @@ namespace HaloInfiniteResearchTools.Models
         IView View { get; }
 
         ICommand CloseCommand { get; }
+        ICommand CloseAllTabCommand { get; }
+        ICommand CloseOthersTabCommand { get; }
+        ICommand CloseLeftTabCommand { get; }
+        ICommand CloseRightTabCommand { get; }
 
         #endregion
 

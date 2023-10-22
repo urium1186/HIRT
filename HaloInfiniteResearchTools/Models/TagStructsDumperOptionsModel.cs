@@ -17,7 +17,10 @@ namespace HaloInfiniteResearchTools.Models
                 {
                     OutputPath = "",
                     LastStartAddress = -1,
-                    LastStartAddressS = "-1"
+                    LastStartAddressS = "-1",
+                    IsSearch = false,
+                    SearchTerm = "",
+                    GameLocation= "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\HaloInfinite.exe"
                 };
             }
         }
@@ -55,6 +58,11 @@ namespace HaloInfiniteResearchTools.Models
                 }
             }
         }
+
+        public bool IsSearch { get; set; }
+        public string SearchTerm { get; set; }
+        [DefaultValue("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\HaloInfinite.exe")]
+        public string GameLocation { get; set; }
 
 
 

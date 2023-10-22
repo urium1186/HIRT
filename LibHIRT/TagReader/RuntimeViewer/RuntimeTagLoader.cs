@@ -292,7 +292,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
             }
         }
 
-        public async void HookAndLoad()
+        public async Task<bool> HookAndLoad()
         {
             try
             {
@@ -306,7 +306,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
             {
                 await LoadTagsMem(false);
 
-
+                return true;
                 if (hooked == true)
                 {
                     //Searchbox_TextChanged(null, null);
@@ -315,6 +315,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
                 }
             }
+            return false;
         }
         public string? read_tag_group(long tagGroupAddress)
         {

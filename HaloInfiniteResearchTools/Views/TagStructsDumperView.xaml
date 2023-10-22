@@ -7,13 +7,13 @@
       xmlns:view="clr-namespace:HaloInfiniteResearchTools.Views"
       xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
            xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
-      mc:Ignorable="d" 
-      d:DesignHeight="135" d:DesignWidth="400"
-           Height="135" Width="400"
+      mc:Ignorable="d" d:DesignWidth="400"
+           Height="230" Width="400"
       >
-    <Grid Margin="0,0,0,-20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="75"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0"
@@ -27,7 +27,7 @@
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0"
                            Content="Output Directory" />
-                    
+
 
                 </Grid>
             </GroupBox.Header>
@@ -59,11 +59,40 @@
 
                 <TextBox MaxLength="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
                                         Text="{Binding Path=ModelOptions.LastStartAddressS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberValidationTextBox" >
-                    
+
                 </TextBox>
 
             </Grid>
-            
+
+        </GroupBox>
+        <GroupBox Grid.Row="2"
+                  Grid.ColumnSpan="2"
+                  Margin="5,5,5,0"
+                  Visibility="{Binding IsForBatch, Converter={StaticResource BoolVisibilityConverter}}">
+            <GroupBox.Header>
+                <TextBlock>
+                    <Run>Search</Run>
+                </TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="24*"/>
+                    <ColumnDefinition Width="17*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="Pattern" Grid.ColumnSpan="1" Margin="0,0,0,0" Grid.RowSpan="1" />
+
+                <TextBox MaxLength="90" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                        Text="{Binding Path=ModelOptions.SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+
+                </TextBox>
+
+            </Grid>
+
         </GroupBox>
 
     </Grid>

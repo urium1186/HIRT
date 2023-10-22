@@ -29,7 +29,13 @@
                 <MenuItem Header="Open Texture Definition" Command="{Binding OpenTextureDefinitionCommand}" />
                 <Separator />
                 <MenuItem Header="Export" Command="{Binding ExportTextureCommand}" />
+                <Separator />
             </MenuItem>
+            <StackPanel Orientation="Horizontal" Visibility="{Binding ShowOptSelector, Converter={StaticResource BoolVisibilityConverter}}">
+                <Label Content="Select bitmap"></Label>
+                <ComboBox Text="Select" ItemsSource="{Binding Opciones}" SelectedItem="{Binding OpcionSeleccionada}" SelectedIndex="0" >
+                </ComboBox>
+            </StackPanel>
         </Menu>
 
         <Image x:Name="CurrentTexturePreview"

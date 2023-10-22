@@ -17,7 +17,8 @@ namespace LibHIRT.Files
         private ISSpaceFile _parent;
         private ISSpaceFile _ref_parent;
         private IList<ISSpaceFile> _children;
-        private List<ISSpaceFile> _resource;
+        private Dictionary<int, ISSpaceFile> _resource;
+        private List<ISSpaceFile> _resource_list;
         private Dictionary<int, ISSpaceFile> _ref_children;
 
         private string _name;
@@ -45,7 +46,6 @@ namespace LibHIRT.Files
 
         public ISSpaceFile Parent => _parent;
         public IEnumerable<ISSpaceFile> Children => _children;
-        public List<ISSpaceFile> Resource => _resource;
 
         public string Name => _name;
         public string Extension => _extension;
@@ -89,6 +89,8 @@ namespace LibHIRT.Files
         private DinamycType? _deserialized;
 
         public bool IsDeserialized { get => _deserialized != null; }
+        public List<ISSpaceFile> Resource_list { get => _resource_list; set => _resource_list = value; }
+
         public DinamycType? Deserialized(EventHandler<ITagInstance> _onDeserialized = null)
         {
             if (_deserialized == null)
@@ -121,7 +123,24 @@ namespace LibHIRT.Files
 
             _parent = parent;
             _children = new List<ISSpaceFile>();
-            _resource = new List<ISSpaceFile>();
+            _resource_list = new List<ISSpaceFile>();
+            _resource = new Dictionary<int, ISSpaceFile>();
+        }
+
+       public ISSpaceFile GetResourceAt(int index)
+        {
+            if (_resource.ContainsKey(index))
+                return _resource[index];
+            else {
+                var temp = Parent as ModuleFile;
+                var r_file = (SSpaceFile)temp.getResourceOfFileAt(this, index);
+                if (r_file != null) {
+                    _resource[index] = r_file;
+                    return r_file;
+                }
+            }
+
+            return null;
         }
 
         ~SSpaceFile()

@@ -49,7 +49,7 @@ namespace Oodle
             return decompressedBuffer;
         }
 
-        public static byte[] Compress(byte[] buffer, int size, OodleLZ_Compressor format, OodleLZ_CompressionLevel level)
+        public static byte[] Compress(byte[] buffer, int size, uint out_size = 0, OodleLZ_Compressor format = OodleLZ_Compressor.Kraken, OodleLZ_CompressionLevel level = OodleLZ_CompressionLevel.Optimal5)
         {
             if (oodle == null)
                 oodle = new OodleCompressor(@".\libs\oo2core_8_win64.dll");
@@ -59,7 +59,9 @@ namespace Oodle
 
             byte[] skBuffer = new byte[0];
             uint skBufferSize = (uint)skBuffer.Length;
-            uint compressedBufferSize = GetCompressionBound((uint)size);
+            uint compressedBufferSize = out_size;
+            if (out_size==0)
+                compressedBufferSize  = GetCompressionBound((uint)size);
             byte[] compressedBuffer = new byte[compressedBufferSize];
 
             long compressedCount = oodle.CompressBuffer(format, buffer, size, compressedBuffer, level, 0L, 0L, 0L, 0L, skBufferSize);

@@ -25,40 +25,48 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             if (File != null)
             {
-                var process = new ReadTagInstanceProcess(File);
-
-                process.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
-                //await RunProcess(process);
-
-                var modal = ServiceProvider.GetService<ProgressModal>();
-                modal.DataContext = process;
-
-                using (modal)
+                if (!File.IsDeserialized)
                 {
-                    Modals.Add(modal);
-                    modal.Show();
-                    IsBusy = true;
 
-                    await Task.Factory.StartNew(process.Execute, TaskCreationOptions.LongRunning);
-                    await process.CompletionTask;
 
-                    await modal.Hide();
-                    Modals.Remove(modal);
-                    IsBusy = false;
+                    var process = new ReadTagInstanceProcess(File);
+
+                    process.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
+                    //await RunProcess(process);
+
+                    var modal = ServiceProvider.GetService<ProgressModal>();
+                    modal.DataContext = process;
+
+                    using (modal)
+                    {
+                        Modals.Add(modal);
+                        modal.Show();
+                        IsBusy = true;
+
+                        await Task.Factory.StartNew(process.Execute, TaskCreationOptions.LongRunning);
+                        await process.CompletionTask;
+
+                        await modal.Hide();
+                        Modals.Remove(modal);
+                        IsBusy = false;
+                    }
+
+                    var statusList = process.StatusList;
+                    if (statusList.HasErrors || statusList.HasWarnings)
+                        await ShowStatusListModal(statusList);
                 }
-
-                var statusList = process.StatusList;
-                if (statusList.HasErrors || statusList.HasWarnings)
-                    await ShowStatusListModal(statusList);
+                else {
+                    await decompileShaderAsync(File.Deserialized().Root);
+                }
             }
         }
 
         private void TagParse_OnInstanceLoadEvent(object? sender, ITagInstance e)
         {
 
-            if (e != null)
+            if (e != null && e is RootTagInstance)
             {
-                string classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
+                string classHash = ((TagInstance)e).TagDef.E?["hash"]?.ToString();
                 switch (classHash)
                 {
                     case "B02683786045FFD03AE948A2C2F397C4":
