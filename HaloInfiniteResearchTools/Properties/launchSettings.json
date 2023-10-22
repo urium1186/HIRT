@@ -46,12 +46,12 @@
     },
     "DebugTagIndex": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\ndebug\r\nindex\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-t \"-index-\"\r\n-o \"D:\\borrar.txt\"",
+      "commandLineArgs": "tags\r\ndebug\r\nindex\r\n-d \"D:\\fbx_test\\modules\"\r\n-t \"-index-1\"\r\n-o \"D:\\borrar.txt\"",
       "nativeDebugging": false
     },
     "Tag Unpack": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\npakage\r\nunpack\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-st \"-index-1\"\r\n-o \"D:\\HaloInfiniteStuft\\Extracted\\UnPacked\\s4\\FileEntrys\"",
+      "commandLineArgs": "tags\r\npakage\r\nunpack\r\n-d \"D:\\fbx_test\\modules\"\r\n-st \"\"\r\n-o \"D:\\fbx_test\\entrys\"",
       "nativeDebugging": false
     },
     "ExportSbps": {

@@ -69,6 +69,9 @@ namespace HaloInfiniteResearchTools.Models
                 ModelExportOptions.OutputPath = DefaultExportPath;
             if (TextureExportOptions != null)
                 TextureExportOptions.OutputPath = DefaultExportPath;
+            if (TagStructsDumperOptions != null)
+                TagStructsDumperOptions.GameLocation = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\HaloInfinite.exe";
+
 
         }
 

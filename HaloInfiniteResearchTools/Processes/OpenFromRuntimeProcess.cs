@@ -34,37 +34,30 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = true;
 
             var objLock = new object();
-            var _files = new List<string>();
-            _files.Add("");
-            Parallel.ForEach(_files, file =>
+            
+            try
             {
-                try
+                var result = _fileContext.OpenFromRuntime("");
+                await result;
+                if (!result.Result)
+                    StatusList.AddWarning("memory", "Failed to open file.");
+                else
                 {
-                    if (!_fileContext.OpenFromRuntime(""))
-                        StatusList.AddWarning("memory", "Failed to open file.");
-                    else
-                    {
-                        while (!_fileContext.RuntimeLoadCompleted)
-                        {
-
-                        }
-
-
-                        _filesLoaded.Add("memory");
-                        StatusList.AddMessage("memory", "Open file.");
-                    }
-
+                    _filesLoaded.Add("memory");
+                    StatusList.AddMessage("memory", "Open file.");
                 }
-                catch (Exception ex)
-                {
-                    StatusList.AddError("memory", ex);
-                }
-                finally
-                {
-                    lock (objLock)
-                        CompletedUnits++;
-                }
-            });
+
+            }
+            catch (Exception ex)
+            {
+                StatusList.AddError("memory", ex);
+            }
+            finally
+            {
+                lock (objLock)
+                    CompletedUnits++;
+            }
+            
         }
     }
 }

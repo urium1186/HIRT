@@ -428,7 +428,7 @@ namespace LibHIRT.TagReader
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = group_lengths_dict[xn.Name], xmlPath = (s_p, s_p_n) });
                         return group_lengths_dict[xn.Name];
                     case "_34": // field pad
-                        int length = int.Parse(xn.Attributes.GetNamedItem("length").InnerText);
+                        int length = int.Parse(xn.Attributes.GetNamedItem("s").InnerText);
                         if (length == 1)
                         {
                             pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Byte, N = xn.Attributes.GetNamedItem("v").InnerText, S = 1, xmlPath = (s_p, s_p_n) });
@@ -450,7 +450,7 @@ namespace LibHIRT.TagReader
                         Debug.Assert(DebugConfig.NoCheckFails);
                         //pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.FourByte, N = xn.Attributes.GetNamedItem("v").InnerText + " Index", S = 4, xmlPath = (s_p, s_p_n) }); // Definitely could be wrong, just guessing here.
                         //pairs.Add(offset + 4, new C { G = xn.Name, T = TagElemntType.Mmr3Hash, N = xn.Attributes.GetNamedItem("v").InnerText + " Name", S = 4, xmlPath = (s_p, s_p_n) });
-                        int l = int.Parse(xn.Attributes.GetNamedItem("length").InnerText);
+                        int l = int.Parse(xn.Attributes.GetNamedItem("s").InnerText);
 
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Comment, N = xn.Attributes.GetNamedItem("v").InnerText /*+ " (unmapped type(" + xn.Name + "), may cause errors)"*/, S = l, xmlPath = (s_p, s_p_n) });
                         return l;
@@ -478,14 +478,10 @@ namespace LibHIRT.TagReader
                         return 0;
                     case "_38": // struct
                         var temp_index = offset; //+evalutated_index_PREVENT_DICTIONARYERROR
-                        var p_P = new Dictionary<string, object>();
-
+                        
                         FillGeneralExtraData(xn, extra_afl);
                         extra_afl["count"] = 0;
-                        p_P["generateEntry"] = false;
-                        if (xn.Attributes.GetNamedItem("g") != null)
-                            p_P["generateEntry"] = xn.Attributes.GetNamedItem("g").InnerText == "true";
-
+                        
                         //evalutated_index_PREVENT_DICTIONARYERROR++;
                         long current_offset1 = 0;
                         XmlNodeList xnl1 = xn.ChildNodes;
@@ -494,13 +490,8 @@ namespace LibHIRT.TagReader
                         {
                             current_offset1 += the_switch_statement(xntwo2, current_offset1, ref sub_dic);
                         }
-                        pairs[temp_index] = new C { G = xn.Name, T = TagElemntType.TagStructData, N = xn.Attributes.GetNamedItem("v").InnerText, P = p_P, B = sub_dic, E = extra_afl, S = current_offset1, xmlPath = (s_p, s_p_n) };
-                        /*
-						foreach (var k in sub_dic.Keys)
-						{
-							pairs[k] = sub_dic[k];
-
-                        }*/
+                        pairs[temp_index] = new C { G = xn.Name, T = TagElemntType.TagStructData, N = xn.Attributes.GetNamedItem("v").InnerText, P = null, B = sub_dic, E = extra_afl, S = current_offset1, xmlPath = (s_p, s_p_n) };
+                       
                         return current_offset1;
                     case "_39": // array
                         // TODO revisar
@@ -511,8 +502,8 @@ namespace LibHIRT.TagReader
                         {
                             Dictionary<long, C?> subthings = new Dictionary<long, C?>();
                             long current_offset3 = 0;
-                            XmlNodeList xnl3 = xn.ChildNodes;
-                            foreach (XmlNode xntwo2 in xnl3)
+                            
+                            foreach (XmlNode xntwo2 in xn.ChildNodes)
                             {
                                 current_offset3 += the_switch_statement(xntwo2, current_offset3, ref subthings);
                             }
@@ -581,7 +572,8 @@ namespace LibHIRT.TagReader
                         pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagRef, N = xn.Attributes.GetNamedItem("v").InnerText, S = 28, xmlPath = (s_p, s_p_n) });
                         return group_lengths_dict[xn.Name];
                     case "_42": // data
-                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagData, N = xn.Attributes.GetNamedItem("v").InnerText, S = 24, xmlPath = (s_p, s_p_n) });
+
+                        pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.TagData, N = xn.Attributes.GetNamedItem("v").InnerText, S = 24, E = extra_afl, xmlPath = (s_p, s_p_n) });
                         return group_lengths_dict[xn.Name];
                     case "_43":// Mapping these to fix errors. The new length seems to fix some issues. Check pfnd > mobileNavMeshes to understand.
                         /*pairs.Add(offset, new C { G = xn.Name, T = TagElemntType.Pointer, N = xn.Attributes.GetNamedItem("v").InnerText });
@@ -621,15 +613,35 @@ namespace LibHIRT.TagReader
                 }
                 return group_lengths_dict[xn.Name];
             }
-
             private static void FillGeneralExtraData(XmlNode xn, Dictionary<string, object> extra_afl)
             {
                 extra_afl.Clear();
+                foreach (XmlAttribute item in xn.Attributes)
+                {
+                    if (item.Name == "v")
+                        continue;
+                    extra_afl[item.Name] = item.InnerText;
+                }
+            }
+            private static void FillGeneralExtraDataSelective(XmlNode xn, Dictionary<string, object> extra_afl)
+            {
+                extra_afl.Clear();
                 AddAtribute(xn, extra_afl, "hash");
-                AddAtribute(xn, extra_afl, "item_name_1");
-                AddAtribute(xn, extra_afl, "item_name_2");
-                AddAtribute(xn, extra_afl, "hashTagRelated-0");
-                AddAtribute(xn, extra_afl, "hashTagRelated-1");
+                AddAtribute(xn, extra_afl, "T1");
+                AddAtribute(xn, extra_afl, "T2");
+                AddAtribute(xn, extra_afl, "hashTR0");
+                AddAtribute(xn, extra_afl, "hashTR1");
+                AddAtribute(xn, extra_afl, "size");
+                AddAtribute(xn, extra_afl, "ui2");
+                AddAtribute(xn, extra_afl, "ui3");
+                AddAtribute(xn, extra_afl, "ui4");
+                AddAtribute(xn, extra_afl, "comp");
+                AddAtribute(xn, extra_afl, "ui6");
+                AddAtribute(xn, extra_afl, "aottr");
+                AddAtribute(xn, extra_afl, "au0");
+                AddAtribute(xn, extra_afl, "ul1");
+                AddAtribute(xn, extra_afl, "ul2");
+                AddAtribute(xn, extra_afl, "ul3");
 
                 static void AddAtribute(XmlNode xn, Dictionary<string, object> extra_afl, string name)
                 {
@@ -658,7 +670,7 @@ namespace LibHIRT.TagReader
 				{ "_E", 2 }, // _field_word_flags
 				{ "_F", 1 }, // _field_byte_flags
 				{ "_10", 4 }, // _field_point_2d -- 2 2bytes?
-				{ "_11", 4 }, // _field_rectangle_2d
+				{ "_11", 8 }, // _field_rectangle_2d -> 4 short
 				{ "_12", 4 }, // _field_rgb_color -- hex color codes --- rgb pixel 32 - it's technically only 3 bytes but the final byte is FF
 				{ "_13", 4 }, // _field_argb_color --- argb pixel 32
 				{ "_14", 4 }, // _field_real
@@ -683,8 +695,8 @@ namespace LibHIRT.TagReader
 				{ "_27", 4 }, // ## Not found in any tag type
 				{ "_28", 4 }, // ## Not found in any tag type
 				{ "_29", 4 }, // _field_long_block_flags
-				{ "_2A", 4 }, // _field_word_block_flags
-				{ "_2B", 4 }, // _field_byte_block_flags
+				{ "_2A", 2 }, // _field_word_block_flags
+				{ "_2B", 1 }, // _field_byte_block_flags
 				{ "_2C", 1 }, // _field_char_block_index
 				{ "_2D", 1 }, // _field_custom_char_block_index
 				{ "_2E", 2 }, // _field_short_block_index
@@ -712,7 +724,7 @@ namespace LibHIRT.TagReader
 				{ "_43", 16 }, // ok _field_resource_handle
 
 				{ "_44", 256 },// revisar original 4 --- data path
-				{ "_45", 4 },
+				{ "_45", 16 },
             };
 
             public static string TagsPath

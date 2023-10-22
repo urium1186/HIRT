@@ -58,8 +58,8 @@ namespace LibHIRT.TagReader.Headers
 
                     tagStructTable.Data_block_table = dataBlockTableField;
                     var entry = tagStructTable.readTableItem(f, tagHeader, 0);
-
-                    return BitConverter.ToInt32(entry.Bin_datas[0].ToArray(), 8);
+                    if (entry!=null)
+                        return BitConverter.ToInt32(entry.Bin_datas[0].ToArray(), 8);
                 }
             }
             catch (Exception ex)

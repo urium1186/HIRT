@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,6 +15,29 @@ using System.Text;
 
 namespace HaloInfiniteResearchTools.Cli
 {
+    public class ModeuleRefMap {
+        SSpaceFile _file;
+        int _globalId = -1;
+        int _cant1 = -1;
+        int _extarnal = -1;
+        int _negative = -2;
+        short _temp = -1;
+        int _cantRef = -1;
+        List<(int, SSpaceFile)> _refFiles = new List<(int, SSpaceFile)>();
+
+        public ModeuleRefMap()
+        {
+        }
+
+        public SSpaceFile File { get => _file; set => _file = value; }
+        public int GlobalId { get => _globalId; set => _globalId = value; }
+        public int Cant1 { get => _cant1; set => _cant1 = value; }
+        public int Extarnal { get => _extarnal; set => _extarnal = value; }
+        public int Negative { get => _negative; set => _negative = value; }
+        public short Temp { get => _temp; set => _temp = value; }
+        public int CantRef { get => _cantRef; set => _cantRef = value; }
+        public List<(int, SSpaceFile)> RefFiles { get => _refFiles; set => _refFiles = value; }
+    }
     public class DebugTagCommand : Command
     {
         private string _type_tag;
@@ -71,27 +95,60 @@ namespace HaloInfiniteResearchTools.Cli
 
         private void OpenFilesProcess_Completed(object? sender, EventArgs e)
         {
-            //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("."+ _type_tag);
-            var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles(_type_tag);
-            StringBuilder outPutPath = new StringBuilder();
-            foreach (SSpaceFile _file in founds)
+            try
             {
-                //outPutPath.AppendLine(file.Path_string);
-                //if (_file.Name.Contains("-index-") && _file.FileMemDescriptor.GlobalTagId1 == -1)
-                if (_file.Name == "2085921000_2085921000-index-1")
+                //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("."+ _type_tag);
+                var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles(_type_tag);
+                StringBuilder outPutPath = new StringBuilder();
+                foreach (SSpaceFile _file in founds)
                 {
-                    if (_file.FileMemDescriptor.Resource_count == 0)
-                        CheckFileT0(_file);
-                }
-            }
-            //FileStream fileStream= new FileStream(_outfile.FullName,FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            //File.WriteAllText(_outfile.FullName, outPutPath.ToString());
+                    //outPutPath.AppendLine(file.Path_string);
+                    //if (_file.Name.Contains("-index-") && _file.FileMemDescriptor.GlobalTagId1 == -1)
+                    //if (_file.Name == "2085921000_2085921000-index-1")
+                    if (_file.Name.Contains("-index-1"))
+                    {
+                        Dictionary<int, List<int>> id_tags = null;
+                        List<(int, int, int, SSpaceFile)> id_addres_tags = null;
+                        if (_file.FileMemDescriptor.Resource_count == 0) {
+                            CheckFile(_file, out id_tags, out id_addres_tags);
+                            CheckFileT0(_file, id_tags, id_addres_tags);
 
-            Console.WriteLine(outPutPath);
-            Console.WriteLine("Tags listed to " + founds.Count().ToString());
+                        }
+                            
+
+                    }
+                }
+                //FileStream fileStream= new FileStream(_outfile.FullName,FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                //File.WriteAllText(_outfile.FullName, outPutPath.ToString());
+
+                Console.WriteLine(outPutPath);
+                Console.WriteLine("Tags listed to " + founds.Count().ToString());
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            
 
         }
+        private static void CheckFileT0(SSpaceFile _file, Dictionary<int, List<int>> id_tags, List<(int, int, int, SSpaceFile)> id_addres_tags) {
+            var stre = _file.GetStream();
+            stre.Seek(0, SeekOrigin.Begin);
+            byte[] temp = new byte[4];
+            stre.Read(temp);
+            int count_inf = BitConverter.ToInt32(temp);
 
+            Debug.Assert(count_inf == id_tags.Count);
+            for (int i = 0; i < id_tags.Values.Count; i++)
+            {
+                int len = 0;
+                if (i < id_tags.Count - 1) {
+                    len = id_tags.Values.ElementAt(i + 1)[0] - id_tags.Values.ElementAt(i)[0];
+                }
+                byte[] array = new byte[len];
+            }
+        }
         private static void CheckFileT0(SSpaceFile _file)
         {
             var stre = _file.GetStream();
@@ -99,6 +156,7 @@ namespace HaloInfiniteResearchTools.Cli
             byte[] temp = new byte[4];
             stre.Read(temp);
             int count_inf = BitConverter.ToInt32(temp);
+            int modules_ref = (_file.Parent as ModuleFile).Children.Count();
             List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
             for (int i = 0; i < count_inf; i++)
             {
@@ -113,52 +171,93 @@ namespace HaloInfiniteResearchTools.Cli
             byte[] temp = new byte[4];
             stre.Read(temp);
             result["globalId"] = BitConverter.ToInt32(temp);
+            SSpaceFile file_ref = null;
             if (!(_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey((int)result["globalId"]))
             {
                 Debug.Assert(false);
             }
-            stre.Read(temp);
-            result["type"] = BitConverter.ToInt32(temp);
-            Debug.Assert((int)result["type"] == 1);
-            stre.Read(temp);
-            result["GlobalSome"] = BitConverter.ToInt32(temp);
-            stre.Read(temp);
-            result["RefNegative"] = BitConverter.ToInt32(temp);
-            byte[] tempS = new byte[2];
-            stre.Read(tempS);
-            result["tempShort"] = BitConverter.ToInt16(tempS);
-            stre.Read(temp);
-            int cantRef = BitConverter.ToInt32(temp);
-            result["cantRef"] = cantRef;
-            if (cantRef > 0)
+            else {
+                file_ref = (SSpaceFile?)(_file.Parent as ModuleFile).FilesGlobalIdLookup[((int)result["globalId"])];
+            }
+            result["file_ref"] = file_ref;
+           stre.Read(temp);
+            result["cant"] = BitConverter.ToInt32(temp);
+            Debug.Assert((int)result["cant"] == 1);
+            
+            for (int j = 0; j < (int)result["cant"]; j++)
             {
-                List<int> regsId = new List<int>();
-                for (int i = 0; i < cantRef; i++)
+                stre.Read(temp);
+                result["GlobalSome"] = BitConverter.ToInt32(temp);
+                stre.Read(temp);
+                result["RefNegative"] = BitConverter.ToInt32(temp);
+                byte[] tempS = new byte[2];
+                stre.Read(tempS);
+                result["tempShort"] = BitConverter.ToInt16(tempS);
+                stre.Read(temp);
+                int cantRef = BitConverter.ToInt32(temp);
+                result["cantRef"] = cantRef;
+                if (cantRef > 0)
                 {
-                    stre.Read(temp);
-                    regsId.Add(BitConverter.ToInt32(temp));
+                    List<ISSpaceFile> regsId = new List<ISSpaceFile>();
+                    for (int i = 0; i < cantRef; i++)
+                    {
+                        stre.Read(temp);
+                        int sub_id = BitConverter.ToInt32(temp);
+                        //regsId.Add(BitConverter.ToInt32(temp));
+                        if ((_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey(sub_id))
+                        {
+                            var subFile = (SSpaceFile?)(_file.Parent as ModuleFile).FilesGlobalIdLookup[sub_id];
+                            regsId.Add(subFile);
+                        }
+                        else
+                        {
+
+                        }
+
+                    }
+
+                    result["Refs"] = regsId;
+                    
+                }
+                stre.Read(temp);
+                int padding = BitConverter.ToInt32(temp);
+                result["padding"] = padding;
+                Debug.Assert(padding == 0);
+                if (padding != 0)
+                {
+                    for (int k = 0; k < padding; k++)
+                    {
+                        stre.Read(temp);
+                        int subGlobal = BitConverter.ToInt32(temp);
+                        if ((_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey(subGlobal))
+                        {
+                            var subFile = (SSpaceFile?)(_file.Parent as ModuleFile).FilesGlobalIdLookup[subGlobal];
+                            //regsId.Add(subFile);
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+                else {
+                   
                 }
 
-                result["Refs"] = regsId;
             }
-            stre.Read(temp);
-            int padding = BitConverter.ToInt32(temp);
-            result["padding"] = padding;
-            Debug.Assert(padding == 0);
-            if (padding != 0)
-            {
-
-            }
+            
             return result;
         }
 
-        private static void CheckFile(SSpaceFile _file)
+        private static void CheckFile(SSpaceFile _file, out Dictionary<int, List<int>> id_tags, out List<(int, int, int, SSpaceFile)> id_addres_tags)
         {
             var stre = _file.GetStream();
             stre.Seek(0, SeekOrigin.Begin);
             var mod = stre.Length % 4;
             var count = stre.Length / 1;
-            Dictionary<int, (int, string)> id_tags = new Dictionary<int, (int, string)>();
+            
+            id_tags = new Dictionary<int, List<int>>();
+            id_addres_tags = new List<(int,int, int, SSpaceFile)>();
             int c_ch = (_file.Parent as ModuleFile).FilesGlobalIdLookup.Count();
             int count_inf = -1;
             string data_str = "";
@@ -177,9 +276,39 @@ namespace HaloInfiniteResearchTools.Cli
                     long t_1 = (stre.Length - 4) % count_inf;
                 }
 
-                if (global_id != -1 && (_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey(global_id) && !id_tags.ContainsKey(global_id))
+                if (global_id != -1)
                 {
-                    id_tags[global_id] = (i, data_str);
+                    if ((_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey(global_id))
+                    {
+                        if (!id_tags.ContainsKey(global_id))
+                        {
+                            id_tags[global_id] = new List<int>();
+                            id_tags[global_id].Add(i);
+                        }
+                        else
+                        {
+                            id_tags[global_id].Add(i);
+                        }
+                        id_addres_tags.Add((i, global_id, id_addres_tags.Count == 0 ? 4 : i - id_addres_tags[id_addres_tags.Count - 1].Item1, (SSpaceFile)(_file.Parent as ModuleFile).FilesGlobalIdLookup[global_id]));
+                    }
+                    else
+                    {
+                        int dife = id_addres_tags.Count == 0 ? 4 : i - id_addres_tags[id_addres_tags.Count - 1].Item1;
+                        if ((global_id >-1 && global_id < 10) && dife >= 4)
+                        {
+
+                            id_addres_tags.Add((i, global_id, dife, null));
+                        }
+
+                    }
+                }
+                else {
+                    int dife = id_addres_tags.Count == 0 ? 4 : i - id_addres_tags[id_addres_tags.Count - 1].Item1;
+                    if (dife >= 4)
+                    {
+
+                        id_addres_tags.Add((i, global_id, dife, null));
+                    }
                 }
             }
             /*if (id_tags.Keys.Count != 0)
@@ -191,30 +320,6 @@ namespace HaloInfiniteResearchTools.Cli
             {
                 Debug.Assert(id_tags.Keys.Count == c_ch - 1);
                 Debug.Assert(id_tags.Keys.Count == count_inf);
-                if (count_inf > 5 && count_inf < 20)
-                {
-                    foreach (var item in id_tags.Keys)
-                    {
-                        stre.Seek(id_tags[item].Item1, SeekOrigin.Begin);
-                        byte[] temp = new byte[4];
-                        stre.Read(temp);
-                        int val_1 = BitConverter.ToInt32(temp);
-                        ISSpaceFile temp_f = (_file.Parent as ModuleFile).FilesGlobalIdLookup[val_1];
-                        stre.Read(temp);
-                        int val_2 = BitConverter.ToInt16(temp, 0);
-                        int val_2_0 = BitConverter.ToInt16(temp, 2);
-                        Debug.Assert(val_2 == 1);
-                        stre.Read(temp);
-                        int val_3 = BitConverter.ToInt32(temp);
-                        stre.Read(temp);
-                        int val_4 = BitConverter.ToInt32(temp);
-                        Debug.Assert(val_4 == -1);
-                        stre.Read(temp);
-                        int val_5 = BitConverter.ToInt32(temp);
-                        stre.Read(temp);
-                        int val_6 = BitConverter.ToInt32(temp);
-                    }
-                }
             }
             else
             {

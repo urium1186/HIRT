@@ -25,6 +25,9 @@ namespace HaloInfiniteResearchTools.ViewModels
         private readonly ITextureConversionService _textureService;
         private readonly ITabService _tabService;
 
+        private int[] _options = null;
+        private int _optionSelected = 0;
+
         private readonly PictureFile _file;
 
         #endregion
@@ -32,9 +35,21 @@ namespace HaloInfiniteResearchTools.ViewModels
         #region Properties
 
         public TextureModel Texture { get; set; }
+        public bool ShowOptSelector { get; set; }
 
         public ICommand OpenTextureDefinitionCommand { get; }
         public ICommand ExportTextureCommand { get; }
+        public int[] Opciones { get => _options; set => _options = value; }
+        public int OpcionSeleccionada { get => _optionSelected; set {
+                if (_optionSelected != value)
+                {
+                    _optionSelected = value;
+                    changeTextureView();
+                }
+                
+
+            }
+        }
 
         #endregion
 
@@ -66,6 +81,27 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                 var previewQuality = GetPreferences().TextureViewerOptions.PreviewQuality;
                 Texture = await _textureService.LoadTexture(_file, previewQuality);
+                Texture.SelectedMip = Texture.SelectedFace.MipMaps[_file.MaxResMipMapIndex];
+                _options = new int[_file.BitmapsCount];
+                ShowOptSelector = _file.BitmapsCount > 1;
+                for (int i = 0; i < _file.BitmapsCount; i++)
+                {
+                    _options[i] = i;
+                }
+                OpcionSeleccionada = 0;
+            }
+        }
+
+        protected async void changeTextureView() {
+            using (var progress = ShowProgress())
+            {
+                progress.IsIndeterminate = true;
+                progress.Status = "Loading Texture";
+
+                var previewQuality = GetPreferences().TextureViewerOptions.PreviewQuality;
+                _file.CurrentBitmapIndex = OpcionSeleccionada;
+                Texture = await _textureService.LoadTexture(_file, previewQuality);
+                Texture.SelectedMip = Texture.SelectedFace.MipMaps[_file.MaxResMipMapIndex];
             }
         }
 

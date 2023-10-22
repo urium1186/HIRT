@@ -256,6 +256,7 @@
             public _41 _41_;
             public _42 _42_;
             public _43 _43_;
+            public _45 _45_;
         } // bruh howtf do you store these as a single variable
 
         public struct _02 // unknown
@@ -363,6 +364,14 @@
             public long long4;
         }
         public struct _43 // length 72 bytes
+        {/*
+            public string Name1;
+            public long long1;
+            public Table2_struct table2_ref;
+            public long long2;*/
+            public Group_definitions_link_struct tag_struct_pointer;
+        }
+        public struct _45 // length 72 bytes
         {/*
             public string Name1;
             public long long1;

@@ -555,11 +555,7 @@ namespace LibHIRT.Serializers
                         
                         FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;*/
                         var chunk = mesh_R.StreamingChunks[chunk_i];
-                        ISSpaceFile _File = null;
-                        if ((_file as SSpaceFile).Resource.Count > chunk_i)
-                        {
-                            _File = (_file as SSpaceFile).Resource[chunk_i];
-                        }
+                        ISSpaceFile _File = (_file as SSpaceFile).GetResourceAt(chunk_i);
                         if (_File != null)
                         {
                             var stream = _File.GetStream();

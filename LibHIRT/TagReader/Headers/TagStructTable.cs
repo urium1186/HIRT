@@ -82,6 +82,7 @@ namespace LibHIRT.TagReader.Headers
             _UID1 = BitConverter.ToString(byt).Replace("-", "");
             byt = BitConverter.GetBytes(BitConverter.ToInt64(bytes, 8));
             _UID2 = BitConverter.ToString(byt).Replace("-", "");
+            //_UID2 = BitConverter.ToInt64(bytes, 8).ToString("X");
             typeID = ReadInt16();
             typeIdTg = (TagStructType)typeID;
             unknown_property_bool_0_1 = ReadInt16();

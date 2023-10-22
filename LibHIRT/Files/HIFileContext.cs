@@ -42,7 +42,7 @@ namespace LibHIRT.Files
 
         bool OpenDirectory(string path);
         bool OpenFile(string filePath);
-        bool OpenFromRuntime(string filePath);
+        Task<bool> OpenFromRuntime(string filePath);
         ISSpaceFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource);
 
         #endregion
@@ -399,10 +399,10 @@ namespace LibHIRT.Files
             return false;
         }
 
-        public bool OpenFromRuntime(string filePath)
+        public  async Task<bool> OpenFromRuntime(string filePath)
         {
             RuntimeLoadCompleted = false;
-            _runtimeTagLoader.HookAndLoad();
+            bool result = await _runtimeTagLoader.HookAndLoad();
             return true;
         }
 

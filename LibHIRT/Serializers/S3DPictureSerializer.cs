@@ -1,7 +1,11 @@
 ﻿using LibHIRT.Data.Textures;
 using LibHIRT.Files;
+using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
+using LibHIRT.TagReader.Headers;
+using System;
 using System.Diagnostics;
+using System.Drawing;
 using static LibHIRT.Assertions;
 using String = System.String;
 
@@ -14,7 +18,7 @@ namespace LibHIRT.Serializers
         #region Constants
 
         private const int SIGNATURE_PICT = 0x50494354; // TCIP
-        private static ISSpaceFile? _file;
+        private static PictureFile? _file;
 
         #endregion
 
@@ -22,21 +26,68 @@ namespace LibHIRT.Serializers
 
         protected override void OnDeserialize(BinaryReader reader, S3DPicture pict)
         {
-            tagParse = new TagParseControl("", "bitm", null, reader.BaseStream);
-            tagParse.readFile();
+            //tagParse = new TagParseControl("", "bitm", null, reader.BaseStream);
+            //tagParse.readFile();
+            tagParse = _file.Deserialized().TagParse;
 
-            TagInstance bitmap = (TagInstance)tagParse.RootTagInst.GetObjByPath("bitmaps.[0]");
-            TagInstance bitmapRH = (TagInstance)bitmap.GetObjByPath("bitmap resource handle.[0]");
+            Tagblock bitmaps = (Tagblock)tagParse.RootTagInst["bitmaps"];
+
+            if (bitmaps == null || !(_file.CurrentBitmapIndex < bitmaps.Count))
+                return;
+            _file.BitmapsCount = bitmaps.Count;
+
+            TagInstance bitmap_i = bitmaps[_file.CurrentBitmapIndex];
+            TagInstance bitmapRH = null;
+            var bitmap_resource_handle = bitmap_i["bitmap resource handle"] as ResourceHandle;
+            SSpaceFile getChunkFrom = _file as SSpaceFile;
+            TagFile toUse = null;
+            SSpaceFile temp_file = null;
+
+            if (bitmap_resource_handle == null || bitmap_resource_handle.Count == 0)
+            {
+                Debug.Assert(bitmaps.Count >= 1);
+                temp_file = (SSpaceFile)_file.GetResourceAt(_file.CurrentBitmapIndex);
+                if (temp_file==null)
+                    throw new IndexOutOfRangeException("Index out of range.");
+                TagParseControl tagParseTemp = temp_file.Deserialized().TagParse;
+                string hash = BitConverter.ToString(BitConverter.GetBytes(tagParseTemp.TagFile.TagHeader.TagFileHeaderInst.TypeHash)).Replace("-", "");
+                var tempTaglay = tagParseTemp.getSubTaglayoutFrom(temp_file.FileMemDescriptor.ParentOffResourceRef?.TagGroup, hash);
+                if (tempTaglay != null)
+                {
+                    tagParseTemp.readFile(tempTaglay, tagParseTemp.TagFile);
+                    if (tagParseTemp.RootTagInst != null)
+                    {
+                        bitmapRH = tagParseTemp.RootTagInst;
+                        getChunkFrom = temp_file;
+                        toUse = tagParseTemp.TagFile;
+                    }
+                }
+                else
+                    throw new NotImplementedException("Sin implementar, cuando son externos");
+
+            }
+            else {
+                Debug.Assert(bitmaps.Count ==1 );
+                bitmapRH = (TagInstance)bitmap_i.GetObjByPath("bitmap resource handle.[0]");
+            }
+                
+
+            bool canGet2k = false;
+            bool haveExtra2kFile = bitmapRH["highResMipCountAndFlags"].AccessValue.ToString() == "1";
+            if (haveExtra2kFile)
+            {
+                canGet2k = ((_file as SSpaceFile).Parent as ModuleFile).hasHd1File();
+            }
 
 
 
-            pict.Width = (Int16)tagParse.RootTagInst.GetObjByPath("bitmaps.[0].width").AccessValue;
-            pict.Height = (Int16)tagParse.RootTagInst.GetObjByPath("bitmaps.[0].height").AccessValue;
-            pict.Depth = (Int16)tagParse.RootTagInst.GetObjByPath("bitmaps.[0].depth").AccessValue;
+            pict.Width = (Int16)bitmap_i["width"].AccessValue;
+            pict.Height = (Int16)bitmap_i["height"].AccessValue;
+            pict.Depth = (Int16)bitmap_i["depth"].AccessValue;
             pict.Faces = 1;
-            var tv = bitmap.GetObjByPath("type");
+            var tv = bitmap_i["type"];
             pict.Type = (string)tv.GetType().GetProperty("Selected").GetValue(tv);
-            var bm = tagParse.RootTagInst.GetObjByPath("bitmaps.[0].format");
+            var bm = bitmap_i["format"];
             string val = (string)bm.GetType().GetProperty("Selected").GetValue(bm);
             //(new System.Collections.Generic.IDictionaryDebugView<string, object>(new System.Collections.Generic.ICollectionDebugView<object>((new System.Collections.Generic.IDictionaryDebugView<string, object>(((LibHIRT.TagReader.ParentTagInstance)tagParse.RootTagInst).AccessValue).Items[32]).Value).Items[0]).Items[0]).Value
             //Selected bc7_unorm
@@ -48,11 +99,9 @@ namespace LibHIRT.Serializers
             */
             pict.Format = S3DPictureFormat.UNSET;
             pict.SFormat = val;
-            pict.MipMapCount = (sbyte)tagParse.RootTagInst.GetObjByPath("bitmaps.[0].mipmap count").AccessValue;
+            pict.MipMapCount = (sbyte)bitmap_i["mipmap count"].AccessValue;
 
-
-
-            pict.MipMapCount = (sbyte)bitmap.GetObjByPath("bitmap resource handle.[0].mipCountPerArraySlice").AccessValue;
+            pict.MipMapCount = (sbyte)bitmapRH["mipCountPerArraySlice"].AccessValue;
 
             int pixels = (int)bitmapRH.GetObjByPath("pixels").AccessValue;
             if (pixels == 0)
@@ -62,6 +111,8 @@ namespace LibHIRT.Serializers
                 //pict.MipMapCount = bitmapRH_SD.Childs.Count;
                 int full_size = 0;
                 int full_size_f = 0;
+
+
                 if (bitmapRH_SD.Childs.Count != 0 && _file != null)
                 {
                     byte[][] arrays = new byte[bitmapRH_SD.Childs.Count][];
@@ -85,14 +136,31 @@ namespace LibHIRT.Serializers
                             chunkPath = (_file as SSpaceFile).FileMemDescriptor.ResourceFiles[index].Path_string;
                         }*/
                         ISSpaceFile _File = null;
-                        if ((_file as SSpaceFile).Resource.Count > index)
-                        {
-                            _File = (_file as SSpaceFile).Resource[index];
-                        }
+                        _File = getChunkFrom.GetResourceAt(index);
+                       
+                        //Debug.Assert(canGet2k == false);
+                        //ISSpaceFile _File = (_file as SSpaceFile).Resource_list[index]; 
                         // FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
                         if (_File != null)
                         {
-                            var stream = _File.GetStream();
+                            HIRTStream stream = null;
+                            try
+                            {
+                                stream = _File.GetStream();
+
+                            }
+                            catch (AssertionFailedException ex)
+                            {
+                                if (ex.Message.Contains("no hd1 file for module"))
+                                {
+                                    Debug.Assert(canGet2k == false);
+                                    _file.MaxResMipMapIndex = 1;
+                                    //throw ex;
+                                }
+                                else
+                                    throw ex;
+                            }
+                            
                             if (stream != null)
                             {
                                 //Debug.Assert(stream.Length == temp_z);
@@ -109,17 +177,33 @@ namespace LibHIRT.Serializers
                                 stream.Read(arrays[i], 0, (int)len);
                                 full_size_f += (int)len;
                             }
+                            else
+                            {
+
+                                arrays[i] = new byte[temp_z];
+                                full_size_f += (int)temp_z;
+                            }
                         }
+                        
                     }
                     Array.Reverse<byte[]>(arrays);
                     pict.Data = Utils.Utils.Combine(arrays);
                 }
+
                 if (full_size == 0)
                     pict.Data = new byte[full_size_f];
             }
             else
             {
-                pict.Data = tagParse.TagFile.TagHeader.getSesion3Bytes(reader.BaseStream);
+                if (toUse == null)
+                {
+                    pict.Data = tagParse.TagFile.TagHeader.getSesion3Bytes(reader.BaseStream);
+                }
+                else
+                {
+                    pict.Data = toUse.TagHeader.getSesion3Bytes(temp_file.GetStream());
+                }
+
             }
 
             /*
@@ -157,11 +241,15 @@ namespace LibHIRT.Serializers
       }*/
         }
 
+        protected void readUnder2k()
+        {
+
+        }
         #endregion
 
         #region Public Methods
 
-        public static S3DPicture Deserialize(Stream stream, ISSpaceFile? file = null)
+        public static S3DPicture Deserialize(Stream stream, PictureFile file)
         {
             var reader = new BinaryReader(stream);
             _file = file;
