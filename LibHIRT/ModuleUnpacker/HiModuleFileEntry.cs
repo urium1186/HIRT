@@ -20,11 +20,12 @@ namespace LibHIRT.ModuleUnpacker
         int comp_size; // = gf.read_uint32(fb)  # 0x20 32
         int decomp_size; // = gf.read_uint32(fb)  # 0x24 36
         int GlobalTagId; // = gf.read_uint32(fb)  # 0x28 40 GlobalTagId 
-        int UncompressedHeaderSize; //  = gf.read_uint32(fb)  # 0x2C 44 UncompressedHeaderSize
-        int UncompressedTagDataSize; // = gf.read_uint32(fb)  # 0x30 48 UncompressedTagDataSize
-        int UncompressedResourceDataSize; // = gf.read_uint32(fb)  # 0x34 52 UncompressedResourceDataSize
-        short HeaderBlockCount; // 0x38 56
+        int uncompressedHeaderSize; //  = gf.read_uint32(fb)  # 0x2C 44 UncompressedHeaderSize
+        int uncompressedTagDataSize; // = gf.read_uint32(fb)  # 0x30 48 UncompressedTagDataSize
+        int uncompressedResourceDataSize; // = gf.read_uint32(fb)  # 0x34 52 UncompressedResourceDataSize
+        int uncompressedSection3Size; // 0x38 56
         short TagDataBlockCount; // 0x3A 58 posible int
+        private int ResourceBlockCountInt;
         short ResourceBlockCount; // 0x3C 60 posible int
         short ResourceBlockCountPad; // 0x3E 62 posible completo del int siempre 0
 
@@ -76,10 +77,10 @@ string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
         public int Comp_size { get => comp_size; set => comp_size = value; }
         public int Decomp_size { get => decomp_size; set => decomp_size = value; }
         public int GlobalTagId1 { get => GlobalTagId; set => GlobalTagId = value; }
-        public int UncompressedHeaderSize1 { get => UncompressedHeaderSize; set => UncompressedHeaderSize = value; }
-        public int UncompressedTagDataSize1 { get => UncompressedTagDataSize; set => UncompressedTagDataSize = value; }
-        public int UncompressedResourceDataSize1 { get => UncompressedResourceDataSize; set => UncompressedResourceDataSize = value; }
-        public short HeaderBlockCount1 { get => HeaderBlockCount; set => HeaderBlockCount = value; }
+        public int UncompressedHeaderSize1 { get => uncompressedHeaderSize; set => uncompressedHeaderSize = value; }
+        public int UncompressedTagDataSize1 { get => uncompressedTagDataSize; set => uncompressedTagDataSize = value; }
+        public int UncompressedResourceDataSize1 { get => uncompressedResourceDataSize; set => uncompressedResourceDataSize = value; }
+        public int UncompressedSection3Size { get => uncompressedSection3Size; set => uncompressedSection3Size = value; }
         public short TagDataBlockCount1 { get => TagDataBlockCount; set => TagDataBlockCount = value; }
         public short ResourceBlockCount1 { get => ResourceBlockCount; set => ResourceBlockCount = value; }
         public short ResourceBlockCountPad1 { get => ResourceBlockCountPad; set => ResourceBlockCountPad = value; }
@@ -121,13 +122,18 @@ string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
             comp_size = byteStream.ReadInt32(); // 0x20
             decomp_size = byteStream.ReadInt32(); // 0x24
             GlobalTagId = byteStream.ReadInt32(); // 0x28
-            UncompressedHeaderSize = byteStream.ReadInt32(); // 0x2C
-            UncompressedTagDataSize = byteStream.ReadInt32(); // 0x30
-            UncompressedResourceDataSize = byteStream.ReadInt32(); // 0x34
-            HeaderBlockCount = byteStream.ReadInt16(); // 0x38
-            TagDataBlockCount = byteStream.ReadInt16(); // 0x3A
-            ResourceBlockCount = byteStream.ReadInt16(); // 0x3C
-            ResourceBlockCountPad = byteStream.ReadInt16(); // 0x3E
+            uncompressedHeaderSize = byteStream.ReadInt32(); // 0x2C
+            uncompressedTagDataSize = byteStream.ReadInt32(); // 0x30
+            uncompressedResourceDataSize = byteStream.ReadInt32(); // 0x34
+            uncompressedSection3Size = byteStream.ReadInt32(); // 0x38
+
+            var temp = byteStream.ReadBytes(4); // 0x3C
+            ResourceBlockCountInt = BitConverter.ToInt32(temp, 0);
+            ResourceBlockCount = BitConverter.ToInt16(temp, 0); // 0x3C
+            ResourceBlockCountPad = BitConverter.ToInt16(temp, 2); // 0x3E
+            Debug.Assert(ResourceBlockCount == 0 || ResourceBlockCount == 512 || ResourceBlockCount == 1024 ); // || ResourceBlockCount == 2048
+
+            Debug.Assert(ResourceBlockCountPad == 0 || ResourceBlockCountPad == 2 || ResourceBlockCountPad == 4 || ResourceBlockCountPad == 8 || ResourceBlockCountPad == 64 || ResourceBlockCountPad == 128 || ResourceBlockCountPad == 256 || ResourceBlockCountPad == 512 || ResourceBlockCountPad == 1024);
             string_offset = byteStream.ReadInt32(); // 0x40
             parent_of_resource = byteStream.ReadInt32(); // 0x44 
             hash = byteStream.ReadBytes(0x10); // 0x4C
@@ -135,6 +141,8 @@ string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
             int_unk2 = BitConverter.ToInt32(hash, 4);
             long_unk1 = BitConverter.ToInt64(hash, 0);
             long_unk2 = BitConverter.ToInt64(hash, 8);
+            var dif = decomp_size - (uncompressedHeaderSize + uncompressedTagDataSize + uncompressedResourceDataSize + uncompressedSection3Size);
+            Debug.Assert(tagGroupRev == "����" || dif == 0);
             //if (tagGroupRev != "����") {
             if (tagGroupRev == "levl")
             {

@@ -54,9 +54,9 @@ namespace LibHIRT.ModuleUnpacker
                 if (!UIDebug.debugValues.ContainsKey("Resource_count"))
                     UIDebug.debugValues["Resource_count"] = new Dictionary<object, List<object>>();
 
-                if (!UIDebug.debugValues.ContainsKey("HeaderBlockCount1"))
-                    UIDebug.debugValues["HeaderBlockCount1"] = new Dictionary<object, List<object>>();
-                UIDebug.debugValues["HeaderBlockCount1"][entry.ResourceBlockCountPad1] = new List<object>();
+                if (!UIDebug.debugValues.ContainsKey("UncompressedSection3Size"))
+                    UIDebug.debugValues["UncompressedSection3Size"] = new Dictionary<object, List<object>>();
+                UIDebug.debugValues["UncompressedSection3Size"][entry.ResourceBlockCountPad1] = new List<object>();
 
                 if (!UIDebug.debugValues.ContainsKey("TagDataBlockCount"))
                     UIDebug.debugValues["TagDataBlockCount"] = new Dictionary<object, List<object>>();
