@@ -681,9 +681,11 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                         textWriter.WriteAttributeString("sg", "");
                     }
                     else {
-                        textWriter.WriteAttributeString("s", TagLayouts.TagXmlParse.group_lengths_dict["_" + te].ToString());
+                        textWriter.WriteAttributeString("s", TagCommon.GROUP_LENGTHS[(TagElemntTypeNew)group].ToString());
                     }
-                        
+                    var ss = ((TagElemntTypeNew)group).ToString();
+                    textWriter.WriteAttributeString("TT", ((TagElemntTypeNew)group).ToString());
+
                 }
                 catch (Exception keyEx)
                 {

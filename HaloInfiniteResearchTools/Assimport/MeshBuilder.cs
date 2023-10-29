@@ -243,8 +243,9 @@ namespace HaloInfiniteResearchTools.Assimport
         private S3DFace[] DeserializeFaces(List<uint> vert_index)
         {
             S3DFace[] salida = new S3DFace[vert_index.Count / 3];
+            int rest = vert_index.Count % 3;
             int nFace = 0;
-            for (int i = 0; i < vert_index.Count; i += 3)
+            for (int i = 0; i < vert_index.Count-rest; i += 3)
             {
 
                 salida[nFace++] = S3DFace.Create(new uint[3] { vert_index[i], vert_index[i + 1], vert_index[i + 2] });

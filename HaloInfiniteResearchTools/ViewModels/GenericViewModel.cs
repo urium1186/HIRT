@@ -445,69 +445,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private void TagParse_OnInstanceLoadEvent(object? sender, ITagInstance e)
         {
-
-            if (e != null)
-            {
-                switch (((TagInstance)e).TagDef.G)
-                {
-                    case "_37":
-                        break;
-                    default:
-                        break;
-                }
-                string classHash = "";
-                var has = ((TagInstance)e).TagDef.E?.ContainsKey("hash");
-                if (has != null && has == true)
-                    classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
-                else { 
-                }
-                switch (classHash)
-                {
-                    case "9B6D4747FC4FE0CCB27AC58D817D912A":
-                        //decompileShaderAsync((TagInstance)e);
-                        break;
-                    case "36C8F698C54393CD883131BA77BABD05":
-
-                        break;
-                    default:
-                        break;
-                }
-                if (((TagInstance)e).TagDef.N == "raw vertices")
-                {
-                }
-            }
+            return;
         }
 
-
-        async Task decompileShaderAsync(TagInstance ti)
-        {
-            try
-            {
-                var temp = ti["rootSignatureData"] as TagData;
-
-                MemoryStream stream = new MemoryStream(temp?.ReadBuffer());
-                ShaderByteCodeDecompileProcess process = new ShaderByteCodeDecompileProcess(temp?.ReadBuffer(), true);
-
-                await Task.Factory.StartNew(process.Execute, TaskCreationOptions.LongRunning);
-                await process.CompletionTask;
-
-                //SharpDX.D3DCompiler.ShaderBytecode sb = SharpDX.D3DCompiler.ShaderBytecode.FromStream(stream);
-
-                //string code = sb.Disassemble(
-                /* SharpDX.D3DCompiler.DisassemblyFlags.EnableColorCode */
-                //    SharpDX.D3DCompiler.DisassemblyFlags.EnableDefaultValuePrints
-                /*| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionCycle // this will cause an error, lol */
-                //| SharpDX.D3DCompiler.DisassemblyFlags.EnableInstructionNumbering
-                //    );
-
-
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine(e.ToString());
-
-
-            }
-        }
     }
 }
