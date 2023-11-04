@@ -19,18 +19,29 @@ namespace LibHIRT.Serializers
 
         private const int SIGNATURE_PICT = 0x50494354; // TCIP
         private static PictureFile? _file;
+        private ITagParseControl tagParse;
+
+        private S3DPictureSerializer(PictureFile file, ITagParseControl tagParse)
+        {
+            _file = file;
+            this.tagParse = tagParse;
+        }
 
         #endregion
 
         #region Overrides
 
-        protected override void OnDeserialize(BinaryReader reader, S3DPicture pict)
+        protected override void OnDeserialize(BinaryReader reader, S3DPicture pict) {
+           
+        }
+
+        protected override void OnDeserialize(TagInstance tagInst, S3DPicture pict)
         {
             //tagParse = new TagParseControl("", "bitm", null, reader.BaseStream);
             //tagParse.readFile();
-            tagParse = _file.Deserialized().TagParse;
 
-            Tagblock bitmaps = (Tagblock)tagParse.RootTagInst["bitmaps"];
+            RootTagInstance rootTagInst = tagInst as RootTagInstance;
+            Tagblock bitmaps = (Tagblock)rootTagInst["bitmaps"];
 
             if (bitmaps == null || !(_file.CurrentBitmapIndex < bitmaps.Count))
                 return;
@@ -39,6 +50,7 @@ namespace LibHIRT.Serializers
             TagInstance bitmap_i = bitmaps[_file.CurrentBitmapIndex];
             TagInstance bitmapRH = null;
             var bitmap_resource_handle = bitmap_i["bitmap resource handle"] as ResourceHandle;
+            
             SSpaceFile getChunkFrom = _file as SSpaceFile;
             TagFile toUse = null;
             SSpaceFile temp_file = null;
@@ -49,15 +61,17 @@ namespace LibHIRT.Serializers
                 temp_file = (SSpaceFile)_file.GetResourceAt(_file.CurrentBitmapIndex);
                 if (temp_file==null)
                     throw new IndexOutOfRangeException("Index out of range.");
-                TagParseControl tagParseTemp = temp_file.Deserialized().TagParse;
+                string rh_hash = bitmap_resource_handle.TagDef.E["hash"].ToString();
+                temp_file.GroupRefHash = (_file.TagGroup, rh_hash);
+                ITagParseControl tagParseTemp = temp_file.Deserialized().TagParse;
                 string hash = BitConverter.ToString(BitConverter.GetBytes(tagParseTemp.TagFile.TagHeader.TagFileHeaderInst.TypeHash)).Replace("-", "");
-                var tempTaglay = tagParseTemp.getSubTaglayoutFrom(temp_file.FileMemDescriptor.ParentOffResourceRef?.TagGroup, hash);
+                var tempTaglay = TagCommon.getSubTaglayoutFrom(temp_file.FileMemDescriptor.ParentOffResourceRef?.TagGroup, hash);
                 if (tempTaglay != null)
                 {
-                    tagParseTemp.readFile(tempTaglay, tagParseTemp.TagFile);
+                    //tagParseTemp.readFile(tempTaglay, tagParseTemp.TagFile);
                     if (tagParseTemp.RootTagInst != null)
                     {
-                        bitmapRH = tagParseTemp.RootTagInst;
+                        bitmapRH = tagParseTemp.RootTagInst.GetObjByPath("[0]");
                         getChunkFrom = temp_file;
                         toUse = tagParseTemp.TagFile;
                     }
@@ -89,14 +103,7 @@ namespace LibHIRT.Serializers
             pict.Type = (string)tv.GetType().GetProperty("Selected").GetValue(tv);
             var bm = bitmap_i["format"];
             string val = (string)bm.GetType().GetProperty("Selected").GetValue(bm);
-            //(new System.Collections.Generic.IDictionaryDebugView<string, object>(new System.Collections.Generic.ICollectionDebugView<object>((new System.Collections.Generic.IDictionaryDebugView<string, object>(((LibHIRT.TagReader.ParentTagInstance)tagParse.RootTagInst).AccessValue).Items[32]).Value).Items[0]).Items[0]).Value
-            //Selected bc7_unorm
-            var formatValue = 0;
-
-            /*
-            Assert(Enum.IsDefined(typeof(S3DPictureFormat), format),
-              $"Unknown DDS Format Value: {formatValue:X}");
-            */
+            
             pict.Format = S3DPictureFormat.UNSET;
             pict.SFormat = val;
             pict.MipMapCount = (sbyte)bitmap_i["mipmap count"].AccessValue;
@@ -197,7 +204,7 @@ namespace LibHIRT.Serializers
             {
                 if (toUse == null)
                 {
-                    pict.Data = tagParse.TagFile.TagHeader.getSesion3Bytes(reader.BaseStream);
+                    pict.Data = tagParse.TagFile.TagHeader.getSesion3Bytes(_file.GetStream());
                 }
                 else
                 {
@@ -249,11 +256,11 @@ namespace LibHIRT.Serializers
 
         #region Public Methods
 
-        public static S3DPicture Deserialize(Stream stream, PictureFile file)
+        public static S3DPicture Deserialize(PictureFile file)
         {
-            var reader = new BinaryReader(stream);
             _file = file;
-            return new S3DPictureSerializer().Deserialize(reader);
+            var tagParse = _file.Deserialized().TagParse;
+            return new S3DPictureSerializer(file, tagParse).Deserialize(tagParse.RootTagInst);
         }
 
         #endregion

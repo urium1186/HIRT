@@ -41,7 +41,7 @@
     },
     "ExportRenderGeometryIn": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\nexport_rg\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"221220512\"\r\n-tif \"true\"\r\n-o \"D:\\fbx_test\"\r\n-ef \"dae\"\r\n",
+      "commandLineArgs": "tags\r\nexport_rg\r\nonpath\r\n-d \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\deploy\"\r\n-ti \"1173196552\"\r\n-tif \"true\"\r\n-o \"D:\\fbx_test\"\r\n-ef \"dae\"\r\n",
       "nativeDebugging": false
     },
     "DebugTagIndex": {

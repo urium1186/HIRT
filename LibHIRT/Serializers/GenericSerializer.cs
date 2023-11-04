@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Domain;
+using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
 
@@ -6,16 +7,23 @@ namespace LibHIRT.Serializers
 {
     public class GenericSerializer : SerializerBase<DinamycType>
     {
-        private static IHIRTFile _file;
+        private IHIRTFile _file;
+        private TagParseControlFiltter _parseControlFiltter;
 
-        public static event EventHandler<ITagInstance> OnInstanceLoadEvent;
-
-        public static DinamycType Deserialize(Stream stream, IHIRTFile file, EventHandler<ITagInstance> evenParameter)
+        private GenericSerializer(IHIRTFile file, TagParseControlFiltter parseControlFiltter, EventHandler<ITagInstance> evenParameter)
         {
             _file = file;
-            var reader = new BinaryReader(stream);
+            _parseControlFiltter = parseControlFiltter;
             OnInstanceLoadEvent += evenParameter;
-            return new GenericSerializer().Deserialize(reader);
+        }
+
+        public event EventHandler<ITagInstance> OnInstanceLoadEvent;
+
+        public static DinamycType Deserialize(Stream stream, IHIRTFile file,  EventHandler<ITagInstance> evenParameter, TagParseControlFiltter parseControlFiltter=null)
+        {
+            var reader = new BinaryReader(stream);
+            
+            return new GenericSerializer(file,parseControlFiltter, evenParameter).Deserialize(reader);
         }
         protected override void OnDeserialize(BinaryReader reader, DinamycType obj)
         {
@@ -23,13 +31,26 @@ namespace LibHIRT.Serializers
             {
                 return;
             }
-            tagParse = new TagParseControl(_file.Name, _file.TagGroup, null, reader.BaseStream);
-            tagParse.OnInstanceLoadEvent += OnInstanceLoad;
+            ITagParseControl tagParse = null;
+            
+            if (_file.TagGroup == "����")
+            {
+                tagParse = new TagParserControlV2((_file as SSpaceFile).GroupRefHash.Item1, (_file as SSpaceFile).GroupRefHash.Item2, reader.BaseStream);
+            }
+            else {
+                    
+                    
+                tagParse =  new TagParserControlV2(_file.TagGroup, reader.BaseStream);
+                tagParse.ParseControlFiltter = _parseControlFiltter;
+                    
+            }
+            tagParse.OnInstanceLoadEvent += OnInstanceLoadEvent;
             tagParse.readFile();
+            tagParse.OnInstanceLoadEvent -= OnInstanceLoadEvent;
             obj.Root = tagParse.RootTagInst;
             obj.TagParse = tagParse;
+            
         }
-
         private void OnInstanceLoad(object? sender, ITagInstance e)
         {
             if (OnInstanceLoadEvent != null)

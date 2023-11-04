@@ -93,7 +93,7 @@ namespace LibHIRT.Processes.OnGeometry
 
                 if (_file is RenderModelFile)
                 {
-                    var tpl = RenderModelSerializer.Deserialize(stream, (RenderModelFile)_file);
+                    var tpl = ((RenderModelFile)_file).Deserialize();
                     var context = new SceneContext(tpl, stream, StatusList, _parentScene);
                     //context.AddLodDefinitions(tpl.LodDefinitions);
 

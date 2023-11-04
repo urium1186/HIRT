@@ -1,4 +1,5 @@
-﻿using LibHIRT.Utils;
+﻿using LibHIRT.TagReader;
+using LibHIRT.Utils;
 using Oodle;
 //using OodleSharp;
 using System.Diagnostics;

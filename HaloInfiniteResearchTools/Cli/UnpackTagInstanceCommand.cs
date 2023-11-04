@@ -59,7 +59,7 @@ namespace HaloInfiniteResearchTools.Cli
         {
             try
             {
-                var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles(_searchterm);
+                var founds = HIFileContext.Instance.GetFiles(_searchterm);
                 if (founds != null && founds.Count() != 0)
                 {
 

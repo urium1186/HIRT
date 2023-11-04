@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, IServiceProvider? serviceProvider) : base(serviceProvider)
         {
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
 
             _file = file;
             _modelOptions = modelOptions.DeepCopy();
@@ -61,7 +62,7 @@ namespace HaloInfiniteResearchTools.Processes
         }
         public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions)
         {
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
 
             _file = file;
             _modelOptions = modelOptions.DeepCopy();
@@ -295,7 +296,7 @@ namespace HaloInfiniteResearchTools.Processes
         private void GatherDetailMaps(string parentTextureName, Dictionary<string, PictureFile> textures)
         {
             var tdFileName = Path.ChangeExtension(parentTextureName, ".td");
-            var tdFile = _fileContext.GetFile(tdFileName);
+            var tdFile = _fileContext.GetFiles(tdFileName).ElementAt(0);
             if (tdFile is null)
                 return;
 
@@ -306,7 +307,7 @@ namespace HaloInfiniteResearchTools.Processes
                 if (textures.ContainsKey(nameWithExt))
                     continue;
 
-                var textureFile = _fileContext.GetFile<PictureFile>(nameWithExt);
+                var textureFile = _fileContext.GetFiles<PictureFile>(nameWithExt).ElementAt(0);
                 if (textureFile is null)
                     continue;
 

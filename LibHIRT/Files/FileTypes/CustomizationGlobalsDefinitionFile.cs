@@ -11,7 +11,7 @@ namespace LibHIRT.Files.FileTypes
     public class CustomizationGlobalsDefinitionFile : SSpaceFile, HasRenderModel
     {
         DinamycType? _result;
-        public CustomizationGlobalsDefinitionFile(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public CustomizationGlobalsDefinitionFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
             TagGroup = "ocgd";
         }
@@ -25,7 +25,7 @@ namespace LibHIRT.Files.FileTypes
                 _result = GenericSerializer.Deserialize(GetStream(), this, null);
             }
 
-            var fil_id = HIFileContext.GetFileFrom((_result["Themes"] as ListTagInstance)[0]["Model"] as TagRef, (ModuleFile)Parent);
+            var fil_id = HIFileContext.Instance.GetFileFrom((_result["Themes"] as ListTagInstance)[0]["Model"] as TagRef, (ModuleFile)Parent);
             if (fil_id == null)
             {
                 Debug.Assert(DebugConfig.NoCheckFails, "Check the Mem Files");

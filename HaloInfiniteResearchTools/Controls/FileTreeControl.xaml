@@ -4,8 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
+             xmlns:converters="clr-namespace:HaloInfiniteResearchTools.UI.Converters" 
              xmlns:models="clr-namespace:HaloInfiniteResearchTools.Models" 
              xmlns:model="clr-namespace:LibHIRT.Files;assembly=LibHIRT"
+             xmlns:modelbase="clr-namespace:LibHIRT.Files.Base;assembly=LibHIRT"
+             xmlns:hifiles="clr-namespace:LibHIRT.Files.FileTypes;assembly=LibHIRT"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="400">
     <Grid>
@@ -131,6 +134,47 @@
             </TreeView.ItemTemplate>
         </TreeView>
 -->
+        
+        <TreeView x:Name="FileTree"
+                  Grid.Row="2"
+                  ItemsSource="{Binding FileContext.Files.Groups}"
+                  ItemTemplateSelector="{StaticResource InterfaceTemplateSelector}"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  VirtualizingPanel.IsContainerVirtualizable="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  PreviewMouseDoubleClick="OnPreviewMouseDoubleClick"
+                  >
+            
+            <TreeView.Resources>
+                <ContextMenu x:Key="DirMenuTools">
+                    <MenuItem Header="Open Generic View" Click="MenuItem_OpenGenericViewClick" />
+                    <Separator/>
+                    <MenuItem Header="Export to Json" Click="MenuItem_ExportToJsonClick" />
+                    <MenuItem Header="Export Recursive to Json" Click="MenuItem_ExportRecursiveToJsonClick" />
+                </ContextMenu>
+                <DataTemplate DataType="{x:Type modelbase:IHIRTFile}" >
+                    <TextBlock Text="{Binding Path=(modelbase:IHIRTFile.DisplayName)}"></TextBlock>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type hifiles:ModelFile}" >
+                    <TextBlock Text="{Binding DisplayName}"></TextBlock>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type hifiles:GenericFile}" >
+                    <TextBlock Text="{Binding DisplayName}"></TextBlock>
+                </DataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type CollectionViewGroup}" ItemsSource="{Binding Items}">
+                    <TextBlock Text="{Binding Name}" />
+                    
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="ContextMenu" Value="{StaticResource DirMenuTools}" />
+                </Style>
+
+            </TreeView.ItemContainerStyle>
+        </TreeView>
+        <!--
         <TreeView x:Name="FileMTree"
                   Grid.Row="2"
                   ItemsSource="{Binding FileContext.FilesH}"
@@ -139,7 +183,8 @@
                   VirtualizingPanel.IsContainerVirtualizable="True"
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   PreviewMouseDoubleClick="OnPreviewMouseDoubleClick"
-                  
+                  Visibility="{Binding FileContext.FilesH, 
+                                                   Converter={StaticResource CollectionVisibilityConverter}}"
                   >
             <TreeView.Resources>
                 
@@ -148,7 +193,8 @@
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <TreeView x:Name="FileTree"
+        
+        <TreeView x:Name="FileTreeOld"
                   Grid.Row="2"
                   ItemsSource="{Binding FileContext.FiltersDirs}"
                   VirtualizingPanel.IsVirtualizing="True"
@@ -177,6 +223,7 @@
 
             </TreeView.ItemContainerStyle>
         </TreeView>
+            -->
         <!--#endregion-->
         
     </Grid>

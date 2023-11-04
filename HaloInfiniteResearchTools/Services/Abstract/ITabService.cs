@@ -1,6 +1,8 @@
 ﻿using HaloInfiniteResearchTools.Models;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.TagReader.Common;
+using LibHIRT.TagReader.RuntimeViewer;
 //using Saber3D.Files;
 
 namespace HaloInfiniteResearchTools.Services
@@ -17,8 +19,8 @@ namespace HaloInfiniteResearchTools.Services
 
         #region Public Methods
 
-        bool CreateTabForFile(ISSpaceFile file, out ITab tab, bool forceGeneric = false);
-        bool CreateTabForFile(TagStructMem file, out ITab tab, bool forceGeneric = false);
+        bool CreateTabForFile(IHIRTFile file, out ITab tab, bool forceGeneric = false);
+        void CloseAllTab();
 
         #endregion
 

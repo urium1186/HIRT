@@ -1,5 +1,58 @@
-﻿namespace LibHIRT.TagReader
+﻿using LibHIRT.TagReader.Headers;
+
+namespace LibHIRT.TagReader
 {
+
+    public delegate void OnInstanceEventHandler(object sender, EventArgs e);
+
+    public interface ITagParseControl:IDisposable { 
+        public CompoundTagInstance RootTagInst { get; }
+        public Template TagTemplate { get;}
+
+        public event EventHandler<ITagInstance> OnInstanceLoadEvent;
+
+        TagFile TagFile { get; }
+        public TagParseControlFiltter ParseControlFiltter { get ; set ; }
+        public void readFile();
+    }
+
+    public interface Template {
+        public Dictionary<string, object>? E { get; set; }
+        /// <summary>
+        /// Length of the tagblock
+        /// </summary>
+        public int S { get; set; } // S = size // length of tagblock
+
+        public string N { get; set; } // N = name // our name for the block 
+
+        public (string, string) xmlPath { get; set; }
+        public string G { get; set; }
+
+        public Dictionary<int, Template>? B { get; set; }
+        public Dictionary<int, string> STR { get; set; }
+
+    }
+
+    public interface ITagInstance : IDisposable
+    {
+        static event EventHandler<ITagInstance> OnInstanceLoadEvent;
+        public long GetTagSize { get; }
+
+        public void ReadIn(BinaryReader f, TagHeader? header = null);
+        public void WriteIn(Stream f, long offset = -1, TagHeader? header = null);
+        public void ReadIn(TagHeader? header = null);
+
+        public string ToJson();
+        public TagInstance GetObjByPath(string path);
+
+        public object AccessValue { get; set; }
+        public string FieldName { get; set; }
+        public bool NoAllowEdit { get; set; }
+
+        public Template TagDef { get; }
+
+
+    }
 
     public enum TagElemntType
     {
@@ -45,7 +98,7 @@
         ArgbPixel32
     }
 
-    public enum TagElemntTypeNew
+    public enum TagElemntTypeV2
     {
         Undefined = -1,
         RootTagInstance = 0x100,
@@ -124,87 +177,87 @@
 
         NotFound69 = 0x69
     }
-    public class TagCommon
+    public static class TagCommon
     {
-         public static Dictionary<TagElemntTypeNew,int> GROUP_LENGTHS = new()
+        public static Dictionary<TagElemntTypeV2,int> GROUP_LENGTHS = new()
             {
-                { TagElemntTypeNew.Undefined ,0 }, // _field_string
-                { TagElemntTypeNew.RootTagInstance ,0 }, // _field_string
-                { TagElemntTypeNew.String ,32 }, // _field_string
-				{ TagElemntTypeNew.LongString , 256 }, // _field_long_string
-				{ TagElemntTypeNew.Mmr3Hash , 4 }, // _field_string_id
-				{ TagElemntTypeNew.NotFound03 , 4 }, // ## Not found in any tag type
-				{ TagElemntTypeNew.CharIntiger , 1 }, // _field_char_integer
-				{ TagElemntTypeNew.Short  , 2 }, // _field_short_integer
-				{ TagElemntTypeNew.Long  , 4 }, // _field_long_integer
-				{ TagElemntTypeNew.Int64  , 8 }, // _field_int64_integer
-				{ TagElemntTypeNew.Angle  , 4 }, // _field_angle
-				{ TagElemntTypeNew.StringTag  , 4 }, // _field_tag
-				{ TagElemntTypeNew.CharEnum  , 1 }, // _field_char_enum
-				{ TagElemntTypeNew.ShortEnum  , 2 }, // _field_short_enum
-				{ TagElemntTypeNew.LongEnum  , 4 }, // _field_long_enum
-				{ TagElemntTypeNew.LongFlags  , 4 }, // _field_long_flags
-				{ TagElemntTypeNew.WordFlags  , 2 }, // _field_word_flags
-				{ TagElemntTypeNew.ByteFlags  , 1 }, // _field_byte_flags
-				{ TagElemntTypeNew.ShortPoint2D  , 4 }, // _field_point_2d -- 2 2bytes?
-				{ TagElemntTypeNew.ShortRectangle2D  , 8 }, // _field_rectangle_2d -> 4 short
-				{ TagElemntTypeNew.RgbPixel32  , 4 }, // _field_rgb_color -- hex color codes --- rgb pixel 32 - it's technically only 3 bytes but the final byte is FF
-				{ TagElemntTypeNew.ArgbPixel32  , 4 }, // _field_argb_color --- argb pixel 32
-				{ TagElemntTypeNew.Real  , 4 }, // _field_real
-				{ TagElemntTypeNew.Fraction  , 4 }, // _field_real_fraction
-				{ TagElemntTypeNew.RealPoint2D  , 8 }, // _field_real_point_2d
-				{ TagElemntTypeNew.RealPoint3D  , 12 }, // _field_real_point_3d
-				{ TagElemntTypeNew.RealVector2D  , 8 }, // _field_real_vector_2d -- 
-				{ TagElemntTypeNew.RealVector3D  , 12 }, // _field_real_vector_3d
-				{ TagElemntTypeNew.RealQuaternion  , 16 }, // _field_real_quaternion
-				{ TagElemntTypeNew.RealEulerAngles2D  , 8 }, // _field_real_euler_angles_2d
-				{ TagElemntTypeNew.RealEulerAngles3D  , 12 }, // _field_real_euler_angles_3d
-				{ TagElemntTypeNew.Plane2D  , 12 }, // _field_real_plane_2d
-				{ TagElemntTypeNew.Plane3D  , 16 }, // _field_real_plane_3d
-				{ TagElemntTypeNew.RealRgbColor  , 12 }, // _field_real_rgb_color
-				{ TagElemntTypeNew.RealARgbColor  , 16 }, // _field_real_argb_color
-				{ TagElemntTypeNew.RealHsvColor  , 4 }, // _field_real_hsv_colo
-				{ TagElemntTypeNew.RealAhsvColor  , 4 }, // _field_real_ahsv_color
-				{ TagElemntTypeNew.ShortBounds  , 4 }, // _field_short_bounds
-				{ TagElemntTypeNew.AngleBounds  , 8 }, // _field_angle_bounds
-				{ TagElemntTypeNew.RealBounds  , 8 }, // _field_real_bounds
-				{ TagElemntTypeNew.FractionBounds  , 8 }, // _field_real_fraction_bounds
-				{ TagElemntTypeNew.Unmapped27  , 4 }, // ## Not found in any tag type
-				{ TagElemntTypeNew.Unmapped28  , 4 }, // ## Not found in any tag type
-				{ TagElemntTypeNew.DwordBlockFlags  , 4 }, // _field_long_block_flags
-				{ TagElemntTypeNew.WordBlockFlags  , 2 }, // _field_word_block_flags
-				{ TagElemntTypeNew.ByteBlockFlags  , 1 }, // _field_byte_block_flags
-				{ TagElemntTypeNew.CharBlockIndex  , 1 }, // _field_char_block_index
-				{ TagElemntTypeNew.CustomCharBlockIndex  , 1 }, // _field_custom_char_block_index
-				{ TagElemntTypeNew.ShortBlockIndex  , 2 }, // _field_short_block_index
-				{ TagElemntTypeNew.CustomShortBlockIndex  , 2 }, // _field_custom_short_block_index
-				{ TagElemntTypeNew.LongBlockIndex  , 4 }, // _field_long_block_index
-				{ TagElemntTypeNew.CustomLongBlockIndex  , 4 }, // _field_custom_long_block_index
-				{ TagElemntTypeNew.NotFound32  , 4 }, // ## Not found in any tag type
-				{ TagElemntTypeNew.NotFound33  , 4 }, // ## Not found in any tag type
-				{ TagElemntTypeNew.Pad  , 4 }, // _field_pad ## variable length
-				{ TagElemntTypeNew.Skip  , 4 }, // 'field_skip' ## iirc
-				{ TagElemntTypeNew.Explanation  , 0 }, // _field_explanation
-				{ TagElemntTypeNew.Custom  , 0 }, // _field_custom
-				{ TagElemntTypeNew.Struct  , 0 }, // _field_struct
-				{ TagElemntTypeNew.Array  , 32 }, // _field_array
-				{ TagElemntTypeNew.Unmapped3A  , 4 },
-                { TagElemntTypeNew.EndStruct  , 0 }, // ## end of struct or something
-				{ TagElemntTypeNew.Byte  , 1 }, // _field_byte_integer
-				{ TagElemntTypeNew.Word  , 2 }, // _field_word_integer
-				{ TagElemntTypeNew.Dword, 4 }, // _field_dword_integer
-				{ TagElemntTypeNew.Qword  , 8 }, // _field_qword_integer
-				{ TagElemntTypeNew.Block  , 20 }, // _field_block_v2
-				{ TagElemntTypeNew.TagReference  , 28 }, // _field_reference_v2
-				{ TagElemntTypeNew.Data  , 24 }, // _field_data_v2
+                { TagElemntTypeV2.Undefined ,0 }, // _field_string
+                { TagElemntTypeV2.RootTagInstance ,0 }, // _field_string
+                { TagElemntTypeV2.String ,32 }, // _field_string
+				{ TagElemntTypeV2.LongString , 256 }, // _field_long_string
+				{ TagElemntTypeV2.Mmr3Hash , 4 }, // _field_string_id
+				{ TagElemntTypeV2.NotFound03 , 4 }, // ## Not found in any tag type
+				{ TagElemntTypeV2.CharIntiger , 1 }, // _field_char_integer
+				{ TagElemntTypeV2.Short  , 2 }, // _field_short_integer
+				{ TagElemntTypeV2.Long  , 4 }, // _field_long_integer
+				{ TagElemntTypeV2.Int64  , 8 }, // _field_int64_integer
+				{ TagElemntTypeV2.Angle  , 4 }, // _field_angle
+				{ TagElemntTypeV2.StringTag  , 4 }, // _field_tag
+				{ TagElemntTypeV2.CharEnum  , 1 }, // _field_char_enum
+				{ TagElemntTypeV2.ShortEnum  , 2 }, // _field_short_enum
+				{ TagElemntTypeV2.LongEnum  , 4 }, // _field_long_enum
+				{ TagElemntTypeV2.LongFlags  , 4 }, // _field_long_flags
+				{ TagElemntTypeV2.WordFlags  , 2 }, // _field_word_flags
+				{ TagElemntTypeV2.ByteFlags  , 1 }, // _field_byte_flags
+				{ TagElemntTypeV2.ShortPoint2D  , 4 }, // _field_point_2d -- 2 2bytes?
+				{ TagElemntTypeV2.ShortRectangle2D  , 8 }, // _field_rectangle_2d -> 4 short
+				{ TagElemntTypeV2.RgbPixel32  , 4 }, // _field_rgb_color -- hex color codes --- rgb pixel 32 - it's technically only 3 bytes but the final byte is FF
+				{ TagElemntTypeV2.ArgbPixel32  , 4 }, // _field_argb_color --- argb pixel 32
+				{ TagElemntTypeV2.Real  , 4 }, // _field_real
+				{ TagElemntTypeV2.Fraction  , 4 }, // _field_real_fraction
+				{ TagElemntTypeV2.RealPoint2D  , 8 }, // _field_real_point_2d
+				{ TagElemntTypeV2.RealPoint3D  , 12 }, // _field_real_point_3d
+				{ TagElemntTypeV2.RealVector2D  , 8 }, // _field_real_vector_2d -- 
+				{ TagElemntTypeV2.RealVector3D  , 12 }, // _field_real_vector_3d
+				{ TagElemntTypeV2.RealQuaternion  , 16 }, // _field_real_quaternion
+				{ TagElemntTypeV2.RealEulerAngles2D  , 8 }, // _field_real_euler_angles_2d
+				{ TagElemntTypeV2.RealEulerAngles3D  , 12 }, // _field_real_euler_angles_3d
+				{ TagElemntTypeV2.Plane2D  , 12 }, // _field_real_plane_2d
+				{ TagElemntTypeV2.Plane3D  , 16 }, // _field_real_plane_3d
+				{ TagElemntTypeV2.RealRgbColor  , 12 }, // _field_real_rgb_color
+				{ TagElemntTypeV2.RealARgbColor  , 16 }, // _field_real_argb_color
+				{ TagElemntTypeV2.RealHsvColor  , 4 }, // _field_real_hsv_colo
+				{ TagElemntTypeV2.RealAhsvColor  , 4 }, // _field_real_ahsv_color
+				{ TagElemntTypeV2.ShortBounds  , 4 }, // _field_short_bounds
+				{ TagElemntTypeV2.AngleBounds  , 8 }, // _field_angle_bounds
+				{ TagElemntTypeV2.RealBounds  , 8 }, // _field_real_bounds
+				{ TagElemntTypeV2.FractionBounds  , 8 }, // _field_real_fraction_bounds
+				{ TagElemntTypeV2.Unmapped27  , 4 }, // ## Not found in any tag type
+				{ TagElemntTypeV2.Unmapped28  , 4 }, // ## Not found in any tag type
+				{ TagElemntTypeV2.DwordBlockFlags  , 4 }, // _field_long_block_flags
+				{ TagElemntTypeV2.WordBlockFlags  , 2 }, // _field_word_block_flags
+				{ TagElemntTypeV2.ByteBlockFlags  , 1 }, // _field_byte_block_flags
+				{ TagElemntTypeV2.CharBlockIndex  , 1 }, // _field_char_block_index
+				{ TagElemntTypeV2.CustomCharBlockIndex  , 1 }, // _field_custom_char_block_index
+				{ TagElemntTypeV2.ShortBlockIndex  , 2 }, // _field_short_block_index
+				{ TagElemntTypeV2.CustomShortBlockIndex  , 2 }, // _field_custom_short_block_index
+				{ TagElemntTypeV2.LongBlockIndex  , 4 }, // _field_long_block_index
+				{ TagElemntTypeV2.CustomLongBlockIndex  , 4 }, // _field_custom_long_block_index
+				{ TagElemntTypeV2.NotFound32  , 4 }, // ## Not found in any tag type
+				{ TagElemntTypeV2.NotFound33  , 4 }, // ## Not found in any tag type
+				{ TagElemntTypeV2.Pad  , 4 }, // _field_pad ## variable length
+				{ TagElemntTypeV2.Skip  , 4 }, // 'field_skip' ## iirc
+				{ TagElemntTypeV2.Explanation  , 0 }, // _field_explanation
+				{ TagElemntTypeV2.Custom  , 0 }, // _field_custom
+				{ TagElemntTypeV2.Struct  , 0 }, // _field_struct
+				{ TagElemntTypeV2.Array  , 32 }, // _field_array
+				{ TagElemntTypeV2.Unmapped3A  , 4 },
+                { TagElemntTypeV2.EndStruct  , 0 }, // ## end of struct or something
+				{ TagElemntTypeV2.Byte  , 1 }, // _field_byte_integer
+				{ TagElemntTypeV2.Word  , 2 }, // _field_word_integer
+				{ TagElemntTypeV2.Dword, 4 }, // _field_dword_integer
+				{ TagElemntTypeV2.Qword  , 8 }, // _field_qword_integer
+				{ TagElemntTypeV2.Block  , 20 }, // _field_block_v2
+				{ TagElemntTypeV2.TagReference  , 28 }, // _field_reference_v2
+				{ TagElemntTypeV2.Data  , 24 }, // _field_data_v2
 
-				{ TagElemntTypeNew.ResourceHandle  , 16 }, // ok _field_resource_handle
+				{ TagElemntTypeV2.ResourceHandle  , 16 }, // ok _field_resource_handle
 
-				{ TagElemntTypeNew.DataPath  , 256 },// revisar original 4 --- data path
-				{ TagElemntTypeNew.Unmapped45  , 16 },
-				{ TagElemntTypeNew.NotFound69  , 0 },
+				{ TagElemntTypeV2.DataPath  , 256 },// revisar original 4 --- data path
+				{ TagElemntTypeV2.Unmapped45  , 16 },
+				{ TagElemntTypeV2.NotFound69  , 0 },
             };
-        public static Dictionary<string, long> group_lengths_dict = new()
+        public static Dictionary<string, int> group_lengths_dict = new()
             {
                 { "_0", 32 }, // _field_string
 				{ "_1", 256 }, // _field_long_string
@@ -279,6 +332,38 @@
 				{ "_44", 256 },// revisar original 4 --- data path
 				{ "_45", 16 },
             };
+
+        public static Dictionary<int, Template?> getSubTaglayoutFrom(string tagLayoutStr, string hash)
+        {
+            return getSubTaglayoutFrom(TagXmlParseV2.parse_the_mfing_xmls(tagLayoutStr), hash);
+        }
+        public static Dictionary<int, Template?> getSubTaglayoutFrom(Dictionary<int, Template?>? tagLayout, string hash)
+        {
+            if (tagLayout == null || string.IsNullOrEmpty(hash))
+                return null;
+            Dictionary<int, Template?> result = null;
+            foreach (var item in tagLayout)
+            {
+                if (item.Value.E != null && ((item.Value.E.ContainsKey("hashTR0") && item.Value.E["hashTR0"].ToString() == hash) || (item.Value.E.ContainsKey("hash") && item.Value.E["hash"].ToString() == hash)))
+                {
+                    result = new Dictionary<int, Template?>();
+                    result[0] = item.Value;
+                    return result;
+                }
+                if (item.Value is TagLayoutsV2.P) {
+                    TagLayoutsV2.P ly = (item.Value as TagLayoutsV2.P);
+                    if (ly.B != null && ly.B.Count != 0)
+                {
+                        result = getSubTaglayoutFrom(ly.B, hash);
+                        if (result != null)
+                            return result;
+                    }
+                }
+                  
+
+            }
+            return null;
+        }
     }
 
 }

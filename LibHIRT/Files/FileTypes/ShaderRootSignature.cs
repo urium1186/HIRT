@@ -4,7 +4,7 @@
     [FileExtension(".shader_root_signature")]
     internal class ShaderRootSignature : SSpaceFile
     {
-        public ShaderRootSignature(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public ShaderRootSignature(string name, ISSpaceFile parent = null) : base(name, parent)
         {
         }
 

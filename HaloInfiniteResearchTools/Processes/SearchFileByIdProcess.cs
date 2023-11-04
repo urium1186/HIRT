@@ -37,7 +37,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public SearchFileByIdProcess(IServiceProvider? serviceProvider, int id, bool load_resource, params string[] paths) : base(serviceProvider)
         {
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _inputPaths = paths;
             _load_resource = load_resource;
             _id = id;

@@ -9,7 +9,7 @@ using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.Files
 {
-    public abstract class SSpaceFile : ISSpaceFile, IHIRTFile
+    public abstract class SSpaceFile : ISSpaceFile
     {
 
         #region Data Members
@@ -23,6 +23,7 @@ namespace LibHIRT.Files
 
         private string _name;
         private string _tagGroup;
+        private (string,string) _groupRefHash = ("","");
 
         private string _extension;
         private long _hash;
@@ -86,15 +87,41 @@ namespace LibHIRT.Files
             }
         }
 
+        public virtual void InitializeStream(HIRTStream baseStream, long dataStartOffset, long dataEndOffset)
+        {
+            _baseStream = baseStream;
+            _dataStartOffset = dataStartOffset;
+            _dataEndOffset = dataEndOffset;
+            if (_baseStream != null)
+                _reader = new BinaryReader(_baseStream, System.Text.Encoding.UTF8, true);
+        }
+
         private DinamycType? _deserialized;
 
         public bool IsDeserialized { get => _deserialized != null; }
         public List<ISSpaceFile> Resource_list { get => _resource_list; set => _resource_list = value; }
+        public (string, string) GroupRefHash { get => _groupRefHash; set => _groupRefHash = value; }
 
-        public DinamycType? Deserialized(EventHandler<ITagInstance> _onDeserialized = null)
+        public long ByteSize => throw new NotImplementedException();
+
+        public string DisplayName
+        {
+            get {
+                return $"{TryGetGlobalId().ToString("X")}_{TryGetGlobalId()}";
+            }
+        }
+
+        public DinamycType? Deserialized(TagParseControlFiltter parseControlFiltter = null, bool forceReload = false,EventHandler<ITagInstance> _onDeserialized = null)
         {
             if (_deserialized == null)
-                _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized);
+                _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized, parseControlFiltter);
+            else {
+                if (forceReload) {
+                    _deserialized.Dispose();
+                    _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized, parseControlFiltter);
+                }
+
+            }
             GetStream().Seek(0, SeekOrigin.Begin);
             return _deserialized;
 
@@ -104,8 +131,7 @@ namespace LibHIRT.Files
 
         #region Constructor
 
-        protected SSpaceFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset,
+        protected SSpaceFile(string name,
           ISSpaceFile parent = null)
         {
             _hash = name.GetHashCode();
@@ -114,12 +140,6 @@ namespace LibHIRT.Files
             if (parent != null && parent is ModuleFile)
                 _name = (((ModuleFile)parent).TryGetGlobalId().ToString()) + "_" + _name;
             _extension = Path.GetExtension(_name);
-
-            _baseStream = baseStream;
-            _dataStartOffset = dataStartOffset;
-            _dataEndOffset = dataEndOffset;
-            if (_baseStream != null)
-                _reader = new BinaryReader(_baseStream, System.Text.Encoding.UTF8, true);
 
             _parent = parent;
             _children = new List<ISSpaceFile>();
@@ -196,9 +216,9 @@ namespace LibHIRT.Files
         public void Dispose()
           => Dispose(true);
 
-        private void Dispose(bool isDisposing)
+        protected virtual void Dispose(bool isDisposing)
         {
-            if (_isDisposed)
+           if (_isDisposed)
                 return;
 
             OnDisposing(isDisposing);
@@ -214,6 +234,8 @@ namespace LibHIRT.Files
 
         protected virtual void OnDisposing(bool isDisposing)
         {
+            this._baseStream?.Close();
+            this._baseStream?.Dispose();
         }
 
         #endregion
@@ -286,6 +308,14 @@ namespace LibHIRT.Files
                 return temp.tryReadGlobalId(_baseStream);
             }
             return -1;
+        }
+
+        public void reset()
+        {
+            if (_baseStream != null)
+                BaseStream.Close();
+           foreach (var child in _children)
+                child?.reset();
         }
         #endregion
 

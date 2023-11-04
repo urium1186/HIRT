@@ -10,8 +10,8 @@ using HaloInfiniteResearchTools.Views;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
-using LibHIRT.TagReader.Common;
 using LibHIRT.TagReader.Headers;
+using LibHIRT.TagReader.RuntimeViewer;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using static LibHIRT.TagReader.TagLayouts;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -28,12 +27,12 @@ namespace HaloInfiniteResearchTools.ViewModels
     public class GenericViewModel : ViewModel, IDisposeWithView
     {
         private SSpaceFile _file;
-        private TagStructMem _fileMem;
+        private TagStructMemFile _fileMem;
         private string _jsonFile;
         private ObservableCollection<TagInstance> _tagRoot;
         private List<TagFile> _tagFile = new List<TagFile>();
         private List<TagInstanceModel> _tagRootModel = new List<TagInstanceModel>();
-        private TagParseControl tagParse;
+        private ITagParseControl tagParse;
         private readonly IHIFileContext _fileContext;
         private readonly ITabService _tabService;
         private readonly IMeshIdentifierService _meshIdentifierService;
@@ -101,7 +100,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             TagGoToTemplateCommand = new AsyncCommand<TagInstance>(TagGoToTemplate);
             RenderGeomGenOpenCommand = new AsyncCommand<RenderGeometryTag>(RenderGeomGenOpen);
             //ExportModelCommand = new AsyncCommand(ExportModel);
-            _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _tabService = serviceProvider.GetService<ITabService>();
             _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
 
@@ -192,13 +191,13 @@ namespace HaloInfiniteResearchTools.ViewModels
             System.IO.File.WriteAllText(file_path, result);
         }
 
-        public GenericViewModel(IServiceProvider serviceProvider, TagStructMem fileMem) : base(serviceProvider)
+        public GenericViewModel(IServiceProvider serviceProvider, TagStructMemFile fileMem) : base(serviceProvider)
         {
             _file = null;
             _fileMem = fileMem;
             OpenFileTabCommand = new AsyncCommand<TagRef>(OpenFileTab);
             OpenGenFileTabCommand = new AsyncCommand<TagRef>(OpenGenFileTab);
-            _fileContext = serviceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _tabService = serviceProvider.GetService<ITabService>();
             _tagRoot = new ObservableCollection<TagInstance>();
             _tagRootModel = new List<TagInstanceModel>();
@@ -206,13 +205,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         protected override async Task OnInitializing()
         {
-            if (_file != null)
-            {
-                var process = new ReadTagInstanceProcess(_file);
-
-                process.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
-                //await RunProcess(process);
-
+            if (_file != null) {
+                var process = new ReadTagInstanceProcessV2(_file);
                 var modal = ServiceProvider.GetService<ProgressModal>();
                 modal.DataContext = process;
 
@@ -233,51 +227,27 @@ namespace HaloInfiniteResearchTools.ViewModels
                 var statusList = process.StatusList;
                 if (statusList.HasErrors || statusList.HasWarnings)
                     await ShowStatusListModal(statusList);
-
-
                 tagParse = process.TagParse;
-
+                var root = tagParse.RootTagInst;
+                if (root != null)
+                {
+                    _tagRoot.Add(root);
+                    _tagRootModel.Add(new TagInstanceModel(root));
+                }
                 if (tagParse.TagFile != null)
                 {
                     _tagFile.Add(tagParse.TagFile);
                 }
-                if (tagParse.RootTagInst != null)
-                {
-                    _tagRoot.Add(tagParse.RootTagInst);
-                    _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
-                }
-
 
                 FileStream = _file.GetStream();
                 if (_file.TagGroup != "����")
                     XmlPath = _file.GetTagXmlTempaltePath();
-                else
-                {
-                    if (tagParse.TagFile != null)
-                    {
-                        string hash = BitConverter.ToString(BitConverter.GetBytes(tagParse.TagFile.TagHeader.TagFileHeaderInst.TypeHash)).Replace("-", "");
-                        var t = _file.FileMemDescriptor.ParentOffResourceRef?.TagGroup;
-                        if (t == "����") {
-                            t = ((SSpaceFile)_file.FileMemDescriptor.ParentOffResourceRef)?.FileMemDescriptor.ParentOffResourceRef.TagGroup;
-                        }
-                        var tempTaglay = tagParse.getSubTaglayoutFrom(_file.FileMemDescriptor.ParentOffResourceRef?.TagGroup, hash);
-                        if (tempTaglay != null)
-                        {
-                            tagParse.readFile(tempTaglay, tagParse.TagFile);
-                            if (tagParse.RootTagInst != null)
-                            {
-                                _tagRoot.Add(tagParse.RootTagInst);
-                                _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
-                            }
-                        }
-                    }
-                }
             }
             else if (_fileMem != null)
             {
                 if (HIFileContext.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
                 {
-                    var process = new ReadTagInstanceProcess(_fileMem);
+                    var process = new ReadTagInstanceProcessV2(_fileMem);
 
                     //process.Completed += OpenFilesProcess_Completed;
                     //await RunProcess(process);
@@ -307,7 +277,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     tagParse = process.TagParse;
                     _tagRoot.Add(tagParse.RootTagInst);
                     _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));
-                    FileStream = tagParse.MemoStream;
+                    FileStream = (tagParse as TagParseControlMem).MemoStream;
                     string temp = _fileMem.TagGroup;
                     XmlPath = TagXmlParse.GetXmlPath(ref temp);
                 }
@@ -344,7 +314,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
                 else
                 {
-                    HIFileContext.FilesGlobalIdLockUp.TryGetValue((int)tagRef.Ref_id_int, out file);
+                    file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
 
                 }
                 if (file == null)
@@ -365,9 +335,9 @@ namespace HaloInfiniteResearchTools.ViewModels
             else if (_fileMem != null)
             {
 
-                if (HIFileContext.RuntimeTagLoader.TagsList.ContainsKey(tagRef.Ref_id))
+                if (HIFileContext.RuntimeTagLoader.TagsList.ContainsKey(tagRef.Ref_id_int))
                 {
-                    var file = HIFileContext.RuntimeTagLoader.TagsList[tagRef.Ref_id];
+                    var file = HIFileContext.RuntimeTagLoader.TagsList[tagRef.Ref_id_int];
                     if (!_tabService.CreateTabForFile(file, out _))
                     {
                         var fileExt = Path.GetExtension(file.TagGroup);
@@ -403,7 +373,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
                 else
                 {
-                    HIFileContext.FilesGlobalIdLockUp.TryGetValue((int)tagRef.Ref_id_int, out file);
+                    file =  HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
 
                 }
                 if (file == null)
@@ -424,9 +394,9 @@ namespace HaloInfiniteResearchTools.ViewModels
             else if (_fileMem != null)
             {
 
-                if (HIFileContext.RuntimeTagLoader.TagsList.ContainsKey(tagRef.Ref_id))
+                if (HIFileContext.RuntimeTagLoader.TagsList.ContainsKey(tagRef.Ref_id_int))
                 {
-                    var file = HIFileContext.RuntimeTagLoader.TagsList[tagRef.Ref_id];
+                    var file = HIFileContext.RuntimeTagLoader.TagsList[tagRef.Ref_id_int];
                     if (!_tabService.CreateTabForFile(file, out _, true))
                     {
                         var fileExt = Path.GetExtension(file.TagGroup);
@@ -448,5 +418,20 @@ namespace HaloInfiniteResearchTools.ViewModels
             return;
         }
 
+        protected override void OnDisposing()
+        {
+            this.tagParse = null;
+            if (this.DViewerControlModel!=null)
+                this.DViewerControlModel.Dispose();
+            this.JsonFile = null;
+            this.TagRoot.Clear();
+            this.TagRoot = null;
+            this.TagFile.Clear();
+            this.TagFile = null;
+            this.TagRootModel.Clear();
+            this.TagRootModel = null;
+            
+            base.OnDisposing();
+        }
     }
 }

@@ -4,7 +4,7 @@
     [FileExtension(".shader_bytecode")]
     public class ShaderBytecodeFile : SSpaceFile
     {
-        public ShaderBytecodeFile(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public ShaderBytecodeFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
         }
 

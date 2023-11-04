@@ -1,6 +1,5 @@
 ﻿using HaloInfiniteResearchTools.Models;
 using LibHIRT.Files;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace HaloInfiniteResearchTools.Processes
         {
             _files = files;
             _filesLoaded = new List<string>();
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
         }
 
         public override IEnumerable<string> Result
@@ -37,10 +36,10 @@ namespace HaloInfiniteResearchTools.Processes
             {
                 try
                 {
-                    if (!_fileContext.ReadTagOnFile(file.File))
+                    /*if (!_fileContext.ReadTagOnFile(file.File))
                         StatusList.AddWarning(file.Name, "Failed to open file.");
                     else
-                        _filesLoaded.Add(file.Name);
+                        _filesLoaded.Add(file.Name);*/
                 }
                 catch (Exception ex)
                 {

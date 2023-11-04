@@ -114,8 +114,6 @@ namespace HaloInfiniteResearchTools
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IHIFileContext, HIFileContext>();
-
             services.AddSingleton<IFileTypeService, FileTypeService>();
             services.AddSingleton<IMeshIdentifierService, MeshIdentifierService>();
             services.AddSingleton<IPreferencesService, PreferencesService>();

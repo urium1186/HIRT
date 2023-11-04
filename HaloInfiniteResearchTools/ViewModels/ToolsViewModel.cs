@@ -46,7 +46,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         public ToolsViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _hiFileContext = ((App)App.Current).ServiceProvider.GetRequiredService<IHIFileContext>();
+            //_hiFileContext = ((App)App.Current).ServiceProvider.GetRequiredService<IHIFileContext>();
+            _hiFileContext = HIFileContext.Instance;
             ProcessTextCommand = new AsyncCommand(doSome);
             BCInSVToTxtCommand = new AsyncCommand(ProcessAllBytecodeToTxtInShaderVariantMain);
             ProcessAllBytecodeToTxtCommand = new AsyncCommand(ProcessAllBytecodeToTx);

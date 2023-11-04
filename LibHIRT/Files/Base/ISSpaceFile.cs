@@ -1,6 +1,6 @@
 ﻿namespace LibHIRT.Files
 {
-    public interface ISSpaceFile : IDisposable, IEquatable<ISSpaceFile>
+    public interface ISSpaceFile : Base.IHIRTFile, IEquatable<ISSpaceFile>
     {
 
         #region Properties
@@ -26,8 +26,6 @@
         #region Public Methods
 
         HIRTStream GetStream();
-
-        int TryGetGlobalId();
 
         #endregion
 

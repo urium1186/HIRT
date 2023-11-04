@@ -35,7 +35,7 @@ namespace HaloInfiniteResearchTools.Processes
         public BulkExportTexturesProcess(TextureExportOptionsModel options)
         {
             _options = options;
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
         }
 
         public BulkExportTexturesProcess(IEnumerable<PictureFile> files, TextureExportOptionsModel options)

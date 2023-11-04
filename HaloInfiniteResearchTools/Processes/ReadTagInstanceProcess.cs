@@ -2,6 +2,7 @@
 using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Common;
+using LibHIRT.TagReader.RuntimeViewer;
 using System;
 using System.Threading.Tasks;
 
@@ -9,7 +10,9 @@ namespace HaloInfiniteResearchTools.Processes
 {
     public class ReadTagInstanceProcess : ProcessBase
     {
-        private TagParseControl tagParse;
+        private ITagParseControl tagParse;
+
+        private bool forceReload = false;
 
         private IHIRTFile _file;
         public event EventHandler<ITagInstance> OnInstanceLoadEvent;
@@ -19,14 +22,15 @@ namespace HaloInfiniteResearchTools.Processes
             _file = file;
         }
 
-        public TagParseControl TagParse { get => tagParse; set => tagParse = value; }
+        public ITagParseControl TagParse { get => tagParse; set => tagParse = value; }
+        public bool ForceReload { get => forceReload; set => forceReload = value; }
 
         protected override async Task OnExecuting()
         {
             if (_file is SSpaceFile)
             {
                 SSpaceFile file = (SSpaceFile)_file;
-                tagParse = file.Deserialized(OnInstanceLoadEvent)?.TagParse;
+                tagParse = file.Deserialized(null, forceReload, _onDeserialized: OnInstanceLoadEvent)?.TagParse;
                 //tagParse = new TagParseControl(file.Path_string, file.TagGroup, null, file.GetStream());
                 //tagParse.OnInstanceLoadEvent += OnInstanceLoadEvent;
                 //TagInstance.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
@@ -42,14 +46,14 @@ namespace HaloInfiniteResearchTools.Processes
                 FileStream = _file.GetStream();
                 XmlPath = _file.GetTagXmlTempaltePath();*/
             }
-            else if (_file is TagStructMem)
+            else if (_file is TagStructMemFile)
             {
-                TagStructMem _fileMem = (TagStructMem)_file;
+                TagStructMemFile _fileMem = (TagStructMemFile)_file;
                 if (HIFileContext.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
                 {
-                    tagParse = new TagParseControl("", _fileMem.TagGroup, null, null);
+                    tagParse = new TagParseControlMem(_fileMem.TagGroup);
                     TagInstance.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
-                    tagParse.readOnMem(_fileMem.TagData, HIFileContext.RuntimeTagLoader.M);
+                    tagParse.readFile();
                     TagInstance.OnInstanceLoadEvent -= TagParse_OnInstanceLoadEvent;
                     /*_tagRoot.Add(tagParse.RootTagInst);
                     _tagRootModel.Add(new TagInstanceModel(tagParse.RootTagInst));

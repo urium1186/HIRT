@@ -20,10 +20,7 @@ namespace LibHIRT.Files.FileTypes
 
         #region Constructor
 
-        public PictureFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset,
-          ISSpaceFile parent = null)
-          : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public PictureFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
             TagGroup = "bitm";
             CurrentBitmapIndex = 0;
@@ -41,7 +38,7 @@ namespace LibHIRT.Files.FileTypes
             try
             {
                 stream.AcquireLock();
-                return S3DPictureSerializer.Deserialize(stream, this);
+                return S3DPictureSerializer.Deserialize(this);
             }
             finally { stream.ReleaseLock(); }
         }

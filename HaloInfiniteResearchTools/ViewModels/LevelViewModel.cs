@@ -27,7 +27,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         protected override async Task OnInitializing()
         {
 
-            ReadTagInstanceProcess readTag = new ReadTagInstanceProcess(File);
+            ReadTagInstanceProcessV2 readTag = new ReadTagInstanceProcessV2(File);
             readTag.OnInstanceLoadEvent += ReadTag_OnInstanceLoadEvent;
             await RunProcess(readTag);
             using (var prog = ShowProgress())

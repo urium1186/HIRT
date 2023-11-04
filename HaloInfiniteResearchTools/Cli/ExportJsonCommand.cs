@@ -54,7 +54,7 @@ namespace HaloInfiniteResearchTools.Cli
 
         private async void OpenFilesProcessExport_Completed(object? sender, EventArgs e)
         {
-            var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<GenericFile>(_infile);
+            var founds = HIFileContext.Instance.GetFiles<GenericFile>(_infile);
             //Console.WriteLine(founds.ToList().EnumerateToString());
             foreach (var item in founds)
             {

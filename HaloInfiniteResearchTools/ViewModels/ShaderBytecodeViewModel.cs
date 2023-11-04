@@ -29,7 +29,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
 
 
-                    var process = new ReadTagInstanceProcess(File);
+                    var process = new ReadTagInstanceProcessV2(File);
 
                     var modal = ServiceProvider.GetService<ProgressModal>();
                     modal.DataContext = process;

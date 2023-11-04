@@ -1,8 +1,10 @@
 ﻿using LibHIRT.Files;
+using LibHIRT.Files.Base;
+using System;
 
 namespace HaloInfiniteResearchTools.Models
 {
-    public interface IFileModel
+    public interface IFileModel: IDisposable
     {
     }
     public class FileModel : IFileModel
@@ -10,13 +12,15 @@ namespace HaloInfiniteResearchTools.Models
 
         #region Data Members
 
-        private readonly ISSpaceFile _file;
+        private readonly IHIRTFile _file;
 
         #endregion
 
         #region Properties
 
         private bool _genericView = false;
+        private bool disposedValue;
+
         public string Name
         {
             get => _file.Name;
@@ -29,10 +33,10 @@ namespace HaloInfiniteResearchTools.Models
 
         public string Group
         {
-            get => _file.FileTypeDisplay;
+            get => _file.TagGroup;
         }
 
-        public ISSpaceFile File
+        public IHIRTFile File
         {
             get => _file;
         }
@@ -42,9 +46,38 @@ namespace HaloInfiniteResearchTools.Models
 
         #region Constructor
 
-        public FileModel(ISSpaceFile file)
+        public FileModel(IHIRTFile file)
         {
             _file = file;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _file.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~FileModel()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            //GC.SuppressFinalize(this);
         }
 
         #endregion

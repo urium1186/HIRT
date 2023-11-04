@@ -4,10 +4,12 @@ using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.Views;
 using LibHIRT.Files;
-using LibHIRT.TagReader.Common;
+using LibHIRT.Files.Base;
+using LibHIRT.TagReader.RuntimeViewer;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -17,6 +19,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 {
     public class MainViewModel : ViewModel
     {
+        private FileContextModel _fileContext;
         #region Data Members
 
         private readonly ITabService _tabService;
@@ -28,9 +31,11 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand OpenFromRuntimeCommand { get; }
         public ICommand OpenDirectoryCommand { get; }
         public ICommand ExitCommand { get; }
+        public ICommand ResetSessionCommand { get; }
 
         public ICommand EditPreferencesCommand { get; }
         public ICommand TagStructsDumperCommand { get; }
+        public ICommand TagStructsLoadAllCommand { get; }
         public ICommand BinaryExplorerCommand { get; }
         public ICommand ToolsCommand { get; }
 
@@ -40,22 +45,26 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         public MainViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            FileContext = new FileContextModel();
+            _fileContext = new FileContextModel();
 
             _tabService = serviceProvider.GetService<ITabService>();
             TabContext = _tabService.TabContext;
-            OpenFileTabCommand = new AsyncCommand<IFileModel>(OpenFileTab);
+            
+            OpenFileTabCommand = new AsyncCommand<(IHIRTFile,bool)>(OpenFileTab);
 
             OpenFileCommand = new AsyncCommand(OpenFile);
-            FileTreeExportJsonCommand = new AsyncCommand<DirModel>(FileTreeExportJson);
-            FileTreeExportRecursiveJsonCommand = new AsyncCommand<FileDirModel>(FileTreeExportRecursiveJson);
+            FileTreeExportJsonCommand = new AsyncCommand<List<IHIRTFile>>(FileTreeExportJson);
+            FileTreeExportRecursiveJsonCommand = new AsyncCommand<IHIRTFile>(FileTreeExportRecursiveJson);
             OpenFromRuntimeCommand = new AsyncCommand(OpenFromRuntime);
             OpenDirectoryCommand = new AsyncCommand(OpenDirectory);
             EditPreferencesCommand = new AsyncCommand(EditPreferences);
 
             TagStructsDumperCommand = new AsyncCommand(TagStructsDumper);
+            TagStructsLoadAllCommand = new AsyncCommand(TagStructsLoadAll);
             BinaryExplorerCommand = new AsyncCommand(BinaryExplorer);
             ToolsCommand = new AsyncCommand(Tools);
+            
+            ResetSessionCommand = new Command(ResetSession);
 
             BulkExportModelsCommand = new AsyncCommand(BulkExportModels);
             BulkExportTexturesCommand = new AsyncCommand(BulkExportTextures);
@@ -63,30 +72,44 @@ namespace HaloInfiniteResearchTools.ViewModels
             App.Current.DispatcherUnhandledException += OnUnhandledExceptionRaised;
         }
 
-        private async Task FileTreeExportJson(DirModel dirModel)
+        private void ResetSession()
         {
-            if (dirModel == null) { return; }
-            List<ISSpaceFile> files = new List<ISSpaceFile>();
-            dirModel.GetAllFiles(files);
+            _tabService.CloseAllTab();
+            
+            if (FileContext != null )
+            {
+                _fileContext.reset();
+            }
+            Process currentProcess = Process.GetCurrentProcess();
+            currentProcess.Dispose();
+            
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        private async Task FileTreeExportJson(List<IHIRTFile> files)
+        {
+            if (files is null) { return; }
+            //dirModel.GetAllFiles(files);
             var prefs = GetPreferences();
             var process = new ExportFilesToJsonProcess(files, prefs.DefaultExportPath);
             await RunProcess(process);
         }
 
-        private async Task FileTreeExportRecursiveJson(FileDirModel dirModel)
+        private async Task FileTreeExportRecursiveJson(IHIRTFile file)
         {
-            if (dirModel == null) { return; }
+            if (file == null) { return; }
 
 
             var prefs = GetPreferences();
-            var process = new ExportFilesRecursiveToJsonProcess((SSpaceFile)dirModel.File, prefs.DefaultExportPath);
+            var process = new ExportFilesRecursiveToJsonProcess(file, prefs.DefaultExportPath);
             await RunProcess(process);
         }
 
 
         #endregion
 
-        public FileContextModel FileContext { get; }
+        public FileContextModel FileContext { get => _fileContext; }
 
         public TabContextModel TabContext { get; }
 
@@ -164,13 +187,12 @@ namespace HaloInfiniteResearchTools.ViewModels
         }
 
 
-        private async Task OpenFileTab(IFileModel fileModel)
+        private async Task OpenFileTab((IHIRTFile, bool) fileP)
         {
-            var f_m = fileModel as FileModel;
-            if (f_m != null)
+            if (fileP.Item1!=null)
             {
-                var file = f_m.File;
-                if (!_tabService.CreateTabForFile(file, out _, f_m.GenericView))
+                var file = fileP.Item1;
+                if (!_tabService.CreateTabForFile(file, out _, fileP.Item2))
                 {
                     var fileExt = Path.GetExtension(file.Name);
                     await ShowMessageModal(
@@ -180,20 +202,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     return;
                 }
             }
-            var h_m = fileModel as TreeHierarchicalModel;
-            if (h_m != null)
-            {
-                if (!_tabService.CreateTabForFile((TagStructMem)h_m.Value, out _, true))
-                {
-                    var fileExt = Path.GetExtension(((TagStructMem)h_m.Value).TagGroup);
-                    await ShowMessageModal(
-                      title: "Unsupported File Type",
-                      message: $"We can't open {fileExt} files yet.");
-
-                    return;
-                }
-            }
-
+           
             /*var entry = new List<FileModel>();
             entry.Add(fileModel);
             var process = new OpenModuleEntryFileProcess(entry);
@@ -223,6 +232,13 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 var viewModel = vm as ToolsViewModel;
             });
+        }
+
+        private async Task TagStructsLoadAll() {
+            
+            var process = new TagStructsLoadAllProcess();
+            await RunProcess(process);
+
         }
 
         private async Task TagStructsDumper()

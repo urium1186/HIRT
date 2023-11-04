@@ -31,7 +31,7 @@ namespace LibHIRT.TagReader.Headers
         List<DataReference> l_function = new List<DataReference>();
         List<TagReferenceFixup> l_tag_ref = new List<TagReferenceFixup>();
         int parent_entry_index = -1;
-        int entry_index = -1;
+        
         List<List<byte>> bin_datas = new List<List<byte>>();
         List<string> bin_datas_hex = new List<string>();
         string type_ = "Tagblock";
@@ -61,7 +61,6 @@ namespace LibHIRT.TagReader.Headers
         public TagStruct? Parent { get => parent; set => parent = value; }
         public List<TagStruct> Childs { get => childs; set => childs = value; }
         public int Parent_entry_index { get => parent_entry_index; set => parent_entry_index = value; }
-        public int Entry_index { get => entry_index; set => entry_index = value; }
 
         public string Type_ { get => type_; set => type_ = value; }
         public string Field_name { get => field_name; set => field_name = value; }
@@ -73,6 +72,7 @@ namespace LibHIRT.TagReader.Headers
         public string UID { get => _UID; set => _UID = value; }
         public string UID1 { get => _UID1; set => _UID1 = value; }
         public string UID2 { get => _UID2; set => _UID2 = value; }
+        public TagStructInfo Info { get => info; set => info = value; }
 
         public override void ReadIn()
         {
@@ -118,12 +118,8 @@ namespace LibHIRT.TagReader.Headers
                     info.property_addres = data_parent.OffsetPlus + field_offset;
                     BaseStream.Seek(info.property_addres + 12, SeekOrigin.Begin);
                     info.n_childs = ReadInt32();
-                    Debug.Assert(info.n_childs == 0, "ExternalFileDescriptor no debe tener hijos, ya que estan en archivo aparte");
                     if (info.n_childs != 0)
-                    {
-
-                        //throw new Exception("ExternalFileDescriptor no debe tener hijos, ya que estan en archivo aparte");
-                    }
+                        Debug.WriteLine($"ExternalFileDescriptor no debe tener hijos {info.n_childs}, ya que estan en archivo aparte");
                     break;
                 case TagStructType.ResourceHandle:
                     info.property_addres = data_parent.OffsetPlus + field_offset;
@@ -162,7 +158,8 @@ namespace LibHIRT.TagReader.Headers
                 if (info.n_childs != 0)
                 {
                     BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
-                    Debug.Assert(info.n_childs == 0, "Error de interpretacion de Datos, ya q son externos");
+                    if (info.n_childs != 0)
+                        Debug.WriteLine( "Posible error de interpretacion de Datos, ya q son externos, solo pasa en los terminados con *?");
                     //throw new Exception("Error de interpretacion de Datos, ya q son externos");
                     if (unknown_property_bool_0_1 == 0)
                     {
@@ -253,6 +250,10 @@ namespace LibHIRT.TagReader.Headers
     {
         DataBlockTable? data_block_table;
 
+
+        public event EventHandler<TagStruct> OnReadEntryEvent;
+
+
         public DataBlockTable? Data_block_table { get => data_block_table; set => data_block_table = value; }
 
         public override void readTable(Stream f, TagHeader header)
@@ -278,17 +279,21 @@ namespace LibHIRT.TagReader.Headers
                     {
                         entry.Parent_entry_index = p_i;
                         entry.Parent = entries[p_i];
+                        entry.IndexOnParent = entries[p_i].Childs.Count;
                         entries[p_i].Childs.Add(entry);
                     }
                 }
 
-                entry.Entry_index = entries.Count;
+                entry.Index = entries.Count;
                 entry.Bin_datas = entry.readDataEntry();
                 foreach (var item in entry.Bin_datas)
                 {
                     entry.Bin_datas_hex.Add(BitConverter.ToString(item.ToArray()).Replace("-", ""));
                 }
+                
                 entries.Add(entry);
+                if (OnReadEntryEvent != null)
+                    OnReadEntryEvent.Invoke(this, entry);
             }
         }
 
@@ -302,6 +307,7 @@ namespace LibHIRT.TagReader.Headers
             {
                 TagStruct entry = new TagStruct(f);
                 entry.ReadIn();
+                
 
                 if (header.TagFileHeaderInst.DataBlockCount > entry.Field_data_block_index && entry.Field_data_block_index > -1)
                 {
@@ -315,11 +321,12 @@ namespace LibHIRT.TagReader.Headers
                     {
                         entry.Parent_entry_index = p_i;
                         entry.Parent = GetTableEntry(f, header, p_i);
+                        entry.IndexOnParent = entry.Parent.Childs.Count;
                         entry.Parent.Childs.Add(entry);
                     }
                 }
 
-                entry.Entry_index = pos + 1;
+                entry.Index = pos + 1;
                 entry.Bin_datas = entry.readDataEntry();
                 foreach (var item in entry.Bin_datas)
                 {

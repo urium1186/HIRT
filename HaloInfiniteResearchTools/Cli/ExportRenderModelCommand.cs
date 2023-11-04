@@ -51,7 +51,7 @@ namespace HaloInfiniteResearchTools.Cli
 
         private async void OpenFilesProcessExport_Completed(object? sender, EventArgs e)
         {
-            //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<RenderModelFile>(_infile);
+            //var founds = IHIFileContext.Instance.GetFiles<RenderModelFile>(_infile);
             var founds = ((SearchFileByIdProcess)sender).Result;
             if (founds != null && founds.Count() != 0)
             {

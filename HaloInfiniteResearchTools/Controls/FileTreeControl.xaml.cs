@@ -1,5 +1,9 @@
 ﻿using HaloInfiniteResearchTools.Models;
+using HaloInfiniteResearchTools.Views;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -86,29 +90,12 @@ namespace HaloInfiniteResearchTools.Controls
             if (item is null)
                 return;
 
-            var fileModel = item.Header as FileDirModel;
-            if (!(fileModel is null))
+            var file = item.Header as IHIRTFile;
+            if (!(file is null))
             {
                 e.Handled = true;
-                var temp_model = new FileModel(fileModel.File);
-                if (e.LeftButton == MouseButtonState.Released)
-                {
-                    temp_model.GenericView = true;
-                }
-                FileDoubleClickCommand?.Execute(temp_model);
+                FileDoubleClickCommand?.Execute((file, false));
             }
-            else
-            {
-                var treeModel = item.Header as TreeHierarchicalModel;
-
-                if (treeModel != null)
-                {
-                    FileDoubleClickCommand?.Execute(treeModel);
-                }
-            }
-
-
-
         }
 
         #endregion
@@ -137,7 +124,7 @@ namespace HaloInfiniteResearchTools.Controls
                 BindingOperations.GetBindingExpressionBase((TreeView)FileTree, TreeView.ItemsSourceProperty).UpdateTarget();
                 //DataContext = temp;
                 //FileTree.Items.Refresh();
-                //FileTree.UpdateLayout();
+                //FileTree.UpdateLayout(); {Name = "CollectionViewGroup" FullName = "System.Windows.Data.CollectionViewGroup"}
             }
         }
 
@@ -147,24 +134,27 @@ namespace HaloInfiniteResearchTools.Controls
             {
                 return;
             }
-            var fileModel = item.DataContext as DirModel;
-            if (!(fileModel is null))
+            var file = item.DataContext as IHIRTFile;
+            List<IHIRTFile> files = new List<IHIRTFile>();
+            if (!(file is null))
             {
                 e.Handled = true;
 
-
-                FileTreeExportJsonCommand?.Execute(fileModel);
+                files.Add(file);
+                
             }
-            /*else
+            else if (item.DataContext is CollectionViewGroup)
             {
-                var treeModel = item.DataContext as TreeHierarchicalModel;
+                CollectionViewGroup group= (CollectionViewGroup)item.DataContext;
 
-                if (treeModel != null)
+                foreach (var file_in in group.Items)
                 {
-                    FileTreeExportJsonCommand?.Execute(treeModel);
+                    if (file_in is IHIRTFile) {
+                        files.Add((IHIRTFile)file_in);
+                    }
                 }
-            }*/
-
+            }
+            FileTreeExportJsonCommand?.Execute(files);
         }
 
         private void MenuItem_OpenGenericViewClick(object sender, RoutedEventArgs e)
@@ -173,17 +163,12 @@ namespace HaloInfiniteResearchTools.Controls
             {
                 return;
             }
-            var fileModel = item.DataContext as FileDirModel;
-            if (!(fileModel is null))
+            var file = item.DataContext as IHIRTFile;
+            if (!(file is null))
             {
                 e.Handled = true;
-                var temp_model = new FileModel(fileModel.File);
-
-                {
-                    temp_model.GenericView = true;
-
-                    FileDoubleClickCommand?.Execute(temp_model);
-                }
+                FileDoubleClickCommand?.Execute((file, true));
+                
             }
         }
 
@@ -193,7 +178,7 @@ namespace HaloInfiniteResearchTools.Controls
             {
                 return;
             }
-            var fileModel = item.DataContext as FileDirModel;
+            var fileModel = item.DataContext as IHIRTFile;
             if (!(fileModel is null))
             {
                 e.Handled = true;

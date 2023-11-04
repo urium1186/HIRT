@@ -16,7 +16,7 @@ namespace LibHIRT.Files.FileTypes
     public class ModelFile : SSpaceFile, HasRenderModel
     {
         DinamycType? _result;
-        public ModelFile(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public ModelFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
             TagGroup = "hlmt";
         }
@@ -34,8 +34,7 @@ namespace LibHIRT.Files.FileTypes
             var fil_id = (this.Parent as ModuleFile)?.GetFileByGlobalId((int)ref_id);
             if (fil_id == null)
             {
-                ISSpaceFile file_out;
-                HIFileContext.FilesGlobalIdLockUp.TryGetValue((int)ref_id, out file_out);
+                ISSpaceFile file_out = HIFileContext.Instance.GetFile((int)ref_id);
                 return file_out == null ? null : (RenderModelFile)file_out;
             }
 

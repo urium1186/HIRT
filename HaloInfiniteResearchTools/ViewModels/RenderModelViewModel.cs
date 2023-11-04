@@ -136,7 +136,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             _secundaryMesh = new List<(SSpaceFile, RenderModelDefinition, Assimp.Scene)>();
 
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
 
             EffectsManager = new DefaultEffectsManager();
@@ -240,7 +240,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             if (_loadedTextures.TryGetValue(name, out var texture))
                 return texture;
 
-            var file = _fileContext.GetFile<PictureFile>(name);
+            var file = _fileContext.GetFiles<PictureFile>(name).ElementAt(0);
             if (file is null)
                 return null;
 
@@ -505,7 +505,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             {
                 var temp = new TreeViewItemModel();
                 temp.Header = themeConfiguration["Theme Name"].AccessValue.ToString();
-                var result = HIFileContext.GetFileFrom(themeConfiguration["Theme Configs"] as TagRef, _file.Parent as ModuleFile);
+                var result = HIFileContext.Instance.GetFileFrom(themeConfiguration["Theme Configs"] as TagRef, _file.Parent as ModuleFile);
                 if (result != null)
                 {
                     var r = result as ObjectCustomizationThemeConfiguration;
@@ -583,7 +583,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             foreach (var themeConfiguration in ThemeConfigurations)
             {
 
-                var result = HIFileContext.GetFileFrom(themeConfiguration["Theme Configs"] as TagRef, _file.Parent as ModuleFile);
+                var result = HIFileContext.Instance.GetFileFrom(themeConfiguration["Theme Configs"] as TagRef, _file.Parent as ModuleFile);
                 if (result != null)
                 {
                     var r = result as ObjectCustomizationThemeConfiguration;
@@ -596,7 +596,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                         TagRef tagRef = item["Attachment"] as TagRef;
                         if (tagRef == null || tagRef.Ref_id_int == -1)
                             continue;
-                        CustomizationAttachmentConfiguration attachFile = HIFileContext.GetFileFrom(tagRef) as CustomizationAttachmentConfiguration;
+                        CustomizationAttachmentConfiguration attachFile = HIFileContext.Instance.GetFileFrom(tagRef) as CustomizationAttachmentConfiguration;
                         if (attachFile == null)
                             continue;
                         ListTagInstance tgl = attachFile.Deserialized.Root["Model Attachments"] as ListTagInstance;
@@ -609,7 +609,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                             if (attach_model_ref == null || attach_model_ref.TagGroupRev != "hlmt")
                                 continue;
-                            ModelFile modelFile = HIFileContext.GetFileFrom(attach_model_ref) as ModelFile;
+                            ModelFile modelFile = HIFileContext.Instance.GetFileFrom(attach_model_ref) as ModelFile;
                             if (modelFile == null)
                                 continue;
                             var rmf = modelFile.GetRenderModel();
@@ -908,7 +908,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 TagRef tagRef = item["Attachment"] as TagRef;
                 if (tagRef == null || tagRef.Ref_id_int == -1)
                     continue;
-                CustomizationAttachmentConfiguration attachFile = HIFileContext.GetFileFrom(tagRef) as CustomizationAttachmentConfiguration;
+                CustomizationAttachmentConfiguration attachFile = HIFileContext.Instance.GetFileFrom(tagRef) as CustomizationAttachmentConfiguration;
                 if (attachFile == null)
                     continue;
                 ListTagInstance tgl = attachFile.Deserialized.Root["Model Attachments"] as ListTagInstance;
@@ -933,7 +933,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                     if (attach_model_ref == null || attach_model_ref.TagGroupRev != "hlmt")
                         continue;
-                    ModelFile modelFile = HIFileContext.GetFileFrom(attach_model_ref) as ModelFile;
+                    ModelFile modelFile = HIFileContext.Instance.GetFileFrom(attach_model_ref) as ModelFile;
                     if (modelFile == null)
                         continue;
                     var rmf = modelFile.GetRenderModel();

@@ -73,7 +73,7 @@ namespace HaloInfiniteResearchTools.Cli
 
         private void OpenFilesProcess_Completed(object? sender, EventArgs e)
         {
-            var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("." + _type_tag);
+            var founds = HIFileContext.Instance.GetFiles("." + _type_tag);
             StringBuilder outPutPath = new StringBuilder();
             foreach (var file in founds)
             {

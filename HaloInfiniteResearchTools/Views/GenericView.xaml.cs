@@ -21,6 +21,9 @@ namespace HaloInfiniteResearchTools.Views
         protected override void OnDisposing()
         {
             model3dCtrl?.Dispose();
+            var temp = DataContext as GenericViewModel;
+            if (temp != null)
+                temp.Dispose();
             base.OnDisposing();
         }
 

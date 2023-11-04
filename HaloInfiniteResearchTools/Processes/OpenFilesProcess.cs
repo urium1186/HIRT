@@ -35,7 +35,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public OpenFilesProcess(IServiceProvider? serviceProvider, params string[] paths) : base(serviceProvider)
         {
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _inputPaths = paths;
 
             _filesLoaded = new List<string>();

@@ -1,15 +1,13 @@
 ﻿
 using LibHIRT.TagReader.Headers;
-using Memory;
-using System;
 using System.Diagnostics;
 
 using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.TagReader
 {
-    public delegate void OnInstanceEventHandler(object sender, EventArgs e);
-    public class TagParseControl
+    
+    public class TagParseControl: ITagParseControl
     {
         public event OnInstanceEventHandler OnInstanceFullLoad;
         public event EventHandler<ITagInstance> OnInstanceLoadEvent;
@@ -22,7 +20,7 @@ namespace LibHIRT.TagReader
 
         string _filename = "";
         string _tagLayoutTemplate = "";
-        Dictionary<long, C?>? _tagLayout;
+        Dictionary<int, Template?>? _tagLayout;
         TagFile? _tagFile;
         Stream? _f;
         CompoundTagInstance? _rootTagInst;
@@ -31,222 +29,20 @@ namespace LibHIRT.TagReader
         public TagFile? TagFile { get => _tagFile; set => _tagFile = value; }
         public Stream MemoStream { get; private set; }
 
-        public TagParseControl(string filename, string tagLayoutTemplate, Dictionary<long, C?>? tagLayout, Stream? f)
+        public Template TagTemplate => _tagLayout!=null && _tagLayout.Count!=0?_tagLayout[0]:null;
+
+        public TagParseControlFiltter ParseControlFiltter { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public TagParseControl(string filename, string tagLayoutTemplate, Dictionary<int, Template?>? tagLayout, Stream? f)
         {
             _filename = filename;
             _tagLayoutTemplate = tagLayoutTemplate;
             _tagLayout = tagLayout;
             _f = f;
         }
-        public Dictionary<long, C?> getSubTaglayoutFrom(string tagLayoutStr, string hash)
-        {
-            return getSubTaglayoutFrom(TagXmlParse.parse_the_mfing_xmls(tagLayoutStr), hash);
-        }
-        public Dictionary<long, C?> getSubTaglayoutFrom(Dictionary<long, C?>? tagLayout, string hash)
-        {
-            if (tagLayout == null || string.IsNullOrEmpty(hash))
-                return null;
-            Dictionary<long, C?> result = null;
-            foreach (var item in tagLayout)
-            {
-                if (item.Value.E != null && item.Value.E.ContainsKey("hashTR0") && item.Value.E["hashTR0"].ToString() == hash)
-                {
-                    result = new Dictionary<long, C?>();
-                    result[0] = item.Value;
-                    return result;
-                }
-                if (item.Value.B != null && item.Value.B.Count != 0)
-                {
-                    result = getSubTaglayoutFrom(item.Value.B, hash);
-                    if (result != null)
-                        return result;
-                }
-
-            }
-            return null;
-        }
-
-        #region On Mem
-        public void readOnMem(long address, Mem M)
-        {
-            try
-            {
-                if (_tagLayout == null)
-                {
-                    _tagLayout = TagXmlParse.parse_the_mfing_xmls(_tagLayoutTemplate);
-                }
-
-                //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
-                C root_tag = _tagLayout[0];
-
-                _rootTagInst = new RootTagInstance(root_tag, 0, 0);
-                MemoStream = null;
-                readTagsAndCreateInstancesFromMem(ref _rootTagInst, address, M);
-
-            }
-            catch (Exception e)
-            {
-
-                throw e;
-            }
-        }
-
-        private void readTagsAndCreateInstancesFromMem(ref CompoundTagInstance instance_parent, long address, Mem m)
-        {
-            long temp_size = instance_parent.TagDef.S;
-            if (temp_size == 0)
-            {
-                var last = instance_parent.TagDef.B.Last();
-                temp_size = last.Key + last.Value.S;
-            }
-
-            byte[] bytes = m.ReadBytes(address.ToString("X"), temp_size);
-            var temp_f = new MemoryStream(bytes);
-            if (MemoStream == null)
-                MemoStream = new MemoryStream(bytes);
-            (CompoundTagInstance, List<CompoundTagInstance>)? read_result = readTagDefinitionOnMem(ref instance_parent, temp_f, 0);
-            if (instance_parent is ParentTagInstance)
-            {
-            }
-            else
-            {
-                instance_parent.AddChild(read_result.Value.Item1);
-            }
-            foreach (var item in read_result.Value.Item2)
-            {
-                if (item is Tagblock || item is ResourceHandle)
-                {
-                    var tempTb = item;
-                    long tempAddr = item is Tagblock ? ((Tagblock)item).NewAddress : ((ResourceHandle)item).NewAddress;
-                    int count = item is Tagblock ? ((Tagblock)item).ChildrenCount : ((ResourceHandle)item).ChildrenCount;
-                    for (int i = 0; i < count; i++)
-                    {
-                        long tbloS = item.TagDef.S;
-                        readTagsAndCreateInstancesFromMem(ref tempTb, tempAddr + i * tbloS, m);
-                    }
-
-                }
-            }
-        }
-
-        private (CompoundTagInstance, List<CompoundTagInstance>)? readTagDefinitionOnMem(ref CompoundTagInstance parent, MemoryStream f, long parcial_address = 0)
-        {
-            ParentTagInstance tagInstanceTemp = new ParentTagInstance(parent.TagDef, 0, 0);
-            if (parent is ParentTagInstance)
-            {
-                tagInstanceTemp = (ParentTagInstance)parent;
-            }
-
-            List<CompoundTagInstance> tagBlocks = new List<CompoundTagInstance>();
-            var tagDefinitions = parent.TagDef.B;
-            f.Seek(parcial_address, SeekOrigin.Begin);
-            int i = 0;
-            long parcial_addresstemp = f.Position;
-            foreach (var entry in tagDefinitions.Keys)
-            {
-                parcial_addresstemp = f.Position;
-                var childItem = TagInstanceFactory.Create(tagDefinitions[entry], parcial_address, entry);
-
-                tagInstanceTemp.AddChild(childItem);
-                childItem.Parent = parent;
-                childItem.Content_entry = parent.Content_entry;
-                childItem.ReadIn(new BinaryReader(f), _tagFile?.TagHeader);
-                if (f.Position < parcial_addresstemp)
-                {
-                }
-                parcial_addresstemp = f.Position;
-                VerifyAndAddTagBlocksInMem(parent, tagBlocks, childItem);
-                if (childItem is ArrayFixLen)
-                {
-                    parcial_addresstemp = f.Position;
-                    var tempref = (CompoundTagInstance)childItem;
-                    int count = (int)childItem.TagDef.E["count"];
-                    for (int k = 0; k < count; k++)
-                    {
-                        parcial_addresstemp = f.Position;
-                        var r2 = readTagDefinitionOnMem(ref tempref, f, parcial_addresstemp);
-                        tempref.AddChild(r2.Value.Item1);
-                        tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)r2.Value.Item2);
-                    }
-                }
-                else
-                if (childItem is ParentTagInstance)
-                {
-                    parcial_addresstemp = f.Position;
-                    CompoundTagInstance temp = (CompoundTagInstance)childItem;
-                    var temp_r = readTagDefinitionOnMem(ref temp, f, parcial_addresstemp);
-                    tagBlocks.AddRange((IEnumerable<CompoundTagInstance>)temp_r.Value.Item2);
-                }
-                i++;
-            }
-            return (tagInstanceTemp, tagBlocks);
-        }
-        private void VerifyAndAddTagBlocksInMem(CompoundTagInstance parent, List<CompoundTagInstance> tagBlocks, TagInstance childItem)
-        {
-            switch (childItem.TagDef.T)
-            {
-                case TagElemntType.TagData:
-                    //(childItem as TagData).Data_reference = parent.Content_entry.L_function[ref_it.f];
-                    //ref_it.f += 1;
-                    OnInstanceLoad(childItem);
-                    break;
-                /*
-                tagInstanceTemp[key].data_reference = instance_parent.content_entry.l_function[ref_it['f']]
-                if tagInstanceTemp[key].data_reference.unknown_property != 0:
-                    debug = 0
-
-                assert self.full_header.file_header.data_reference_count != 0
-                assert len(instance_parent.content_entry.l_function[ref_it['f']].bin_data) == tagInstanceTemp[
-                    key].byteLengthCount
-
-                self.hasFunction += 1
-                ref_it['f'] += 1 */
-
-
-                case TagElemntType.TagRef:
-                    //(childItem as TagRef).Tag_ref = parent.Content_entry.L_tag_ref[ref_it.r];
-                    //(childItem as TagRef).loadPath();
-                    //ref_it.r += 1;
-                    OnInstanceLoad(childItem);
-                    break;
-                case TagElemntType.TagStructData:
-                    /*
-                    if (parent.Content_entry.Childs.Count > ref_it.i)
-                    {
-                        var temp_entry = parent.Content_entry.Childs[ref_it.i];
-
-                        if (parent.Content_entry.Childs[ref_it.i].TypeIdTg == TagStructType.NoDataStartBlock)
-                        {
-                            tagBlocks.Add((CompoundTagInstance)childItem);
-                            ref_it.i += 1;
-
-                        }
-                        else
-                        {
-                            OnInstanceLoad(childItem);
-                        }
-
-                    }*/
-                    break;
-                case TagElemntType.Tagblock:
-                    tagBlocks.Add((CompoundTagInstance)childItem);
-                    //ref_it.i += 1;
-                    break;
-                case TagElemntType.ResourceHandle:
-                    tagBlocks.Add((CompoundTagInstance)childItem);
-                    //ref_it.i += 1;
-                    break;
-                default:
-                    childItem.Parent = parent;
-                    OnInstanceLoad(childItem);
-                    break;
-            }
-        }
-
-
-        #endregion
+        
         #region On Disk
-        public void readFile(Dictionary<long, C?>? tagLayout, TagFile tagFile)
+        public void readFile(Dictionary<int, Template?>? tagLayout, TagFile tagFile)
         {
             try
             {
@@ -262,7 +58,7 @@ namespace LibHIRT.TagReader
 
 
 
-                C root_tag = _tagLayout[0];
+                Template root_tag = _tagLayout[0];
 
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 _rootTagInst.Content_entry = _tagFile.TagStructTable.Entries[0];
@@ -304,7 +100,7 @@ namespace LibHIRT.TagReader
 
 
                 //C root_tag = new C { T = TagElemntType.RootTagInstance, N = "Root", B = _tagLayout, xmlPath = ("#document\\root", "#document\\root") };
-                C root_tag = _tagLayout[0];
+                Template root_tag = _tagLayout[0];
                 //_rootTagInst = new RootTagInstance(root_tag, _tagFile.TagStructTable.Entries[0].Field_data_block.OffsetPlus,0);
                 _rootTagInst = new RootTagInstance(root_tag, 0, 0);
                 _rootTagInst.Content_entry = _tagFile.TagStructTable.Entries[0];
@@ -356,7 +152,7 @@ namespace LibHIRT.TagReader
             }
             else
             {
-                if (instance_parent.TagDef.T != TagElemntType.RootTagInstance)
+                if (((C)instance_parent.TagDef).T != TagElemntType.RootTagInstance)
                 {
                 }
             }
@@ -475,14 +271,14 @@ namespace LibHIRT.TagReader
 
         private (CompoundTagInstance, List<CompoundTagInstance>)? readTagDefinition(long instParentOffest, ref CompoundTagInstance parent, MemoryStream f, ref RefItCount ref_it, long parcial_address = 0)
         {
-            ParentTagInstance tagInstanceTemp = new ParentTagInstance(parent.TagDef, 0, 0);
+            ParentTagInstance tagInstanceTemp = new ParentTagInstance((C)parent.TagDef, 0, 0);
             if (parent is ParentTagInstance)
             {
                 tagInstanceTemp = (ParentTagInstance)parent;
             }
 
             List<CompoundTagInstance> tagBlocks = new List<CompoundTagInstance>();
-            var tagDefinitions = parent.TagDef.B;
+            var tagDefinitions = ((C)parent.TagDef).B;
             f.Seek(parcial_address, SeekOrigin.Begin);
             int i = 0;
             long parcial_addresstemp = f.Position;
@@ -529,7 +325,7 @@ namespace LibHIRT.TagReader
 
         private void VerifyAndAddTagBlocks(CompoundTagInstance parent, RefItCount ref_it, List<CompoundTagInstance> tagBlocks, TagInstance childItem)
         {
-            switch (childItem.TagDef.T)
+            switch (((C)childItem.TagDef).T)
             {
                 case TagElemntType.TagData:
                     (childItem as TagData).Data_reference = parent.Content_entry.L_function[ref_it.f];
@@ -725,7 +521,7 @@ namespace LibHIRT.TagReader
 
             Dictionary<string, TagInstance> tagInstanceTemp = new Dictionary<string, TagInstance>();
             List<CompoundTagInstance> tagBlocks = new List<CompoundTagInstance>();
-            var tagDefinitions = parent.TagDef.B;
+            var tagDefinitions = ((C)parent.TagDef).B;
             if (f == null)
                 f = _f;
             f.Seek(parcial_address, SeekOrigin.Begin);
@@ -752,7 +548,7 @@ namespace LibHIRT.TagReader
                     tagInstanceTemp[key].InstanceParentOffset = parentBlockOffset + entry;
                     tagInstanceTemp[key].ReadIn(new BinaryReader(f), _tagFile.TagHeader);
 
-                    switch (tagDefinitions[entry].T)
+                    switch ((tagDefinitions[entry] as TagLayouts.C).T)
                     {
                         case TagElemntType.TagData:
                             (tagInstanceTemp[key] as TagData).Data_reference = parent.Content_entry.L_function[ref_it.f];
@@ -821,6 +617,11 @@ namespace LibHIRT.TagReader
             result["child_array"] = tagBlocks;
             return result;
 
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

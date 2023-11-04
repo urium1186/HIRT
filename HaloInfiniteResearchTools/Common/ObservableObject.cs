@@ -21,6 +21,8 @@ namespace HaloInfiniteResearchTools.Common
 
         private bool _isDisposed;
 
+        protected bool IsDisposed { get => _isDisposed; set => _isDisposed = value; }
+
         #endregion
 
         #region Constructor
@@ -38,7 +40,7 @@ namespace HaloInfiniteResearchTools.Common
         {
             Dispose(true);
         }
-
+        
         private void Dispose(bool disposing)
         {
             if (_isDisposed)

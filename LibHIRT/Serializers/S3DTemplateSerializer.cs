@@ -15,6 +15,7 @@ namespace LibHIRT.Serializers
         private const uint SIGNATURE_TPL = 0x006C7074; //TPL.
 
         private const uint SIGNATURE_TPL1 = 0x314C5054; //TPL1
+        private static ITagParseControl _tagParse = null;
 
         #endregion
 
@@ -26,14 +27,24 @@ namespace LibHIRT.Serializers
             return new S3DTemplateSerializer().Deserialize(reader);
         }
 
+        public static S3DTemplate Deserialize(ITagParseControl tagParse, Stream stream)
+        {
+            _tagParse = tagParse;
+            var reader = new BinaryReader(stream);
+            return new S3DTemplateSerializer().Deserialize(reader);
+        }
+
         #endregion
 
         #region Overrides
 
         protected override void OnDeserialize(BinaryReader reader, S3DTemplate template)
         {
-            tagParse = new TagParseControl("", "mode", null, reader.BaseStream);
-            tagParse.readFile();
+            if (_tagParse == null) {
+                _tagParse = new TagParserControlV2("mode", reader.BaseStream);
+                _tagParse.readFile();
+            }
+            
             ReadGeometryMngProperty(reader, template);
             /*
           ReadSerTplHeader( reader );
@@ -269,7 +280,6 @@ namespace LibHIRT.Serializers
               return;*/
 
             var geometryGraphSerializer = new S3DGeometryGraphSerializer();
-            geometryGraphSerializer.TagParse = TagParse;
             template.GeometryGraph = geometryGraphSerializer.Deserialize(reader);
         }
 

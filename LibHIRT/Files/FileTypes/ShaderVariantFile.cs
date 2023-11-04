@@ -4,7 +4,7 @@
     [FileExtension(".shadervariant")]
     public class ShaderVariantFile : SSpaceFile
     {
-        public ShaderVariantFile(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public ShaderVariantFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
         }
 
