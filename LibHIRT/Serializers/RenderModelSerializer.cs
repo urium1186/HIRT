@@ -7,40 +7,73 @@ namespace LibHIRT.Serializers
 {
     public class RenderModelSerializer : SerializerBase<RenderModelDefinition>
     {
-        static string _filePath = "";
-        static RenderModelFile _file;
+        string _filePath = "";
+        RenderModelFile _file;
+        private RootTagInstance rootTagInst;
 
-        public static RenderModelDefinition Deserialize(Stream stream, RenderModelFile file)
+        private RenderModelSerializer(RenderModelFile file, string filePath)
         {
             _file = file;
-            _filePath = file.Path_string;
-            var reader = new BinaryReader(stream);
-            return new RenderModelSerializer().Deserialize(reader);
+            _filePath = filePath;
+        }
+
+        public static RenderModelDefinition Deserialize(RenderModelFile file)
+        {
+            TagParseControlFiltter parseControlFiltter = new TagParseControlFiltter
+            {
+                ClassFilter = new System.Collections.Generic.List<ClassFilter>()
+            };
+            parseControlFiltter.ClassFilter.Add(
+            new ClassFilter // render geometry
+            {
+                Hash = "E423D497BA42B08FA925E0B06C3C363A",
+                Full = true
+            });
+            parseControlFiltter.ClassFilter.Add(
+            new ClassFilter // materials
+            {
+                Hash = "735913B1C54DA5343116909973E5B5B0",
+                Full = true
+            });
+            parseControlFiltter.ClassFilter.Add(
+            new ClassFilter // regions
+            {
+                Hash = "11BC235FD7426BB7466C8CA31358EE1D",
+                Full = true
+            });
+            parseControlFiltter.ClassFilter.Add(
+            new ClassFilter // nodes
+            {
+                Hash = "B75344B72E40E3D6D087158AEA22BFEF",
+                Full = true
+            });
+            parseControlFiltter.ClassFilter.Add(
+                new ClassFilter // marker groups
+                {
+                    Hash = "FA9406E60D4DECA98C23E68915BE6CF6",
+                    Full = true
+                });
+
+            var layout = file.Deserialized(parseControlFiltter).TagParse.RootTagInst;
+            return new RenderModelSerializer(file, file.Path_string).Deserialize(layout);
         }
         protected override void OnDeserialize(BinaryReader reader, RenderModelDefinition obj)
         {
-            if (obj == null)
-            {
-                return;
-            }
-            tagParse = new TagParseControl("", "mode", null, reader.BaseStream);
-            tagParse.readFile();
-            try
-            {
-                obj.TagInstance = tagParse.RootTagInst;
-                ReadRenderModelDefinition(obj);
-            }
-            catch (Exception e)
-            {
-
-            }
         }
+
+        protected override void OnDeserialize(TagInstance tagInstance, RenderModelDefinition obj)
+        {
+            rootTagInst = (RootTagInstance)tagInstance;  
+            obj.TagInstance = rootTagInst;
+            ReadRenderModelDefinition(obj);
+        }
+
         void ReadRenderModelDefinition(RenderModelDefinition obj)
         {
-            var g_h_id = (TagParse.RootTagInst["parent model"] as TagRef).Ref_id_int;
-            var g_h_mid = (TagParse.RootTagInst["parent model"] as TagRef).Ref_id_center_int;
-            var g_h_sub = (TagParse.RootTagInst["parent model"] as TagRef).Ref_id_sub_int;
-            /*var fil_id=(_file.Parent as ModuleFile).GetFileByGlobalId((int)g_h_id);
+            /*var g_h_id = (rootTagInst["parent model"] as TagRef).Ref_id_int;
+            var g_h_mid = (rootTagInst["parent model"] as TagRef).Ref_id_center_int;
+            var g_h_sub = (rootTagInst["parent model"] as TagRef).Ref_id_sub_int;
+            var fil_id=(_file.Parent as ModuleFile).GetFileByGlobalId((int)g_h_id);
             var fil_mid=(_file.Parent as ModuleFile).GetFileByGlobalId((int)g_h_mid);
             var fil_sub=(_file.Parent as ModuleFile).GetFileByGlobalId((int)g_h_sub);
             */
@@ -55,7 +88,7 @@ namespace LibHIRT.Serializers
 
         private void ReadBoneNodes(RenderModelDefinition _obj)
         {
-            ListTagInstance temp = TagParse.RootTagInst["nodes"] as ListTagInstance;
+            ListTagInstance temp = rootTagInst["nodes"] as ListTagInstance;
             if (temp == null)
                 return;
             _obj.Nodes = new ModelBone[temp.Count];
@@ -92,7 +125,7 @@ namespace LibHIRT.Serializers
 
         private void ReadMarkerGroups(RenderModelDefinition _obj)
         {
-            ListTagInstance markerGroups = TagParse.RootTagInst["marker groups"] as ListTagInstance;
+            ListTagInstance markerGroups = rootTagInst["marker groups"] as ListTagInstance;
             if (markerGroups == null)
             { return; }
             _obj.Marker_groups = new RenderModelMarkerGroup[markerGroups.Count];
@@ -188,7 +221,7 @@ namespace LibHIRT.Serializers
         }
         void ReadRegions(RenderModelDefinition obj)
         {
-            ListTagInstance temp = TagParse.RootTagInst["regions"] as ListTagInstance;
+            ListTagInstance temp = rootTagInst["regions"] as ListTagInstance;
             if (temp == null)
                 return;
             obj.Regions = new render_model_region[temp.Count];
@@ -211,9 +244,9 @@ namespace LibHIRT.Serializers
         }
         void ReadRenderGeometry(ref RenderGeometry obj)
         {
-            if (obj == null || this.TagParse == null)
+            if (obj == null || rootTagInst == null)
                 return;
-            obj = RenderGeometrySerializer.Deserialize(null, _file, TagParse.RootTagInst["render geometry"] as RenderGeometryTag);
+            obj = RenderGeometrySerializer.Deserialize(null, _file, rootTagInst["render geometry"] as RenderGeometryTag);
         }
 
     }

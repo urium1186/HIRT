@@ -67,7 +67,7 @@ namespace LibHIRT.Exporters.Converters
                     ListTagInstance instancesDataBlock = (ListTagInstance)instanceBucketBlock["instances Data Block"];
                     if (instancesDataBlock == null) { continue; }
 
-                    SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
+                    SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.Instance.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
                     if (rtgo_file == null)
                         continue;
 
@@ -101,7 +101,7 @@ namespace LibHIRT.Exporters.Converters
             if (tr_rtgo == null)
                 return;
                     
-            SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
+            SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.Instance.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
             if (rtgo_file == null)
                 return;
 

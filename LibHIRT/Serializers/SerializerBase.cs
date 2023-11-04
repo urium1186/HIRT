@@ -7,10 +7,6 @@ namespace LibHIRT.Serializers
     public abstract class SerializerBase<T>
     where T : class, new()
     {
-        protected TagParseControl? tagParse;
-
-        public TagParseControl? TagParse { get => tagParse; set => tagParse = value; }
-
         #region Public Methods
 
         public T Deserialize(BinaryReader reader)
@@ -20,11 +16,21 @@ namespace LibHIRT.Serializers
             return obj;
         }
 
+        public T Deserialize(TagInstance tagInstance)
+        {
+            var obj = new T();
+            OnDeserialize(tagInstance, obj);
+            return obj;
+        }
+
         #endregion
 
         #region Abstract Methods
 
         protected abstract void OnDeserialize(BinaryReader reader, T obj);
+        protected virtual void OnDeserialize(TagInstance tagInstance, T obj) { 
+        
+        }
 
         #endregion
 

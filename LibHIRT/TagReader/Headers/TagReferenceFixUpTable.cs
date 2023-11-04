@@ -55,6 +55,7 @@ namespace LibHIRT.TagReader.Headers
         private DataReferenceTable? dataReferenceTableField;
         private TagDependencyTable? tagDependencyTableField;
         List<string> strings = new List<string>();
+        public event EventHandler<TagReferenceFixup> OnReadEntryEvent;
 
         public TagDependencyTable? TagDependencyTableField { get => tagDependencyTableField; set => tagDependencyTableField = value; }
         internal DataReferenceTable DataReferenceTableField { get => dataReferenceTableField; set => dataReferenceTableField = value; }
@@ -76,6 +77,7 @@ namespace LibHIRT.TagReader.Headers
                 var temp_offset = (header.TagReferenceOffset + (header.TagFileHeaderInst.TagReferenceCount * 0x10)) + entry.NameOffset;
 
                 //entry.StrPath = UtilBinaryReader.readStringFromOffset(new BinaryReader(f), temp_offset, true);
+                entry.Index = entries.Count;
                 entries.Add(entry);
                 if (entry.FieldBlock >= dataReferenceTableField.TagStructTableField.Data_block_table.Entries.Count)
                 {
@@ -105,7 +107,11 @@ namespace LibHIRT.TagReader.Headers
                 {
                     var lo = true;
                 }
+                entry.IndexOnParent = entry.ParentStruct.L_tag_ref.Count;
                 entry.ParentStruct.L_tag_ref.Add(entry);
+
+                if (OnReadEntryEvent != null)
+                    OnReadEntryEvent.Invoke(this, entry);
             }
 
             var offset_1 = f.Position;
@@ -124,6 +130,7 @@ namespace LibHIRT.TagReader.Headers
             {
                 f.Seek(header.TagReferenceOffset + pos * 16, SeekOrigin.Begin);
                 TagReferenceFixup entry = new TagReferenceFixup(f);
+                entry.Index = pos;
                 entry.ReadIn();
                 var temp_offset = (header.TagReferenceOffset + (header.TagFileHeaderInst.TagReferenceCount * 0x10)) + entry.NameOffset;
 
@@ -157,6 +164,7 @@ namespace LibHIRT.TagReader.Headers
                 {
                     var lo = true;
                 }
+                entry.IndexOnParent = entry.ParentStruct.L_tag_ref.Count;
                 entry.ParentStruct.L_tag_ref.Add(entry);
             }
             return null;

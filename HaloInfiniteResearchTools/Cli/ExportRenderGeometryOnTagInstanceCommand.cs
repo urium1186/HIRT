@@ -127,7 +127,7 @@ namespace HaloInfiniteResearchTools.Cli
                             _materialList = new List<Material>();
                         else
                             _materialList.Clear();
-                        var readProcess = new ReadTagInstanceProcess((LibHIRT.Files.Base.IHIRTFile)item);
+                        var readProcess = new ReadTagInstanceProcessV2((LibHIRT.Files.Base.IHIRTFile)item);
                         readProcess.OnInstanceLoadEvent += ExportProcess_OnInstanceLoadEvent;
 
                         await readProcess.Execute();

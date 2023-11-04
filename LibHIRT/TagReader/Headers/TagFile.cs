@@ -2,7 +2,7 @@
 
 namespace LibHIRT.TagReader.Headers
 {
-    public class TagFile
+    public class TagFile : IDisposable
     {
         TagHeader tagHeader = new TagHeader();
         TagDependencyTable tagDependencyTable = new TagDependencyTable();
@@ -72,6 +72,11 @@ namespace LibHIRT.TagReader.Headers
         {
 
             return null;
+        }
+
+        public void Dispose()
+        {
+           
         }
     }
 }

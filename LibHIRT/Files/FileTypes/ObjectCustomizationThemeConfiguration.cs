@@ -17,7 +17,7 @@ namespace LibHIRT.Files.FileTypes
                 return _deserialized;
             }
         }
-        public ObjectCustomizationThemeConfiguration(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public ObjectCustomizationThemeConfiguration(string name, ISSpaceFile parent = null) : base(name, parent)
         {
             TagGroup = "ocur";
         }

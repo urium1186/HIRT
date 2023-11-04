@@ -76,7 +76,6 @@ namespace LibHIRT.Files
         protected virtual void OnRelease()
         {
         }
-
         #endregion
 
     }
@@ -139,6 +138,12 @@ namespace LibHIRT.Files
 
         public override void Write(byte[] buffer, int offset, int count)
           => _baseStream.Write(buffer, offset, count);
+
+        public override void Close()
+        {
+            _baseStream.Close();
+            base.Close();
+        }
 
         #endregion
 
@@ -302,6 +307,12 @@ namespace LibHIRT.Files
 
             _position = 0;
             //SetCurrentChunk(0);
+        }
+
+        public override void Close()
+        {
+            _baseStream.Close();    
+            base.Close();
         }
 
 

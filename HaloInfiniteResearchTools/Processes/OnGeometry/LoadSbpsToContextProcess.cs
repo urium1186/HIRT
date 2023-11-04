@@ -102,7 +102,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                     ListTagInstance instancesDataBlock = (ListTagInstance)instanceBucketBlock["instances Data Block"];
                     if (instancesDataBlock == null) { continue; }
 
-                    SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
+                    SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.Instance.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
                     if (rtgo_file==null)
                         continue;
 
@@ -204,7 +204,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                 uniqueMesh[unique_io_index].Add(i);
                 continue;
             }*/
-            SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
+            SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.Instance.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
             TagInstance rootRtgo = rtgo_file.Deserialized()?.Root;
             int meshIndex = (Int16)tagBlock[i]["Runtime geo mesh index"].AccessValue;
             var renderGeometry = RenderGeometrySerializer.Deserialize(null, rtgo_file, (RenderGeometryTag)rootRtgo["render geometry"]);

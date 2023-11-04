@@ -11,7 +11,7 @@
     <converters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
     <converters:IntVisibilityConverter x:Key="IntVisibilityConverter" />
     <converters:ColorConverter x:Key="ColorConverter" />
-
+    <converters:InterfaceTemplateSelector x:Key="InterfaceTemplateSelector" />
     <converters:BoolToGridLengthConverter x:Key="BoolToGridLengthConverter" />
     <sys:Int32 x:Key="IntOneMinus">-1</sys:Int32>
 </ResourceDictionary>

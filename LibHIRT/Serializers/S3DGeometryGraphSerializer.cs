@@ -133,21 +133,18 @@ namespace LibHIRT.Serializers
         private void ReadBufferData(BinaryReader reader, S3DGeometryGraph graph)
         {
             var serializer = new S3DGeometryBufferSerializer(graph);
-            serializer.TagParse = TagParse;
             graph.Buffers = serializer.Deserialize(reader);
         }
 
         private void ReadMeshData(BinaryReader reader, S3DGeometryGraph graph)
         {
             var serializer = new S3DGeometryMeshSerializer(graph);
-            serializer.TagParse = TagParse;
             graph.Meshes = serializer.Deserialize(reader);
         }
 
         private void ReadSubMeshData(BinaryReader reader, S3DGeometryGraph graph)
         {
             var serializer = new S3DGeometrySubMeshSerializer(graph);
-            serializer.TagParse = TagParse;
             graph.SubMeshes = serializer.Deserialize(reader);
         }
 

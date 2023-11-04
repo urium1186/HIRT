@@ -78,7 +78,8 @@ namespace LibHIRT.Processes.OnGeometry
 
                 if (_file is RenderModelFile)
                 {
-                    var tpl = S3DTemplateSerializer.Deserialize(stream);
+                    var tagParse = (_file as SSpaceFile).Deserialized().TagParse;
+                    var tpl = S3DTemplateSerializer.Deserialize(tagParse, stream);
                     var context = new SceneContextOld(tpl.GeometryGraph, stream, StatusList);
                     context.AddLodDefinitions(tpl.LodDefinitions);
 

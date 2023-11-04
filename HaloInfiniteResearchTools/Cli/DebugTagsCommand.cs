@@ -97,8 +97,8 @@ namespace HaloInfiniteResearchTools.Cli
         {
             try
             {
-                //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles("."+ _type_tag);
-                var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles(_type_tag);
+                //var founds = IHIFileContext.Instance.GetFiles("."+ _type_tag);
+                var founds = HIFileContext.Instance.GetFiles(_type_tag);
                 StringBuilder outPutPath = new StringBuilder();
                 foreach (SSpaceFile _file in founds)
                 {

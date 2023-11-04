@@ -9,7 +9,7 @@ namespace LibHIRT.Files.FileTypes
     {
         private DinamycType? _deserialized;
 
-        public CustomizationAttachmentConfiguration(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public CustomizationAttachmentConfiguration(string name, ISSpaceFile parent = null) : base(name, parent)
         {
             TagGroup = "ocad";
         }

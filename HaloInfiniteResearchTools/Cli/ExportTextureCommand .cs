@@ -71,7 +71,7 @@ namespace HaloInfiniteResearchTools.Cli
         {
             try
             {
-                //var founds = EntryPoint.ServiceProvider.GetRequiredService<IHIFileContext>().GetFiles<PictureFile>(_infile);
+                //var founds = IHIFileContext.Instance.GetFiles<PictureFile>(_infile);
                 var founds = ((SearchFileByIdProcess)sender).Result;
                 if (founds != null && founds.Count() != 0)
                 {

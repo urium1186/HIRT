@@ -17,30 +17,11 @@ namespace LibHIRT.TagReader
         public int f = 0;
         public int r = 0;
     }
-    public interface ITagInstance
-    {
-        static event EventHandler<ITagInstance> OnInstanceLoadEvent;
-        public long GetTagSize { get; }
-
-        public void ReadIn(BinaryReader f, TagHeader? header = null);
-        public void WriteIn(Stream f, long offset = -1, TagHeader? header = null);
-        public void ReadIn(TagHeader? header = null);
-
-        public string ToJson();
-        public TagInstance GetObjByPath(string path);
-
-        public object AccessValue { get; set; }
-        public string FieldName { get; set; }
-        public bool NoAllowEdit { get; set; }
-
-        public TagLayouts.C TagDef { get; }
-
-
-    }
+   
     public class TagInstance : ITagInstance, INotifyPropertyChanged, IDisposable
     {
 
-        protected TagLayouts.C tagDef;
+        protected Template tagDef;
         protected long addressStart;
         protected long offset;
         protected long inFileOffset;
@@ -57,7 +38,7 @@ namespace LibHIRT.TagReader
         public static event EventHandler<ITagInstance> OnInstanceLoadEvent;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public TagInstance(TagLayouts.C tagDef, long addressStart, long offset)
+        public TagInstance(Template tagDef, long addressStart, long offset)
         {
             this.tagDef = tagDef;
             this.addressStart = addressStart;
@@ -66,7 +47,7 @@ namespace LibHIRT.TagReader
         [JsonInclude]
         public HeaderTableEntry? Entry { get => entry; set => entry = value; }
         [JsonInclude]
-        public TagLayouts.C TagDef { get => tagDef; }
+        public Template TagDef { get => tagDef; }
         [System.Text.Json.Serialization.JsonIgnore]
         public TagStruct? Content_entry { get => content_entry; set => content_entry = value; }
         [JsonInclude]
@@ -141,6 +122,7 @@ namespace LibHIRT.TagReader
         public virtual TagInstance this[string path]
         {
             get => GetObjByPath(path);
+            set => new NotImplementedException();
         }
 
         protected void ExeTagInstance()
@@ -185,7 +167,7 @@ namespace LibHIRT.TagReader
     #region Atomic
     public class AtomicTagInstace : TagInstance
     {
-        public AtomicTagInstace(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public AtomicTagInstace(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -201,7 +183,7 @@ namespace LibHIRT.TagReader
 
         Stack<object> stackChange = new Stack<object>();
 
-        public ValueTagInstace(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ValueTagInstace(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -232,7 +214,7 @@ namespace LibHIRT.TagReader
     public class DebugDataBlock : ValueTagInstace<string>
     {
 
-        public DebugDataBlock(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public DebugDataBlock(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
             value = tagDef.N;
         }
@@ -248,7 +230,7 @@ namespace LibHIRT.TagReader
     public class Comment : AtomicTagInstace
     {
 
-        public Comment(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Comment(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -262,7 +244,7 @@ namespace LibHIRT.TagReader
     public class Explanation : AtomicTagInstace
     {
 
-        public Explanation(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Explanation(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -276,7 +258,7 @@ namespace LibHIRT.TagReader
     public class CustomLikeGrouping : AtomicTagInstace
     {
 
-        public CustomLikeGrouping(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public CustomLikeGrouping(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -290,7 +272,7 @@ namespace LibHIRT.TagReader
 
     public class GenericBlock : ValueTagInstace<string>
     {
-        public GenericBlock(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public GenericBlock(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -311,7 +293,7 @@ namespace LibHIRT.TagReader
         List<string> options = new List<string>();
         int _selectedIndex = -1;
         string selected;
-        public EnumGroup(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public EnumGroup(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -324,15 +306,29 @@ namespace LibHIRT.TagReader
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
-            if (TagDef.GetType() != typeof(TagLayouts.EnumGroupTL))
-                return;
-            TagLayouts.EnumGroupTL tempEnum = (TagDef as TagLayouts.EnumGroupTL);
-            foreach (int gvsdahb in tempEnum.STR.Keys)
+            Dictionary<int, string> STR = null;
+            int size = -1;
+            if (TagDef.GetType() == typeof(TagLayouts.EnumGroupTL))
             {
-                options.Add(tempEnum.STR[gvsdahb]);
+                TagLayouts.EnumGroupTL tempEnum = (TagDef as TagLayouts.EnumGroupTL);
+                STR = tempEnum.STR;
+                size = tempEnum.A;
+            }
+            else if (TagDef.GetType() == typeof(TagLayoutsV2.E))
+            {
+                TagLayoutsV2.E tempEnum = (TagDef as TagLayoutsV2.E);
+                STR = tempEnum.STR;
+                size = tempEnum.S;
+            }
+            else
+                return;
+
+            foreach (int gvsdahb in STR.Keys)
+            {
+                options.Add(STR[gvsdahb]);
             }
             f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
-            switch (tempEnum.A)
+            switch (size)
             {
                 case 1:
                     _selectedIndex = f.ReadByte();
@@ -360,7 +356,7 @@ namespace LibHIRT.TagReader
     public class FourByte : ValueTagInstace<Int32>
     {
 
-        public FourByte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public FourByte(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -373,7 +369,7 @@ namespace LibHIRT.TagReader
     }
     public class TwoByte : ValueTagInstace<Int16>
     {
-        public TwoByte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public TwoByte(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -387,7 +383,7 @@ namespace LibHIRT.TagReader
 
     public class UTwoByte : ValueTagInstace<UInt16>
     {
-        public UTwoByte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public UTwoByte(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -400,7 +396,7 @@ namespace LibHIRT.TagReader
     }
     public class Byte : ValueTagInstace<sbyte>
     {
-        public Byte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Byte(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
@@ -414,7 +410,7 @@ namespace LibHIRT.TagReader
     public class Float : ValueTagInstace<float>
     {
 
-        public Float(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Float(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
@@ -451,7 +447,7 @@ namespace LibHIRT.TagReader
         Int32 local_handle = -1;
         string tagGroup = "";
         string tagGroupRev = "";
-        public TagRef(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public TagRef(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -505,7 +501,7 @@ namespace LibHIRT.TagReader
     }
     public class Pointer : ValueTagInstace<Int64>
     {
-        public Pointer(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Pointer(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -519,7 +515,7 @@ namespace LibHIRT.TagReader
 
     public class String : ValueTagInstace<string>
     {
-        public String(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public String(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -542,7 +538,7 @@ namespace LibHIRT.TagReader
     public class StringTag : ValueTagInstace<string>
     {
         string tag_string_rev = "";
-        public StringTag(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public StringTag(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -567,7 +563,7 @@ namespace LibHIRT.TagReader
     }
     public class Flags : ValueTagInstace<byte>
     {
-        public Flags(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Flags(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -637,21 +633,32 @@ namespace LibHIRT.TagReader
         List<FlagsModel> _salida = null;
         public override object AccessValue => new { options, options_v };
 
-        public FlagGroup(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public FlagGroup(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
-            if (TagDef.GetType() != typeof(TagLayouts.FlagGroupTL))
-                return;
-            TagLayouts.FlagGroupTL tempEnum = (TagDef as TagLayouts.FlagGroupTL);
-            generateBits(addressStart + offset, tempEnum.A, tempEnum.MB, tempEnum.STR, f);
-            foreach (int gvsdahb in tempEnum.STR.Keys)
+
+            if (TagDef.GetType() == typeof(TagLayouts.FlagGroupTL))
             {
-                options.Add(tempEnum.STR[gvsdahb]);
+                TagLayouts.FlagGroupTL tempEnum = (TagDef as TagLayouts.FlagGroupTL);
+                generateBits(addressStart + offset, tempEnum.A, tempEnum.MB, tempEnum.STR, f);
+                foreach (int gvsdahb in tempEnum.STR.Keys)
+                {
+                    options.Add(tempEnum.STR[gvsdahb]);
+                }
             }
+            else if (TagDef.GetType() == typeof(TagLayoutsV2.F)) {
+                TagLayoutsV2.F tempEnum = (TagDef as TagLayoutsV2.F);
+                generateBits(addressStart + offset, tempEnum.S, 0, tempEnum.STR, f);
+                foreach (int gvsdahb in tempEnum.STR.Keys)
+                {
+                    options.Add(tempEnum.STR[gvsdahb]);
+                }
+            }
+
             ExeTagInstance();
         }
 
@@ -778,7 +785,7 @@ namespace LibHIRT.TagReader
     public class Mmr3Hash : ValueTagInstace<Int32>
     {
         string str_value = "";
-        public Mmr3Hash(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Mmr3Hash(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -804,7 +811,7 @@ namespace LibHIRT.TagReader
     public class RgbPixel32 : ValueTagInstace<string>
     {
         string str_value = "";
-        public RgbPixel32(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public RgbPixel32(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -822,7 +829,7 @@ namespace LibHIRT.TagReader
     public class ArgbPixel32 : ValueTagInstace<string>
     {
         string str_value = "";
-        public ArgbPixel32(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ArgbPixel32(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -841,7 +848,7 @@ namespace LibHIRT.TagReader
         float r_value = -1;
         float g_value = -1;
         float b_value = -1;
-        public RGB(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public RGB(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -867,7 +874,7 @@ namespace LibHIRT.TagReader
         float r_value = -1;
         float g_value = -1;
         float b_value = -1;
-        public ARGB(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ARGB(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -893,7 +900,7 @@ namespace LibHIRT.TagReader
     {
         float min = -1;
         float max = -1;
-        public BoundsFloat(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public BoundsFloat(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -912,7 +919,7 @@ namespace LibHIRT.TagReader
     {
         Int16 min = -1;
         Int16 max = -1;
-        public Bounds2Byte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Bounds2Byte(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -931,7 +938,7 @@ namespace LibHIRT.TagReader
     {
         float x = -1;
         float y = -1;
-        public Point2DFloat(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Point2DFloat(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -953,7 +960,7 @@ namespace LibHIRT.TagReader
     {
         Int16 x = -1;
         Int16 y = -1;
-        public Point2D2Byte(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Point2D2Byte(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -973,7 +980,7 @@ namespace LibHIRT.TagReader
         float x = -1;
         float y = -1;
         float z = -1;
-        public Point3D(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Point3D(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -999,7 +1006,7 @@ namespace LibHIRT.TagReader
         float y = -1;
         float point = -1;
 
-        public Plane2D(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Plane2D(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
@@ -1021,7 +1028,7 @@ namespace LibHIRT.TagReader
         float z = -1;
         float point = -1;
 
-        public Plane3D(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Plane3D(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
@@ -1043,7 +1050,7 @@ namespace LibHIRT.TagReader
         float y = -1;
         float z = -1;
         float w = -1;
-        public Quaternion(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Quaternion(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -1085,7 +1092,7 @@ namespace LibHIRT.TagReader
         private int leftover_bytes;
         private byte[] curvature_bytes;
         BinaryReader _f;
-        public TagData(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public TagData(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -1102,26 +1109,7 @@ namespace LibHIRT.TagReader
             byteOffset = f.ReadInt32();
             byteLengthCount = f.ReadInt32();
             var size_u = int.Parse(tagDef.E["int3"].ToString());
-            //Debug.Assert(functAddress == Constants.ADDRESS_UNSET || functAddress == 0);  
-            /*
-            if (functAddress != Constants.ADDRESS_UNSET && functAddress != 0) // && f.BaseStream.Position + functAddress < 
-            {
-                f.BaseStream.Seek((long)functAddress, SeekOrigin.Begin);
-                _1st_byte = f.ReadByte();
-                _2nd_byte = f.ReadByte();
-                _3rd_byte = f.ReadByte();
-                _4th_byte = f.ReadByte();
-                min_float = f.ReadSingle();
-                max_float = f.ReadSingle();
-                unknown1 = f.ReadSingle();
-                unknown2 = f.ReadSingle();
-                unk_min = f.ReadSingle();
-                unk_max = f.ReadSingle();
-                leftover_bytes = f.ReadInt32();
-                if (leftover_bytes > 0)
-                    curvature_bytes = f.ReadBytes(leftover_bytes);
-
-            }*/
+           
             _f = f;
             ExeTagInstance();
         }
@@ -1146,7 +1134,7 @@ namespace LibHIRT.TagReader
     #region Compound
     public abstract class CompoundTagInstance : TagInstance
     {
-        protected CompoundTagInstance(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        protected CompoundTagInstance(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -1158,7 +1146,7 @@ namespace LibHIRT.TagReader
     }
     public class ParentTagInstance : CompoundTagInstance, IDictionary<string, TagInstance>
     {
-        protected Dictionary<string, TagInstance> keyValues;
+        protected Dictionary<string, TagInstance> keyValues=new Dictionary<string, TagInstance>();
 
         protected string item_name = "";
         protected string item_type = "";
@@ -1176,11 +1164,12 @@ namespace LibHIRT.TagReader
 
         public override List<TagInstance>? Childrens => new List<TagInstance>(Values);
 
-        public override TagInstance this[string path] => keyValues[path];
+        public override TagInstance this[string path] { get => keyValues[path]; 
+            set => keyValues[path] = value; }
 
         TagInstance IDictionary<string, TagInstance>.this[string key] { get => ((IDictionary<string, TagInstance>)keyValues)[key]; set => ((IDictionary<string, TagInstance>)keyValues)[key] = value; }
 
-        public ParentTagInstance(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ParentTagInstance(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -1213,100 +1202,6 @@ namespace LibHIRT.TagReader
         {
             base.ReadIn(f, header);
             //readTagBloks(f, header);
-        }
-
-        public List<ListTagInstance> readTagBloks(BinaryReader f, ref RefItCount refItCount, TagHeader? header)
-        {
-            if (refItCount == null)
-                refItCount = new RefItCount();
-            List<ListTagInstance> tagBlocks = new List<ListTagInstance>();
-            f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
-            foreach (var entry in TagDef.B.Keys)
-            {
-                TagInstance temp = TagInstanceFactory.Create(TagDef.B[entry], addressStart, entry + offset);
-                temp.Parent = this;
-                temp.Content_entry = Content_entry;
-                temp.ReadIn(f, header);
-
-
-
-
-                switch (TagDef.B[entry].T)
-                {
-                    case TagElemntType.TagData:
-                        if (Content_entry != null)
-                            (temp as TagData).Data_reference = Content_entry.L_function[refItCount.f];
-                        else
-                        {
-                        }
-                        refItCount.f += 1;
-                        break;
-                    /*
-                    temp.data_reference = parent.content_entry.l_function[RefItCount['f']]
-                    if temp.data_reference.unknown_property != 0:
-                        debug = 0
-
-                    assert self.full_header.file_header.data_reference_count != 0
-                    assert len(parent.content_entry.l_function[RefItCount['f']].bin_data) == tagInstanceTemp[
-                        key].byteLengthCount
-
-                    self.hasFunction += 1
-                    RefItCount['f'] += 1
-                    self.OnInstanceLoad(temp)
-                     */
-                    case TagElemntType.TagRef:
-                        if (Content_entry != null)
-                        {
-                            (temp as TagRef).Tag_ref = this.Content_entry.L_tag_ref[refItCount.r];
-                            (temp as TagRef).loadPath();
-                        }
-                        refItCount.r += 1;
-                        //self.OnInstanceLoad(temp)
-                        break;
-                    case TagElemntType.TagStructData:
-                        if (Content_entry != null && Content_entry.Childs.Count > refItCount.i)
-                        {
-                            var temp_entry = this.Content_entry.Childs[refItCount.i];
-                            /*
-                             assert not (temp_entry.type_id_tg == TagStructType.NoDataStartBlock and len(
-                            temp_entry.bin_datas) != 0), \
-                            f'Error in {self.filename}'
-                             */
-
-                            if (this.Content_entry.Childs[refItCount.i].TypeIdTg == TagStructType.NoDataStartBlock)
-                            {
-                                tagBlocks.Add(temp as ListTagInstance);
-                                refItCount.i += 1;
-
-                            }
-                            else
-                            {
-                                //self.OnInstanceLoad(temp)
-                            }
-
-                        }
-                        break;
-                    case TagElemntType.Tagblock:
-                        tagBlocks.Add(temp as Tagblock);
-                        refItCount.i += 1;
-                        break;
-                    case TagElemntType.ResourceHandle:
-                        tagBlocks.Add(temp as ResourceHandle);
-                        refItCount.i += 1;
-                        break;
-                    default:
-                        temp.Parent = this;
-                        //self.OnInstanceLoad(tagInstanceTemp[key])
-                        break;
-                }
-                if (temp.GetType().IsSubclassOf(typeof(ParentTagInstance)))
-                {
-                    //n_items = (temp as ParentTagInstance).TagBlocks.Count;
-                    tagBlocks.AddRange((temp as ParentTagInstance).readTagBloks(f, ref refItCount, header));
-                }
-                AddChild(temp);
-            }
-            return tagBlocks;
         }
 
 
@@ -1412,77 +1307,26 @@ namespace LibHIRT.TagReader
 
 
     }
+
+    public class ListItemTagInstance : ParentTagInstance
+    {
+        public int Index { get; set; }
+        public ListItemTagInstance(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        {
+        }
+    }
     public class RootTagInstance : ParentTagInstance
     {
 
-        public RootTagInstance(TagLayouts.C tagDef, long addressStart, int offset) : base(tagDef, addressStart, offset)
+        public RootTagInstance(Template tagDef, long addressStart, int offset) : base(tagDef, addressStart, offset)
         {
             FieldName = "Root";
         }
 
-
-
-        public void ReadInSave(TagHeader? header = null)
-        {
-            MemoryStream bin_stream = new MemoryStream(Content_entry.Bin_datas[0].ToArray<byte>());
-            BinaryReader f = new BinaryReader(bin_stream);
-            base.ReadIn(f, header);
-
-            RefItCount refItCount = new RefItCount();
-            List<ListTagInstance> tagBlocks = readTagBloks(f, ref refItCount, header);
-            int n_items = tagBlocks.Count;
-            if (Content_entry == null)
-                return;
-            Debug.Assert(Content_entry.Childs.Count == n_items);
-            for (int i = 0; i < Content_entry.Childs.Count; i++)
-            {
-                var entry = Content_entry.Childs[i];
-                var tag_child_inst = tagBlocks[i];
-                if (tag_child_inst == null)
-                    continue;
-                if (tag_child_inst.GetType() == typeof(TagStructData))
-                {
-                    /*
-                     assert entry.type_id_tg == TagStructType.NoDataStartBlock, 'Coinciden en tipo NoDataStartBlock'
-                assert len(
-                    entry.bin_datas) == 0, f'Error in {self.filename},  {instance_parent.tagDef.N}, {tag_child_inst.tagDef.N}'
-            
-                     */
-                }
-                else if (tag_child_inst.GetType() == typeof(ResourceHandle))
-                {
-                    //assert entry.type_id_tg == TagStructType.ResourceHandle or entry.type_id_tg == TagStructType.ExternalFileDescriptor, f'Coinciden en tipo ResourceHandle in {self.filename},  {instance_parent.tagDef.N}'
-                    if (entry.TypeIdTg == TagStructType.ResourceHandle)
-                    {
-
-                    }
-                }
-                else
-                {
-
-                }
-                tag_child_inst.Content_entry = entry;
-                tag_child_inst.Parent = this;
-                if (tag_child_inst.GetType().IsSubclassOf(typeof(ListTagInstance)))
-                {
-                    if (tag_child_inst as ArrayFixLen != null)
-                    {
-                    }
-                    ((ListTagInstance)tag_child_inst).FillChilds(ref refItCount);
-                }
-
-                else
-                {
-
-                }
-
-            }
-            ExeTagInstance();
-        }
     }
     public class RenderGeometryTag : TagStructData
     {
-        public RenderGeometryTag(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public RenderGeometryTag(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
     }
@@ -1490,7 +1334,7 @@ namespace LibHIRT.TagReader
     {
         //bool generateEntry = false;
         //string comment = "";
-        public TagStructData(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public TagStructData(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
             //  generateEntry = (bool)tagDef.P["generateEntry"];
         }
@@ -1508,7 +1352,7 @@ namespace LibHIRT.TagReader
         protected List<TagInstance> childs = new List<TagInstance>();
         protected int childrenCount = 0;
 
-        public ListTagInstance(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ListTagInstance(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
@@ -1578,71 +1422,6 @@ namespace LibHIRT.TagReader
             return null;
         }
 
-        public virtual void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
-        {
-            if (childrenCount != Content_entry.Bin_datas.Count)
-            {
-                if (Content_entry.Field_data_block != null)
-                {
-                }
-            }
-            if (TagDef.T == TagElemntType.ResourceHandle)
-            {
-            }
-            //Debug.Assert(childrenCount == Content_entry.Bin_datas.Count);
-            var temp_offset = 0;
-            List<TagInstance> tagBlocks = new List<TagInstance>();
-
-            var tempRef = new RefItCount();
-            for (int i = 0; i < Content_entry.Bin_datas.Count; i++)
-            {
-                MemoryStream bin_stream = new MemoryStream(Content_entry.Bin_datas[i].ToArray<byte>());
-                ParentTagInstance temp = new ParentTagInstance(TagDef, 0, temp_offset);
-                var f = new BinaryReader(bin_stream);
-                temp.Content_entry = Content_entry;
-                temp.ReadIn(f, header);
-                childs.Add(temp);
-                tagBlocks.AddRange(temp.readTagBloks(f, ref tempRef, header));
-            }
-            Debug.Assert(tagBlocks.Count == Content_entry.Childs.Count);
-            for (int i = 0; i < Content_entry.Childs.Count; i++)
-            {
-                var entry = Content_entry.Childs[i];
-                var tag_child_inst = tagBlocks[i];
-                if (tag_child_inst == null)
-                    continue;
-                if (tag_child_inst.GetType() == typeof(TagStructData))
-                {
-                    /*
-                     assert entry.type_id_tg == TagStructType.NoDataStartBlock, 'Coinciden en tipo NoDataStartBlock'
-                assert len(
-                    entry.bin_datas) == 0, f'Error in {self.filename},  {instance_parent.tagDef.N}, {tag_child_inst.tagDef.N}'
-            
-                     */
-                }
-                else if (tag_child_inst.GetType() == typeof(ResourceHandle))
-                {
-                    //assert entry.type_id_tg == TagStructType.ResourceHandle or entry.type_id_tg == TagStructType.ExternalFileDescriptor, f'Coinciden en tipo ResourceHandle in {self.filename},  {instance_parent.tagDef.N}'
-                    if (entry.TypeIdTg == TagStructType.ResourceHandle)
-                    {
-
-                    }
-                }
-                else
-                {
-
-                }
-                tag_child_inst.Content_entry = entry;
-                tag_child_inst.Parent = this;
-                if (tag_child_inst.GetType().IsSubclassOf(typeof(ListTagInstance)))
-                    (tag_child_inst as ListTagInstance).FillChilds(ref refItCount);
-                else
-                {
-
-                }
-            }
-        }
-
         public int IndexOf(TagInstance item)
         {
             return ((IList<TagInstance>)childs).IndexOf(item);
@@ -1707,16 +1486,11 @@ namespace LibHIRT.TagReader
         private int int_value;
         private string str_value;
 
-        public ExternalFileDescriptor(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ExternalFileDescriptor(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
         public long NewAddress { get => newAddress; set => newAddress = value; }
-
-        public override void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
-        {
-            base.FillChilds(ref refItCount, header);
-        }
 
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
@@ -1738,17 +1512,13 @@ namespace LibHIRT.TagReader
         private int int_value;
         private string str_value;
 
-        public ResourceHandle(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ResourceHandle(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
         public long NewAddress { get => newAddress; set => newAddress = value; }
 
-        public override void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
-        {
-            base.FillChilds(ref refItCount, header);
-        }
-
+        
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
@@ -1767,17 +1537,13 @@ namespace LibHIRT.TagReader
         private long newAddress;
         private long stringAddress;
 
-        public Tagblock(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public Tagblock(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
         public long NewAddress { get => newAddress; set => newAddress = value; }
         public long StringAddress { get => stringAddress; set => stringAddress = value; }
 
-        public override void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
-        {
-            base.FillChilds(ref refItCount, header);
-        }
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
@@ -1796,14 +1562,9 @@ namespace LibHIRT.TagReader
     {
         string comment = "";
 
-        public ArrayFixLen(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public ArrayFixLen(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
-        public override void FillChilds(ref RefItCount refItCount, TagHeader? header = null)
-        {
-
-        }
-
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);
@@ -1820,94 +1581,9 @@ namespace LibHIRT.TagReader
 
         string comment = "";
         Dictionary<string, TagInstance> keyValues = new Dictionary<string, TagInstance>();
-        public TagStructBlock(TagLayouts.C tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public TagStructBlock(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
             throw new Exception("REvisar el uso");
         }
     }
-
-    public static class TagInstanceFactory
-    {
-        public static TagInstance Create(TagLayouts.C tagDef, long addressStart, long offset)
-        {
-            switch (tagDef.T)
-            {
-                case TagElemntType.Comment:
-                    return new Comment(tagDef, addressStart, offset);
-                case TagElemntType.Explanation:
-                    return new Explanation(tagDef, addressStart, offset);
-                case TagElemntType.CustomLikeGrouping:
-                    return new CustomLikeGrouping(tagDef, addressStart, offset);
-                case TagElemntType.ArrayFixLen:
-                    return new ArrayFixLen(tagDef, addressStart, offset);
-                case TagElemntType.GenericBlock:
-                    return new GenericBlock(tagDef, addressStart, offset);
-                case TagElemntType.TagStructData:
-                    if (tagDef.E != null && tagDef.E.ContainsKey("hash") && tagDef.E["hash"].ToString() == "E423D497BA42B08FA925E0B06C3C363A")
-                        return new RenderGeometryTag(tagDef, addressStart, offset);
-                    return new TagStructData(tagDef, addressStart, offset);
-                case TagElemntType.TagData:
-                    return new TagData(tagDef, addressStart, offset);
-                case TagElemntType.EnumGroup:
-                    return new EnumGroup(tagDef, addressStart, offset);
-                case TagElemntType.FourByte:
-                    return new FourByte(tagDef, addressStart, offset);
-                case TagElemntType.TwoByte:
-                    return new TwoByte(tagDef, addressStart, offset);
-                case TagElemntType.UTwoByte:
-                    return new UTwoByte(tagDef, addressStart, offset);
-                case TagElemntType.Byte:
-                    return new Byte(tagDef, addressStart, offset);
-                case TagElemntType.Float:
-                    return new Float(tagDef, addressStart, offset);
-                case TagElemntType.TagRef:
-                    return new TagRef(tagDef, addressStart, offset);
-                case TagElemntType.Pointer:
-                    return new Pointer(tagDef, addressStart, offset);
-                case TagElemntType.Tagblock:
-                    return new Tagblock(tagDef, addressStart, offset);
-                case TagElemntType.ResourceHandle:
-                    return new ResourceHandle(tagDef, addressStart, offset);
-                case TagElemntType.TagStructBlock:
-                    return new TagStructBlock(tagDef, addressStart, offset);
-                case TagElemntType.String:
-                    return new String(tagDef, addressStart, offset);
-                case TagElemntType.StringTag:
-                    return new StringTag(tagDef, addressStart, offset);
-                case TagElemntType.Flags:
-                    return new Flags(tagDef, addressStart, offset);
-                case TagElemntType.FlagGroup:
-                    return new FlagGroup(tagDef, addressStart, offset);
-                case TagElemntType.Mmr3Hash:
-                    return new Mmr3Hash(tagDef, addressStart, offset);
-                case TagElemntType.RgbPixel32:
-                    return new RgbPixel32(tagDef, addressStart, offset);
-                case TagElemntType.ArgbPixel32:
-                    return new ArgbPixel32(tagDef, addressStart, offset);
-                case TagElemntType.RGB:
-                    return new RGB(tagDef, addressStart, offset);
-                case TagElemntType.ARGB:
-                    return new ARGB(tagDef, addressStart, offset);
-                case TagElemntType.Bounds2Byte:
-                    return new Bounds2Byte(tagDef, addressStart, offset);
-                case TagElemntType.BoundsFloat:
-                    return new BoundsFloat(tagDef, addressStart, offset);
-                case TagElemntType.Point2D2Byte:
-                    return new Point2D2Byte(tagDef, addressStart, offset);
-                case TagElemntType.Point2DFloat:
-                    return new Point2DFloat(tagDef, addressStart, offset);
-                case TagElemntType.Point3D:
-                    return new Point3D(tagDef, addressStart, offset);
-                case TagElemntType.Quaternion:
-                    return new Quaternion(tagDef, addressStart, offset);
-                case TagElemntType.Plane2D:
-                    return new Plane2D(tagDef, addressStart, offset);
-                case TagElemntType.Plane3D:
-                    return new Plane3D(tagDef, addressStart, offset);
-
-                default:
-                    return new TagInstance(tagDef, addressStart, offset);
-            }
-        }
-    }
-}
+   }

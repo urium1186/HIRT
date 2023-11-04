@@ -1,12 +1,9 @@
 ﻿
 using Memory;
 using System.Diagnostics;
-using System.Drawing;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Xml;
 using static LibHIRT.TagReader.Dumper.StructureLayouts;
-using static LibHIRT.TagReader.TagLayouts;
 using File = System.IO.File;
 
 namespace LibHIRT.TagReader.Dumper
@@ -681,10 +678,10 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                         textWriter.WriteAttributeString("sg", "");
                     }
                     else {
-                        textWriter.WriteAttributeString("s", TagCommon.GROUP_LENGTHS[(TagElemntTypeNew)group].ToString());
+                        textWriter.WriteAttributeString("s", TagCommon.GROUP_LENGTHS[(TagElemntTypeV2)group].ToString());
                     }
-                    var ss = ((TagElemntTypeNew)group).ToString();
-                    textWriter.WriteAttributeString("TT", ((TagElemntTypeNew)group).ToString());
+                    var ss = ((TagElemntTypeV2)group).ToString();
+                    textWriter.WriteAttributeString("TT", ((TagElemntTypeV2)group).ToString());
 
                 }
                 catch (Exception keyEx)

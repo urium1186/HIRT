@@ -13,10 +13,7 @@
 
         #region Constructor
 
-        public GenericFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset,
-          ISSpaceFile parent = null)
-          : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public GenericFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
         }
 

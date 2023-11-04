@@ -162,6 +162,8 @@ namespace HaloInfiniteResearchTools.Processes
                     out_dxc = output;
                     Console.WriteLine(output);
                     string err = process.StandardError.ReadToEnd();
+                    if (!string.IsNullOrEmpty(err))
+                        StatusList.AddError("error on dumpbin", err);
                     Console.WriteLine(err);
                     process.WaitForExit();
                     DecompiledStr = out_dxc;
@@ -185,6 +187,8 @@ namespace HaloInfiniteResearchTools.Processes
                             out_glsl = output_dxil;
                             Console.WriteLine(output_dxil);
                             err_dxil = process_dxil.StandardError.ReadToEnd();
+                            if (!string.IsNullOrEmpty(err_dxil))
+                                StatusList.AddError("error on dxil", err_dxil);
                             Console.WriteLine(err_dxil);
                             process_dxil.WaitForExit();
 
@@ -207,7 +211,10 @@ namespace HaloInfiniteResearchTools.Processes
 
                             Console.WriteLine(output_dxil);
                             err_dxil = process_dxil_2.StandardError.ReadToEnd();
+                            
                             Console.WriteLine(err_dxil);
+                            if (!string.IsNullOrEmpty(err_dxil))
+                                StatusList.AddError("error on dxil2", err_dxil);
                             process_dxil_2.WaitForExit();
 
                         }
@@ -228,6 +235,8 @@ namespace HaloInfiniteResearchTools.Processes
                             DecompiledStrGLSL_V = output_spirv;
                             Console.WriteLine(output_spirv);
                             string err_spirv = process_spirv.StandardError.ReadToEnd();
+                            if (!string.IsNullOrEmpty(err_spirv))
+                                StatusList.AddError("error on spirv", err_spirv);
                             Console.WriteLine(err_spirv);
                             process_spirv.WaitForExit();
 
@@ -249,6 +258,7 @@ namespace HaloInfiniteResearchTools.Processes
                         File.Delete(tempFilename);
                     if (File.Exists(tempFilename_spv))
                         File.Delete(tempFilename_spv);
+                    StatusList.AddError($"Error on shbc", ex);
                     throw ex;
                 }
 

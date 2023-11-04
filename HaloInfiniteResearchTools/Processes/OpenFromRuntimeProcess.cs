@@ -16,7 +16,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public OpenFromRuntimeProcess(params string[] paths)
         {
-            _fileContext = (HIFileContext?)ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = (HIFileContext?)HIFileContext.Instance;
             _inputPaths = paths;
 
             _filesLoaded = new List<string>();

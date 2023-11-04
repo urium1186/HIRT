@@ -1,7 +1,7 @@
 ﻿using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Files;
-using Microsoft.Extensions.DependencyInjection;
+using LibHIRT.Files.Base;
 using PropertyChanged;
 using System;
 using System.Collections.Concurrent;
@@ -20,9 +20,9 @@ namespace HaloInfiniteResearchTools.Models
         #region Data Members
 
         private readonly IHIFileContext _context;
-        private readonly ObservableCollection<FileModel> _files;
+        private readonly ObservableCollection<IHIRTFile> _files;
         // private readonly ObservableCollection<DirModel> _dirFiles;
-        private readonly ObservableCollection<TreeHierarchicalModel> _filesH;
+        //private readonly ObservableCollection<TreeHierarchicalModel> _filesH;
 
 
 
@@ -33,10 +33,10 @@ namespace HaloInfiniteResearchTools.Models
         private readonly ICollectionView _collectionDirsViewSource;
 
         private ActionThrottler _throttler;
-        private ConcurrentQueue<FileModel> _fileAddQueue;
-        private ConcurrentQueue<FileModel> _fileRemoveQueue;
-        private ConcurrentDictionary<string, FileModel> _fileLookup;
-        private ActionThrottler _throttlerDir;
+        private ConcurrentQueue<IHIRTFile> _fileAddQueue;
+        private ConcurrentQueue<IHIRTFile> _fileRemoveQueue;
+        private ConcurrentDictionary<int, IHIRTFile> _fileLookup;
+        //private ActionThrottler _throttlerDir;
         // private ConcurrentQueue<DirModel> _dirsFileAddQueue;
         // private ConcurrentQueue<DirModel> _dirsFileRemoveQueue;
         // private ConcurrentDictionary<string, DirModel> _dirsFileLookup;
@@ -67,7 +67,7 @@ namespace HaloInfiniteResearchTools.Models
         public ObservableCollection<DirModel> FiltersDirs { get; set; }
         public HIFileContext HiContext { get => _context as HIFileContext; }
 
-        public ObservableCollection<TreeHierarchicalModel> FilesH => _filesH;
+        //public ObservableCollection<TreeHierarchicalModel> FilesH => _filesH;
 
 
         #endregion
@@ -80,22 +80,22 @@ namespace HaloInfiniteResearchTools.Models
 
             // Initialize the underlying collection
             _collectionLock = new object();
-            _files = new ObservableCollection<FileModel>();
+            _files = new ObservableCollection<IHIRTFile>();
             //_dirFiles = new ObservableCollection<DirModel>();
-            _filesH = new ObservableCollection<TreeHierarchicalModel>();
+            //_filesH = new ObservableCollection<TreeHierarchicalModel>();
 
             InitializeThreadSynchronization(_files, _collectionLock);
             //InitializeThreadSynchronization(_dirFiles, _collectionLock);
-            InitializeThreadSynchronization(_filesH, _collectionLock);
+            //InitializeThreadSynchronization(_filesH, _collectionLock);
 
             // Initialize File Queues/Throttlers
-            _throttler = new ActionThrottler(UpdateFiles, 1000);
-            _fileAddQueue = new ConcurrentQueue<FileModel>();
-            _fileRemoveQueue = new ConcurrentQueue<FileModel>();
-            _fileLookup = new ConcurrentDictionary<string, FileModel>();
+            _throttler = new ActionThrottler(UpdateFilesAsync, 500);
+            _fileAddQueue = new ConcurrentQueue<IHIRTFile>();
+            _fileRemoveQueue = new ConcurrentQueue<IHIRTFile>();
+            _fileLookup = new ConcurrentDictionary<int, IHIRTFile>();
 
             // Initialize File Queues/Throttlers
-            _throttlerDir = new ActionThrottler(UpdateDirsFiles, 1000);
+            //_throttlerDir = new ActionThrottler(UpdateDirsFiles, 1000);
             //_dirsFileAddQueue = new ConcurrentQueue<DirModel>();
             //_dirsFileRemoveQueue = new ConcurrentQueue<DirModel>();
             //_dirsFileLookup = new ConcurrentDictionary<string, DirModel>();
@@ -105,7 +105,7 @@ namespace HaloInfiniteResearchTools.Models
             //_editorFileExtensions = fileTypeService.ExtensionsWithEditorSupport;
 
             // Initialize the LibH2A Context
-            _context = serviceProvider.GetRequiredService<IHIFileContext>();
+            _context = HIFileContext.Instance;
             _context.FileAdded += OnFileAdded;
             _context.FileRemoved += OnFileRemoved;
             HiContext.InitDbHashTable();
@@ -125,35 +125,26 @@ namespace HaloInfiniteResearchTools.Models
         }
 
         #endregion
-
+        
         public void fillMemFilesbyGroup()
         {
+            
+            
             try
             {
-                lock (_filesH)
+                lock (_files)
                 {
                     Dictionary<string, TreeHierarchicalModel> valuePairs = new Dictionary<string, TreeHierarchicalModel>();
-                    _filesH.Clear();
+                    _files.Clear();
 
                     var list = HIFileContext.RuntimeTagLoader.TagsList.Values.ToList();
-                    list.Sort((x, y) => x.TagGroup.CompareTo(y.TagGroup));
+                    //list.Sort((x, y) => x.TagGroup.CompareTo(y.TagGroup));
                     foreach (var item in list)
                     {
-                        if (!valuePairs.ContainsKey(item.TagGroup))
-                        {
-                            valuePairs[item.TagGroup] = new TreeHierarchicalModel();
-                            valuePairs[item.TagGroup].Name = item.TagGroup;
-                            valuePairs[item.TagGroup].Childrens = new List<TreeHierarchicalModel>();
-                            _filesH.Add(valuePairs[item.TagGroup]);
-                        }
-                        var itemI = new TreeHierarchicalModel();
-                        itemI.Name = item.TagFullName;
-                        itemI.Value = item;
-                        valuePairs[item.TagGroup].Childrens.Add(itemI);
-                        valuePairs[item.TagGroup].Childrens.Sort((x, y) => x.Name.CompareTo(y.Name));
-
+                       _files.Add(item);    
                     }
                 }
+                UpdateFiles();
 
             }
             catch (Exception ex)
@@ -161,14 +152,14 @@ namespace HaloInfiniteResearchTools.Models
 
                 throw ex;
             }
-
+            
 
             /*
             var test = HIFileContext.RuntimeTagLoader.TagsList.Values.GroupBy(u => u._tagGroup);
             var r = test.ToDictionary(g => g.Key, g => g.ToList());
             r.Keys*/
         }
-        private ObservableCollection<DirModel> filterList()
+        /*private ObservableCollection<DirModel> filterList()
         {
             var temp = new ObservableCollection<DirModel>();
             if (this._searchTerm == "")
@@ -192,7 +183,7 @@ namespace HaloInfiniteResearchTools.Models
             //return _context.RootDir;
             temp.Add(HIFileContext.RootDir);
             return temp;
-        }
+        }*/
 
         private async Task OpenModuleEntryFile(FileModel file)
         {
@@ -242,21 +233,54 @@ namespace HaloInfiniteResearchTools.Models
         }
 
         #region Overrides
-
-        protected override void OnDisposing()
+        override protected void OnDisposing()
         {
-            _context.FileAdded -= OnFileAdded;
-            _context.FileRemoved -= OnFileRemoved;
-            _throttler.Dispose();
-            _throttlerDir.Dispose();
+            for (int i = 0; i < _files.Count; i++)
+            {
+                _files[i].reset();
+            } 
+            _files.Clear();
+            //_dirFiles = new ObservableCollection<DirModel>();
+           
+            
+
+            _fileAddQueue.Clear();
+            _fileRemoveQueue.Clear();
+            _fileLookup.Clear();
+            
+            //_context.FileAdded -= OnFileAdded;
+            //_context.FileRemoved -= OnFileRemoved;
+            
+            HiContext.Dispose();
+            //_throttlerDir.Execute();
+            //_throttler.Dispose();
+            //_throttlerDir.Dispose();
+            // Initialize the collection view source
+
         }
 
+        public void reset() {
+            for (int i = 0; i < _files.Count; i++)
+            {
+                _files[i].reset();
+            }
+            _files.Clear();
+            //_dirFiles = new ObservableCollection<DirModel>();
+
+
+
+            _fileAddQueue.Clear();
+            _fileRemoveQueue.Clear();
+            _fileLookup.Clear();
+            UpdateFiles();
+            HiContext.reset();
+        }
         #endregion
 
         #region Private Methods
 
         private void InitializeThreadSynchronization(
-          ObservableCollection<FileModel> files, object collectionLock)
+          ObservableCollection<IHIRTFile> files, object collectionLock)
         {
             // Initialize the underlying file collection with a lock so that we can
             // update the collection on other threads when the thread owns the lock.
@@ -286,12 +310,12 @@ namespace HaloInfiniteResearchTools.Models
             });
         }
 
-        private ICollectionView InitializeCollectionView(ObservableCollection<FileModel> files)
+        private ICollectionView InitializeCollectionView(ObservableCollection<IHIRTFile> files)
         {
-            var collectionView = CollectionViewSource.GetDefaultView(_files);
-            collectionView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(FileModel.Group)));
-            collectionView.SortDescriptions.Add(new SortDescription(nameof(FileModel.Group), ListSortDirection.Ascending));
-            collectionView.SortDescriptions.Add(new SortDescription(nameof(FileModel.Name), ListSortDirection.Ascending));
+            var collectionView = CollectionViewSource.GetDefaultView(files);
+            collectionView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(IHIRTFile.TagGroup)));
+            collectionView.SortDescriptions.Add(new SortDescription(nameof(IHIRTFile.TagGroup), ListSortDirection.Ascending));
+            //collectionView.SortDescriptions.Add(new SortDescription(nameof(IHIRTFile.Name), ListSortDirection.Ascending));
             collectionView.Filter = OnFilterFiles;
 
             return collectionView;
@@ -306,9 +330,13 @@ namespace HaloInfiniteResearchTools.Models
 
             return collectionView;
         }
+        private async void UpdateFilesAsync() {
+            await Task.Run(new System.Action(UpdateFiles));
+        }
 
         private void UpdateFiles()
         {
+            
             lock (_collectionLock)
             {
                 while (_fileAddQueue.TryDequeue(out var fileToAdd))
@@ -325,14 +353,14 @@ namespace HaloInfiniteResearchTools.Models
 
         private void UpdateDirsFiles()
         {
-            if (HIFileContext.RootDir != null)
+            /*if (HIFileContext.RootDir != null)
                 FiltersDirs = filterList();
             else
             {
 
             }
 
-            /*
+            
             lock (_collectionLock)
             {
                 while (_dirsFileAddQueue.TryDequeue(out var fileToAdd))
@@ -351,19 +379,16 @@ namespace HaloInfiniteResearchTools.Models
 
         #region Event Handlers
 
-        private void OnFileAdded(object sender, ISSpaceFile file)
+        private void OnFileAdded(object sender, IHIRTFile file)
         {
             // Explicitly exclude pck files from the FileTree
 
 
-            var model = new FileModel(file);
-            if (_fileLookup.TryAdd(file.Name, model))
+            if (_fileLookup.TryAdd(file.TryGetGlobalId(), file))
             {
-                _fileAddQueue.Enqueue(model);
+                _fileAddQueue.Enqueue(file);
                 _throttler.Execute();
             }
-
-            var dirModel = new DirModel(file.Name);
             /*if (_dirsFileLookup.TryAdd(file.Name, dirModel))
             {
                 _dirsFileAddQueue.Enqueue(dirModel);
@@ -371,9 +396,9 @@ namespace HaloInfiniteResearchTools.Models
             }*/
         }
 
-        private void OnFileRemoved(object sender, ISSpaceFile file)
+        private void OnFileRemoved(object sender, IHIRTFile file)
         {
-            if (!_fileLookup.TryGetValue(file.Name, out var model))
+            if (!_fileLookup.TryGetValue(file.TryGetGlobalId(), out var model))
                 return;
 
             _fileRemoveQueue.Enqueue(model);
@@ -382,14 +407,18 @@ namespace HaloInfiniteResearchTools.Models
                 return;
 
             _dirsFileRemoveQueue.Enqueue(dirModel);*/
-            _throttlerDir.Execute();
+            //_throttlerDir.Execute();
         }
 
         private bool OnFilterFiles(object obj)
         {
-            var file = obj as FileModel;
+            var file = obj as IHIRTFile;
             if (!ShowUnsupportedFiles && _editorFileExtensions != null && !_editorFileExtensions.Contains(file.Extension))
                 return false;
+            
+            if (file == null) return false;
+
+            if (file.Extension == ".module") return false;
 
             if (!string.IsNullOrWhiteSpace(_searchTerm))
                 return file.Name.Contains(_searchTerm, System.StringComparison.InvariantCultureIgnoreCase);
@@ -412,10 +441,10 @@ namespace HaloInfiniteResearchTools.Models
         private void OnSearchTermUpdated(string searchTerm)
         {
             _searchTerm = searchTerm;
+            var grou = _collectionViewSource.Groups;
+            _throttler.Execute();
 
-            // _throttler.Execute();
-
-            _throttlerDir.Execute();
+            //_throttlerDir.Execute();
         }
 
         private void AddExistingFiles()

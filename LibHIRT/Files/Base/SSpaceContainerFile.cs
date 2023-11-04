@@ -5,10 +5,9 @@
 
         #region Constructor
 
-        protected SSpaceContainerFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset,
+        protected SSpaceContainerFile(string name, 
           ISSpaceFile parent = null)
-          : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+          : base(name, parent)
         {
         }
 
@@ -18,7 +17,8 @@
 
         protected override void OnInitialize()
         {
-            BaseStream.Position = 0;
+            if (BaseStream != null)
+                BaseStream.Position = 0;
 
             ReadHeader();
             ReadChildren();
@@ -33,7 +33,7 @@
             var dataStartOffset = CalculateTrueChildOffset(offset);
             var dataEndOffset = dataStartOffset + size;
 
-            return SSpaceFileFactory.CreateFile(name, BaseStream, dataStartOffset, dataEndOffset, signature, this);
+            return SSpaceFileFactory.CreateFile(name, signature, this);
         }
 
         protected long CalculateTrueChildOffset(long offset)

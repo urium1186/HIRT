@@ -9,6 +9,7 @@ using LibHIRT.Files.FileTypes;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -60,7 +61,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             _file = file;
 
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _textureService = ServiceProvider.GetService<ITextureConversionService>();
             _tabService = ServiceProvider.GetService<ITabService>();
 
@@ -119,7 +120,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private Task OpenTextureDefinitionFile()
         {
-            var tdFile = _fileContext.GetFile(Path.ChangeExtension(_file.Name, ".td"));
+            var tdFile = _fileContext.GetFiles(Path.ChangeExtension(_file.Name, ".td")).First();
             if (tdFile is null)
                 return ShowMessageModal("File Not Found", "Could not find a texture definition for this file.");
 

@@ -1,5 +1,6 @@
 ﻿using HaloInfiniteResearchTools.Common;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
@@ -12,25 +13,26 @@ namespace HaloInfiniteResearchTools.Processes
 {
     public class ExportFilesToJsonProcess : ProcessBase<List<string>>
     {
-        private List<ISSpaceFile> _files;
+        private List<IHIRTFile> _files;
         private string _dir_path;
         private bool _advmode;
         private bool _outConsole;
         private List<string> _jsonFiles;
 
-        public ExportFilesToJsonProcess(ISSpaceFile file, string outfile, IServiceProvider? serviceProvider, bool advmode = false, bool outConsole = false) : base(serviceProvider)
+        public ExportFilesToJsonProcess(IHIRTFile file, string outfile, IServiceProvider? serviceProvider, bool advmode = false, bool outConsole = false) : base(serviceProvider)
         {
-            _files = new List<ISSpaceFile> { file };
+            _files = new List<IHIRTFile> { file };
             _dir_path = outfile;
             _advmode = advmode;
             _outConsole = outConsole;
             _jsonFiles = new List<string>();
 
         }
-        public ExportFilesToJsonProcess(List<ISSpaceFile> files, string dir_path)
+        public ExportFilesToJsonProcess(List<IHIRTFile> files, string dir_path)
         {
             _files = files;
             _dir_path = dir_path;
+            _jsonFiles = new List<string>();
         }
 
         public override List<string> Result => _jsonFiles;
@@ -54,9 +56,9 @@ namespace HaloInfiniteResearchTools.Processes
                 {
                     if (filePath.TagGroup != "����")
                     {
-                        var temp_file = filePath as SSpaceFile;
+                        var temp_file = filePath ;
                         string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
-                        string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1) + (_advmode ? "_ADV.json" : ".json");
+                        string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.TryGetGlobalId()) + (_advmode ? "_ADV.json" : ".json");
                         if (!Directory.Exists(dir_path))
                             Directory.CreateDirectory(dir_path);
                         if (!File.Exists(path_file))
@@ -68,7 +70,7 @@ namespace HaloInfiniteResearchTools.Processes
                                 jstonToWrite = (filePath as SSpaceFile).Deserialized()?.Root?.ToJson();
                             else
                             {
-                                var process_js = new ReadTagInstanceProcess((LibHIRT.Files.Base.IHIRTFile)filePath);
+                                var process_js = new ReadTagInstanceProcessV2((LibHIRT.Files.Base.IHIRTFile)filePath);
                                 await process_js.Execute();
                                 if (process_js.TagParse.RootTagInst != null)
                                 {
@@ -90,18 +92,6 @@ namespace HaloInfiniteResearchTools.Processes
                         }
 
                     }
-
-                    /* if (!_fileContext.OpenFile(filePath))
-                     {
-
-                         StatusList.AddWarning(fileName, "Failed to open file.");
-                     }
-                     else
-                     {
-                         Status = Status.Replace("\n" + temp, "");
-                         _filesLoaded.Add(fileName);
-                         StatusList.AddMessage(fileName, "Open file.");
-                     }*/
 
                 }
                 catch (Exception ex)

@@ -5,6 +5,8 @@ namespace LibHIRT.TagReader.Headers
     public abstract class HeaderTableEntry : BinaryReader
     {
         string fieldName = "";
+        public int Index { get; set; }
+        public int IndexOnParent { get; set; }
         protected HeaderTableEntry(Stream input) : base(input)
         {
         }

@@ -4,7 +4,7 @@
     [FileExtension(".scenario_structure_bsp")]
     public class ScenarioStructureBspFile : SSpaceFile
     {
-        public ScenarioStructureBspFile(string name, HIRTStream baseStream, long dataStartOffset, long dataEndOffset, ISSpaceFile parent = null) : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+        public ScenarioStructureBspFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
         }
 

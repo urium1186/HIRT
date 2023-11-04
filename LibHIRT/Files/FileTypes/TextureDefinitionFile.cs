@@ -13,10 +13,9 @@
 
         #region Constructor
 
-        public TextureDefinitionFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset,
+        public TextureDefinitionFile(string name,
           ISSpaceFile parent = null)
-          : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+          : base(name, parent)
         {
         }
 

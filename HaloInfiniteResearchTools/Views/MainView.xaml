@@ -27,15 +27,19 @@
                           Command="{Binding OpenDirectoryCommand}" />
                 <MenuItem Header="Open From Runtime"
                           Command="{Binding OpenFromRuntimeCommand}" />
+                <MenuItem Header="Reset"
+                          Command="{Binding ResetSessionCommand}" />
+                
             </MenuItem>
             <MenuItem Header="Tools">
-                <MenuItem Header="Tag Structs Dumper" Command="{Binding TagStructsDumperCommand}" />
+                <MenuItem Header="Tag Template Dumper" Command="{Binding TagStructsDumperCommand}" />
+                <MenuItem Header="Tag Template Load all" Command="{Binding TagStructsLoadAllCommand}" />
                 <Separator />
                 <MenuItem Header="Binary Explorer" Command="{Binding BinaryExplorerCommand}" />
                 <MenuItem Header="Tools" Command="{Binding ToolsCommand}" />
                 <Separator />
-                <MenuItem Header="Bulk Export Models" Command="{Binding BulkExportModelsCommand}" />
-                <MenuItem Header="Bulk Export Textures" Command="{Binding BulkExportTexturesCommand}" />
+                <MenuItem Header="Bulk Export Models" Command="{Binding BulkExportModelsCommand}" IsEnabled="False" />
+                <MenuItem Header="Bulk Export Textures" Command="{Binding BulkExportTexturesCommand}" IsEnabled="False"/>
                 <Separator />
                 <MenuItem Header="Preferences" Command="{Binding EditPreferencesCommand}" />
             </MenuItem>

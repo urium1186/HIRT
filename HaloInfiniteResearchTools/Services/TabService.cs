@@ -1,8 +1,9 @@
 ﻿using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.ViewModels;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.TagReader.Common;
+using LibHIRT.TagReader.RuntimeViewer;
 using System;
 using System.IO;
 using System.Linq;
@@ -48,7 +49,16 @@ namespace HaloInfiniteResearchTools.Services
 
         #region Public Methods
 
-        public bool CreateTabForFile(ISSpaceFile file, out ITab tab, bool forceGeneric = false)
+        public bool CreateTabForFile(IHIRTFile file, out ITab tab, bool forceGeneric = false)
+        {
+            if (file is ISSpaceFile)
+                return createTabSSpaceFile((ISSpaceFile)file, out tab, forceGeneric);
+            else
+                return createTabFileMem((TagStructMemFile)file, out tab);
+
+        }
+
+        private bool createTabSSpaceFile(ISSpaceFile file, out ITab tab, bool forceGeneric)
         {
             tab = default;
 
@@ -101,10 +111,14 @@ namespace HaloInfiniteResearchTools.Services
 
                 throw e;
             }
-
         }
 
-        public bool CreateTabForFile(TagStructMem file, out ITab tab, bool forceGeneric = false)
+        public bool CreateTabForFile(TagStructMemFile file, out ITab tab, bool forceGeneric = false)
+        {
+            return createTabFileMem(file, out tab);
+        }
+
+        private bool createTabFileMem(TagStructMemFile file, out ITab tab)
         {
             tab = default;
 
@@ -134,6 +148,26 @@ namespace HaloInfiniteResearchTools.Services
             }
         }
 
+        public void CloseAllTab()
+        {
+            
+            try
+            {
+                int count = _tabContext.Tabs.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    if (_tabContext.Tabs.Count>0)
+                        _tabContext.Tabs.Last().Close();
+
+                }
+                
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
 
         public bool NavigateToTab(string tabName)
         {

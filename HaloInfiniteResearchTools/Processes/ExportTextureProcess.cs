@@ -55,7 +55,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         public ExportTextureProcess(PictureFile file, TextureExportOptionsModel options)
         {
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _textureConversionService = ServiceProvider.GetRequiredService<ITextureConversionService>();
 
             _file = file;
@@ -271,7 +271,7 @@ namespace HaloInfiniteResearchTools.Processes
         private async Task ExportTextureDefinition()
         {
             var tdFileName = Path.ChangeExtension(_file.Name, ".td");
-            var tdFile = _fileContext.GetFile<TextureDefinitionFile>(tdFileName);
+            var tdFile = _fileContext.GetFiles<TextureDefinitionFile>(tdFileName).First();
             if (tdFile is null)
             {
                 StatusList.AddWarning(tdFileName, "Could not find Texture Definition. It isn't loaded or doesn't exist.");

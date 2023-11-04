@@ -38,7 +38,7 @@ namespace HaloInfiniteResearchTools.Processes
             _modelOptions = modelOptions;
             _textureOptions = textureOptions;
 
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
         }
 
         #endregion

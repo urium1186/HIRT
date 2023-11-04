@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using System;
@@ -11,11 +12,11 @@ namespace HaloInfiniteResearchTools.Processes
 {
     class ExportFilesRecursiveToJsonProcess : ProcessBase<IEnumerable<string>>
     {
-        private SSpaceFile _file;
+        private IHIRTFile _file;
         private string _dir_path;
-        private ConcurrentDictionary<int, ISSpaceFile> _files;
+        private ConcurrentDictionary<int, IHIRTFile> _files;
 
-        public ExportFilesRecursiveToJsonProcess(SSpaceFile file, string dir_path)
+        public ExportFilesRecursiveToJsonProcess(IHIRTFile file, string dir_path)
         {
             _file = file;
             _dir_path = dir_path;
@@ -27,7 +28,7 @@ namespace HaloInfiniteResearchTools.Processes
         protected override Task OnInitializing()
         {
             if (_files == null)
-                _files = new ConcurrentDictionary<int, ISSpaceFile>();
+                _files = new ConcurrentDictionary<int, IHIRTFile>();
             _files.Clear();
             return base.OnInitializing();
         }
@@ -51,13 +52,13 @@ namespace HaloInfiniteResearchTools.Processes
                 {
                     var temp_file = _file;
                     string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
-                    string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.FileMemDescriptor.GlobalTagId1) + ".json";
+                    string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.TryGetGlobalId()) + ".json";
                     if (!Directory.Exists(dir_path))
                         Directory.CreateDirectory(dir_path);
 
                     if (!File.Exists(path_file))
                     {
-                        //await ExportFileToJson(_file,path_file);
+                        await ExportFileToJson(_file,path_file);
 
                     }
 
@@ -90,18 +91,18 @@ namespace HaloInfiniteResearchTools.Processes
             }
         }
 
-        private async Task ExportFileToJson(SSpaceFile file, string path_file)
+        private async Task ExportFileToJson(IHIRTFile file, string path_file)
         {
-            if (_files.ContainsKey(file.FileMemDescriptor.GlobalTagId1))
+            if (_files.ContainsKey(file.TryGetGlobalId()))
             {
                 return;
             }
             if (File.Exists(path_file))
                 return;
-            var process = new ReadTagInstanceProcess(file);
+            var process = new ReadTagInstanceProcessV2(file);
 
             process.OnInstanceLoadEvent += TagParse_OnInstanceLoadEvent;
-            if (!_files.TryAdd(file.FileMemDescriptor.GlobalTagId1, file))
+            if (!_files.TryAdd(file.TryGetGlobalId(), file))
                 return;
 
             await Task.Factory.StartNew(process.Execute, TaskCreationOptions.LongRunning);
@@ -139,20 +140,18 @@ namespace HaloInfiniteResearchTools.Processes
                         if (!File.Exists(path_file))
                         {
                             ISSpaceFile file = null;
-                            if (_file.Parent != null)
-                            {
-                                file = (SSpaceFile)(_file.Parent as ModuleFile).GetFileByGlobalId((int)tagRef.Ref_id_int);
+                            file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
                                 if (file == null)
                                 {
-                                    file = (SSpaceFile)(_file.Parent as ModuleFile).GetFileByGlobalId((int)tagRef.Ref_id_center_int);
+                                    file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_center_int);
                                     if (file == null)
                                     {
-                                        file = (SSpaceFile)(_file.Parent as ModuleFile).GetFileByGlobalId((int)tagRef.Ref_id_sub_int);
+                                        file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_sub_int);
                                     }
 
                                 }
 
-                            }
+                            
                             if (file != null)
                             {
                                 await ExportFileToJson((SSpaceFile)file, path_file);
@@ -160,26 +159,6 @@ namespace HaloInfiniteResearchTools.Processes
                         }
                     }
                 }
-                /*switch (((TagInstance)e).TagDef.G)
-                {
-                    case "_37":
-                        break;
-                    default:
-                        break;
-                }
-                string classHash = ((TagInstance)e).TagDef.E?["hash"].ToString();
-                switch (classHash)
-                {
-                   
-                    case "36C8F698C54393CD883131BA77BABD05":
-
-                        break;
-                    default:
-                        break;
-                }
-                if (((TagInstance)e).TagDef.N == "raw vertices")
-                {
-                }*/
             }
         }
     }

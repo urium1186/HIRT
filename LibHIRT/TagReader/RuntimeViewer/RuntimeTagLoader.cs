@@ -22,7 +22,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
         public string ProcAsyncBaseAddr = TRSettings.Instance.ProcAsyncBaseAddr;
 
         public bool done_loading_settings;
-        public Dictionary<string, TagStructMem> TagsList { get; set; } = new(); // and now we can convert it back because we just sort it elsewhere
+        public Dictionary<int, TagStructMemFile> TagsList { get; set; } = new(); // and now we can convert it back because we just sort it elsewhere
         public SortedDictionary<string, GroupTagStruct> TagGroups { get; set; } = new();
         public Dictionary<string, string> InhaledTagnames = new();
         #region poop region
@@ -384,17 +384,17 @@ namespace LibHIRT.TagReader.RuntimeViewer
                 TagCount = M.ReadInt((BaseAddress + 0x6C).ToString("X"));
                 long tagsStart = M.ReadLong((BaseAddress + 0x78).ToString("X"));
 
-                // each tag is 52 bytes long // was it 52 or was it 0x52? whatever
+                // each tag is 52 bytes long // was it 52 or was it 0x52? whatever 82
                 // 0x0 datnum 4bytes
                 // 0x4 ObjectID 4bytes
                 // 0x8 Tag_group Pointer 8bytes
                 // 0x10 Tag_data Pointer 8bytes
                 // 0x18 Tag_type_desc Pointer 8bytes
 
-                TagsList = new Dictionary<string, TagStructMem>();
+                TagsList = new Dictionary<int, TagStructMemFile>();
                 for (int tagIndex = 0; tagIndex < TagCount; tagIndex++)
                 {
-                    TagStructMem currentTag = new();
+                    TagStructMemFile currentTag = new();
                     long tagAddress = tagsStart + (tagIndex * 52);
 
                     byte[] test1 = M.ReadBytes(tagAddress.ToString("X"), 4);
@@ -412,11 +412,13 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
                     // = String.Concat(bytes.Where(c => !Char.IsWhiteSpace(c)));
 
-                    currentTag.ObjectId = BitConverter.ToString(test).Replace("-", string.Empty);
+                    currentTag.ObjectId = BitConverter.ToInt32(test);
+                    currentTag.ObjectIdStr = BitConverter.ToString(test).Replace("-", string.Empty);
                     currentTag.TagGroupMem = read_tag_group(M.ReadLong((tagAddress + 0x8).ToString("X")));
                     currentTag.TagData = M.ReadLong((tagAddress + 0x10).ToString("X"));
-                    currentTag.TagFullName = convert_ID_to_tag_name(currentTag.ObjectId).Trim();
+                    currentTag.TagFullName = convert_ID_to_tag_name(currentTag.ObjectIdStr).Trim();
                     currentTag.TagFile = currentTag.TagFullName.Split('\\').Last().Trim();
+                    currentTag.M = M;
                     byte[] debug = M.ReadBytes((tagAddress).ToString("X"), 52);
 
                     var temp_s = M.ReadString(M.ReadLong((tagAddress + 0x10 + 24).ToString("X")).ToString("X"), "", 300);
@@ -460,9 +462,9 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
         }
 
-        public bool checkLoadTagInstance(string tagID) // i love dictionaries
+        public bool checkLoadTagInstance(int tagID) // i love dictionaries
         {
-            TagStructMem loadingTag = TagsList[tagID];
+            TagStructMemFile loadingTag = TagsList[tagID];
             //Tagname_text.Text = _mainWindow.convert_ID_to_tag_name(loadingTag.ObjectId);
             //tagID_text.Text = "ID: " + loadingTag.ObjectId;
             //tagdatnum_text.Text = "Datnum: " + loadingTag.Datnum;
@@ -498,7 +500,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                 //dat_block.value.Text = checked_datnum;
                 //tagview_panels.Children.Add(dat_block);
 
-                if (checked_ID != loadingTag.ObjectId || checked_datnum != loadingTag.Datnum)
+                if (checked_ID != loadingTag.ObjectIdStr || checked_datnum != loadingTag.Datnum)
                 {
                     //TextBox tb1 = new TextBox { Text = "Datnum/ID mismatch; Tag appears to be unloaded, meaning it may not be active on the map, else try reloading the tags" };
                     //tagview_panels.Children.Add(tb1);

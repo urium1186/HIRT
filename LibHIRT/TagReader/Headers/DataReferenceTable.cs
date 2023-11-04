@@ -102,7 +102,7 @@ namespace LibHIRT.TagReader.Headers
     {
         private TagStructTable? tagStructTableField;
         public bool Read_entry_data { get => read_entry_data; set => read_entry_data = value; }
-
+        public event EventHandler<DataReference> OnReadEntryEvent;
 
         bool read_entry_data = false;
         internal TagStructTable TagStructTableField { get => tagStructTableField; set => tagStructTableField = value; }
@@ -127,8 +127,13 @@ namespace LibHIRT.TagReader.Headers
                         entry.Bin_data = new List<byte>(entry.Field_data_block.Size);
                     }
                 }
+                entry.IndexOnParent = entry.Parent_struct.L_function.Count;
                 entry.Parent_struct.L_function.Add(entry);
+                entry.Index = entries.Count;
                 entries.Add(entry);
+
+                if (OnReadEntryEvent != null)
+                    OnReadEntryEvent.Invoke(this, entry);
             }
         }
 
@@ -138,6 +143,7 @@ namespace LibHIRT.TagReader.Headers
             {
                 f.Seek(header.DataReferenceOffset + pos * 20, SeekOrigin.Begin);
                 DataReference entry = new DataReference(f);
+                entry.Index = pos;
                 entry.ReadIn();
                 if (tagStructTableField.Entries != null && entry.Parent_struct_index < tagStructTableField.Entries.Count)
                 {
@@ -160,6 +166,7 @@ namespace LibHIRT.TagReader.Headers
                         entry.Bin_data = new List<byte>(entry.Field_data_block.Size);
                     }
                 }
+                entry.IndexOnParent = entry.Parent_struct.L_function.Count;
                 entry.Parent_struct.L_function.Add(entry);
             }
             return null;

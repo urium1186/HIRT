@@ -131,7 +131,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
             _secundaryMesh = new List<(SSpaceFile, RenderModelDefinition, Assimp.Scene)>();
 
-            _fileContext = ServiceProvider.GetRequiredService<IHIFileContext>();
+            _fileContext = HIFileContext.Instance;
             _meshIdentifierService = ServiceProvider.GetRequiredService<IMeshIdentifierService>();
 
             EffectsManager = new DefaultEffectsManager();
@@ -258,7 +258,7 @@ namespace HaloInfiniteResearchTools.ControlsModel
             if (_loadedTextures.TryGetValue(name, out var texture))
                 return texture;
 
-            var file = _fileContext.GetFile<PictureFile>(name);
+            var file = _fileContext.GetFiles<PictureFile>(name).First();
             if (file is null)
                 return null;
 

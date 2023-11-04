@@ -10,7 +10,8 @@ namespace LibHIRT.Files
 
         #region Delegates
 
-        private delegate ISSpaceFile CreateFileDelegate(string name, HIRTStream stream, long startOffset, long endOffset, ISSpaceFile parent = null);
+        private delegate ISSpaceFile CreateFileDelegate(string name, ISSpaceFile parent = null);
+        
 
         #endregion
 
@@ -44,12 +45,9 @@ namespace LibHIRT.Files
 
         #region Public Methods
 
-        public static ISSpaceFile CreateFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset, string signature,
+        public static ISSpaceFile CreateFile(string name, string signature,
           ISSpaceFile parent = null)
         {
-            if (baseStream != null)
-                baseStream.Position = 0;
             var ext = Path.GetExtension(name);
             //var signature = ReadSignature(baseStream, dataStartOffset);
 
@@ -61,7 +59,7 @@ namespace LibHIRT.Files
             if (!_constructorLookup.TryGetValue(fileType, out var ctorDelegate))
                 return FailReturn<ISSpaceFile>($"FileType '{fileType.Name}' does not have a constructor delegate!");
 
-            return ctorDelegate(name, baseStream, dataStartOffset, dataEndOffset, parent);
+            return ctorDelegate(name, parent);
         }
 
         #endregion
@@ -89,7 +87,8 @@ namespace LibHIRT.Files
               BindingFlags.NonPublic;
 
             // Get the constructor
-            var ctorArgTypes = new Type[] { typeof(string), typeof(HIRTStream), typeof(long), typeof(long), typeof(ISSpaceFile) };
+            //var ctorArgTypes = new Type[] { typeof(string), typeof(HIRTStream), typeof(long), typeof(long), typeof(ISSpaceFile) };
+            var ctorArgTypes = new Type[] { typeof(string), typeof(ISSpaceFile) };
             var ctorMethod = fileType.GetConstructor(BINDING_FLAGS, null, ctorArgTypes, new ParameterModifier[0]);
             Assert(ctorMethod != null, $"Could not find constructor for {fileType.Name}");
 
@@ -99,11 +98,11 @@ namespace LibHIRT.Files
 
             // Initialize the call arguments
             var nameParameter = Expression.Parameter(typeof(string), "name");
-            var streamParameter = Expression.Parameter(typeof(HIRTStream), "stream");
+            /*var streamParameter = Expression.Parameter(typeof(HIRTStream), "stream");
             var startOffsetParameter = Expression.Parameter(typeof(long), "startOffset");
-            var endOffsetParameter = Expression.Parameter(typeof(long), "endOffset");
+            var endOffsetParameter = Expression.Parameter(typeof(long), "endOffset");*/
             var parentParameter = Expression.Parameter(typeof(ISSpaceFile), "parent");
-            var parameters = new[] { nameParameter, streamParameter, startOffsetParameter, endOffsetParameter, parentParameter };
+            var parameters = new[] { nameParameter, parentParameter };
 
             // Initialize the local variables
             var instanceVariable = Expression.Variable(fileType, "instance");

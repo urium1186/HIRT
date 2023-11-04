@@ -16,8 +16,11 @@ namespace HaloInfiniteResearchTools.Models
 
         private void SetActivePath()
         {
-            if (Active)
-                TagLayouts.TagXmlParse.TagsPath = Path;
+            if (Active) {
+                TagXmlParse.TagsPath = Path;
+                TagXmlParseV2.TagsPath = Path;
+            }
+                
         }
 
         public TagReaderPath()

@@ -4,9 +4,11 @@ using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
+using Microsoft.Diagnostics.Tracing.Utilities;
 using Oodle;
 using Oodle.NET;
 using System.Diagnostics;
+using System.Reflection.PortableExecutable;
 using static LibHIRT.Assertions;
 
 namespace LibHIRT.Files.FileTypes
@@ -17,9 +19,6 @@ namespace LibHIRT.Files.FileTypes
     {
         Stream hd1Handle;
         HiModuleHeader _moduleHeader = new HiModuleHeader();
-        List<HiModuleFileEntry> hiModuleFileEntries = new List<HiModuleFileEntry>();
-        List<int> t3es = new List<int>();
-        List<HiModuleBlockEntry> blocks = new List<HiModuleBlockEntry>();
         Dictionary<int, ISSpaceFile> _filesIndexLookup = new Dictionary<int, ISSpaceFile>();
         Dictionary<int, ISSpaceFile> _filesGlobalIdLookup = new Dictionary<int, ISSpaceFile>();
 
@@ -43,17 +42,20 @@ namespace LibHIRT.Files.FileTypes
 
         #region Constructor
 
-        public ModuleFile(string name, HIRTStream baseStream,
-          long dataStartOffset, long dataEndOffset,
+        public ModuleFile(string name, 
           ISSpaceFile parent = null)
-          : base(name, baseStream, dataStartOffset, dataEndOffset, parent)
+          : base(name, parent)
         {
         }
         protected override void OnInitialize()
         {
-            base.OnInitialize();
+            if (BaseStream != null)
+                base.OnInitialize();
         }
-
+        void reset() {
+            if (BaseStream != null)
+                BaseStream.Close(); 
+        }
         void GetHd1Handle()
         {
             try
@@ -453,7 +455,7 @@ namespace LibHIRT.Files.FileTypes
                 catch (Exception ex)
                 {
                     //string module_name = Name.Split("__")[1];    
-                    foreach (var item in HIFileContext.FilesModuleGlobalIdLockUp)
+                    /*foreach (var item in HIFileContext.Instance.FilesModuleGlobalIdLockUp)
                     {
                         //string name = item.Key.Split("__")[1];
                         // module_name == name && 
@@ -466,7 +468,7 @@ namespace LibHIRT.Files.FileTypes
                             }
 
                         }
-                    }
+                    }*/
                     return null;
                 }
 
@@ -600,7 +602,7 @@ namespace LibHIRT.Files.FileTypes
                    
                 k++;
             }
-            
+
             //module.ReadInFilesEntrys(this.Reader, fileProcessor);
             // Create entries
             /*
@@ -634,7 +636,32 @@ namespace LibHIRT.Files.FileTypes
             var dataStartOffset = CalculateTrueChildOffset(offset);
             var dataEndOffset = dataStartOffset + size;
 
-            return SSpaceFileFactory.CreateFile(name, null, dataStartOffset, dataEndOffset, signature, this);
+            return SSpaceFileFactory.CreateFile(name, signature, this);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            this.hd1Handle?.Close();
+            this.hd1Handle?.Dispose();
+            foreach (var item in _filesGlobalIdLookup)
+            {
+                item.Value.Dispose();
+            }
+            this._filesGlobalIdLookup.Clear();
+            foreach (var item in _filesGlobalIdLookup)
+            {
+                item.Value.Dispose();
+            }
+            this._filesIndexLookup.Clear();
+            //this._moduleHeader = null;
+            base.OnDisposing(isDisposing);
+        }
+
+        public override void InitializeStream(HIRTStream baseStream, long dataStartOffset, long dataEndOffset)
+        {
+            base.InitializeStream(baseStream, dataStartOffset, dataEndOffset);
+            ReadHeader();
+            ReadChildren();
         }
         #endregion
 
