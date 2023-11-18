@@ -1,10 +1,12 @@
 ﻿<view:View x:Class="HaloInfiniteResearchTools.Views.GenericView"
             x:TypeArguments="vm:GenericViewModel"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:s="clr-namespace:System;assembly=mscorlib"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
            xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
+           xmlns:hifiles="clr-namespace:LibHIRT.Files.FileTypes;assembly=LibHIRT"
       xmlns:view="clr-namespace:HaloInfiniteResearchTools.Views"
            xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
       mc:Ignorable="d" 
@@ -19,9 +21,16 @@
         <Menu Grid.Row="0"
               VerticalAlignment="Bottom">
             <MenuItem Header="File">
-                <MenuItem Header="Write Tag to Module" Command="{Binding WriteTagCommand}" />
+                <MenuItem Header="Write Tag to Module" Command="{Binding WriteTagFileCommand}" />
+                <MenuItem Header="Get All Files Ref To" Command="{Binding GetAllFilesRefToCommand}" />
             </MenuItem>
-           
+            <MenuItem Header="Resources" Visibility="{Binding OptResource, Converter={StaticResource CollectionVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal"  >
+                    <ComboBox Text="Select" ItemsSource="{Binding OptResource}" SelectedItem="{Binding OptResourceSel}" SelectedIndex="0" >
+                    </ComboBox>
+                    <MenuItem Header="Open Selected" Command="{Binding OpenResourceIndexCommand}" />
+                </StackPanel>
+            </MenuItem>
         </Menu>
         <TabControl Grid.Row="1" TabStripPlacement="Right" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="{Binding SelectedTabIndex}">
             <!--
@@ -55,11 +64,12 @@
                                                   
                                                   TagRefOpenCommand="{Binding OpenFileTabCommand}"
                                                   TagRefGenOpenCommand="{Binding OpenGenFileTabCommand}"
+                                                  ResourceGenOpenCommand="{Binding OpenResourceCommand}"
                                                   TagToJsonCommand="{Binding TagInstanceExportJsonCommand}"
                                                   TagGoToBinCommand="{Binding TagGoToBinCommand}"
                                                   WriteToCommand="{Binding WriteToCommand}"
                                                   TagGoToTemplateCommand="{Binding TagGoToTemplateCommand}"
-                                                  RenderGeomGenOpenCommand="{Binding RenderGeomGenOpenCommand}"
+                                                  RenderGeomGenOpenCommand="{Binding RenderGeomGenOpenCommand}" Loaded="TagInstanceTree_Loaded"
                                                   >
 
                     </controls:TagInstanceTreeview>
@@ -89,15 +99,56 @@
                 </Grid>
             </TabItem>
             <TabItem x:Name="RenderGeomViewer" Header="Render Geom"  FontStyle="Italic" FontWeight="Thin" 
-                     IsEnabled="{Binding RenderGeomViewerEnable, 
-                                                   Converter={StaticResource InequalityBoolConverter}, 
-                                                   ConverterParameter ={StaticResource IntOneMinus}}"
+                      Visibility="{Binding RenderGeomViewerEnable, Converter={StaticResource BoolVisibilityConverter}}"
+                     IsEnabled="{Binding RenderGeomViewerEnable}"
                      >
                 <Grid Background="#FFE5E5E5">
 
                     <controls:Model3DViewerControl x:Name="model3dCtrl" SceneContex ="{Binding MyGeometrySceneContex}" DataContext="{Binding DViewerControlModel}"
                                                    />
-                    
+
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="TagFileRefs" Header="Tag Refs"  FontStyle="Italic" FontWeight="Thin"  Visibility="{Binding LoadedRefsToFile, Converter={StaticResource BoolVisibilityConverter}}">
+                <Grid Background="#FFE5E5E5">
+                    <Label Content="No Founds" Visibility="{Binding RefsToFile, Converter={StaticResource CollectionVisibilityConverter}, ConverterParameter=true }" Background="DarkGray" FontWeight="Bold" FontSize="72" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TreeView  BorderThickness="0"
+                               Visibility="{Binding RefsToFile, Converter={StaticResource CollectionVisibilityConverter}}"
+                               VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  VirtualizingPanel.IsContainerVirtualizable="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                               >
+
+                        <TreeViewItem >
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Found "/>
+                                    <TextBlock Text="{Binding RefsToFile.Count, Mode=OneWay}"/>
+                                    <TextBlock Text=" items"/>
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <TreeView ItemsSource="{Binding RefsToFile}" >
+                                <TreeView.ItemTemplate>
+                                    <DataTemplate  DataType="{x:Type hifiles:EntryRef}">
+
+
+                                        <StackPanel Orientation="Horizontal">
+
+
+                                            <TextBlock Text="Global id: " Height="25" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding globalId}" Height="25" VerticalAlignment="Center" />
+                                            <Button Content="Open Gen" DataContext="{Binding globalId}" 
+                                                IsEnabled="{Binding Self, Converter={StaticResource InequalityBoolConverter}, ConverterParameter ={StaticResource IntOneMinus}}"
+                                                Width="65" Height="25" Click="TagRefIdGenButton_Click" Margin="10,0,0,0"/>
+                                        </StackPanel>
+
+
+                                    </DataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
+                        </TreeViewItem>
+                    </TreeView>
                 </Grid>
             </TabItem>
         </TabControl>

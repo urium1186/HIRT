@@ -1,6 +1,7 @@
 ﻿namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("shdv")]
+    [FileTagGroup("shdv")]
+    [FileSignature("984B2CD930519813")]
     [FileExtension(".shadervariant")]
     public class ShaderVariantFile : SSpaceFile
     {

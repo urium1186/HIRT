@@ -3,9 +3,9 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace HaloInfiniteResearchTools.Common.Grunt.Converters
+namespace LibHIRT.Grunt.Converters
 {
-    internal class OnlineUriReferenceConverter : JsonConverter<OnlineUriReference?>
+    public class OnlineUriReferenceConverter : JsonConverter<OnlineUriReference?>
     {
         public override OnlineUriReference? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

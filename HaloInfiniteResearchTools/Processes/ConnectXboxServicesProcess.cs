@@ -1,4 +1,4 @@
-﻿using HaloInfiniteResearchTools.Common.Grunt;
+﻿using LibHIRT.Grunt;
 using LibHIRT.Utils;
 using OpenSpartan.Grunt.Authentication;
 using OpenSpartan.Grunt.Core;
@@ -17,14 +17,7 @@ using System.Web;
 
 namespace HaloInfiniteResearchTools.Processes
 {
-    public class ConnectXboxServicesResult
-    {
-        XboxTicket extendedTicket;
-        HaloInfiniteClientFix client;
-
-        public XboxTicket ExtendedTicket { get => extendedTicket; set => extendedTicket = value; }
-        public HaloInfiniteClientFix Client { get => client; set => client = value; }
-    }
+    
     public class ConnectXboxServicesProcess : ProcessBase<ConnectXboxServicesResult>
     {
         HttpListener _httpListener = new HttpListener();
@@ -159,6 +152,13 @@ namespace HaloInfiniteResearchTools.Processes
             {
                 extendedTicket = await manager.RequestXstsToken(ticket.Token, false);
             }).GetAwaiter().GetResult();
+            if (haloTicket is null) {
+                if (_responseThread != null && _responseThread.IsAlive)
+                {
+                    do_not_stop_listener = false;
+                }
+                return;
+            }
 
             Task.Run(async () =>
             {

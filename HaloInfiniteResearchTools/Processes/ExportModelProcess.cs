@@ -7,6 +7,7 @@ using LibHIRT.Data.Materials;
 using LibHIRT.Data.Textures;
 using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Processes.OnGeometry;
 using LibHIRT.Serializers.Configurations;
@@ -30,7 +31,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         private readonly IHIFileContext _fileContext;
 
-        private ISSpaceFile _file;
+        private IHIRTFile _file;
         private Scene _scene;
         private RenderModelDefinition _geometryGraph;
         private ObservableCollection<ModelNodeModel> _nodes;
@@ -43,7 +44,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         #region Constructor
 
-        public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, IServiceProvider? serviceProvider) : base(serviceProvider)
+        public ExportModelProcess(IHIRTFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, IServiceProvider? serviceProvider) : base(serviceProvider)
         {
             _fileContext = HIFileContext.Instance;
 
@@ -60,7 +61,7 @@ namespace HaloInfiniteResearchTools.Processes
             _textureOptions.OutputPath = _modelOptions.OutputPath;
             _textureOptions.ExportAllMips = false;
         }
-        public ExportModelProcess(ISSpaceFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions)
+        public ExportModelProcess(IHIRTFile file, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions)
         {
             _fileContext = HIFileContext.Instance;
 
@@ -78,7 +79,7 @@ namespace HaloInfiniteResearchTools.Processes
             _textureOptions.ExportAllMips = false;
         }
 
-        public ExportModelProcess(ISSpaceFile file, Scene scene, RenderModelDefinition geometryGraph, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, ObservableCollection<ModelNodeModel> nodes = null)
+        public ExportModelProcess(IHIRTFile file, Scene scene, RenderModelDefinition geometryGraph, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, ObservableCollection<ModelNodeModel> nodes = null)
           : this(file, modelOptions, textureOptions)
         {
             _scene = scene;
@@ -86,7 +87,7 @@ namespace HaloInfiniteResearchTools.Processes
             _nodes = nodes;
         }
 
-        public ExportModelProcess(SSpaceFile file, HelixToolkit.SharpDX.Core.Assimp.HelixToolkitScene sceneHelixToolkit, RenderModelDefinition geometryGraph, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, ObservableCollection<ModelNodeModel> nodes)
+        public ExportModelProcess(IHIRTFile file, HelixToolkit.SharpDX.Core.Assimp.HelixToolkitScene sceneHelixToolkit, RenderModelDefinition geometryGraph, ModelExportOptionsModel modelOptions, TextureExportOptionsModel textureOptions, ObservableCollection<ModelNodeModel> nodes)
          : this(file, modelOptions, textureOptions)
         {
 
@@ -300,7 +301,7 @@ namespace HaloInfiniteResearchTools.Processes
             if (tdFile is null)
                 return;
 
-            var texDef = new FileScriptingSerializer<TextureDefinition>().Deserialize(tdFile.GetStream());
+            var texDef = new FileScriptingSerializer<TextureDefinition>().Deserialize(((SSpaceFile)tdFile).GetStream());
             foreach (var textureName in texDef.GetTextureNames())
             {
                 var nameWithExt = Path.ChangeExtension(textureName, "pct");

@@ -20,10 +20,11 @@ namespace LibHIRT.ModuleUnpacker
         public int Version { get; set; } // 
         public long ModuleId { get; set; }
         public int ModuleIntId { get; set; }
+        public int ModuleIntId1 { get; private set; }
         public int FilesCount { get; set; }
         public int ManifestCount { get; set; }
 
-        private int unk0x18;
+        private int mapRefIndex;
         private int unk0x1C;
 
         public int ResourceIndex { get; set; }
@@ -63,7 +64,7 @@ namespace LibHIRT.ModuleUnpacker
         public Int64 Hd1_delta { get => hd1_delta; set => hd1_delta = value; }
         //public uint Unk0x3C { get => unk0x3C; set => unk0x3C = _intValue; }
         public uint Unk0x44 { get => unk0x44; set => unk0x44 = value; }
-        public int Unk0x18 { get => unk0x18; set => unk0x18 = value; }
+        public int MapRefIndex { get => mapRefIndex; set => mapRefIndex = value; }
         public int Unk0x1C { get => unk0x1C; set => unk0x1C = value; }
         public bool Loaded { get => _loaded; }
         public ulong DataOffset { get => _dataOffset; set => _dataOffset = value; }
@@ -96,15 +97,18 @@ namespace LibHIRT.ModuleUnpacker
             Version = BitConverter.ToInt32(ModuleHeader, 4);
             ModuleId = BitConverter.ToInt64(ModuleHeader, 8);
             ModuleIntId = BitConverter.ToInt32(ModuleHeader, 8);
+            ModuleIntId1 = BitConverter.ToInt32(ModuleHeader, 12);
             extra.Add(BitConverter.ToInt32(ModuleHeader, 8));
             extra.Add(BitConverter.ToInt32(ModuleHeader, 12));
             FilesCount = BitConverter.ToInt32(ModuleHeader, 16);
             ManifestCount = BitConverter.ToInt32(ModuleHeader, 20);
             Debug.Assert(ManifestCount == -1 || ManifestCount == 0);
-            unk0x18 = BitConverter.ToInt32(ModuleHeader, 24);
-            Debug.Assert(unk0x18 == -1 || unk0x18 == 0 || unk0x18 == 1);
+            mapRefIndex = BitConverter.ToInt32(ModuleHeader, 24);
+            Debug.Assert(mapRefIndex == -1 || mapRefIndex == 0 || mapRefIndex == 1);
+            if (mapRefIndex == -1) { 
+            }
 
-            Debug.Assert((ManifestCount == -1 && (unk0x18 == 0 || unk0x18 == -1)) || (ManifestCount == 0 && unk0x18 == 1));
+            Debug.Assert((ManifestCount == -1 && (mapRefIndex == 0 || mapRefIndex == -1)) || (ManifestCount == 0 && mapRefIndex == 1));
 
             unk0x1C = BitConverter.ToInt32(ModuleHeader, 28);
             Debug.Assert(unk0x1C == -1);
@@ -144,21 +148,21 @@ namespace LibHIRT.ModuleUnpacker
             if ((tmp & 0xfff) == 0)
             {
                 _dataOffset = tmp;
-                Debug.Assert(Unk0x18 == -1);
+                Debug.Assert(MapRefIndex == -1);
                 Debug.Assert(tmp == 4095);
             }
             else
             {
                 _dataOffset = (tmp & 0xfffffffffffff000) + 0x1000; // min file size 4096; a file with size of 4096 is a no data file Unk0x18 = -1
                 if (_dataOffset < 4096)
-                    Debug.Assert(Unk0x18 == -1);
+                    Debug.Assert(MapRefIndex == -1);
                 else
                     if (_dataOffset == 4096 && tmp == 80)
-                    Debug.Assert(Unk0x18 == -1);
+                    Debug.Assert(MapRefIndex == -1);
                 else
-                    Debug.Assert(Unk0x18 != -1);
+                    Debug.Assert(MapRefIndex != -1);
             }
-            if (Unk0x18 == -1)
+            if (MapRefIndex == -1)
             {
                 Debug.Assert(BlockCount == 0);
                 Debug.Assert(FilesCount == 0);
@@ -172,14 +176,14 @@ namespace LibHIRT.ModuleUnpacker
             {
                 Debug.Assert(_dataOffset >= 4096);
             }
-            Debug.Assert((ManifestCount == -1) || (ManifestCount == 0 && Hd1_delta == 0 && unk0x18 == 1));
-            Debug.Assert((ManifestCount == -1 && ((unk0x18 == -1) || (unk0x18 == 0 && (Hd1_delta != 0 || Data_size != 0 || BlockCount != 0)))) || (ManifestCount == 0));
-            if (Unk0x18 == 0)
+            Debug.Assert((ManifestCount == -1) || (ManifestCount == 0 && Hd1_delta == 0 && mapRefIndex == 1));
+            Debug.Assert((ManifestCount == -1 && ((mapRefIndex == -1) || (mapRefIndex == 0 && (Hd1_delta != 0 || Data_size != 0 || BlockCount != 0)))) || (ManifestCount == 0));
+            if (MapRefIndex == 0)
             {
                 Debug.Assert(BlockCount != 0);
                 Debug.Assert(FilesCount != 0);
             }
-            else if (Unk0x18 == 1)
+            else if (MapRefIndex == 1)
             {
                 Debug.Assert(Hd1_delta == 0);
                 //Debug.Assert(ResourceCount == 0);
@@ -187,7 +191,7 @@ namespace LibHIRT.ModuleUnpacker
 
             if (ResourceCount != 0 && BlockCount != 0 && Hd1_delta != 0)
             {
-                Debug.Assert(unk0x18 == 0);
+                Debug.Assert(mapRefIndex == 0);
             }
             if (Hd1_delta != 0)
             {

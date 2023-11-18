@@ -286,7 +286,7 @@ namespace LibHIRT.Serializers
             var format = (S3DPictureFormat)formatValue;
 
             Assert(Enum.IsDefined(typeof(S3DPictureFormat), format),
-              $"Unknown DDS Format Value: {formatValue:X}");
+              $"Unknown DDS Format IntValue: {formatValue:X}");
 
             pict.Format = format;
         }

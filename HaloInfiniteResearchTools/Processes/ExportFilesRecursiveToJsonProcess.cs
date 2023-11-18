@@ -139,7 +139,7 @@ namespace HaloInfiniteResearchTools.Processes
 
                         if (!File.Exists(path_file))
                         {
-                            ISSpaceFile file = null;
+                            IHIRTFile file = null;
                             file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
                                 if (file == null)
                                 {
@@ -154,7 +154,7 @@ namespace HaloInfiniteResearchTools.Processes
                             
                             if (file != null)
                             {
-                                await ExportFileToJson((SSpaceFile)file, path_file);
+                                await ExportFileToJson(file, path_file);
                             }
                         }
                     }

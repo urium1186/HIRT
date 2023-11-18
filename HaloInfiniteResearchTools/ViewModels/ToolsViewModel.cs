@@ -3,6 +3,7 @@ using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
+using LibHIRT.Grunt.Models.HaloInfinite;
 using LibHIRT.TagReader;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -22,15 +23,14 @@ namespace HaloInfiniteResearchTools.ViewModels
         string _str_hash = "";
         bool _forceLowerCase = true;
 
-        private IHIFileContext _hiFileContext;
+        private HIFileContext _hiFileContext;
         string _textFilesPath = "";
         string _searchTerm = "";
         int _vertType = -1;
         bool _onlyVertexShaders = true;
         string _spliters = "";
         private string _pathExport;
-        private ConnectXboxServicesResult connectXSR;
-
+        
         public ICommand ProcessTextCommand { get; }
         public ICommand BCInSVToTxtCommand { get; }
         public ICommand ProcessAllBytecodeToTxtCommand { get; }
@@ -38,10 +38,8 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand CheckInUseCommand { get; }
         public ICommand ProcessLoginCommand { get; }
         public ICommand WebApiCommand { get; }
-
-
-
-
+        public ICommand WebApiItemsCommand { get; }
+        public bool HaveCredentials { get => _hiFileContext  != null && _hiFileContext.ConnectXbox != null; }
 
 
         public ToolsViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
@@ -55,6 +53,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             CheckInUseCommand = new Command(CheckInUseAction);
             ProcessLoginCommand = new Command(ProcessLogin);
             WebApiCommand = new Command(CallApi);
+            WebApiItemsCommand = new Command(GetApiItems);
         }
 
         private async void ProcessLogin()
@@ -95,8 +94,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private async void ConnectXboxServicesProcess_Completed(object? sender, EventArgs e)
         {
-            connectXSR = (sender as ConnectXboxServicesProcess).Result;
-
+            _hiFileContext.ConnectXbox = (sender as ConnectXboxServicesProcess).Result;
+            OnPropertyChanged("HaveCredentials");
         }
 
         private async void CallApi()
@@ -112,7 +111,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                 try
                 {
-                    var process = new GetFromXboxWebApiProcess(connectXSR);
+                    var process = new GetFromXboxWebApiCurrentArmorCoreProcess(_hiFileContext.ConnectXbox);
                     process.Completed += GetFromXboxWebApiProcess_Completed;
                     await RunProcess(process);
 
@@ -125,12 +124,46 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
                     lock (objLock)
                     {
-                        //progress.CompletedUnits++;
+                        //progress.CompletedUnits++; GetFromXboxWebApiItemsProcess
                     }
 
                 }
 
 
+
+            }
+        }
+
+        private async void GetApiItems()
+        {
+            //throw new NotImplementedException();
+            using (var progress = ShowProgress())
+            {
+                progress.IsIndeterminate = true;
+                progress.Status = "Login";
+
+                var objLock = new object();
+
+
+                try
+                {
+                    var process = new GetFromXboxWebApiItemsProcess(_hiFileContext.ConnectXbox, ItemTypeSel);
+                    //process.Completed += GetFromXboxWebApiProcess_Completed;
+                    await RunProcess(process);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    lock (objLock)
+                    {
+                        //progress.CompletedUnits++; 
+                    }
+
+                }
 
             }
         }
@@ -232,11 +265,27 @@ namespace HaloInfiniteResearchTools.ViewModels
         public string Spliters { get => _spliters; set => _spliters = value; }
         public int VertType { get => _vertType; set => _vertType = value; }
         public bool OnlyVertexShaders { get => _onlyVertexShaders; set => _onlyVertexShaders = value; }
+        public Array ItemTypes { get => Enum.GetValues(typeof(ItemType)); }
+        public ItemType ItemTypeSel { get; set; } 
 
         public void GenerateFromStrValue()
         {
-            Str_hash = Mmr3HashLTU.getMmr3HashFrom(_str_value);
-            Int_value = Mmr3HashLTU.getMmr3HashIntFrom(_str_value);
+            if (!string.IsNullOrEmpty(_str_value))
+            {
+                Str_hash = Mmr3HashLTU.getMmr3HashFrom(_str_value);
+                Int_value = Mmr3HashLTU.getMmr3HashIntFrom(_str_value);
+            }
+            else if (_int_value != -1)
+            {
+                _str_value = "";
+                Str_hash = Mmr3HashLTU.getMmr3HashFromInt(_int_value);
+            }
+            else if (!string.IsNullOrEmpty(_str_hash))
+            {
+                Int_value = Mmr3HashLTU.fromStrHash(_str_hash);
+                _str_value = "";
+            }
+            
 
         }
 

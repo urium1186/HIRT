@@ -81,12 +81,12 @@ namespace LibHIRT.TagReader
                 var last = (instance_parent.TagDef as TagLayouts.C).B.Last();
                 temp_size = last.Key + last.Value.S;
             }
-
+            
             byte[] bytes = m.ReadBytes(address.ToString("X"), temp_size);
             var temp_f = new MemoryStream(bytes);
             if (MemoStream == null)
                 MemoStream = new MemoryStream(bytes);
-            (CompoundTagInstance, List<CompoundTagInstance>)? read_result = readTagDefinitionOnMem(ref instance_parent, temp_f, 0);
+            (CompoundTagInstance, List<CompoundTagInstance>)? read_result = readTagDefinitionOnMem(ref instance_parent, temp_f, 0, address);
             if (instance_parent is ParentTagInstance)
             {
             }
@@ -111,7 +111,7 @@ namespace LibHIRT.TagReader
             }
         }
 
-        private (CompoundTagInstance, List<CompoundTagInstance>)? readTagDefinitionOnMem(ref CompoundTagInstance parent, MemoryStream f, long parcial_address = 0)
+        private (CompoundTagInstance, List<CompoundTagInstance>)? readTagDefinitionOnMem(ref CompoundTagInstance parent, MemoryStream f, long parcial_address = 0, long global_Address = -1)
         {
             ParentTagInstance tagInstanceTemp = new ParentTagInstance((C)parent.TagDef, 0, 0);
             if (parent is ParentTagInstance)
@@ -128,7 +128,7 @@ namespace LibHIRT.TagReader
             {
                 parcial_addresstemp = f.Position;
                 var childItem = TagInstanceFactoryV2.Create(tagDefinitions[entry], parcial_address, entry);
-
+                childItem.InFileOffset = parcial_address + entry+ global_Address;
                 tagInstanceTemp.AddChild(childItem);
                 childItem.Parent = parent;
                 childItem.ReadIn(new BinaryReader(f), null);
@@ -145,7 +145,7 @@ namespace LibHIRT.TagReader
                     for (int k = 0; k < count; k++)
                     {
                         parcial_addresstemp = f.Position;
-                        var r2 = readTagDefinitionOnMem(ref tempref, f, parcial_addresstemp);
+                        var r2 = readTagDefinitionOnMem(ref tempref, f, parcial_addresstemp, global_Address);
                         tempref.AddChild(r2.Value.Item1);
                         tagBlocks.AddRange(r2.Value.Item2);
                     }
@@ -155,7 +155,7 @@ namespace LibHIRT.TagReader
                 {
                     parcial_addresstemp = f.Position;
                     CompoundTagInstance temp = (CompoundTagInstance)childItem;
-                    var temp_r = readTagDefinitionOnMem(ref temp, f, parcial_addresstemp);
+                    var temp_r = readTagDefinitionOnMem(ref temp, f, parcial_addresstemp, global_Address);
                     tagBlocks.AddRange(temp_r.Value.Item2);
                 }
                 i++;
@@ -202,5 +202,26 @@ namespace LibHIRT.TagReader
         }
 
         #endregion
+
+        public bool WriteTagToMem(TagInstance tag) {
+            try
+            {
+                if (tag.InFileOffset != -1) {
+                    byte[] bytesToWrite = tag.GetBytes();
+                    if (tag.TagDef.S != bytesToWrite.Length) { 
+                    }
+                    var byt = Reader.ReadBytes(tag.InFileOffset.ToString("X"), bytesToWrite.Length);
+                    Reader.WriteBytes(tag.InFileOffset.ToString("X"),bytesToWrite);
+                    var byt2 = Reader.ReadBytes(tag.InFileOffset.ToString("X"), bytesToWrite.Length);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                
+            }
+        }
     }
 }

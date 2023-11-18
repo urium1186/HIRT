@@ -1,7 +1,12 @@
-﻿using LibHIRT.Files.FileTypes;
+﻿using LibHIRT.Common;
+using LibHIRT.Files.Base;
+using LibHIRT.Files.FileTypes;
+using LibHIRT.Grunt;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.RuntimeViewer;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using System.Data.Entity.Infrastructure;
 using System.Data.SQLite;
 
 namespace LibHIRT.Files
@@ -11,14 +16,17 @@ namespace LibHIRT.Files
     {
         #region Events
 
-        public event EventHandler<ISSpaceFile> FileAdded;
-        public event EventHandler<ISSpaceFile> FileRemoved;
+        public event EventHandler<IHIRTFile> FileAdded;
+        public event EventHandler<IHIRTFile> FileRemoved;
+        public event EventHandler<(ObservableCollection<IHIRTFile>, object)> InitializeThreadSynchronizationEvent;
 
         static HIFileContext _instance;
 
         #endregion
 
         #region Data Members
+
+        public ObservableCollection<IHIRTFile> Files { get => _files; }
 
         public static IReadOnlyCollection<string> SupportedFileExtensions
         {
@@ -30,9 +38,19 @@ namespace LibHIRT.Files
         }
 
         private readonly SemaphoreSlim _fileLock;
-        private ConcurrentDictionary<int, ISSpaceFile> _files;
+        private ActionThrottler _throttler;
+        private ConcurrentQueue<IHIRTFile> _fileAddQueue;
+        private ConcurrentQueue<IHIRTFile> _fileRemoveQueue;
+
+        private ConnectXboxServicesResult _connectXbox = null;
+
+
+        private readonly object _collectionLock;
+        ObservableCollection<IHIRTFile> _files;
+
+        //private ConcurrentDictionary<int, IHIRTFile> _fileLookup;
         private ConcurrentBag<int> _filesModuleGlobalIdLockUp;
-        static RuntimeTagLoader _runtimeTagLoader = new RuntimeTagLoader();
+        private RuntimeTagLoader _runtimeTagLoader = new RuntimeTagLoader();
         private SQLiteConnection connectionDb;
         private bool disposedValue;
 
@@ -40,12 +58,6 @@ namespace LibHIRT.Files
         #endregion
 
         #region Properties
-
-        public IReadOnlyDictionary<int, ISSpaceFile> Files
-        {
-            get => _files;
-        }
-        
 
         public string TagTemplatePath
         {
@@ -61,7 +73,7 @@ namespace LibHIRT.Files
         }
 
         public bool RuntimeLoadCompleted { get; protected set; }
-        public static RuntimeTagLoader RuntimeTagLoader { get => _runtimeTagLoader; }
+        public RuntimeTagLoader RuntimeTagLoader { get => _runtimeTagLoader; }
         
 
         #endregion
@@ -71,24 +83,97 @@ namespace LibHIRT.Files
         protected HIFileContext()
         {
             _fileLock = new SemaphoreSlim(1);
-            _files = new ConcurrentDictionary<int, ISSpaceFile>();
+            _throttler = new ActionThrottler(UpdateFilesAsync, 1000);
+            _fileAddQueue = new ConcurrentQueue<IHIRTFile>();
+            _fileRemoveQueue = new ConcurrentQueue<IHIRTFile>();
             _filesModuleGlobalIdLockUp = new ConcurrentBag<int>();
             _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
-
+            _collectionLock = new object();
+            _files = new ObservableCollection<IHIRTFile>();
+            //InitializeThreadSynchronization(_files, _collectionLock);
             //SQLiteDriver.CreateTable(connectionDb);
             //SQLiteDriver.InsertMmh3LTU(connectionDb);
             //SQLiteDriver.ReadData(connectionDb);
         }
 
+        public void Init() {
+            InitializeThreadSynchronizationEvent?.Invoke(this, (Files, _collectionLock));
+        }
         public static HIFileContext Instance { get { 
                 if (_instance == null)
                     _instance = new HIFileContext();
                 return _instance;
             } }
 
+        public ConnectXboxServicesResult ConnectXbox { get => _connectXbox; set => _connectXbox = value; }
+
         private void _runtimeTagLoader_Completed(object? sender, EventArgs e)
         {
+            
+            var list = RuntimeTagLoader.TagsList.Values.ToList();
+            //list.Sort((x, y) => x.TagGroup.CompareTo(y.TagGroup));
+            foreach (var item in list)
+            {
+                _files.Add(item);
+            }
+            _throttler.Execute();
             RuntimeLoadCompleted = true;
+
+        }
+
+        private void InitializeThreadSynchronization(
+         ObservableCollection<IHIRTFile> files, object collectionLock)
+        {
+            // Initialize the underlying file collection with a lock so that we can
+            // update the collection on other threads when the thread owns the lock.
+            /*App.Current.Dispatcher.Invoke(() =>
+            {
+                BindingOperations.EnableCollectionSynchronization(files, collectionLock);
+            });*/
+        }
+
+        private async void UpdateFilesAsync()
+        {
+            await Task.Run(new System.Action(UpdateFiles));
+        }
+
+        private void UpdateFiles()
+        {
+
+            lock (_collectionLock)
+            {
+                while (_fileAddQueue.TryDequeue(out var fileToAdd)) {
+                    /*int id = fileToAdd.TryGetGlobalId();
+                    if (id == -1)
+                    {
+                        id = fileToAdd.Name.GetHashCode();
+                    }
+                    if (_fileLookup.TryAdd(id, fileToAdd)) {
+                        FileAdded?.Invoke(this, fileToAdd);
+                    }*/
+                    _files.Add(fileToAdd);
+                    FileAdded?.Invoke(this, fileToAdd);
+                }
+
+
+                while (_fileRemoveQueue.TryDequeue(out var fileToRemove)) {
+                    _files.Remove(fileToRemove);
+                    FileRemoved?.Invoke(this, fileToRemove);
+                    /*int id = fileToRemove.TryGetGlobalId();
+                    if (id == -1)
+                    {
+                        id = fileToRemove.Name.GetHashCode();
+                    }
+                    if (_fileLookup.TryRemove(new KeyValuePair<int, IHIRTFile>(id, fileToRemove)))
+                    {
+                        FileRemoved?.Invoke(this, fileToRemove);
+                    } */
+                }
+                    
+            }
+
+            if (_fileAddQueue.Count > 0 || _fileRemoveQueue.Count > 0)
+                _throttler.Execute();
         }
 
         #endregion
@@ -138,131 +223,68 @@ namespace LibHIRT.Files
 
         }
 
-        public bool AddFile(ISSpaceFile file)
+        public bool AddFile(IHIRTFile file)
         {
+            _fileAddQueue.Enqueue(file);
+            
             bool filesAdded = false;
-
-            if (!_files.ContainsKey(file.TryGetGlobalId()))
-            {
-                _files.TryAdd(file.TryGetGlobalId(), file);
-                filesAdded = true;
-
-                FileAdded?.Invoke(this, file);
-            }
+           
             SSpaceFile temp = file as ModuleFile;
 
             if (temp != null)
             {
-                if (!_filesModuleGlobalIdLockUp.Contains(temp.TryGetGlobalId()))
+                if (!_filesModuleGlobalIdLockUp.Contains(temp.TryGetGlobalId())) {
                     _filesModuleGlobalIdLockUp.Add(temp.TryGetGlobalId());
+                    filesAdded = true;
+                }
+                
                 else
                 {
                 }
             }
-            
-            foreach (var childFile in file.Children)
-            {
-                filesAdded |= AddFile(childFile);
+            if (file is SSpaceFile) {
+                foreach (var childFile in (file as SSpaceFile).Children)
+                {
+                    filesAdded |= AddFile(childFile);
+                }
             }
 
+            _throttler.Execute();
             return filesAdded;
         }
-        public ISSpaceFile SearchById(int id) {
-            ISSpaceFile tempFile;
-            _files.TryGetValue(id, out tempFile);
-            return tempFile;
-        }
-        public ISSpaceFile SearchInFileOld(ISSpaceFile file, int id)
+      
+        public IHIRTFile GetFile(int global_id)
         {
-
-            if (file is ModuleFile)
+            foreach (var item in _files)
             {
-
+                if (item.TryGetGlobalId() == global_id)
+                    return item;
             }
-            else
-            {
-                int global_id = file.TryGetGlobalId();
-                ISSpaceFile tempFile;
-                _files.TryGetValue(global_id, out tempFile);
-                if (tempFile == file)
-                {
-                    return file;
-                }
-                
-            }
-
-            foreach (var childFile in file.Children)
-            {
-                var result = SearchInFileOld(childFile, id);
-                if (result != null)
-                    return result;
-            }
-
             return null;
         }
 
-        /*
-        public void AddFileToDirList(ISSpaceFile file)
-        {
-            if (!(file.GetType().IsSubclassOf(typeof(SSpaceFile))) || (file.GetType().IsSubclassOf(typeof(SSpaceContainerFile))))
-            {
-                return;
-            }
-            lock (_rootDir)
-            {
-
-                var dirSplit = string.IsNullOrEmpty(file.Path_string) ? file.Name.Split(@"\") : file.Path_string.Split(@"\");
-                var tempDir = _rootDir;
-                lock (tempDir)
-                {
-                    for (int i = 0; i < dirSplit.Length - 1; i++)
-                    {
-                        if (!tempDir.Dirs.ContainsKey(dirSplit[i]))
-                        {
-                            tempDir.Dirs[dirSplit[i]] = new DirModel(dirSplit[i]);
-                            tempDir.Dirs[dirSplit[i]].Parent = tempDir;
-                        }
-
-                        tempDir = tempDir.Dirs[dirSplit[i]];
-                    }
-                    tempDir.Dirs[dirSplit[dirSplit.Length - 1]] = new FileDirModel(file, dirSplit[dirSplit.Length - 1]);
-                    tempDir.Dirs[dirSplit[dirSplit.Length - 1]].Parent = tempDir;
-                }
-
-
-            }
-
-        }
-        */
-
-        public ISSpaceFile GetFile(int global_id)
-        {
-            _files.TryGetValue(global_id, out var file);
-            return file;
-        }
-
         public TFile GetFile<TFile>(int global_id)
-          where TFile : class, ISSpaceFile
+          where TFile : class, IHIRTFile
           => GetFile(global_id) as TFile;
 
         public IEnumerable<TFile> GetFiles<TFile>()
-          where TFile : class, ISSpaceFile
-          => _files.Values.OfType<TFile>();
+          where TFile : class, IHIRTFile
+          => _files.OfType<TFile>();
 
-        public IEnumerable<ISSpaceFile> GetFilesOnNames(string searchPattern)
+        public IEnumerable<IHIRTFile> GetFilesOnNames(string searchPattern)
         {
             searchPattern = searchPattern.ToLower();
 
-            foreach (var file in _files.Values)
+            foreach (var file in _files)
                 if (file.Name.ToLower().Contains(searchPattern))
                     yield return file;
         }
 
-        public IEnumerable<ISSpaceFile> GetFiles(string searchPattern)
+        public IEnumerable<IHIRTFile> GetFiles(string searchPattern)
         {
             searchPattern = searchPattern.ToLower();
 
-            foreach (var file in _files.Values)
+            foreach (IHIRTFile file in _files)
             {
                 string in_S = file.Path_string == null ? file.InDiskPath : file.Path_string;
                 if (in_S.ToLower().Contains(searchPattern))
@@ -272,7 +294,7 @@ namespace LibHIRT.Files
         }
 
         public IEnumerable<TFile> GetFiles<TFile>(string searchPattern)
-          where TFile : class, ISSpaceFile
+          where TFile : class, IHIRTFile
           => GetFiles(searchPattern).OfType<TFile>();
 
         public bool OpenDirectory(string path)
@@ -297,7 +319,7 @@ namespace LibHIRT.Files
             {
                 if (filePath.Contains("\\ds\\"))
                     return false;
-                stream = HIRTDecompressionStream.FromFile(filePath);
+                stream = HIRTExtractedFileStream.FromFile(filePath);
             }
             else
                 stream = HIRTExtractedFileStream.FromFile(filePath);
@@ -311,6 +333,7 @@ namespace LibHIRT.Files
                 if (fileExt == ".module")
                 {
                     (file as ModuleFile).InitializeStream(stream, 0, stream.Length);
+                    (file as ModuleFile).ReInitialize();
                 }
                 file.InDiskPath = filePath;
                 return AddFile(file);
@@ -318,9 +341,9 @@ namespace LibHIRT.Files
             finally { stream.ReleaseLock(); }
         }
 
-        public bool RemoveFile(ISSpaceFile file)
+        public bool RemoveFile(IHIRTFile file)
         {
-            if (_files.TryRemove(file.TryGetGlobalId(), out _))
+            if (_files.Remove(file))
             {
                 FileRemoved?.Invoke(this, file);
                 return true;
@@ -336,11 +359,20 @@ namespace LibHIRT.Files
             return true;
         }
 
-        public ISSpaceFile GetFileFrom(TagRef tagRef, ModuleFile init = null)
+        public List<EntryRef> getAllTagReferenceTo(int globalid) { 
+            List<EntryRef> result = new List<EntryRef>();
+            IEnumerable<ModuleIndexFile> indexRef = GetFiles<ModuleIndexFile>();
+            foreach (ModuleIndexFile file in indexRef) {
+                result.AddRange(file.getAllRefTo(globalid));
+            }
+            return result;
+        }
+
+        public IHIRTFile GetFileFrom(TagRef tagRef, ModuleFile init = null)
         {
             if (tagRef == null)
                 return null;
-            ISSpaceFile result = null;
+            IHIRTFile result = null;
             if (init != null)
             {
 
@@ -348,42 +380,17 @@ namespace LibHIRT.Files
             }
             if (result == null)
             {
-                _files.TryGetValue(tagRef.Ref_id_int, out result);
+                result = GetFile(tagRef.Ref_id_int);
             }
 
             return result;
         }
 
-        public ISSpaceFile GetFileFrom(int globalId, ModuleFile init = null)
+        public IHIRTFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource = false)
         {
-            ISSpaceFile result = null;
-            if (init != null)
-            {
-
-                result = init.GetFileByGlobalId(globalId);
-            }
-            if (result == null)
-            {
-                _files.TryGetValue(globalId, out result);
-            }
-
-            return result;
-        }
-
-
-        public static TagStructMemFile GetMemFileFrom(TagRef tagRef)
-        {
-            if (tagRef == null)
-                return null;
-            TagStructMemFile result = null;
-            _runtimeTagLoader.TagsList.TryGetValue(tagRef.Ref_id_int, out result);
-            return result;
-        }
-
-        public ISSpaceFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource = false)
-        {
-            if (_files.ContainsKey(id))
-                return _files[id];
+            var result = GetFile(id);
+            if (result != null)
+                return result;
 
             var fileExt = Path.GetExtension(modulePath);
             if (!File.Exists(modulePath))
@@ -394,7 +401,7 @@ namespace LibHIRT.Files
             {
                 if (modulePath.Contains("\\ds\\"))
                     return null;
-                stream = HIRTDecompressionStream.FromFile(modulePath);
+                stream = HIRTExtractedFileStream.FromFile(modulePath);
             }
             else
                 return null;
@@ -402,16 +409,21 @@ namespace LibHIRT.Files
             try
             {
                 stream.AcquireLock();
-                var file = SSpaceFileFactory.CreateFile(modulePath, "");
-                if (fileExt == ".module")
-                {
-                    (file as ModuleFile).InitializeStream(stream, 0, stream.Length);
-                }
+                ModuleFile file = SSpaceFileFactory.CreateFile(modulePath, "") as ModuleFile;
                 if (file is null)
                     return null;
-                file.InDiskPath = modulePath;
-                return SearchInFileOld(file, id);
 
+                if (fileExt == ".module")
+                {
+                    file.InitializeStream(stream, 0, stream.Length);
+                    file.ReInitialize();
+
+                    file.InDiskPath = modulePath;
+
+                    return file.GetFileByGlobalId(id);
+                }
+
+                return null;
             }
             finally { stream.ReleaseLock(); }
         }
@@ -429,8 +441,7 @@ namespace LibHIRT.Files
             
             foreach (var item in _files)
             {
-                item.Value.reset();
-                item.Value.Dispose();
+                item.reset();
             }
             _files.Clear();
         }
@@ -443,10 +454,9 @@ namespace LibHIRT.Files
                 {
                     if (connectionDb!=null)
                         connectionDb.Dispose();
-                    var count = _files.Keys.Count;
                     foreach (var item in _files)
                     {
-                        item.Value.Dispose();
+                        item.Dispose();
                     }
                     _files.Clear();
 

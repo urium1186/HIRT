@@ -1,6 +1,7 @@
 ﻿namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("_*.*")]
+    [FileTagGroup("_*.*")]
+    [FileSignature("FFFFFFFFFFFFFFFF")]
     [FileExtension(".*")]
     public class GenericFile : SSpaceFile
     {

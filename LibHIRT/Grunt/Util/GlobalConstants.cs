@@ -1,4 +1,4 @@
-﻿namespace HaloInfiniteResearchTools.Common.Grunt.Util
+﻿namespace LibHIRT.Grunt.Util
 {
     //
     // Summary:

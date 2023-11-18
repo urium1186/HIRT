@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
 {
-    public class SearchFileByIdProcess : ProcessBase<IEnumerable<ISSpaceFile>>
+    public class SearchFileByIdProcess : ProcessBase<IEnumerable<IHIRTFile>>
     {
 
         #region Data Members
@@ -20,13 +21,13 @@ namespace HaloInfiniteResearchTools.Processes
         private int _id;
         private string[] _filePaths;
 
-        private List<ISSpaceFile> _filesLoaded;
+        private List<IHIRTFile> _filesLoaded;
 
         #endregion
 
         #region Properties
 
-        public override IEnumerable<ISSpaceFile> Result
+        public override IEnumerable<IHIRTFile> Result
         {
             get => _filesLoaded;
         }
@@ -42,7 +43,7 @@ namespace HaloInfiniteResearchTools.Processes
             _load_resource = load_resource;
             _id = id;
 
-            _filesLoaded = new List<ISSpaceFile>();
+            _filesLoaded = new List<IHIRTFile>();
         }
 
         #endregion

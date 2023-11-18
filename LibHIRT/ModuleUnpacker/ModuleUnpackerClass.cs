@@ -10,15 +10,15 @@
 
         public static HiModule ReadModule(FileStream fileStream)
         {
-            HiModule module = new HiModule();
-            module.ReadIn(new BinaryReader(fileStream));
+            HiModule module = new HiModule(fileStream);
+            module.ReadIn();
 
             return module;
         }
         public static HiModule ReadModule(string filePath)
         {
-            HiModule module = new HiModule();
-            module.ReadIn(filePath);
+            HiModule module = new HiModule(filePath);
+            module.ReadIn();
 
             return module;
         }

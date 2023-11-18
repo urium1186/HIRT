@@ -64,19 +64,19 @@ namespace LibHIRT.Exporters.Converters
             VertexElementUV elementUV1 = null;
             VertexElementUV elementUV2 = null;
 
-            if (vertexs[0].UV1 != null)
+            if (vertexs[0].Texcoord1 != null)
                 elementUV1 = mesh.CreateElementUV(TextureMapping.Ambient);
-            if (vertexs[0].UV2 != null)
+            if (vertexs[0].Texcoord2 != null)
                 elementUV2 = mesh.CreateElementUV(TextureMapping.Shadow);
 
             foreach (var item in vertexs)
             {
                 mesh.ControlPoints.Add(new Aspose.ThreeD.Utilities.Vector4(item.X, item.Y, item.Z));
-                elementUV0.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV0.Value.X, item.UV0.Value.Y, 0));
+                elementUV0.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.Texcoord.Value.X, item.Texcoord.Value.Y, 0));
                 if (elementUV1 != null)
-                    elementUV1.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV1.Value.X, item.UV1.Value.Y, 0));
+                    elementUV1.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.Texcoord1.Value.X, item.Texcoord1.Value.Y, 0));
                 if (elementUV2 != null)
-                    elementUV2.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.UV2.Value.X, item.UV2.Value.Y, 0));
+                    elementUV2.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.Texcoord2.Value.X, item.Texcoord2.Value.Y, 0));
 
             }
            

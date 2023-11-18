@@ -11,7 +11,7 @@ namespace LibHIRT.TagReader.Headers
         DataReferenceTable dataReferenceTable = new DataReferenceTable();
         TagReferenceFixUpTable tagReferenceFixUpTable = new TagReferenceFixUpTable();
         ZoneSet zoneSet = new ZoneSet();
-
+        public List<object> Infos { get => new List<object> { tagHeader, tagDependencyTable, dataBlockTableField, tagStructTable , dataReferenceTable , tagReferenceFixUpTable }; }
         public TagHeader TagHeader { get => tagHeader; set => tagHeader = value; }
         public TagStructTable TagStructTable { get => tagStructTable; set => tagStructTable = value; }
         public DataBlockTable DataBlockTableField { get => dataBlockTableField; set => dataBlockTableField = value; }

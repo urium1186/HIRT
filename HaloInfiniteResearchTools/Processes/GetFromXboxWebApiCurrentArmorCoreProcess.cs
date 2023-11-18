@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibHIRT.Grunt;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -8,11 +9,11 @@ using System.Threading.Tasks;
 namespace HaloInfiniteResearchTools.Processes
 {
 
-    public class GetFromXboxWebApiProcess : ProcessBase
+    public class GetFromXboxWebApiCurrentArmorCoreProcess : ProcessBase
     {
         ConnectXboxServicesResult connectXbox;
 
-        public GetFromXboxWebApiProcess(ConnectXboxServicesResult _connectXbox)
+        public GetFromXboxWebApiCurrentArmorCoreProcess(ConnectXboxServicesResult _connectXbox)
         {
 
             connectXbox = _connectXbox;
@@ -35,6 +36,10 @@ namespace HaloInfiniteResearchTools.Processes
                     var strPlayerXUID = "xuid(" + playerXUID + ")";
 
                     var example = await connectXbox.Client.EconomyPlayerOperations(strPlayerXUID);
+                    
+                    
+                    
+
                     bool all_cores = await GetAllArmorCoresOfPlayer(strPlayerXUID);
                     var bodyCustomization = await connectXbox.Client.EconomySpartanBodyCustomization(strPlayerXUID);
                     if (bodyCustomization.Result != null)
@@ -67,6 +72,22 @@ namespace HaloInfiniteResearchTools.Processes
                     {
                         string fileName = LibHIRT.Utils.Utils.CreatePathFromString("017-001-wlv-c13d0b38.json", "", "json");
                         string jsonString = JsonSerializer.Serialize(wlv_c13d0b38.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                    }
+
+                    var customizationCatalog = await connectXbox.Client.GameCmsGetCustomizationCatalog(connectXbox.Client.ClearanceToken);
+                    if (customizationCatalog.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("customizationCatalog.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(customizationCatalog.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                    }
+
+                    var inventoryItems = await connectXbox.Client.EconomyGetInventoryItems(strPlayerXUID);
+                    if (inventoryItems.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("inventoryItems.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(inventoryItems.Result);
                         System.IO.File.WriteAllText(fileName, jsonString);
                     }
 

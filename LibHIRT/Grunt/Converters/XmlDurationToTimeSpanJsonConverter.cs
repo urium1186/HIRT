@@ -3,12 +3,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 
-namespace HaloInfiniteResearchTools.Common.Grunt.Converters
+namespace LibHIRT.Grunt.Converters
 {
     //
     // Summary:
     //     Helper class used for conversion of XML duration into standard time span.
-    internal class XmlDurationToTimeSpanJsonConverter : JsonConverter<TimeSpan>
+    public class XmlDurationToTimeSpanJsonConverter : JsonConverter<TimeSpan>
     {
         //
         // Summary:

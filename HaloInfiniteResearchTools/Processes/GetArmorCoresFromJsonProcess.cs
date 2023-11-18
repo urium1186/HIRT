@@ -1,4 +1,4 @@
-﻿using HaloInfiniteResearchTools.Common.Grunt.Converters;
+﻿using LibHIRT.Grunt.Converters;
 using OpenSpartan.Grunt.Models.HaloInfinite;
 using System;
 using System.Collections.Generic;

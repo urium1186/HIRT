@@ -95,7 +95,7 @@ namespace LibHIRT.Serializers.Configurations
                 Fail($"Object-Property type mismatch for {propertyType.Name} {typeof(T).Name}.{propertyName}: {valueType.Name}");
 
             if (propertyType != valueType)
-                Fail($"Value-Property type mismatch for {propertyType.Name} {typeof(T).Name}.{propertyName}: {valueType.Name}");
+                Fail($"IntValue-Property type mismatch for {propertyType.Name} {typeof(T).Name}.{propertyName}: {valueType.Name}");
 
             property.SetValue(obj, value);
         }

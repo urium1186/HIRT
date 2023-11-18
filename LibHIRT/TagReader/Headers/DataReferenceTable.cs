@@ -98,7 +98,7 @@ namespace LibHIRT.TagReader.Headers
          */
     }
 
-    class DataReferenceTable : HeaderTable<DataReference>
+    public class DataReferenceTable : HeaderTable<DataReference>
     {
         private TagStructTable? tagStructTableField;
         public bool Read_entry_data { get => read_entry_data; set => read_entry_data = value; }

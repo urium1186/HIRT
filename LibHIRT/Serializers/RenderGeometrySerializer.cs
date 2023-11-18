@@ -176,7 +176,7 @@ namespace LibHIRT.Serializers
                     }
                     //Debug.Assert(index_buff.offset >= min && index_buff.offset + index_buff.d3dbuffer.ByteWidth <= max);
                     ListTagInstance vert_buffer_indices = lod["vertex buffer indices"] as ListTagInstance;
-                    Dictionary<PcVertexBuffersUsage, RasterizerVertexBuffer> vert_buffers = new Dictionary<PcVertexBuffersUsage, RasterizerVertexBuffer>();
+                    Dictionary<PcVertexBuffersUsage, (RasterizerVertexBuffer, MemoryStream)> vert_buffers = new Dictionary<PcVertexBuffersUsage, (RasterizerVertexBuffer, MemoryStream)>();
                     if (vert_buffer_indices != null)
                     {
 
@@ -186,7 +186,10 @@ namespace LibHIRT.Serializers
                             if (temp_vert_index_block != -1)
                             {
                                 var vertexBuffer = mesh_package.MeshResourceGroups[0].MeshResource[0].PcVertexBuffers[temp_vert_index_block];
-                                vert_buffers[vertexBuffer.usage] = vertexBuffer;
+                                
+                                if (vertexBuffer.d3dbuffer.D3dBuffer == null)
+                                    vertexBuffer.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], vertexBuffer.offset, vertexBuffer.d3dbuffer.ByteWidth);
+                                vert_buffers[vertexBuffer.usage] = (vertexBuffer, new MemoryStream(vertexBuffer.d3dbuffer.D3dBuffer));
                             }
                         }
 
@@ -204,7 +207,7 @@ namespace LibHIRT.Serializers
                                 Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
                                 break;
                             case VertType.skinned:
-                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].format == PcVertexBuffersFormat.f_10_10_10_normalized);
+                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized);
                                 Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
                                 Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
                                 Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
@@ -264,9 +267,9 @@ namespace LibHIRT.Serializers
                                 Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
                                 Debug.Assert(!vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1));
                                 Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0));
-                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].format == PcVertexBuffersFormat.f_10_10_10_normalized);
+                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized);
                                 Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1));
-                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights1].format == PcVertexBuffersFormat.real);
+                                Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real);
                                 break;
                             case VertType.skinned_8_weights:
                                 Debug.Assert(vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0));
@@ -284,198 +287,125 @@ namespace LibHIRT.Serializers
                                 break;
                         }
 
-
-                        RasterizerVertexBuffer tempPosition = vert_buffers[PcVertexBuffersUsage.Position];
-                        if (tempPosition.d3dbuffer.D3dBuffer == null)
-                            tempPosition.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempPosition.offset, tempPosition.d3dbuffer.ByteWidth);
-                        MemoryStream msPosition = new MemoryStream(tempPosition.d3dbuffer.D3dBuffer);
-                        Dictionary<PcVertexBuffersUsage, (RasterizerVertexBuffer, MemoryStream)> buffersLoad = new Dictionary<PcVertexBuffersUsage, (RasterizerVertexBuffer, MemoryStream)>();
-                        
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV0))
-                        {
-                            
-                            var tempUV0 = vert_buffers[PcVertexBuffersUsage.UV0];
-                            if (tempUV0.d3dbuffer.D3dBuffer == null)
-                                tempUV0.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempUV0.offset, tempUV0.d3dbuffer.ByteWidth);
-                            var msUV0 = new MemoryStream(tempUV0.d3dbuffer.D3dBuffer);
-
-                            buffersLoad[PcVertexBuffersUsage.UV0] = (tempUV0, msUV0);
-
-                            Debug.Assert(tempUV0.count == tempPosition.count);
-                        }
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV1))
-                        {
-                            var tempUV1 = vert_buffers[PcVertexBuffersUsage.UV1];
-                            if (tempUV1.d3dbuffer.D3dBuffer == null)
-                                tempUV1.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempUV1.offset, tempUV1.d3dbuffer.ByteWidth);
-                            var msUV1 = new MemoryStream(tempUV1.d3dbuffer.D3dBuffer);
-                            
-                            Debug.Assert(tempUV1.count == tempPosition.count);
-                            buffersLoad[PcVertexBuffersUsage.UV1] = (tempUV1, msUV1);
-                        }
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV2))
-                        {
-                            var tempUV2 = vert_buffers[PcVertexBuffersUsage.UV2];
-                            if (tempUV2.d3dbuffer.D3dBuffer == null)
-                                tempUV2.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], tempUV2.offset, tempUV2.d3dbuffer.ByteWidth);
-                            var msUV2 = new MemoryStream(tempUV2.d3dbuffer.D3dBuffer);
-                            Debug.Assert(tempUV2.count == tempPosition.count);
-                            buffersLoad[PcVertexBuffersUsage.UV2] = (tempUV2, msUV2);
-                        }
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0))
-                        {
-                            var blendIndices0 = vert_buffers[PcVertexBuffersUsage.BlendIndices0];
-                            if (blendIndices0.d3dbuffer.D3dBuffer == null)
-                                blendIndices0.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], blendIndices0.offset, blendIndices0.d3dbuffer.ByteWidth);
-                            var msBlendIndices0 = new MemoryStream(blendIndices0.d3dbuffer.D3dBuffer);
-                            //Debug.Assert(blendWeights0.count == tempPosition.count);
-                            buffersLoad[PcVertexBuffersUsage.BlendIndices0] = (blendIndices0, msBlendIndices0);
-                        }
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0))
-                        {
-                            var blendWeights0 = vert_buffers[PcVertexBuffersUsage.BlendWeights0];
-                            if (blendWeights0.d3dbuffer.D3dBuffer == null)
-                                blendWeights0.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], blendWeights0.offset, blendWeights0.d3dbuffer.ByteWidth);
-                            var msBlendWeights0 = new MemoryStream(blendWeights0.d3dbuffer.D3dBuffer);
-
-                            buffersLoad[PcVertexBuffersUsage.BlendWeights0] = (blendWeights0, msBlendWeights0);
-                            //Debug.Assert(blendWeights0.count == tempPosition.count);
-                        }
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1))
-                        {
-                            var blendIndices1 = vert_buffers[PcVertexBuffersUsage.BlendIndices1];
-                            if (blendIndices1.d3dbuffer.D3dBuffer == null)
-                                blendIndices1.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], blendIndices1.offset, blendIndices1.d3dbuffer.ByteWidth);
-                            var msBlendIndices0 = new MemoryStream(blendIndices1.d3dbuffer.D3dBuffer);
-
-                            buffersLoad[PcVertexBuffersUsage.BlendIndices1] = (blendIndices1, msBlendIndices0);
-                            //Debug.Assert(blendWeights0.count == tempPosition.count);
-                        }
-                        if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1))
-                        {
-                            var blendWeights1 = vert_buffers[PcVertexBuffersUsage.BlendWeights1];
-                            if (blendWeights1.d3dbuffer.D3dBuffer == null)
-                                blendWeights1.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], blendWeights1.offset, blendWeights1.d3dbuffer.ByteWidth);
-                            var msBlendWeights1 = new MemoryStream(blendWeights1.d3dbuffer.D3dBuffer);
-                            buffersLoad[PcVertexBuffersUsage.BlendWeights1] = (blendWeights1, msBlendWeights1);
-                            //Debug.Assert(blendWeights0.count == tempPosition.count);
-                        }
-                        obj_lod.Vertexs = new SSPVertex[tempPosition.count];
+                        int vert_count = vert_buffers[PcVertexBuffersUsage.Position].Item1.count;
+                        var tempPosition = vert_buffers[PcVertexBuffersUsage.Position].Item1;
+                        var msPosition = vert_buffers[PcVertexBuffersUsage.Position].Item2;
+                        obj_lod.Vertexs = new SSPVertex[vert_buffers[PcVertexBuffersUsage.Position].Item1.count];
                         HashSet<string> vert = new HashSet<string>();
                         int countVOOB = 0;
-                        for (int j = 0; j < tempPosition.count; j++)
+                        for (int j = 0; j < vert_count; j++)
                         {
                             SSPVertex temp = new SSPVertexStatic();
                             //temp.MatIndex = GetMaterialIndexOfPart(obj_lod.Parts, j);
                             byte[] buffer = new byte[tempPosition.stride];
                             msPosition.Read(buffer, 0, tempPosition.stride);
                             var vals = FormatReader.ReadWordVector4DNormalized(buffer);
-                            temp.Position = new System.Numerics.Vector4(
+                            temp.Position = new System.Numerics.Vector3(
                                 vals.Item1 * obj.CompressionInfo.ModelScale.M13 + obj.CompressionInfo.ModelScale.M11,
                                 vals.Item2 * obj.CompressionInfo.ModelScale.M23 + obj.CompressionInfo.ModelScale.M21,
-                                vals.Item3 * obj.CompressionInfo.ModelScale.M33 + obj.CompressionInfo.ModelScale.M31,
-                                vals.Item4);
-                            if (buffersLoad.ContainsKey(PcVertexBuffersUsage.UV0))
+                                vals.Item3 * obj.CompressionInfo.ModelScale.M33 + obj.CompressionInfo.ModelScale.M31
+                             );
+                            if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV0))
                             {
-                                buffer = new byte[buffersLoad[PcVertexBuffersUsage.UV0].Item1.stride];
-                                buffersLoad[PcVertexBuffersUsage.UV0].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.UV0].Item1.stride);
+                                buffer = new byte[vert_buffers[PcVertexBuffersUsage.UV0].Item1.stride];
+                                vert_buffers[PcVertexBuffersUsage.UV0].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.UV0].Item1.stride);
                                 var valsUV = FormatReader.ReadWordVector2DNormalized(buffer);
                                 var uv0_scale = obj.CompressionInfo.Uv0Scale;
-                                temp.UV0 = new System.Numerics.Vector2(
+                                temp.Texcoord = new System.Numerics.Vector2(
                                     valsUV.Item1 * uv0_scale.M13 + uv0_scale.M11,
                                     valsUV.Item2 * uv0_scale.M23 + uv0_scale.M21
                                     );
                             }
-                            if (buffersLoad.ContainsKey(PcVertexBuffersUsage.UV1))
+                            if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV1))
                             {
-                                buffer = new byte[buffersLoad[PcVertexBuffersUsage.UV1].Item1.stride];
-                                buffersLoad[PcVertexBuffersUsage.UV1].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.UV1].Item1.stride);
+                                buffer = new byte[vert_buffers[PcVertexBuffersUsage.UV1].Item1.stride];
+                                vert_buffers[PcVertexBuffersUsage.UV1].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.UV1].Item1.stride);
                                 var valsUV = FormatReader.ReadWordVector2DNormalized(buffer);
                                 var uv1_scale = obj.CompressionInfo.Uv1Scale;
-                                temp.UV1 = new System.Numerics.Vector2(
+                                temp.Texcoord1 = new System.Numerics.Vector2(
                                     valsUV.Item1 * uv1_scale.M13 + uv1_scale.M11,
                                     valsUV.Item2 * uv1_scale.M23 + uv1_scale.M21
                                     );
                             }
-                            if (buffersLoad.ContainsKey(PcVertexBuffersUsage.UV2))
+                            if (vert_buffers.ContainsKey(PcVertexBuffersUsage.UV2))
                             {
-                                buffer = new byte[buffersLoad[PcVertexBuffersUsage.UV2].Item1.stride];
-                                buffersLoad[PcVertexBuffersUsage.UV2].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.UV2].Item1.stride);
+                                buffer = new byte[vert_buffers[PcVertexBuffersUsage.UV2].Item1.stride];
+                                vert_buffers[PcVertexBuffersUsage.UV2].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.UV2].Item1.stride);
                                 var valsUV = FormatReader.ReadWordVector2DNormalized(buffer);
                                 var uv2_scale = obj.CompressionInfo.Uv2Scale;
-                                temp.UV2 = new System.Numerics.Vector2(
+                                temp.Texcoord2 = new System.Numerics.Vector2(
                                     valsUV.Item1 * uv2_scale.M13 + uv2_scale.M11,
                                     valsUV.Item2 * uv2_scale.M23 + uv2_scale.M21
                                     );
                             }
                             if (GetBlendInfo)
                             {
-                                if (buffersLoad.ContainsKey(PcVertexBuffersUsage.BlendIndices0) && buffersLoad[PcVertexBuffersUsage.BlendIndices0].Item1.count == tempPosition.count)
+                                if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices0) && vert_buffers[PcVertexBuffersUsage.BlendIndices0].Item1.count == tempPosition.count)
                                 {
-                                    buffer = new byte[buffersLoad[PcVertexBuffersUsage.BlendIndices0].Item1.stride];
-                                    buffersLoad[PcVertexBuffersUsage.BlendIndices0].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.BlendIndices0].Item1.stride);
-                                    (int, int, int, int) resultBI = ((byte, byte, byte, byte))FormatReader.Read(buffersLoad[PcVertexBuffersUsage.BlendIndices0].Item1.format, buffer);
-                                    temp.BlendIndices0 = new System.Numerics.Vector4(resultBI.Item1, resultBI.Item2, resultBI.Item3, resultBI.Item4);
+                                    buffer = new byte[vert_buffers[PcVertexBuffersUsage.BlendIndices0].Item1.stride];
+                                    vert_buffers[PcVertexBuffersUsage.BlendIndices0].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.BlendIndices0].Item1.stride);
+                                    (byte, byte, byte, byte) resultBI = ((byte, byte, byte, byte))FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendIndices0].Item1.format, buffer);
+                                    temp.Node_indices.Node_index[0] = resultBI.Item1;
+                                    temp.Node_indices.Node_index[1] = resultBI.Item2;
+                                    temp.Node_indices.Node_index[2] = resultBI.Item3;
+                                    temp.Node_indices.Node_index[3] = resultBI.Item4;
                                 }
-                                if (buffersLoad.ContainsKey(PcVertexBuffersUsage.BlendIndices1) && buffersLoad[PcVertexBuffersUsage.BlendIndices1].Item1.count == tempPosition.count)
+                                if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendIndices1) && vert_buffers[PcVertexBuffersUsage.BlendIndices1].Item1.count == tempPosition.count)
                                 {
-                                    buffer = new byte[buffersLoad[PcVertexBuffersUsage.BlendIndices1].Item1.stride];
-                                    buffersLoad[PcVertexBuffersUsage.BlendIndices1].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.BlendIndices1].Item1.stride);
-                                    (int, int, int, int) resultBI = ((byte, byte, byte, byte))FormatReader.Read(buffersLoad[PcVertexBuffersUsage.BlendIndices1].Item1.format, buffer);
-                                    temp.BlendIndices1 = new System.Numerics.Vector4(resultBI.Item1, resultBI.Item2, resultBI.Item3, resultBI.Item4);
+                                    buffer = new byte[vert_buffers[PcVertexBuffersUsage.BlendIndices1].Item1.stride];
+                                    vert_buffers[PcVertexBuffersUsage.BlendIndices1].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.BlendIndices1].Item1.stride);
+                                    (byte, byte, byte, byte) resultBI = ((byte, byte, byte, byte))FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendIndices1].Item1.format, buffer);
+                                    temp.Node_indices.Node_index[4] = resultBI.Item1;
+                                    temp.Node_indices.Node_index[5] = resultBI.Item2;
+                                    temp.Node_indices.Node_index[6] = resultBI.Item3;
+                                    temp.Node_indices.Node_index[7] = resultBI.Item4;
                                 }
-                                if (buffersLoad.ContainsKey(PcVertexBuffersUsage.BlendWeights0) && buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.count == tempPosition.count)
+                                if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights0) && vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.count == tempPosition.count)
                                 {
-                                    buffer = new byte[buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.stride];
-                                    buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.stride);
+                                    buffer = new byte[vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.stride];
+                                    vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.stride);
                                     Vector3 re = Vector3.One;
-                                    if (buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized)
+                                    if (vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized)
                                     {
 
 
-                                        re = (Vector3)FormatReader.Read(buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.format, buffer);
-                                        temp.BlendWeights0 = new System.Numerics.Vector4(re.X, re.Y, re.Z, float.NaN);
+                                        re = (Vector3)FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.format, buffer);
+                                        temp.Node_weights.Node_weight[0] = re.X;
+                                        temp.Node_weights.Node_weight[1] =  re.Y;
+                                        temp.Node_weights.Node_weight[2] =  re.Z;
+                                        //temp.Node_weights.Node_weight[3] = 1;
 
                                         if (obj_mesh.VertType == VertType.dq_skinned)
                                         {
-                                            Debug.Assert(buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.d3dbuffer.Usage == 8);
+                                            Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.d3dbuffer.Usage == 8);
                                         }
                                         else if (obj_mesh.VertType == VertType.skinned)
                                         {
-                                            Debug.Assert(buffersLoad[PcVertexBuffersUsage.BlendWeights0].Item1.d3dbuffer.Usage == 8);
-                                        }
-
-                                        if (temp.BlendIndices0.Value.X == temp.BlendIndices0.Value.Y && temp.BlendIndices0.Value.X == temp.BlendIndices0.Value.Z && temp.BlendIndices0.Value.X == temp.BlendIndices0.Value.W)
-                                        {
-                                            countVOOB++;
-                                            string vert_S = temp.Position.X.ToString() + temp.Position.Y.ToString() + temp.Position.Z.ToString();
-                                            if (re.X + re.Y + re.Z != 0)
-                                            {
-                                                if (!vert.Contains(vert_S))
-                                                {
-                                                    vert.Add(vert_S);
-                                                }
-                                            }
+                                            Debug.Assert(vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.d3dbuffer.Usage == 8);
                                         }
                                     }
                                 }
                                 // it had to be done
-                                if (buffersLoad.ContainsKey(PcVertexBuffersUsage.BlendWeights1) && buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.count == tempPosition.count)
+                                if (vert_buffers.ContainsKey(PcVertexBuffersUsage.BlendWeights1) && vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.count == tempPosition.count)
                                 {
-                                    buffer = new byte[buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.stride];
-                                    buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item2.Read(buffer, 0, buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.stride);
+                                    buffer = new byte[vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.stride];
+                                    vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item2.Read(buffer, 0, vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.stride);
                                     Vector3 re = Vector3.One;
-                                    if (buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized || buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real)
+                                    if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized || vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real)
                                     {
 
-                                        if (buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized){
-                                            re = (Vector3)FormatReader.Read(buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.format, buffer);
-                                            temp.BlendWeights1 = new System.Numerics.Vector4(re.X, re.Y, re.Z, float.NaN);
+                                        if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized){
+                                            re = (Vector3)FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format, buffer);
+                                            temp.Node_weights.Node_weight[4] = re.X;
+                                            temp.Node_weights.Node_weight[5] = re.Y;
+                                            temp.Node_weights.Node_weight[6] = re.Z;
+                                            //temp.Node_weights.Node_weight[7] = 1;
+                                            
                                         }
-                                        else if (buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real){
-                                            float re_f = (float)FormatReader.Read(buffersLoad[PcVertexBuffersUsage.BlendWeights1].Item1.format, buffer);
-                                            temp.BlendWeights1 = new System.Numerics.Vector4(re_f, float.NaN, float.NaN, float.NaN);
-                                            re.X = 1; re.Y = 1; re.Z = 1; // i have no idea what this is for
+                                        else if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real){
+                                            float re_f = (float)FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format, buffer);
+                                            temp.Dual_quat_weight = re_f;
+                                            Debug.Assert(obj_mesh.VertType == VertType.dq_skinned);
                                         } else
                                         {
                                             // put breakpoint here?

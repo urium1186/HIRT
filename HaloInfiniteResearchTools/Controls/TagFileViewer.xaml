@@ -6,48 +6,35 @@
              xmlns:local="clr-namespace:HaloInfiniteResearchTools.Controls"
              xmlns:tags="clr-namespace:LibHIRT.TagReader.Headers;assembly=LibHIRT" xmlns:muxc1="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" DataContextChanged="UserControl_DataContextChanged">
+             d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <TreeView x:Name="treeView" Grid.Row="1"
                           VirtualizingPanel.IsVirtualizing="True"
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                   VirtualizingPanel.IsContainerVirtualizable="True"
                   VirtualizingPanel.VirtualizationMode="Recycling"
-                  ItemsSource="{Binding TagFile}" 
+                  ItemsSource="{Binding TagFile.Infos}" 
                           >
             <TreeView.Resources>
-                <ContextMenu x:Key="ScaleCollectionPopup">
-                    <MenuItem Header="New Scale..."/>
-                </ContextMenu>
-                <ContextMenu x:Key="ScaleItemPopup">
-                    <MenuItem Header="Remove Scale"/>
-                </ContextMenu>
-                <ContextMenu x:Key="FolderContext"  StaysOpen="true">
-                    <MenuItem Header="Add..." />
-                    <MenuItem Header="Rename"/>
-                    <MenuItem Header="Remove"/>
-                    <Separator/>
-                    <MenuItem Header="Copy"/>
-                    <MenuItem Header="Cut"/>
-                    <MenuItem Header="Paste"/>
-                    <MenuItem Header="Move"/>
-                </ContextMenu>
-
-                <DataTemplate DataType="{x:Type tags:TagFile}" >
+               
+                <DataTemplate DataType="{x:Type tags:TagHeader}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding TagHeader.Loaded}" Grid.Column="0"></Label>
+                        <Label Content="Header" Grid.Column="0"></Label>
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TreeView  Grid.Column="2" BorderThickness="0" >
 
                             <TreeViewItem >
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="TagHeader"></TextBlock>
+                                        <TextBlock Text=" Size: "/>
+                                        <TextBlock Text="{Binding FileSize}"/>
+                                        <TextBlock Text=" ver-"/>
+                                        <TextBlock Text="{Binding TagFileHeaderInst.Version}"/>
                                     </StackPanel>
                                 </TreeViewItem.Header>
                                 <Grid Grid.Column="2">
@@ -84,57 +71,57 @@
                                         <RowDefinition Height="auto"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Label Content="DataBlockOffset"  Grid.Column="0" Grid.Row="0"></Label>
-                                    <Label Content="{Binding TagHeader.DataBlockOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
+                                    <Label Content="{Binding DataBlockOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
                                     <Label Content="DataReferenceOffset"  Grid.Column="0" Grid.Row="1"></Label>
-                                    <Label Content="{Binding TagHeader.DataReferenceOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="1"></Label>
+                                    <Label Content="{Binding DataReferenceOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="1"></Label>
                                     <Label Content="DependencyOffset"  Grid.Column="0" Grid.Row="2"></Label>
-                                    <Label Content="{Binding TagHeader.DependencyOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="2"></Label>
+                                    <Label Content="{Binding DependencyOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="2"></Label>
                                     <Label Content="StringTableOffset"  Grid.Column="0" Grid.Row="3"></Label>
-                                    <Label Content="{Binding TagHeader.StringTableOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="3"></Label>
+                                    <Label Content="{Binding StringTableOffset , Mode=OneWay}" Grid.Column="1" Grid.Row="3"></Label>
 
 
                                     <Label Content="Magic"  Grid.Column="0" Grid.Row="4"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Magic, Mode=OneWay}" Grid.Column="1" Grid.Row="4"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.Magic, Mode=OneWay}" Grid.Column="1" Grid.Row="4"></Label>
                                     <Label Content="Version"  Grid.Column="0" Grid.Row="5"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Version, Mode=OneWay}" Grid.Column="1" Grid.Row="5"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.Version, Mode=OneWay}" Grid.Column="1" Grid.Row="5"></Label>
                                     <Label Content="TypeHash"  Grid.Column="0" Grid.Row="6"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TypeHash, Mode=OneWay}" Grid.Column="1" Grid.Row="6"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.TypeHash, Mode=OneWay}" Grid.Column="1" Grid.Row="6"></Label>
                                     <Label Content="AssetChecksum"  Grid.Column="0" Grid.Row="7"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.AssetChecksum, Mode=OneWay}" Grid.Column="1" Grid.Row="7"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.AssetChecksum, Mode=OneWay}" Grid.Column="1" Grid.Row="7"></Label>
                                     <Label Content="DependencyCount"  Grid.Column="0" Grid.Row="8"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DependencyCount, Mode=OneWay}" Grid.Column="1" Grid.Row="8"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.DependencyCount, Mode=OneWay}" Grid.Column="1" Grid.Row="8"></Label>
                                     <Label Content="DataBlockCount"  Grid.Column="0" Grid.Row="9"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DataBlockCount, Mode=OneWay}" Grid.Column="1" Grid.Row="9"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.DataBlockCount, Mode=OneWay}" Grid.Column="1" Grid.Row="9"></Label>
                                     <Label Content="TagStructCount"  Grid.Column="0" Grid.Row="10"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TagStructCount, Mode=OneWay}" Grid.Column="1" Grid.Row="10"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.TagStructCount, Mode=OneWay}" Grid.Column="1" Grid.Row="10"></Label>
                                     <Label Content="DataReferenceCount"  Grid.Column="0" Grid.Row="11"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DataReferenceCount, Mode=OneWay}" Grid.Column="1" Grid.Row="11"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.DataReferenceCount, Mode=OneWay}" Grid.Column="1" Grid.Row="11"></Label>
                                     <Label Content="TagReferenceCount"  Grid.Column="0" Grid.Row="12"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TagReferenceCount, Mode=OneWay}" Grid.Column="1" Grid.Row="12"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.TagReferenceCount, Mode=OneWay}" Grid.Column="1" Grid.Row="12"></Label>
                                     <Label Content="StringTableSize"  Grid.Column="0" Grid.Row="13"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.StringTableSize, Mode=OneWay}" Grid.Column="1" Grid.Row="13"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.StringTableSize, Mode=OneWay}" Grid.Column="1" Grid.Row="13"></Label>
                                     <Label Content="ZoneSetDataSize"  Grid.Column="0" Grid.Row="14"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.ZoneSetDataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="14"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.ZoneSetDataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="14"></Label>
                                     <Label Content="unknownDescInfoType"  Grid.Column="0" Grid.Row="15"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.UnknownDescInfoType, Mode=OneWay}" Grid.Column="1" Grid.Row="15"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.UnknownDescInfoType, Mode=OneWay}" Grid.Column="1" Grid.Row="15"></Label>
                                     <Label Content="HeaderSize"  Grid.Column="0" Grid.Row="16"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.HeaderSize, Mode=OneWay}" Grid.Column="1" Grid.Row="16"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.HeaderSize, Mode=OneWay}" Grid.Column="1" Grid.Row="16"></Label>
                                     <Label Content="DataSize"  Grid.Column="0" Grid.Row="17"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.DataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="17"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.DataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="17"></Label>
                                     <Label Content="ResourceDataSize"  Grid.Column="0" Grid.Row="18"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.ResourceDataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="18"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.ResourceDataSize, Mode=OneWay}" Grid.Column="1" Grid.Row="18"></Label>
                                     <Label Content="Section3Size"  Grid.Column="0" Grid.Row="19"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Section3Size, Mode=OneWay}" Grid.Column="1" Grid.Row="19"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.Section3Size, Mode=OneWay}" Grid.Column="1" Grid.Row="19"></Label>
                                     <Label Content="HeaderAlignment"  Grid.Column="0" Grid.Row="20"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.HeaderAlignment, Mode=OneWay}" Grid.Column="1" Grid.Row="20"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.HeaderAlignment, Mode=OneWay}" Grid.Column="1" Grid.Row="20"></Label>
                                     <Label Content="TagDataAlightment"  Grid.Column="0" Grid.Row="21"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.TagDataAlightment, Mode=OneWay}" Grid.Column="1" Grid.Row="21"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.TagDataAlightment, Mode=OneWay}" Grid.Column="1" Grid.Row="21"></Label>
                                     <Label Content="ResourceDataAligment"  Grid.Column="0" Grid.Row="22"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.ResourceDataAligment, Mode=OneWay}" Grid.Column="1" Grid.Row="22"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.ResourceDataAligment, Mode=OneWay}" Grid.Column="1" Grid.Row="22"></Label>
                                     <Label Content="Section3Alightment"  Grid.Column="0" Grid.Row="23"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.Section3Alightment, Mode=OneWay}" Grid.Column="1" Grid.Row="23"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.Section3Alightment, Mode=OneWay}" Grid.Column="1" Grid.Row="23"></Label>
                                     <Label Content="UnknownProperty4"  Grid.Column="0" Grid.Row="24"></Label>
-                                    <Label Content="{Binding TagHeader.TagFileHeaderInst.UnknownProperty4, Mode=OneWay}" Grid.Column="1" Grid.Row="24"></Label>
+                                    <Label Content="{Binding TagFileHeaderInst.UnknownProperty4, Mode=OneWay}" Grid.Column="1" Grid.Row="24"></Label>
 
                                 </Grid>
 
@@ -144,6 +131,265 @@
                     </Grid>
 
                 </DataTemplate>
+
+                <DataTemplate DataType="{x:Type tags:TagDependency}">
+                    <TreeView  Grid.Column="2" BorderThickness="0" >
+
+                        <TreeViewItem >
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text=" Index: "/>
+                                    <TextBlock Text="{Binding Index}"/>
+                                    <TextBlock Text=" Group: "/>
+                                    <TextBlock Text="{Binding TagGroupRev}"/>
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TagGroupRev: "/>
+                                    <TextBlock Text="{Binding TagGroupRev}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Name_offset: "/>
+                                    <TextBlock Text="{Binding Name_offset}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Global_id: "/>
+                                    <TextBlock Text="{Binding Global_id}"/>
+                                    <Button Content="Open Gen" DataContext="{Binding Global_id}" 
+                                                IsEnabled="{Binding Self, Converter={StaticResource InequalityBoolConverter}, ConverterParameter ={StaticResource IntOneMinus}}"
+                                                Width="65" Click="TagRefIdGenButton_Click" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Ref_id_center: "/>
+                                    <TextBlock Text="{Binding Ref_id_center}"/>
+                                    <Button Content="Open Gen" DataContext="{Binding Ref_id_center}" 
+                                                IsEnabled="{Binding Self, Converter={StaticResource InequalityBoolConverter}, ConverterParameter ={StaticResource IntOneMinus}}"
+                                                Width="65" Click="TagRefIdGenButton_Click" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Ref_id_sub: "/>
+                                    <TextBlock Text="{Binding Ref_id_sub}"/>
+                                    <Button Content="Open Gen" DataContext="{Binding Ref_id_sub}" 
+                                                IsEnabled="{Binding Self, Converter={StaticResource InequalityBoolConverter}, ConverterParameter ={StaticResource IntOneMinus}}"
+                                                Width="65" Click="TagRefIdGenButton_Click" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Unknown_property: "/>
+                                    <TextBlock Text="{Binding Unknown_property}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </TreeViewItem>
+                    </TreeView>
+
+                    
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type tags:DataBlock}">
+                    <TreeView  Grid.Column="2" BorderThickness="0" >
+
+                        <TreeViewItem >
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text=" Index: "/>
+                                    <TextBlock Text="{Binding Index}"/>
+                                    <TextBlock Text=" size: "/>
+                                    <TextBlock Text="{Binding Size}"/>
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Size: "/>
+                                    <TextBlock Text="{Binding Size}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="UnknownProperty: "/>
+                                    <TextBlock Text="{Binding UnknownProperty}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Section: "/>
+                                    <TextBlock Text="{Binding Section}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Offset: "/>
+                                    <TextBlock Text="{Binding Offset}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </TreeViewItem>
+                    </TreeView>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type tags:TagStruct}">
+                    <TreeView  Grid.Column="2" BorderThickness="0" >
+
+                        <TreeViewItem >
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text=" Index: "/>
+                                    <TextBlock Text="{Binding Index}"/>
+                                    <TextBlock Text=" TypeIdTg: "/>
+                                    <TextBlock Text="{Binding TypeIdTg}"/>
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="UID: "/>
+                                    <TextBlock Text="{Binding UID}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="UID1: "/>
+                                    <TextBlock Text="{Binding UID1}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="UID2: "/>
+                                    <TextBlock Text="{Binding UID2}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TypeIdTg: "/>
+                                    <TextBlock Text="{Binding TypeIdTg}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Unknown_property_bool_0_1: "/>
+                                    <TextBlock Text="{Binding Unknown_property_bool_0_1}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Field_data_block_index: "/>
+                                    <TextBlock Text="{Binding Field_data_block_index}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Parent_field_data_block_index: "/>
+                                    <TextBlock Text="{Binding Parent_field_data_block_index}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Field_offset: "/>
+                                    <TextBlock Text="{Binding Field_offset}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </TreeViewItem>
+                    </TreeView>
+
+
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type tags:DataReference}">
+                    <TreeView  Grid.Column="2" BorderThickness="0" >
+
+                        <TreeViewItem >
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text=" Index: "/>
+                                    <TextBlock Text="{Binding Index}"/>
+                                    <TextBlock Text=" Parent index: "/>
+                                    <TextBlock Text="{Binding Parent_struct_index}"/>
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Parent_struct_index: "/>
+                                    <TextBlock Text="{Binding Parent_struct_index}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Unknown_property: "/>
+                                    <TextBlock Text="{Binding Unknown_property}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Field_data_block_index: "/>
+                                    <TextBlock Text="{Binding Field_data_block_index}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Parent_field_data_block_index: "/>
+                                    <TextBlock Text="{Binding Parent_field_data_block_index}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Field_offset: "/>
+                                    <TextBlock Text="{Binding Field_offset}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </TreeViewItem>
+                    </TreeView>
+
+
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type tags:TagReferenceFixup}">
+                    <TreeView  Grid.Column="2" BorderThickness="0" >
+
+                        <TreeViewItem >
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text=" Index: "/>
+                                    <TextBlock Text="{Binding Index}"/>
+                                    <TextBlock Text=" FieldBlock: "/>
+                                    <TextBlock Text="{Binding FieldBlock}"/>
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="FieldBlock: "/>
+                                    <TextBlock Text="{Binding FieldBlock}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="FieldOffset: "/>
+                                    <TextBlock Text="{Binding FieldOffset}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="NameOffset: "/>
+                                    <TextBlock Text="{Binding NameOffset}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="DependencyIndex: "/>
+                                    <TextBlock Text="{Binding DependencyIndex}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </TreeViewItem>
+                    </TreeView>
+                </DataTemplate>
+                
+                <HierarchicalDataTemplate DataType="{x:Type tags:TagDependencyTable}" ItemsSource="{Binding Entries}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="TagDependencyTable: "></TextBox>
+                        <TextBox Text="{Binding Entries.Count, Mode=OneWay}"></TextBox>
+                        <TextBox Text=" entrys."></TextBox>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type tags:DataBlockTable}" ItemsSource="{Binding Entries}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="DataBlockTable: "></TextBox>
+                        <TextBox Text="{Binding Entries.Count, Mode=OneWay}"></TextBox>
+                        <TextBox Text=" entrys."></TextBox>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type tags:TagStructTable}" ItemsSource="{Binding Entries}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="TagStructTable: "></TextBox>
+                        <TextBox Text="{Binding Entries.Count, Mode=OneWay}"></TextBox>
+                        <TextBox Text=" entrys."></TextBox>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type tags:DataReferenceTable}" ItemsSource="{Binding Entries}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="DataReferenceTable: "></TextBox>
+                        <TextBox Text="{Binding Entries.Count, Mode=OneWay}"></TextBox>
+                        <TextBox Text=" entrys."></TextBox>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type tags:TagReferenceFixUpTable}" ItemsSource="{Binding Entries}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="TagReferenceFixUpTable: "></TextBox>
+                        <TextBox Text="{Binding Entries.Count, Mode=OneWay}"></TextBox>
+                        <TextBox Text=" entrys."></TextBox>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
             </TreeView.Resources>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">

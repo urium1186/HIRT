@@ -63,7 +63,7 @@ namespace HaloInfiniteResearchTools.Cli
                 if (founds != null && founds.Count() != 0)
                 {
 
-                    foreach (var item in founds)
+                    foreach (SSpaceFile item in founds)
                     {
                         string path = Path.Combine(_output.FullName, ((SSpaceFile)item).FileMemDescriptor?.Path_string.Replace("����", "no_tag_group") + ".bin");
                         if (string.IsNullOrEmpty(path))

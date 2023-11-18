@@ -4,11 +4,8 @@ using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
-using Microsoft.Diagnostics.Tracing.Utilities;
 using Oodle;
-using Oodle.NET;
 using System.Diagnostics;
-using System.Reflection.PortableExecutable;
 using static LibHIRT.Assertions;
 
 namespace LibHIRT.Files.FileTypes
@@ -20,7 +17,7 @@ namespace LibHIRT.Files.FileTypes
         Stream hd1Handle;
         HiModuleHeader _moduleHeader = new HiModuleHeader();
         Dictionary<int, ISSpaceFile> _filesIndexLookup = new Dictionary<int, ISSpaceFile>();
-        Dictionary<int, ISSpaceFile> _filesGlobalIdLookup = new Dictionary<int, ISSpaceFile>();
+        Dictionary<int, int> _filesGlobalIdLookup = new Dictionary<int, int>();
 
         List<SSpaceFile> _debugFiles = new List<SSpaceFile>();
         private void processFileFileEntry(HiModuleFileEntry fileEntry)
@@ -36,13 +33,12 @@ namespace LibHIRT.Files.FileTypes
         public override string FileTypeDisplay => "Module File (.module)";
 
         internal HiModuleHeader ModuleHeader { get => _moduleHeader; set => _moduleHeader = value; }
-        public Dictionary<int, ISSpaceFile> FilesGlobalIdLookup { get => _filesGlobalIdLookup; set => _filesGlobalIdLookup = value; }
 
         #endregion
 
         #region Constructor
 
-        public ModuleFile(string name, 
+        public ModuleFile(string name,
           ISSpaceFile parent = null)
           : base(name, parent)
         {
@@ -54,7 +50,17 @@ namespace LibHIRT.Files.FileTypes
         }
         void reset() {
             if (BaseStream != null)
-                BaseStream.Close(); 
+                BaseStream.Close();
+        }
+
+        public ISSpaceFile GetFileByGlobalId(int id) {
+            
+            if (_filesGlobalIdLookup.TryGetValue(id, out int index))
+            { 
+                if (_filesIndexLookup.TryGetValue(index, out ISSpaceFile value))
+                    return value;
+            }
+            return null;
         }
         void GetHd1Handle()
         {
@@ -62,13 +68,12 @@ namespace LibHIRT.Files.FileTypes
             {
                 if (Reader != null && Reader.BaseStream != null)
                 {
-                    HIRTDecompressionStream s = Reader.BaseStream as HIRTDecompressionStream;
+                    HIRTExtractedFileStream s = Reader.BaseStream as HIRTExtractedFileStream;
                     if (s != null)
                     {
-                        string path = s.TryGetFilePath();
-                        if (!string.IsNullOrEmpty(path))
+                        if (!string.IsNullOrEmpty(InDiskPath))
                         {
-                            hd1Handle = File.OpenRead(path + "_hd1");
+                            hd1Handle = File.OpenRead(InDiskPath + "_hd1");
                         }
                     }
                 }
@@ -83,17 +88,9 @@ namespace LibHIRT.Files.FileTypes
         public bool hasHd1File() {
             try
             {
-                if (Reader != null && Reader.BaseStream != null)
+                if (!string.IsNullOrEmpty(InDiskPath))
                 {
-                    HIRTDecompressionStream s = Reader.BaseStream as HIRTDecompressionStream;
-                    if (s != null)
-                    {
-                        string path = s.TryGetFilePath();
-                        if (!string.IsNullOrEmpty(path))
-                        {
-                            return File.Exists(path + "_hd1");
-                        }
-                    }
+                    return File.Exists(InDiskPath + "_hd1");
                 }
             }
             catch (Exception)
@@ -155,6 +152,7 @@ namespace LibHIRT.Files.FileTypes
                     if (hd1Handle == null)
                     {
                         Assert(hd1Handle != null, "Error extracting %s, no hd1 file for module %s\n");
+                        decomp_save_data.Seek(0, SeekOrigin.Begin);
                         return decomp_save_data;
                     }
                     offset -= _moduleHeader.Hd1_delta;
@@ -175,6 +173,7 @@ namespace LibHIRT.Files.FileTypes
                     if (hd1Handle == null)
                     {
                         Assert(hd1Handle != null, "Error extracting %s, no hd1 file for module %s\n");
+                        decomp_save_data.Seek(0, SeekOrigin.Begin);
                         return decomp_save_data;
                     }
                     offset -= _moduleHeader.Hd1_delta;
@@ -269,15 +268,15 @@ namespace LibHIRT.Files.FileTypes
                 decomp_save_data.Read(bufer);
                 decomp_save_data = new MemoryStream(bufer);
             }*/
-
+            decomp_save_data.Seek(0, SeekOrigin.Begin);
             return decomp_save_data;
         }
 
         public bool WriteTag(SSpaceFile file)
         {
-            return WriteTag(file.FileMemDescriptor, file.GetStream(), (FileStream)(BaseStream as HIRTDecompressionStream).BaseStream);
+            return WriteTag(file.FileMemDescriptor, file.GetStream(), (BaseStream as HIRTExtractedFileStream));
         }
-        public bool WriteTag(HiModuleFileEntry moduleFileEntry, Stream TagStream, FileStream ModuleStream)
+        public bool WriteTag(HiModuleFileEntry moduleFileEntry, Stream TagStream, Stream ModuleStream)
         {
             for (int i = moduleFileEntry.First_block_index; i < moduleFileEntry.First_block_index + moduleFileEntry.Block_count; i++)
             {
@@ -287,7 +286,7 @@ namespace LibHIRT.Files.FileTypes
                 TagStream.Seek(block.Decomp_offset, SeekOrigin.Begin);
                 TagStream.Read(modifiedBlock, 0, modifiedBlock.Length);
 
-                byte[] compressedBlock = OodleWrapper.Compress(modifiedBlock, modifiedBlock.Length, modifiedBlock.Length == block.Decomp_size?(uint)block.Comp_size:0);
+                byte[] compressedBlock = OodleWrapper.Compress(modifiedBlock, modifiedBlock.Length, modifiedBlock.Length == block.Decomp_size ? (uint)block.Comp_size : 0);
 
                 if (modifiedBlock.Length == block.Comp_size)
                 {
@@ -316,14 +315,14 @@ namespace LibHIRT.Files.FileTypes
             {
                 //Assert(len == 0, "Seek len no equal to file size." + Name);
             }
-            if (_moduleHeader.Unk0x18 == -1)
+            if (_moduleHeader.MapRefIndex == -1)
             {
                 Debug.Assert(len == 4096);
             }
             Debug.Assert(len >= 4096);
             if (len == 4096)
             {
-                Debug.Assert(_moduleHeader.Unk0x18 == -1);
+                Debug.Assert(_moduleHeader.MapRefIndex == -1);
                 //Assert(false, "len no data." + Name);
             }
             else
@@ -334,7 +333,7 @@ namespace LibHIRT.Files.FileTypes
             {
                 Debug.Assert(len > 4096);
             }
-            if (_moduleHeader.Unk0x18 != -1)
+            if (_moduleHeader.MapRefIndex != -1)
             {
                 BaseStream.Seek(_moduleHeader.BlockListOffset + _moduleHeader.BlockListSize, SeekOrigin.Begin);
                 while (BaseStream.ReadByte() == 0)
@@ -358,6 +357,26 @@ namespace LibHIRT.Files.FileTypes
             }
             entry.ReadIn(Reader);
             entry.Index = index;
+            checkFileHeader(entry.First_block_index);
+            if (index == ModuleHeader.MapRefIndex) {
+                Debug.Assert(entry.GlobalTagId1 == -1);
+                entry.TagGroupRev = "modix";
+                entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-index" + ".index";
+                /*if (entry.GlobalTagId1 == -1)
+                {
+                    Debug.Assert((Children.ElementAt(0) as SSpaceFile).FileMemDescriptor.Parent_file_index != -1);
+                    Debug.Assert(entry.Parent_file_index == -1);
+                    Debug.Assert(this.ModuleHeader.Unk0x18 == 1);
+                }
+                else
+                {
+                    Debug.Assert(this.ModuleHeader.Unk0x18 == 0);
+                }*/
+            } else if (index < ModuleHeader.MapRefIndex) {
+                entry.TagGroupRev = "modcr";
+                entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-relate_incr" + ".modcr";
+            }
+
             if (_moduleHeader.StringsSize != 0)
             {
                 Reader.BaseStream.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
@@ -369,14 +388,14 @@ namespace LibHIRT.Files.FileTypes
                 {
                     if (entry.ParentOffResource != -1)
                     {
-                        Debug.Assert(index >= _moduleHeader.ResourceIndex );
+                        Debug.Assert(index >= _moduleHeader.ResourceIndex);
                         Debug.Assert(index < _moduleHeader.ResourceIndex + _moduleHeader.ResourceCount);
                         ISSpaceFile tempP;
                         if (_filesIndexLookup.TryGetValue(entry.ParentOffResource, out tempP))
                         {
                             var tempFD = ((SSpaceFile)tempP).FileMemDescriptor;
                             var i_n = tempFD.ResourceFiles.Count;
-                            
+
                             entry.Path_string = tempFD.Path_string + "[" + i_n.ToString() + "_resource_chunk_" + i_n.ToString() + "]";
                             entry.ParentOffResourceRef = tempP;
                             ((SSpaceFile)tempP).FileMemDescriptor.ResourceFiles.Add(entry);
@@ -384,7 +403,8 @@ namespace LibHIRT.Files.FileTypes
                     }
                     else
                     {
-                        entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-index-" + index.ToString();
+                        
+                        
                     }
                 }
                 else
@@ -430,9 +450,11 @@ namespace LibHIRT.Files.FileTypes
                 if (fileEntry.ParentOffResource != file.FileMemDescriptor.Index) {
                     throw new IndexOutOfRangeException("Index out of range."); ;
                 }
-                
-                
-                var childFile = CreateChildFile(fileEntry.Path_string, 0, fileEntry.Decomp_size, fileEntry.TagGroupRev);
+                string signature = "";
+                (string, string) out_s;
+                if (Common.Inst.MA_GUID_EXT_RESOURCE.TryGetValue(file.FileMemDescriptor.TagGroupRev, out out_s))
+                    signature = out_s.Item1;
+                var childFile = CreateChildFile(fileEntry.Path_string, 0, fileEntry.Decomp_size, fileEntry.TagGroupRev, signature);
                 if (childFile != null) {
                     (childFile as SSpaceFile).FileMemDescriptor = fileEntry;
 
@@ -444,33 +466,12 @@ namespace LibHIRT.Files.FileTypes
             }
             throw new IndexOutOfRangeException("Index out of range.");
         }
-        public ISSpaceFile GetFileByGlobalId(int _gloabalId)
-        {
-
+        
+        protected void checkFileHeader(int firstBlock) {
+            HiModuleBlockEntry block = readBlockEntryIn(firstBlock);
+            if (block != null && firstBlock!=0)
             {
-                try
-                {
-                    return _filesGlobalIdLookup[_gloabalId];
-                }
-                catch (Exception ex)
-                {
-                    //string module_name = Name.Split("__")[1];    
-                    /*foreach (var item in HIFileContext.Instance.FilesModuleGlobalIdLockUp)
-                    {
-                        //string name = item.Key.Split("__")[1];
-                        // module_name == name && 
-                        if (item.Value.FilesGlobalIdLookup.ContainsKey(_gloabalId))
-                        {
-                            var r = item.Value.FilesGlobalIdLookup[_gloabalId];
-                            if (r != null && !r.Path_string.Contains(@"__chore\ds__"))
-                            {
-                                return r;
-                            }
-
-                        }
-                    }*/
-                    return null;
-                }
+                //Debug.Assert(!block.B_compressed);
 
             }
         }
@@ -483,6 +484,7 @@ namespace LibHIRT.Files.FileTypes
                 var entry = readFileEntryIn(i);
                 if (entry != null && entry.Comp_size != 0)
                 {
+                    
                     var childFile = CreateChildFile(entry.Path_string, 0, entry.Decomp_size, entry.TagGroupRev);
                     (childFile as SSpaceFile).FileMemDescriptor = entry;
                     if (!(childFile is null))
@@ -500,7 +502,7 @@ namespace LibHIRT.Files.FileTypes
                         {
                             if (!_filesGlobalIdLookup.ContainsKey(entry.GlobalTagId1))
                             {
-                                _filesGlobalIdLookup[entry.GlobalTagId1] = childFile;
+                                _filesGlobalIdLookup[entry.GlobalTagId1] = entry.Index;
                                 if (Mmr3HashLTU.ForceFillData && (childFile.TagGroup != "����" || (childFile as SSpaceFile).FileMemDescriptor.GlobalTagId1 != -1))
                                 {
                                     try
@@ -631,24 +633,21 @@ namespace LibHIRT.Files.FileTypes
         #endregion
 
         #region Overrides
-        protected override ISSpaceFile CreateChildFile(string name, long offset, long size, string signature)
+        protected override ISSpaceFile CreateChildFile(string name, long offset, long size, string tagGroup, string signature = "")
         {
             var dataStartOffset = CalculateTrueChildOffset(offset);
             var dataEndOffset = dataStartOffset + size;
 
-            return SSpaceFileFactory.CreateFile(name, signature, this);
+            return SSpaceFileFactory.CreateFile(name, tagGroup, signature, this);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
             this.hd1Handle?.Close();
             this.hd1Handle?.Dispose();
-            foreach (var item in _filesGlobalIdLookup)
-            {
-                item.Value.Dispose();
-            }
+            
             this._filesGlobalIdLookup.Clear();
-            foreach (var item in _filesGlobalIdLookup)
+            foreach (var item in _filesIndexLookup)
             {
                 item.Value.Dispose();
             }
@@ -659,9 +658,8 @@ namespace LibHIRT.Files.FileTypes
 
         public override void InitializeStream(HIRTStream baseStream, long dataStartOffset, long dataEndOffset)
         {
+            
             base.InitializeStream(baseStream, dataStartOffset, dataEndOffset);
-            ReadHeader();
-            ReadChildren();
         }
         #endregion
 

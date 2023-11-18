@@ -54,5 +54,18 @@ namespace HaloInfiniteResearchTools.Views
 
 
         }
+
+        private void TagInstanceTree_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void TagRefIdGenButton_Click(object sender, RoutedEventArgs e)
+        {
+            GenericViewModel temp = DataContext as GenericViewModel;
+            
+            if (temp != null)
+                temp.OpenGenFileTabRefIntCommand?.Execute((int)(sender as Button).DataContext);
+        }
     }
 }

@@ -8,6 +8,8 @@
     <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
     
     <converters:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
+    <converters:EqualVisibilityConverter x:Key="EqualVisibilityConverter" />
+    <converters:NoEqualVisibilityConverter x:Key="NoEqualVisibilityConverter" />
     <converters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
     <converters:IntVisibilityConverter x:Key="IntVisibilityConverter" />
     <converters:ColorConverter x:Key="ColorConverter" />

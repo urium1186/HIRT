@@ -22,6 +22,7 @@ namespace LibHIRT.Files
 
         private static Dictionary<string, Type> _extensionLookup;
         private static Dictionary<string, Type> _signatureLookup;
+        private static Dictionary<string, Type> _tagGroupLookup;
 
         private static Dictionary<Type, CreateFileDelegate> _constructorLookup;
 
@@ -33,6 +34,7 @@ namespace LibHIRT.Files
         {
             _extensionLookup = BuildExtensionLookup();
             _signatureLookup = BuildSignatureLookup();
+            _tagGroupLookup = BuildTagGroupLookup();
             _constructorLookup = BuildConstructorLookup();
 
             SupportedFileExtensions = new HashSet<string>(_extensionLookup.Keys);
@@ -45,16 +47,17 @@ namespace LibHIRT.Files
 
         #region Public Methods
 
-        public static ISSpaceFile CreateFile(string name, string signature,
+        public static ISSpaceFile CreateFile(string name, string tagGroup,string signature = "",
           ISSpaceFile parent = null)
         {
             var ext = Path.GetExtension(name);
             //var signature = ReadSignature(baseStream, dataStartOffset);
 
             if (!_signatureLookup.TryGetValue(signature, out var fileType))
-                if (!_extensionLookup.TryGetValue(ext, out fileType))
-                    if (!_signatureLookup.TryGetValue("_*.*", out fileType))
-                        return FailReturn<ISSpaceFile>($"Could not determine a FileType for '{name}'.");
+                if (!_tagGroupLookup.TryGetValue(tagGroup, out fileType)) 
+                    if (!_extensionLookup.TryGetValue(ext, out fileType))
+                        if (!_tagGroupLookup.TryGetValue("_*.*", out fileType))
+                            return FailReturn<ISSpaceFile>($"Could not determine a FileType for '{name}'.");
 
             if (!_constructorLookup.TryGetValue(fileType, out var ctorDelegate))
                 return FailReturn<ISSpaceFile>($"FileType '{fileType.Name}' does not have a constructor delegate!");
@@ -157,6 +160,23 @@ namespace LibHIRT.Files
             }
 
             return extLookup;
+        }
+
+        
+        private static Dictionary<string, Type> BuildTagGroupLookup()
+        {
+            var groupLookup = new Dictionary<string, Type>();
+
+            foreach (var fileType in GetDefinedFileTypes())
+            {
+                var groupAttribute = fileType.GetCustomAttributes(typeof(FileTagGroupAttribute), false).FirstOrDefault() as FileTagGroupAttribute;
+                if (groupAttribute is null)
+                    continue;
+
+                groupLookup.Add(groupAttribute.TagGroup, fileType);
+            }
+
+            return groupLookup;
         }
 
         private static Dictionary<string, Type> BuildSignatureLookup()

@@ -154,14 +154,16 @@
                     <MenuItem Header="Export Recursive to Json" Click="MenuItem_ExportRecursiveToJsonClick" />
                 </ContextMenu>
                 <DataTemplate DataType="{x:Type modelbase:IHIRTFile}" >
-                    <TextBlock Text="{Binding Path=(modelbase:IHIRTFile.DisplayName)}"></TextBlock>
+                    <TextBlock Text="{Binding Path=(modelbase:IHIRTFile.Name)}"></TextBlock>
                 </DataTemplate>
+                <!--
                 <DataTemplate DataType="{x:Type hifiles:ModelFile}" >
                     <TextBlock Text="{Binding DisplayName}"></TextBlock>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type hifiles:GenericFile}" >
                     <TextBlock Text="{Binding DisplayName}"></TextBlock>
                 </DataTemplate>
+                -->
                 <HierarchicalDataTemplate DataType="{x:Type CollectionViewGroup}" ItemsSource="{Binding Items}">
                     <TextBlock Text="{Binding Name}" />
                     

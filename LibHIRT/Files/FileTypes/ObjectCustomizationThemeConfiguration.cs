@@ -3,7 +3,8 @@ using LibHIRT.Serializers;
 
 namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("ocur")]
+    [FileTagGroup("ocur")]
+    [FileSignature("6E73F0380F48411E")]
     [FileExtension(".customizationthemeconfiguration")]
     public class ObjectCustomizationThemeConfiguration : SSpaceFile
     {

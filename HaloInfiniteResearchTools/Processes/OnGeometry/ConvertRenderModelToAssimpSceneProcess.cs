@@ -8,6 +8,7 @@ using LibHIRT.Data;
 using LibHIRT.Domain;
 using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
@@ -27,7 +28,7 @@ namespace LibHIRT.Processes.OnGeometry
 
         #region Data Members
 
-        private readonly ISSpaceFile _file;
+        private readonly IHIRTFile _file;
 
         private SceneContext _context;
         private readonly object _statusLock;
@@ -53,7 +54,7 @@ namespace LibHIRT.Processes.OnGeometry
 
         #region Constructor
 
-        public ConvertRenderModelToAssimpSceneProcess(ISSpaceFile file, Scene parentScene = null, Assimp.Matrix4x4 initialTransform = default)
+        public ConvertRenderModelToAssimpSceneProcess(IHIRTFile file, Scene parentScene = null, Assimp.Matrix4x4 initialTransform = default)
         {
             _file = file;
             _statusLock = new object();

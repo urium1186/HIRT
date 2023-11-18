@@ -154,6 +154,12 @@ namespace LibHIRT.TagReader.Headers
             get => 0x50;
         }
 
+        public long FileSize
+        {
+            get => tagFileHeaderInst.HeaderSize + tagFileHeaderInst.DataSize + tagFileHeaderInst.ResourceDataSize + tagFileHeaderInst.Section3Size;
+        }
+
+
         public int DataBlockOffset
         {
             get => DependencyOffset + (tagFileHeaderInst.DependencyCount * 0x18);

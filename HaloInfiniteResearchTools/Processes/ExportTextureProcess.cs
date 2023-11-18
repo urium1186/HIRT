@@ -206,7 +206,7 @@ namespace HaloInfiniteResearchTools.Processes
 
         private async Task ProcessNormalMaps()
         {
-            Status = _targetImages.Count > 1 ? "Processing Normal Maps" : "Processing Normal Map";
+            Status = _targetImages.Count > 1 ? "Processing Binormal Maps" : "Processing Binormal Map";
 
             try
             {
@@ -271,7 +271,7 @@ namespace HaloInfiniteResearchTools.Processes
         private async Task ExportTextureDefinition()
         {
             var tdFileName = Path.ChangeExtension(_file.Name, ".td");
-            var tdFile = _fileContext.GetFiles<TextureDefinitionFile>(tdFileName).First();
+            /*var tdFile = _fileContext.GetFiles<TextureDefinitionFile>(tdFileName).First();
             if (tdFile is null)
             {
                 StatusList.AddWarning(tdFileName, "Could not find Texture Definition. It isn't loaded or doesn't exist.");
@@ -301,7 +301,7 @@ namespace HaloInfiniteResearchTools.Processes
             catch (Exception ex)
             {
                 StatusList.AddError(tdFileName, "Encountered an error attempting to export the texture definition.", ex);
-            }
+            }*/
         }
 
         private MagickFormat GetMagickOutputFormat(TextureFileFormat format)

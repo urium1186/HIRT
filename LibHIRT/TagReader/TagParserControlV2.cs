@@ -22,6 +22,8 @@ namespace LibHIRT.TagReader
         Stream? _f;
         CompoundTagInstance _rootTagInst;
 
+        List<string> _extResource=new List<string>(); 
+
         TagParseControlFiltter parseControlFiltter;
 
         Dictionary<int, TagFileMap> tag_structs_list = new Dictionary<int, TagFileMap>();
@@ -54,6 +56,7 @@ namespace LibHIRT.TagReader
         public CompoundTagInstance? RootTagInst { get => _rootTagInst; set => _rootTagInst = value; }
         public TagFile? TagFile { get => _tagFile; set => _tagFile = value; }
         public TagParseControlFiltter ParseControlFiltter { get => parseControlFiltter; set => parseControlFiltter = value; }
+        public List<string> ExtResource { get => _extResource; }
 
         public void readFile()
         {
@@ -108,10 +111,17 @@ namespace LibHIRT.TagReader
             else
             {
                 // !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset) && 
-                if (entry.TypeIdTg == TagStructType.NoDataStartBlock)
+                if (entry.TypeIdTg == TagStructType.NoDataStartBlock) {
+                    _f.Seek(pos_toRetunr, SeekOrigin.Begin);
                     return;
-                if (!tag_structs_list.ContainsKey(entry.Parent_entry_index) || !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset))
+                }
+                    
+                if (!tag_structs_list.ContainsKey(entry.Parent_entry_index) || !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset)) {
+                    _f.Seek(pos_toRetunr, SeekOrigin.Begin);
                     return;
+                }
+
+                    
                 tag = tag_structs_list[entry.Parent_entry_index].Blocks[entry.Field_offset];
                 isLast = tag_structs_list[entry.Parent_entry_index].Blocks.Keys.Last() == entry.Field_offset;
                 if ((tag.TagDef as TagLayoutsV2.C).T == TagElemntTypeV2.Struct)
@@ -124,7 +134,7 @@ namespace LibHIRT.TagReader
 
             TagFileMap outresult = new TagFileMap();
 
-            if (entry.Info.n_childs != -1)
+            if (entry.Info.n_childs > 0)
             {
                 TagElemntTypeV2? type = (tag.TagDef as TagLayoutsV2.C).T;
                 if (type == TagElemntTypeV2.RootTagInstance)
@@ -145,10 +155,23 @@ namespace LibHIRT.TagReader
                     }
                 }
             }
+            else { 
+                
+            }
+
+            if (entry.TypeIdTg == TagStructType.ExternalFileDescriptor)
+            {
+                (tag as ResourceHandle).IsExternal = true;
+                (tag as ResourceHandle).Index = (_extResource.Count);
+                Debug.Assert((tag.TagDef as TagLayoutsV2.C).T == TagElemntTypeV2.ResourceHandle);
+                _extResource.Add(tag.TagDef.E["hash"].ToString());
+            }
+
             tag_structs_list[entry.Index] = outresult;
             
                 
             _f.Seek(pos_toRetunr, SeekOrigin.Begin);
+           
             if (outresult.Blocks.Count == 0) {
                 OnInstanceLoad(tag);
                 if (isLast && tag.Parent!=null )
@@ -166,6 +189,7 @@ namespace LibHIRT.TagReader
                     continue;
 
                 TagInstance child_tag_elemt = TagInstanceFactoryV2.Create(child_lay_tag, field_offset + entry.Field_data_block.OffsetPlus, address);
+                child_tag_elemt.InFileOffset = field_offset + entry.Field_data_block.OffsetPlus + address;
                 child_tag_elemt.Parent = parent;
                 //parent[child_lay_tag.N] = child_tag_elemt;
                 parent.AddChild(child_tag_elemt);
@@ -213,11 +237,15 @@ namespace LibHIRT.TagReader
                 if (child_item.TagDef.E["comp"].ToString() == "1")
                     tag_maps.Blocks[field_offset] = (ParentTagInstance)child_item;
             } */
-            else if (tagType == TagElemntTypeV2.Block || tagType == TagElemntTypeV2.ResourceHandle) {
+            else if (tagType == TagElemntTypeV2.Block)
+            {
                 if ((child_item as ListTagInstance).ChildrenCount > 0)
                     tag_maps.Blocks[field_offset] = (CompoundTagInstance?)child_item;
+
             }
-            
+            else if (tagType == TagElemntTypeV2.ResourceHandle) {
+                tag_maps.Blocks[field_offset] = (CompoundTagInstance?)child_item;
+            }
             else
                 return;
         }
