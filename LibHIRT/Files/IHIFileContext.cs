@@ -1,5 +1,8 @@
-﻿using System;
+﻿using LibHIRT.Files.Base;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,14 +14,14 @@ namespace LibHIRT.Files
 
         #region Events
 
-        event EventHandler<ISSpaceFile> FileAdded;
-        event EventHandler<ISSpaceFile> FileRemoved;
+        event EventHandler<IHIRTFile> FileAdded;
+        event EventHandler<IHIRTFile> FileRemoved;
 
         #endregion
 
         #region Properties
 
-        IReadOnlyDictionary<int, ISSpaceFile> Files { get; }
+        ObservableCollection<IHIRTFile> Files { get; }
 
         public string TagTemplatePath { get; set; }
 
@@ -26,19 +29,19 @@ namespace LibHIRT.Files
 
         #region Public Methods
 
-        bool AddFile(ISSpaceFile file);
-        bool RemoveFile(ISSpaceFile file);
-        ISSpaceFile GetFile(int fileName);
-        TFile GetFile<TFile>(int fileName) where TFile : class, ISSpaceFile;
+        bool AddFile(IHIRTFile file);
+        bool RemoveFile(IHIRTFile file);
+        IHIRTFile GetFile(int fileName);
+        TFile GetFile<TFile>(int fileName) where TFile : class, IHIRTFile;
 
-        IEnumerable<ISSpaceFile> GetFiles(string searchPattern);
-        IEnumerable<TFile> GetFiles<TFile>(string searchPattern) where TFile : class, ISSpaceFile;
-        IEnumerable<TFile> GetFiles<TFile>() where TFile : class, ISSpaceFile;
+        IEnumerable<IHIRTFile> GetFiles(string searchPattern);
+        IEnumerable<TFile> GetFiles<TFile>(string searchPattern) where TFile : class, IHIRTFile;
+        IEnumerable<TFile> GetFiles<TFile>() where TFile : class, IHIRTFile;
 
         bool OpenDirectory(string path);
         bool OpenFile(string filePath);
         Task<bool> OpenFromRuntime(string filePath);
-        ISSpaceFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource);
+        IHIRTFile OpenFileWithIdInModule(string modulePath, int id, bool load_resource);
 
         #endregion
 

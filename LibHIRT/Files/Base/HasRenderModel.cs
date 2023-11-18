@@ -1,4 +1,6 @@
-﻿namespace LibHIRT.Files.FileTypes
+﻿using LibHIRT.Files.FileTypes;
+
+namespace LibHIRT.Files.Base
 {
     public interface HasRenderModel
     {

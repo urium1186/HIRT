@@ -3,7 +3,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace HaloInfiniteResearchTools.Common.Grunt.Converters
+namespace LibHIRT.Grunt.Converters
 {
     internal class SkipNodeConverter : JsonConverter<SkipNode?>
     {

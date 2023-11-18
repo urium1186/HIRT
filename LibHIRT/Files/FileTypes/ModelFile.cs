@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Domain;
+using LibHIRT.Files.Base;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 
@@ -11,7 +12,8 @@ namespace LibHIRT.Files.FileTypes
 
     }
 
-    [FileSignature("hlmt")]
+    [FileTagGroup("hlmt")]
+    [FileSignature("B8265CE5A8DE5BC8")]
     [FileExtension(".model")]
     public class ModelFile : SSpaceFile, HasRenderModel
     {
@@ -34,8 +36,8 @@ namespace LibHIRT.Files.FileTypes
             var fil_id = (this.Parent as ModuleFile)?.GetFileByGlobalId((int)ref_id);
             if (fil_id == null)
             {
-                ISSpaceFile file_out = HIFileContext.Instance.GetFile((int)ref_id);
-                return file_out == null ? null : (RenderModelFile)file_out;
+                RenderModelFile file_out = HIFileContext.Instance.GetFile((int)ref_id) as RenderModelFile;
+                return file_out;
             }
 
             return fil_id == null ? null : (RenderModelFile)fil_id;

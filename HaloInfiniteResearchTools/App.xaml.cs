@@ -67,10 +67,14 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TagStructsDumperView>();
             services.AddTransient<ModelExportOptionsView>();
             services.AddTransient<RenderModelView>();
+            services.AddTransient<StringListResourceView>();
             services.AddTransient<ModelView>();
             services.AddTransient<ShaderBytecodeView>();
             services.AddTransient<CustomizationGlobalsDefinitionView>();
             services.AddTransient<GenericView>();
+            services.AddTransient<PsoDictionaryView>();
+            services.AddTransient<ModuleIndexFileView>();
+            services.AddTransient<ModuleIncrFileView>();
             services.AddTransient<LevelView>();
             services.AddTransient<PreferencesView>();
             services.AddTransient<StatusListView>();
@@ -91,6 +95,10 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TagStructsDumperViewModel>();
             services.AddTransient<ModelExportOptionsViewModel>();
             services.AddTransient<GenericViewModel>();
+            services.AddTransient<PsoDictionaryViewModel>();
+            services.AddTransient<StringListResourceViewModel>();
+            services.AddTransient<ModuleIndexFileViewModel>();
+            services.AddTransient<ModuleIncrFileViewModel>();
             services.AddTransient<LevelViewModel>();
             services.AddTransient<RenderModelViewModel>();
             services.AddTransient<ModelViewModel>();

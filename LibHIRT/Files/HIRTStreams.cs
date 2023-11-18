@@ -118,7 +118,7 @@ namespace LibHIRT.Files
           => new HIRTExtractedFileStream(stream);
 
         public static HIRTStream FromFile(string filePath)
-          => FromStream(File.OpenRead(filePath));
+          => FromStream(File.Open(filePath,FileMode.Open,FileAccess.ReadWrite));
 
         #endregion
 
@@ -152,7 +152,7 @@ namespace LibHIRT.Files
     /// <summary>
     ///   A stream that reads from compressed/chunked files such as pck.
     /// </summary>
-    internal sealed class HIRTDecompressionStream : HIRTStream
+    internal sealed class HIRTDecompressionStreamNU : HIRTStream
     {
 
         #region Constants
@@ -208,15 +208,15 @@ namespace LibHIRT.Files
 
         #region Constructor
 
-        private HIRTDecompressionStream(Stream baseStream)
+        private HIRTDecompressionStreamNU(Stream baseStream)
         {
             _baseStream = baseStream;
             _reader = new BinaryReader(_baseStream);
         }
 
-        public static HIRTDecompressionStream FromStream(Stream baseStream)
+        public static HIRTDecompressionStreamNU FromStream(Stream baseStream)
         {
-            var stream = new HIRTDecompressionStream(baseStream);
+            var stream = new HIRTDecompressionStreamNU(baseStream);
             stream.Initialize();
 
             return stream;
@@ -230,8 +230,8 @@ namespace LibHIRT.Files
             return "";
         }
 
-        public static HIRTDecompressionStream FromFile(string filePath)
-          => HIRTDecompressionStream.FromStream(File.Open(filePath, FileMode.Open, FileAccess.ReadWrite));
+        public static HIRTDecompressionStreamNU FromFile(string filePath)
+          => HIRTDecompressionStreamNU.FromStream(File.Open(filePath, FileMode.Open, FileAccess.ReadWrite));
 
         #endregion
 

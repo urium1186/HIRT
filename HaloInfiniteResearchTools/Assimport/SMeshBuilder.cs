@@ -117,21 +117,21 @@ namespace HaloInfiniteResearchTools.Assimport
             foreach (var vertex in meshLOD.Vertexs)
             {
                 Vector4 uvVector = default;
-                uvVector.X = vertex.UV0.Value.X;
-                uvVector.Y = vertex.UV0.Value.Y;
+                uvVector.X = vertex.Texcoord.Value.X;
+                uvVector.Y = vertex.Texcoord.Value.Y;
                 AddVertexUV(onMesh, 0, uvVector);
-                if (vertex.UV1 != null)
+                if (vertex.Texcoord1 != null)
                 {
                     Vector4 uvVector1 = default;
-                    uvVector.X = vertex.UV1.Value.X;
-                    uvVector.Y = vertex.UV1.Value.Y;
+                    uvVector.X = vertex.Texcoord1.Value.X;
+                    uvVector.Y = vertex.Texcoord1.Value.Y;
                     AddVertexUV(onMesh, 1, uvVector1);
                 }
-                if (vertex.UV2 != null)
+                if (vertex.Texcoord2 != null)
                 {
                     Vector4 uvVector2 = default;
-                    uvVector.X = vertex.UV2.Value.X;
-                    uvVector.Y = vertex.UV2.Value.Y;
+                    uvVector.X = vertex.Texcoord2.Value.X;
+                    uvVector.Y = vertex.Texcoord2.Value.Y;
                     AddVertexUV(onMesh, 2, uvVector2);
                 }
 

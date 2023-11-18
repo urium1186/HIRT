@@ -3,14 +3,14 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace HaloInfiniteResearchTools.Common.Grunt.Converters
+namespace LibHIRT.Grunt.Converters
 {
     //
     // Summary:
     //     Converts an empty date string to a null. 343i is returning some ISO8601 dates
     //     that we wrap in OpenSpartan.Grunt.Models.APIFormattedDate as empty, which in
     //     turn breaks System.Text.Json deserialization.
-    internal class AcknowledgementTypeConverter : JsonConverter<AcknowledgementType?>
+    public class AcknowledgementTypeConverter : JsonConverter<AcknowledgementType?>
     {
         //
         // Summary:

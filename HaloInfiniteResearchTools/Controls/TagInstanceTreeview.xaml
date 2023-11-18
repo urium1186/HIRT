@@ -11,10 +11,10 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            
+
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        
+
         <TreeView x:Name="treeView" Grid.Row="0"
                           VirtualizingPanel.IsVirtualizing="True"
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True"
@@ -48,7 +48,7 @@
                     <MenuItem Header="Paste"/>
                     <MenuItem Header="Move"/>
                 </ContextMenu>
-                
+
                 <HierarchicalDataTemplate DataType="{x:Type tags:ListTagInstance}" ItemsSource="{Binding Childrens}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -93,7 +93,7 @@
                         <Button Content="View Geometry" DataContext="{Binding Self}" Width="100" Height="25" Grid.Column="4" Click="RenderGeometryTag_Click"
                                      Margin="10,0,0,0"
                                     >
-                            
+
                         </Button>
                     </Grid>
                 </HierarchicalDataTemplate>
@@ -101,74 +101,109 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
-                            <ColumnDefinition Width="auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
-                        <Label Content=": " Grid.Column="1" ></Label>
-                        <TreeView  Grid.Column="2" BorderThickness="0" >
-                            
-                            <TreeViewItem >
-                                <TreeViewItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
-                                        <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click"
+                        <Grid Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
+                            <Label Content=": " Grid.Column="1" ></Label>
+                            <TreeView  Grid.Column="2" BorderThickness="0"
+                                        Visibility="{Binding NoAllowEdit, Converter={StaticResource BoolVisibilityConverter}}"
+                                       >
+
+                                <TreeViewItem >
+                                    <TreeViewItem.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox Text="{Binding Ref_id}" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
+                                            <Button Content="Open" DataContext="{Binding Self}" Width="50" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefButton_Click" Background="DarkKhaki"
+                                                Visibility="{Binding Ref_id_int, Converter={StaticResource NoEqualVisibilityConverter}, 
+                                                   ConverterParameter ={StaticResource IntOneMinus}}" 
                                     IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
                                                    ConverterParameter ={StaticResource IntOneMinus}}" Margin="10,0,0,0"
                                     >
-                                            <Button.Resources>
+                                            </Button>
+                                        </StackPanel>
+                                    </TreeViewItem.Header>
+                                    <Grid Grid.Column="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="auto"></ColumnDefinition>
 
-                                                <!-- 
-                                    <Style TargetType="{x:Type Button}">
-                                        <Setter Property="IsEnabled">
-                                            <Setter.Value>
-                                                <Binding >
-                                                    <Binding.Source>
-                                                        Ref_id_int
-                                                    </Binding.Source>
-                                                    <Binding.Converter>
-                                                        <StaticResource ResourceKey="InequalityBoolConverter" />
-                                                    </Binding.Converter>
-                                                    <Binding.ConverterParameter>
-                                                        <sys:Int32>-1</sys:Int32>
-                                                    </Binding.ConverterParameter>
-                                                </Binding>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                -->
-                                            </Button.Resources>
-                                        </Button>
-                                    </StackPanel>
-                                </TreeViewItem.Header>
-                                <Grid Grid.Column="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                                        <ColumnDefinition Width="auto"></ColumnDefinition>
-
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"></RowDefinition>
-                                        <RowDefinition Height="auto"></RowDefinition>
-                                    </Grid.RowDefinitions>
-                                    <Label Content="{Binding TagGroupRev , Mode=OneWay}"  Grid.Column="0" Grid.Row="0"></Label>
-                                    <Label Content="{Binding Path , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
-                                    <TextBox Text="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
-                                    <Button Content="Open Gen" DataContext="{Binding Self}" Width="65" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefGenButton_Click"
-                                    IsEnabled="{Binding Ref_id_int, 
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto"></RowDefinition>
+                                            <RowDefinition Height="auto"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Content="{Binding TagGroupRev , Mode=OneWay}"  Grid.Column="0" Grid.Row="0"></Label>
+                                        <Label Content="{Binding Path , Mode=OneWay}" Grid.Column="1" Grid.Row="0"></Label>
+                                        <TextBox Text="{Binding Ref_id_int , Mode=OneWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
+                                        <Button Content="Open Gen" DataContext="{Binding Self}" Width="65" Height="25" Grid.Column="1" Grid.Row="1" Click="TagRefGenButton_Click"
+                                             Visibility="{Binding Ref_id_int, Converter={StaticResource NoEqualVisibilityConverter}, 
+                                                   ConverterParameter ={StaticResource IntOneMinus}}" 
+                                            IsEnabled="{Binding Ref_id_int, 
                                                    Converter={StaticResource InequalityBoolConverter}, 
                                                    ConverterParameter ={StaticResource IntOneMinus}}" Margin="10,0,0,0"
                                     />
-                                </Grid>
+                                    </Grid>
 
-                            </TreeViewItem>
-                        </TreeView>
-                       
+                                </TreeViewItem>
+                            </TreeView>
+                            <Grid Grid.Column="2" Visibility="{Binding NoAllowEdit, Converter={StaticResource BoolVisibilityConverter}, ConverterParameter=true}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" MinWidth="100"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <Label   Grid.Row="0" Grid.Column="0" Content="GLobal Hadnle:" />
+                                <TextBox Grid.Row="0" Grid.Column="1"  Text="{Binding Global_handle}"/>
+                                <Label   Grid.Row="1" Grid.Column="0" Content="Id:" />
+                                <TextBox Grid.Row="1" Grid.Column="1"  Text="{Binding Ref_id_int}"/>
+                                <Label   Grid.Row="2" Grid.Column="0" Content="id Center:" />
+                                <TextBox Grid.Row="2" Grid.Column="1"  Text="{Binding Ref_id_center_int}"/>
+                                <Label   Grid.Row="3" Grid.Column="0" Content="Id sub:" />
+                                <TextBox Grid.Row="3" Grid.Column="1"  Text="{Binding Ref_id_sub_int}"/>
+                                <Label   Grid.Row="4" Grid.Column="0" Content="Tag Group:" />
+                                <TextBox Grid.Row="4" Grid.Column="1"  Text="{Binding TagGroupRev}"/>
+                                <Label   Grid.Row="5" Grid.Column="0" Content="Local Hadnle:" />
+                                <TextBox Grid.Row="5" Grid.Column="1"  Text="{Binding Local_handle}"/>
+                            </Grid>
+                        </Grid>
                     </Grid>
-
                 </DataTemplate>
-                
+
+                <HierarchicalDataTemplate DataType="{x:Type tags:ResourceHandle}" ItemsSource="{Binding Childrens}" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
+                        <Label Content=": " Grid.Column="1" ></Label>
+                        <Label Content="{Binding Childrens.Count , Mode=OneWay}"  Grid.Column="2"></Label>
+                        <Label Content=" childs"  Grid.Column="3"></Label>
+                        <Button Grid.Column="4" Content="Open" DataContext="{Binding Self}" Width="50" Height="25"  Click="ResourceButton_Click" Background="DarkSalmon"
+                                Visibility="{Binding IsExternal, Converter={StaticResource BoolVisibilityConverter}}" 
+                                     Margin="10,0,0,0"/>
+                    </Grid>
+                </HierarchicalDataTemplate>
+
                 <DataTemplate DataType="{x:Type tags:TagInstance}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -178,7 +213,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox IsReadOnly="True" Text="{Binding FieldName}" VerticalAlignment="Center" HorizontalAlignment="Left"  Grid.Column="0"></TextBox>
                         <Label Content=": " Grid.Column="1" ></Label>
-                        <TextBox Text="{Binding AccessValue , Mode=OneWay}"  Grid.Column="2" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}" 
+                        <TextBox Text="{Binding AccessValue , Mode=TwoWay}"  Grid.Column="2" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}" 
                                 
                                  VerticalAlignment="Center" HorizontalAlignment="Center" IsReadOnlyCaretVisible="True"></TextBox>
                     </Grid>
@@ -221,7 +256,7 @@
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TextBox Text="{Binding Str_value , Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="{Binding NoAllowEdit, Mode=OneWay}"></TextBox>
                     </Grid>
-                    
+
                 </DataTemplate>
 
                 <DataTemplate DataType="{x:Type tags:EnumGroup}" >
@@ -328,14 +363,14 @@
                         <Label Content=": " Grid.Column="1" ></Label>
                         <TreeView  Grid.Column="2" BorderThickness="0" >
                             <TreeViewItem Header="{Binding AccessValue}" >
-                                    <Grid HorizontalAlignment="Stretch" Height="75" Width="75"  Grid.Column="2">
-                                        <Grid.Background >
-                                            <SolidColorBrush Color="{Binding Self, Converter={StaticResource ColorConverter}, Mode=OneWay}" />
-                                        </Grid.Background>
-                                    </Grid>
+                                <Grid HorizontalAlignment="Stretch" Height="75" Width="75"  Grid.Column="2">
+                                    <Grid.Background >
+                                        <SolidColorBrush Color="{Binding Self, Converter={StaticResource ColorConverter}, Mode=OneWay}" />
+                                    </Grid.Background>
+                                </Grid>
                             </TreeViewItem>
                         </TreeView>
-                        
+
                         <!--
                         <muxc1:ColorCanvas SelectedColor="{Binding Self, Converter={StaticResource ColorConverter}, Mode=OneWay}" Grid.Column="3"
                                            Visibility="Hidden">
@@ -353,7 +388,7 @@
                 </Style>
 
             </TreeView.ItemContainerStyle>
-            
+
         </TreeView>
     </Grid>
 </UserControl>

@@ -28,12 +28,12 @@
 
         #region Private Methods
 
-        protected virtual ISSpaceFile CreateChildFile(string name, long offset, long size, string signature)
+        protected virtual ISSpaceFile CreateChildFile(string name, long offset, long size, string tagGruop, string signature="")
         {
             var dataStartOffset = CalculateTrueChildOffset(offset);
             var dataEndOffset = dataStartOffset + size;
 
-            return SSpaceFileFactory.CreateFile(name, signature, this);
+            return SSpaceFileFactory.CreateFile(name, tagGruop, signature, this);
         }
 
         protected long CalculateTrueChildOffset(long offset)

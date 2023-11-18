@@ -1,6 +1,7 @@
 ﻿using HaloInfiniteResearchTools.Common;
 using PropertyChanged;
 using System;
+using System.Windows.Input;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -13,10 +14,13 @@ namespace HaloInfiniteResearchTools.ViewModels
         public string Status { get; set; }
 
         public string UnitName { get; set; }
+        public bool CanCancel { get; set; }
 
         public int CompletedUnits { get; set; }
 
         public int TotalUnits { get; set; }
+
+        public ICommand CancelCommand { get; }
 
         public bool IsIndeterminate { get; set; }
 

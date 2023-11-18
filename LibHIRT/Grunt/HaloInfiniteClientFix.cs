@@ -1,21 +1,16 @@
-﻿using HaloInfiniteResearchTools.Common.Extensions;
-using HaloInfiniteResearchTools.Common.Grunt.Converters;
-using HaloInfiniteResearchTools.Common.Grunt.Util;
+﻿using LibHIRT.Grunt.Converters;
+using LibHIRT.Grunt.Extensions;
+using LibHIRT.Grunt.Util;
 using OpenSpartan.Grunt.Core;
 using OpenSpartan.Grunt.Models;
 using OpenSpartan.Grunt.Models.HaloInfinite;
 using OpenSpartan.Grunt.Util;
-using System;
-using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
-namespace HaloInfiniteResearchTools.Common.Grunt
+namespace LibHIRT.Grunt
 {
     public class HaloInfiniteClientFix : HaloInfiniteClient
     {
@@ -26,18 +21,18 @@ namespace HaloInfiniteResearchTools.Common.Grunt
             PropertyNameCaseInsensitive = true,
             Converters =
             {
-                (JsonConverter)new EmptyDateStringToNullJsonConverter(),
-                (JsonConverter)new OnlineUriReferenceConverter(),
-                (JsonConverter)new AcknowledgementTypeConverter(),
-                (JsonConverter)new XmlDurationToTimeSpanJsonConverter()
+                new EmptyDateStringToNullJsonConverter(),
+                new OnlineUriReferenceConverter(),
+                new AcknowledgementTypeConverter(),
+                new XmlDurationToTimeSpanJsonConverter()
             }
         };
 
         public HaloInfiniteClientFix(string spartanToken, string xuid = "", string clearanceToken = "")
         {
-            base.SpartanToken = spartanToken;
-            base.Xuid = xuid;
-            base.ClearanceToken = clearanceToken;
+            SpartanToken = spartanToken;
+            Xuid = xuid;
+            ClearanceToken = clearanceToken;
         }
         public HaloInfiniteClientFix() { }
 
@@ -93,9 +88,9 @@ namespace HaloInfiniteResearchTools.Common.Grunt
             string headerValue = contentType.GetHeaderValue();
             HttpClient httpClient = new HttpClient(new HttpClientHandler
             {
-                AutomaticDecompression = (DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli)
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
             });
-            HaloApiResultContainer<T, HaloApiErrorContainer> resultContainer = new HaloApiResultContainer<T, HaloApiErrorContainer>(default(T), new HaloApiErrorContainer());
+            HaloApiResultContainer<T, HaloApiErrorContainer> resultContainer = new HaloApiResultContainer<T, HaloApiErrorContainer>(default, new HaloApiErrorContainer());
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage
             {
                 RequestUri = new Uri(endpoint),
@@ -114,7 +109,7 @@ namespace HaloInfiniteResearchTools.Common.Grunt
                     httpRequestMessage2.Content = new StringContent(string.Empty);
                 }
 
-                httpRequestMessage.Content!.Headers.ContentType = new MediaTypeHeaderValue((headerValue != null) ? headerValue : "application/json");
+                httpRequestMessage.Content!.Headers.ContentType = new MediaTypeHeaderValue(headerValue != null ? headerValue : "application/json");
             }
 
             if (useSpartanToken)

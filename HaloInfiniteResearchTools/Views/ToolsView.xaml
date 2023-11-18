@@ -27,7 +27,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding Str_value}" Grid.Column="0"></TextBox>
                     <TextBox Text="{Binding Int_value}" Grid.Column="1"></TextBox>
-                    <TextBox Text="{Binding Str_hash}" Grid.Column="2"></TextBox>
+                    <TextBox Text="{Binding Str_hash}" Grid.Column="2" MaxLength="6"></TextBox>
                     <StackPanel  Grid.Column="0" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
                         <CheckBox IsChecked="{Binding ForceLowerCase}" Content="Force Lower Case"></CheckBox>
                         <Button Content="Generate" Width="80" Command="{Binding GenerateFromStrValueCommand}" ></Button>
@@ -86,8 +86,26 @@
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal" >
                         <Button x:Name="Login" Content="Login" Command="{Binding ProcessLoginCommand}"></Button>
-                        <Button x:Name="WebApi" Content="WebApi" Command="{Binding WebApiCommand}"></Button>
+                        <Button x:Name="CurrentCore" Content="Get current core info" Command="{Binding WebApiCommand}"
+                                IsEnabled="{Binding HaveCredentials}"
+                                />
                     </StackPanel>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="13*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal"  Grid.Row="0">
+                            <Label Content="Select item type:"/>
+                            <ComboBox Text="Select" ItemsSource="{Binding ItemTypes}" SelectedItem="{Binding ItemTypeSel}" SelectedIndex="0" MinWidth="100"/>
+                            <Button x:Name="WebApiItems" Content="Get WebApi Items info" Command="{Binding WebApiItemsCommand}"
+                                IsEnabled="{Binding HaveCredentials}"
+                                />
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </TabItem>
         </TabControl>

@@ -1,6 +1,7 @@
 ﻿namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("shbc")]
+    [FileTagGroup("shbc")]
+    [FileSignature("C936E02F28F36B6F")]
     [FileExtension(".shader_bytecode")]
     public class ShaderBytecodeFile : SSpaceFile
     {

@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Domain;
+using LibHIRT.Files.Base;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
@@ -6,7 +7,8 @@ using System.Diagnostics;
 
 namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("ocgd")]
+    [FileTagGroup("ocgd")]
+    [FileSignature("C304D1EE96ECBBAD")]
     [FileExtension(".customizationglobalsdefinition")]
     public class CustomizationGlobalsDefinitionFile : SSpaceFile, HasRenderModel
     {

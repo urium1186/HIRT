@@ -1,6 +1,5 @@
 ﻿using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Common.Extensions;
-using HaloInfiniteResearchTools.Common.Grunt;
 using HaloInfiniteResearchTools.Controls;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
@@ -16,6 +15,7 @@ using LibHIRT.Common;
 using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
+using LibHIRT.Grunt;
 using LibHIRT.Processes.OnGeometry;
 using LibHIRT.TagReader;
 using Microsoft.Extensions.DependencyInjection;

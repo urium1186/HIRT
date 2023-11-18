@@ -3,7 +3,8 @@ using LibHIRT.Serializers;
 
 namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("ocad")]
+    [FileTagGroup("ocad")]
+    [FileSignature("5BE05C617FB816DF")]
     [FileExtension(".customizationattachmentconfiguration")]
     public class CustomizationAttachmentConfiguration : SSpaceFile
     {

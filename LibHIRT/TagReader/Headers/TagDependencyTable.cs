@@ -43,9 +43,9 @@ namespace LibHIRT.TagReader.Headers
             Array.Reverse(tag);// 0x14
             tagGroupRev = new string(tag);
             name_offset = ReadInt32();
-            ref_id_sub = ReadInt32();
-            ref_id_center = ReadInt32();
             global_id = ReadInt32();
+            ref_id_center = ReadInt32();
+            ref_id_sub = ReadInt32();
             unknown_property = ReadInt32();
             if (unknown_property == -1)
             {
@@ -63,6 +63,7 @@ namespace LibHIRT.TagReader.Headers
             {
                 TagDependency entry = new(f);
                 entry.ReadIn();
+                entry.Index = entries.Count;
                 entries.Add(entry);
             }
         }

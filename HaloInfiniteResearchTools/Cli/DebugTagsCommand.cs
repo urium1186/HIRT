@@ -99,6 +99,17 @@ namespace HaloInfiniteResearchTools.Cli
             {
                 //var founds = IHIFileContext.Instance.GetFiles("."+ _type_tag);
                 var founds = HIFileContext.Instance.GetFiles(_type_tag);
+                ModuleFile module = ((HIFileContext.Instance.Files.ElementAt(0) as SSpaceFile).Parent as ModuleFile);
+                SSpaceFile aasd = module.Children.ElementAt(0) as SSpaceFile;
+                var stre= aasd.GetMemoryStream_();
+                FileStream fileStream= new FileStream(_outfile.FullName,FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                byte[] buffer = new byte[stre.Length];
+                stre.Read(buffer,0, (int)stre.Length);
+                
+                fileStream.Write(buffer);
+                fileStream.Flush();
+                fileStream.Close();
+
                 StringBuilder outPutPath = new StringBuilder();
                 foreach (SSpaceFile _file in founds)
                 {
@@ -172,7 +183,7 @@ namespace HaloInfiniteResearchTools.Cli
             stre.Read(temp);
             result["globalId"] = BitConverter.ToInt32(temp);
             SSpaceFile file_ref = null;
-            if (!(_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey((int)result["globalId"]))
+            /*if (!(_file.Parent as ModuleFile).FilesGlobalIdLookup.ContainsKey((int)result["globalId"]))
             {
                 Debug.Assert(false);
             }
@@ -245,12 +256,15 @@ namespace HaloInfiniteResearchTools.Cli
                 }
 
             }
-            
+            */
             return result;
         }
 
         private static void CheckFile(SSpaceFile _file, out Dictionary<int, List<int>> id_tags, out List<(int, int, int, SSpaceFile)> id_addres_tags)
         {
+            id_addres_tags = new List<(int, int, int, SSpaceFile)>();
+            id_tags = new Dictionary<int, List<int>>();
+            /*
             var stre = _file.GetStream();
             stre.Seek(0, SeekOrigin.Begin);
             var mod = stre.Length % 4;
@@ -311,11 +325,12 @@ namespace HaloInfiniteResearchTools.Cli
                     }
                 }
             }
+            */
             /*if (id_tags.Keys.Count != 0)
                 Debug.Assert((id_tags[id_tags.Keys.ElementAt(0)] == 4 && _file.FileMemDescriptor.Resource_count == 0 && c_ch  == count_inf) || _file.FileMemDescriptor.Resource_count == 2);
             else { 
             }*/
-
+            /*
             if (_file.FileMemDescriptor.Resource_count == 0)
             {
                 Debug.Assert(id_tags.Keys.Count == c_ch - 1);
@@ -325,6 +340,7 @@ namespace HaloInfiniteResearchTools.Cli
             {
                 Debug.Assert(id_tags.Keys.Count == c_ch - 1);
             }
+            */
         }
     }
 }

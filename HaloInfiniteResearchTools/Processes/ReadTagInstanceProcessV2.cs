@@ -37,7 +37,7 @@ namespace HaloInfiniteResearchTools.Processes
             }
             else if (_file is TagStructMemFile)  {
                 TagStructMemFile _fileMem = (TagStructMemFile)_file;
-                if (HIFileContext.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
+                if (HIFileContext.Instance.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
                 {
                     tagParse = new TagParseControlMem(_fileMem.TagGroup, _fileMem.M);
                     (tagParse as TagParseControlMem).Address = _fileMem.TagData;

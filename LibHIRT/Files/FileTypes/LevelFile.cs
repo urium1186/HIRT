@@ -1,6 +1,7 @@
 ﻿namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("levl")]
+    [FileTagGroup("levl")]
+    [FileSignature("9B41CED4E0420B4F")]
     [FileExtension(".level")]
     public class LevelFile : SSpaceFile
     {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -58,7 +59,9 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = _filePaths.Length == 1;
 
             var objLock = new object();
-            Parallel.ForEach(_filePaths, filePath =>
+            ParallelOptions parallelOptions = new ParallelOptions();
+            parallelOptions.MaxDegreeOfParallelism = Environment.ProcessorCount * 4;
+            await Parallel.ForEachAsync(_filePaths, parallelOptions, async (filePath, token) =>
             {
                 var fileName = Path.GetFileName(filePath);
                 var fi = new FileInfo(filePath);

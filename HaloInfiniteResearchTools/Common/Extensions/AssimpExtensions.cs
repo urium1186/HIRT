@@ -92,6 +92,13 @@ namespace HaloInfiniteResearchTools.Common.Extensions
             else
                 return new Assimp.Vector3D(v.X, v.Y, v.Z);
         }
+         public static Assimp.Vector3D ToAssimp3D(this System.Numerics.Vector3 v, bool traspose = true)
+        {
+            if (traspose)
+                return new Assimp.Vector3D(-v.X, v.Z, v.Y);
+            else
+                return new Assimp.Vector3D(v.X, v.Y, v.Z);
+        }
 
         public static System.Numerics.Vector3 ToNumerics(this Assimp.Vector3D v, bool traspose = true)
         {

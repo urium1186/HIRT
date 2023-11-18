@@ -1,6 +1,7 @@
 ﻿namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("sbsp")]
+    [FileTagGroup("sbsp")]
+    [FileSignature("C2CBAF2EC1957709")]
     [FileExtension(".scenario_structure_bsp")]
     public class ScenarioStructureBspFile : SSpaceFile
     {

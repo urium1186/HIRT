@@ -3,7 +3,8 @@ using LibHIRT.Serializers;
 
 namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("bitm")]
+    [FileTagGroup("bitm")]
+    [FileSignature("7DE34B5006C08F15")]
     [FileExtension(".bitmap")]
     public class PictureFile : SSpaceFile
     {

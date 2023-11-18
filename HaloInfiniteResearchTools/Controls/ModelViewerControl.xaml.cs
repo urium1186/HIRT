@@ -3,6 +3,7 @@ using HaloInfiniteResearchTools.ControlsModel;
 using HaloInfiniteResearchTools.ViewModels;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
+using LibHIRT.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading;

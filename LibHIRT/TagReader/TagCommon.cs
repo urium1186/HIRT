@@ -33,6 +33,9 @@ namespace LibHIRT.TagReader
 
     }
 
+    public interface GetFormString {
+        public object Parse(string s);
+    }
     public interface ITagInstance : IDisposable
     {
         static event EventHandler<ITagInstance> OnInstanceLoadEvent;
@@ -40,6 +43,8 @@ namespace LibHIRT.TagReader
 
         public void ReadIn(BinaryReader f, TagHeader? header = null);
         public void WriteIn(Stream f, long offset = -1, TagHeader? header = null);
+
+        public byte[] GetBytes();
         public void ReadIn(TagHeader? header = null);
 
         public string ToJson();

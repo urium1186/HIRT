@@ -1,7 +1,7 @@
 ﻿using OpenSpartan.Grunt.Models;
 using System.Reflection;
 
-namespace HaloInfiniteResearchTools.Common.Extensions
+namespace LibHIRT.Grunt.Extensions
 {
     public static class GruntExtensions
     {

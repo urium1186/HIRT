@@ -191,19 +191,62 @@ namespace LibHIRT.Common
         /// <returns>
         ///   The _intValue of the string.
         /// </returns>
-        [DebuggerHidden]
+        //[DebuggerHidden]
         public static string ReadStringNullTerminated(this BinaryReader reader)
         {
             var builder = new StringBuilder();
 
-            var c = reader.ReadByte();
-            while (c != 0)
+            List<byte> c = new List<byte> { reader.ReadByte() };
+            
+            while (c.Last() != 0)
             {
-                builder.Append((char)c);
-                c = reader.ReadByte();
+                c.Add(reader.ReadByte());
+                //builder.Append(enco.GetString(c));
+                //c[0] = reader.ReadByte();
             }
+            var enco = Encoding.UTF8;
+            //return builder.ToString();
+            return enco.GetString(c.ToArray());
+        }
+        
+        public static string ReadStringNullTerminatedRejectLast(this BinaryReader reader)
+        {
+            var builder = new StringBuilder();
 
-            return builder.ToString();
+            List<byte> c = new List<byte> { reader.ReadByte() };
+            
+            while (c.Last() != 0)
+            {
+                c.Add(reader.ReadByte());
+                //builder.Append(enco.GetString(c));
+                //c[0] = reader.ReadByte();
+            }
+            c.Remove(c.Last());
+            reader.BaseStream.Seek(reader.BaseStream.Position - 1, SeekOrigin.Begin);
+            var enco = Encoding.UTF8;
+            //return builder.ToString();
+            return enco.GetString(c.ToArray());
+        }
+
+        /// <summary>
+        ///   Reads a null-terminated string.
+        /// </summary>
+        /// <param name="reader">
+        ///   The <see cref="BinaryReader" />.
+        /// </param>
+        /// <returns>
+        ///   The _intValue of the string.
+        /// </returns>
+        [DebuggerHidden]
+        public static string ReadStringNullTerminated(this byte[] data, int offset)
+        {
+            Encoding Enc = Encoding.UTF8;
+            Debug.Assert(data.Length>offset); 
+            int inx = Array.FindIndex(data, offset, (x) => x == 0);//search for 0
+            if (inx >= 0)
+                return (Enc.GetString(data, offset, inx));
+            else
+                return (Enc.GetString(data, offset, (data.Length-offset)-1));
         }
 
         /// <summary>

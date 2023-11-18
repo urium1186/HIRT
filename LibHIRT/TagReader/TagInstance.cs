@@ -4,8 +4,8 @@ using LibHIRT.Utils;
 using Newtonsoft.Json;
 using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Text.Json.Serialization;
 using TagStruct = LibHIRT.TagReader.Headers.TagStruct;
 
@@ -24,7 +24,7 @@ namespace LibHIRT.TagReader
         protected Template tagDef;
         protected long addressStart;
         protected long offset;
-        protected long inFileOffset;
+        protected long inFileOffset=-1;
         protected HeaderTableEntry? entry = null;
         protected TagStruct? content_entry = null;
 
@@ -81,13 +81,13 @@ namespace LibHIRT.TagReader
 
         protected virtual long GetInFileOffset()
         {
-            return ((Content_entry?.Field_data_block?.OffsetPlus ?? 0) + InstanceParentOffset);
+            return inFileOffset!=-1? inFileOffset:((Content_entry?.Field_data_block?.OffsetPlus ?? 0) + InstanceParentOffset);
         }
         [JsonInclude]
         public string FieldName { get; set; }
         public TagInstance Self => this;
         [JsonInclude]
-        public long InFileOffset { get => GetInFileOffset(); }
+        public long InFileOffset { get => GetInFileOffset(); set => inFileOffset = value; }
         [JsonInclude]
         public long InstanceParentOffset { get; set; }
 
@@ -163,6 +163,11 @@ namespace LibHIRT.TagReader
         {
             ;
         }
+
+        public virtual byte[] GetBytes()
+        {
+            throw new NotImplementedException();
+        }
     }
     #region Atomic
     public class AtomicTagInstace : TagInstance
@@ -175,13 +180,16 @@ namespace LibHIRT.TagReader
         {
             return this;
         }
+
+        public override object AccessValue { get => base.AccessValue; set => base.AccessValue = value; }
+
     }
 
     public class ValueTagInstace<T> : AtomicTagInstace
     {
         protected T value;
 
-        Stack<object> stackChange = new Stack<object>();
+        protected Stack<object> stackChange = new Stack<object>();
 
         public ValueTagInstace(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
@@ -193,6 +201,13 @@ namespace LibHIRT.TagReader
             f.BaseStream.Seek(addressStart + offset, SeekOrigin.Begin);
         }
 
+        public override void WriteIn(Stream f, long offset = -1, TagHeader? header = null)
+        {
+            var toReturn = f.Position;
+            f.Seek(offset == -1 ? InFileOffset : offset, SeekOrigin.Begin);
+            f.Write(GetBytes());
+            f.Seek(toReturn, SeekOrigin.Begin);
+        }
 
 
         public T Value { get => value; set => this.value = value; }
@@ -202,6 +217,14 @@ namespace LibHIRT.TagReader
             get { return stackChange.Count == 0 ? Value : stackChange.Peek(); }
             set
             {
+                if (Value is string) {
+                    this.value = (T?)value;
+                } else {
+                    var stringParseMeth = typeof(T).GetMethod("Parse", new Type[] { typeof(string) });
+                    if (stringParseMeth!=null)
+                        this.value = (T?)stringParseMeth.Invoke(this.value, new object[] { value.ToString() });
+                }
+                
                 stackChange.Push(value);
             }
         }
@@ -352,6 +375,11 @@ namespace LibHIRT.TagReader
             }
             ExeTagInstance();
         }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
+        }
     }
     public class FourByte : ValueTagInstace<Int32>
     {
@@ -366,6 +394,20 @@ namespace LibHIRT.TagReader
             value = f.ReadInt32();
             ExeTagInstance();
         }
+
+        public override object AccessValue
+        {
+            get { return base.AccessValue; }
+            set
+            {
+                base.AccessValue = value;
+            }
+        }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
+        }
     }
     public class TwoByte : ValueTagInstace<Int16>
     {
@@ -378,6 +420,11 @@ namespace LibHIRT.TagReader
             base.ReadIn(f, header);
             value = f.ReadInt16();
             ExeTagInstance();
+        }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
         }
     }
 
@@ -393,6 +440,11 @@ namespace LibHIRT.TagReader
             value = f.ReadUInt16();
             ExeTagInstance();
         }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
+        }
     }
     public class Byte : ValueTagInstace<sbyte>
     {
@@ -404,6 +456,11 @@ namespace LibHIRT.TagReader
             base.ReadIn(f, header);
             value = f.ReadSByte();
             ExeTagInstance();
+        }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
         }
 
     }
@@ -428,6 +485,10 @@ namespace LibHIRT.TagReader
             }
 
         }
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
+        }
     }
     public class TagRef : ValueTagInstace<int>
     {
@@ -440,6 +501,7 @@ namespace LibHIRT.TagReader
         //self.ref_id = None
         Int64 global_handle = -1;
         Int32 ref_id_int = -1;
+        char[] tag;
         private string ref_id;
         Int32 ref_id_sub_int = -1;
         Int32 ref_id_center_int = -1;
@@ -471,12 +533,22 @@ namespace LibHIRT.TagReader
             //ref_id_center = f.read(4)
             ref_id_center_int = f.ReadInt32();
             //ref_id_center = self.ref_id_center.hex().upper()
-            char[] tag = f.ReadChars(4);
+            tag = f.ReadChars(4);
             tagGroup = new string(tag);
             Array.Reverse(tag);// 0x14
             tagGroupRev = new string(tag);
             local_handle = f.ReadInt32();
             ExeTagInstance();
+        }
+
+        public override byte[] GetBytes()
+        {
+            var temp = BitConverter.GetBytes(global_handle).Concat(BitConverter.GetBytes(ref_id_int)).Concat(BitConverter.GetBytes(ref_id_sub_int)).Concat(BitConverter.GetBytes(ref_id_center_int));
+
+            temp = temp.Concat(new byte[4] { ((byte)tag[0]), ((byte)tag[1]), ((byte)tag[2]), ((byte)tag[3]) });
+            temp = temp.Concat(BitConverter.GetBytes(local_handle));
+
+            return temp.ToArray();
         }
 
         public override object AccessValue => new
@@ -498,6 +570,7 @@ namespace LibHIRT.TagReader
         public string TagGroupRev { get => tagGroupRev; set => tagGroupRev = value; }
         public string Path { get => tag_ref?.StrPath; }
         public string Ref_id { get => ref_id; set => ref_id = value; }
+        public int Local_handle { get => local_handle; set => local_handle = value; }
     }
     public class Pointer : ValueTagInstace<Int64>
     {
@@ -510,6 +583,11 @@ namespace LibHIRT.TagReader
             base.ReadIn(f, header);
             value = f.ReadInt64();
             ExeTagInstance();
+        }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
         }
     }
 
@@ -573,6 +651,10 @@ namespace LibHIRT.TagReader
             value = (f.ReadByte());
             ExeTagInstance();
         }
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
+        }
     }
 
     public class Flag
@@ -604,7 +686,7 @@ namespace LibHIRT.TagReader
             set
             {
                 _value = value;
-                OnPropertyChanged("Value");
+                OnPropertyChanged("IntValue");
             }
 
         }
@@ -668,6 +750,10 @@ namespace LibHIRT.TagReader
             f.Seek(offset == -1 ? InFileOffset : offset, SeekOrigin.Begin);
             f.Write(UtilBinaryReader.GetBytesFormStringBit(_salida[0].Value));
             f.Seek(toReturn, SeekOrigin.Begin);
+        }
+        public override byte[] GetBytes()
+        {
+            return UtilBinaryReader.GetBytesFormStringBit(_salida[0].Value);
         }
 
         public List<FlagsModel> Flags
@@ -806,6 +892,11 @@ namespace LibHIRT.TagReader
 
             ExeTagInstance();
         }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(this.value);
+        }
     }
 
     public class RgbPixel32 : ValueTagInstace<string>
@@ -862,11 +953,18 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { R_value = r_value, G_value = g_value, B_value = b_value };
+        public override object AccessValue { get => new { R_value = r_value, G_value = g_value, B_value = b_value }; set { 
+                var a = value;
+                ; } }
 
         public float R_value { get => r_value; set => r_value = value; }
         public float B_value { get => b_value; set => b_value = value; }
         public float G_value { get => g_value; set => g_value = value; }
+
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(r_value).Concat(BitConverter.GetBytes(g_value)).Concat(BitConverter.GetBytes(b_value)).ToArray();
+        }
     }
     public class ARGB : AtomicTagInstace
     {
@@ -889,7 +987,17 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { A_value = a_value, R_value = r_value, G_value = g_value, B_value = b_value };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(a_value).Concat(BitConverter.GetBytes(r_value)).Concat(BitConverter.GetBytes(g_value)).Concat(BitConverter.GetBytes(b_value)).ToArray();
+        }
+
+        public override object AccessValue { get => new { A_value = a_value, R_value = r_value, G_value = g_value, B_value = b_value }; set
+            {
+                var a = value;
+                ;
+            }
+        }
 
         public float A_value { get => a_value; set => a_value = value; }
         public float R_value { get => r_value; set => r_value = value; }
@@ -913,7 +1021,14 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { Min = min, Max = max };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(min).Concat(BitConverter.GetBytes(max)).ToArray();
+        }
+        public override object AccessValue { get => new { Min = min, Max = max };set {
+                var a = value;
+                ;
+            } }
     }
     public class Bounds2Byte : AtomicTagInstace
     {
@@ -932,7 +1047,19 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { Min = min, Max = max };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(min).Concat(BitConverter.GetBytes(max)).ToArray();
+        }
+
+        public override object AccessValue
+        {
+            get => new { Min = min, Max = max }; set
+            {
+                var a = value;
+                ;
+            }
+        }
     }
     public class Point2DFloat : AtomicTagInstace
     {
@@ -950,8 +1077,18 @@ namespace LibHIRT.TagReader
             y = f.ReadSingle();
             ExeTagInstance();
         }
-
-        public override object AccessValue => new { X = x, Y = y };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(x).Concat(BitConverter.GetBytes(y)).ToArray();
+        }
+        public override object AccessValue
+        {
+            get => new { X = x, Y = y }; set
+            {
+                var a = value;
+                ;
+            }
+        }
 
         public float X { get => x; set => x = value; }
         public float Y { get => y; set => y = value; }
@@ -973,7 +1110,18 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue => new { X = x, Y = y };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(x).Concat(BitConverter.GetBytes(y)).ToArray();
+        }
+        public override object AccessValue
+        {
+            get => new { X = x, Y = y }; set
+            {
+                var a = value;
+                ;
+            }
+        }
     }
     public class Point3D : AtomicTagInstace
     {
@@ -993,8 +1141,18 @@ namespace LibHIRT.TagReader
             z = f.ReadSingle();
             ExeTagInstance();
         }
-
-        public override object AccessValue => new { X = x, Y = y, Z = z };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(x).Concat(BitConverter.GetBytes(y)).Concat(BitConverter.GetBytes(z)).ToArray();
+        }
+        public override object AccessValue
+        {
+            get => new { X = x, Y = y, Z = z }; set
+            {
+                var a = value;
+                ;
+            }
+        }
 
         public float X { get => x; set => x = value; }
         public float Y { get => y; set => y = value; }
@@ -1018,8 +1176,18 @@ namespace LibHIRT.TagReader
             point = f.ReadSingle();
             ExeTagInstance();
         }
-
-        public override object AccessValue => new { X = x, Y = y, Point = point };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(x).Concat(BitConverter.GetBytes(y)).Concat(BitConverter.GetBytes(point)).ToArray();
+        }
+        public override object AccessValue
+        {
+            get => new { X = x, Y = y, Point = point }; set
+            {
+                var a = value;
+                ;
+            }
+        }
     }
     public class Plane3D : AtomicTagInstace
     {
@@ -1041,8 +1209,18 @@ namespace LibHIRT.TagReader
             point = f.ReadSingle();
             ExeTagInstance();
         }
-
-        public override object AccessValue => new { X = x, Y = y, Z = z, Point = point };
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(x).Concat(BitConverter.GetBytes(y)).Concat(BitConverter.GetBytes(z)).Concat(BitConverter.GetBytes(point)).ToArray();
+        }
+        public override object AccessValue
+        {
+            get => new { X = x, Y = y, Z = z, Point = point }; set
+            {
+                var a = value;
+                ;
+            }
+        }
     }
     public class Quaternion : AtomicTagInstace
     {
@@ -1054,7 +1232,15 @@ namespace LibHIRT.TagReader
         {
         }
 
-        public override object AccessValue => new { X = x, Y = y, Z = z, W = w };
+
+        public override object AccessValue
+        {
+            get => new { X = x, Y = y, Z = z, W = w }; set
+            {
+                var a = value;
+                ;
+            }
+        }
 
         public float X { get => x; set => x = value; }
         public float Y { get => y; set => y = value; }
@@ -1072,6 +1258,11 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
+        public override byte[] GetBytes()
+        {
+            return BitConverter.GetBytes(x).Concat(BitConverter.GetBytes(y)).Concat(BitConverter.GetBytes(z)).Concat(BitConverter.GetBytes(w)).ToArray();
+        }
+
     }
     public class TagData : ValueTagInstace<int>
     {
@@ -1079,18 +1270,6 @@ namespace LibHIRT.TagReader
         private ulong functAddress_2;
         private int byteOffset;
         private int byteLengthCount;
-        private byte _1st_byte;
-        private byte _2nd_byte;
-        private byte _3rd_byte;
-        private byte _4th_byte;
-        private float min_float;
-        private float max_float;
-        private float unknown1;
-        private float unknown2;
-        private float unk_min;
-        private float unk_max;
-        private int leftover_bytes;
-        private byte[] curvature_bytes;
         BinaryReader _f;
         public TagData(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
@@ -1098,7 +1277,18 @@ namespace LibHIRT.TagReader
 
         public DataReference Data_reference { get; set; }
 
-        public override object AccessValue => byteLengthCount;
+        public override object AccessValue
+        {
+            get => byteLengthCount; set
+            {
+                var a = value;
+                ;
+            }
+        }
+
+        public int ByteLengthCount { get => byteLengthCount; set => byteLengthCount = value; }
+        public ulong FunctAddress { get => functAddress; set => functAddress = value; }
+        public ulong FunctAddress_2 { get => functAddress_2; set => functAddress_2 = value; }
 
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
@@ -1511,14 +1701,17 @@ namespace LibHIRT.TagReader
         private long newAddress;
         private int int_value;
         private string str_value;
+        private bool _isExternal = false;
+        private int _index = -1;
 
         public ResourceHandle(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
 
         public long NewAddress { get => newAddress; set => newAddress = value; }
+        public bool IsExternal { get => _isExternal; set => _isExternal = value; }
+        public int Index { get => _index; set => _index = value; }
 
-        
         public override void ReadIn(BinaryReader f, TagHeader? header = null)
         {
             base.ReadIn(f, header);

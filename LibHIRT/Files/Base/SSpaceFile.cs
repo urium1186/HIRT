@@ -36,7 +36,7 @@ namespace LibHIRT.Files
         public long _dataEndOffset;
         private BinaryReader _reader;
 
-        private bool _isInitialized;
+        private bool _isInitialized = false;
         private bool _isDisposed;
 
         private string _inDiskPath = "";
@@ -182,6 +182,17 @@ namespace LibHIRT.Files
             _isInitialized = true;
         }
 
+        public void ReInitialize()
+        {
+            _isInitialized = false;
+            if (_isInitialized)
+                return;
+
+            OnInitialize();
+
+            _isInitialized = true;
+        }
+
         public virtual HIRTStream GetStream()
           => GetFromFileDescriptor();
         //=> new HIRTStreamSegment(_baseStream, _dataStartOffset, SizeInBytes);
@@ -234,8 +245,8 @@ namespace LibHIRT.Files
 
         protected virtual void OnDisposing(bool isDisposing)
         {
-            this._baseStream?.Close();
-            this._baseStream?.Dispose();
+            //this._baseStream?.Close();
+            //this._baseStream?.Dispose();
         }
 
         #endregion
@@ -247,6 +258,9 @@ namespace LibHIRT.Files
             return Name.Equals(other.Name);
         }
 
+        public void InitReaderFromMemStream() {
+            _reader = new BinaryReader(GetMemoryStream_());
+        }
         public Stream GetMemoryStream_()
         {
             if (_baseStream != null)
@@ -258,6 +272,7 @@ namespace LibHIRT.Files
                 var paret = (Parent as ModuleFile);
                 if (paret != null)
                 {
+                    
                     return paret.GetMemoryStreamFromFile(fileMemDescriptor);
                 }
             }

@@ -13,9 +13,15 @@ namespace HaloInfiniteResearchTools.UI.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is ICollection collection)
-                return collection.Count > 0 ? Visibility.Visible : Visibility.Hidden;
+            { 
+                if (parameter!= null)
+                    return collection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                else
+                    return collection.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
+                
             else
-                return Visibility.Hidden;
+                return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -42,10 +48,41 @@ namespace HaloInfiniteResearchTools.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isVisible)
-                return isVisible ? Visibility.Visible : Visibility.Hidden;
+            if (value is bool isVisible) {
+                
+                if (parameter != null && bool.TryParse(parameter.ToString(), out bool result)) {
+                    if (result) {
+                        isVisible = !isVisible;
+                    }    
+                }
+                    
+                return isVisible ? Visibility.Visible : Visibility.Collapsed;
+            }
             else
-                return Visibility.Hidden;
+                return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+          => Convert(value, targetType, parameter, culture);
+    }
+
+    [ValueConversion(typeof(Visibility), typeof(object))]
+    public class EqualVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value.Equals(parameter) ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+          => Convert(value, targetType, parameter, culture);
+    }
+
+    public class NoEqualVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !value.Equals(parameter) ? Visibility.Visible : Visibility.Hidden;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -28,7 +28,7 @@
         {
             try
             {
-                txtWriter.Write("\r\nLog Entry : ");
+                txtWriter.Write("\r\nLog EntryRef : ");
                 txtWriter.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
                     DateTime.Now.ToLongDateString());
                 txtWriter.WriteLine("  :");

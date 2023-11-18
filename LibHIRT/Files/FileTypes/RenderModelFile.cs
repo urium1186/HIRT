@@ -1,10 +1,12 @@
 ﻿using LibHIRT.Data;
 using LibHIRT.Domain.RenderModel;
+using LibHIRT.Files.Base;
 using LibHIRT.Serializers;
 
 namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("mode")]
+    [FileTagGroup("mode")]
+    [FileSignature("D77DD888DF52505D")]
     [FileExtension(".render_model")]
     public class RenderModelFile : SSpaceFile, HasRenderModel
     {

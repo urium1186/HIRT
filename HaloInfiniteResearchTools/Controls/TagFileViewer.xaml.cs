@@ -1,4 +1,4 @@
-﻿using LibHIRT.TagReader.Headers;
+﻿using HaloInfiniteResearchTools.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,24 +9,17 @@ namespace HaloInfiniteResearchTools.Controls
     /// </summary>
     public partial class TagFileViewer : UserControl
     {
-        public TagFile TagFile_file { get; set; }
         public TagFileViewer()
         {
             InitializeComponent();
         }
 
-        private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void TagRefIdGenButton_Click(object sender, RoutedEventArgs e)
         {
-            /*if (e.NewValue != null ) {
-                if (e.NewValue is TagFile) { 
-                    TagFile_file = (TagFile)e.NewValue; 
-                }else if (e.NewValue is GenericViewModel)
-                {
+            GenericViewModel temp = DataContext as GenericViewModel;
 
-                }
-            }*/
+            if (temp != null)
+                temp.OpenGenFileTabRefIntCommand?.Execute((int)(sender as Button).DataContext);
         }
-
-
     }
 }

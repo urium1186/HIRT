@@ -5,9 +5,9 @@
 
         public string Signature { get; }
 
-        public FileSignatureAttribute(string signature)
+        public FileSignatureAttribute(string sign)
         {
-            Signature = signature;
+            Signature = sign;
         }
 
         private byte[] GetByteSignature()

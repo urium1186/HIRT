@@ -46,7 +46,7 @@
     },
     "DebugTagIndex": {
       "commandName": "Project",
-      "commandLineArgs": "tags\r\ndebug\r\nindex\r\n-d \"D:\\fbx_test\\modules\"\r\n-t \"-index-1\"\r\n-o \"D:\\borrar.txt\"",
+      "commandLineArgs": "tags\r\ndebug\r\nindex\r\n-d \"D:\\fbx_test\\modules\"\r\n-t \"-index-1\"\r\n-o \"D:\\fbx_test\\entrys\\no_tag_group\\index-1.bin\"",
       "nativeDebugging": false
     },
     "Tag Unpack": {

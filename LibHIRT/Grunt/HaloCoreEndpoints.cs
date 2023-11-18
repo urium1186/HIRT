@@ -1,4 +1,4 @@
-﻿namespace HaloInfiniteResearchTools.Common.Grunt
+﻿namespace LibHIRT.Grunt
 {
     internal class HaloCoreEndpoints
     {

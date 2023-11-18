@@ -1,6 +1,7 @@
 ﻿namespace LibHIRT.Files.FileTypes
 {
-    [FileSignature("shrs")]
+    [FileTagGroup("shrs")]
+    [FileSignature("C4E813ADE91BD793")]
     [FileExtension(".shader_root_signature")]
     internal class ShaderRootSignature : SSpaceFile
     {

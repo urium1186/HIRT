@@ -1,4 +1,5 @@
 ﻿using LibHIRT.Domain;
+using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using Memory;
 using System;
@@ -19,6 +20,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
         public string TagGroupMem;
 
         public long TagData;
+        public long ResourceData;
 
         public string TagTypeDesc;
 
@@ -46,6 +48,10 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
         public string Extension => TagGroupMem;
 
+        public string Path_string => $"{TagGroupMem}\\{Name}";
+
+        public string InDiskPath => Path_string;
+
         public DinamycType? Deserialized(TagParseControlFiltter parseControlFiltter = null, bool forceReload = false, EventHandler<ITagInstance> _onDeserialized = null)
         {
             throw new NotImplementedException();
@@ -54,6 +60,11 @@ namespace LibHIRT.TagReader.RuntimeViewer
         public void Dispose()
         {
             
+        }
+
+        public HIRTStream GetStream()
+        {
+            throw new NotImplementedException();
         }
 
         public void reset()

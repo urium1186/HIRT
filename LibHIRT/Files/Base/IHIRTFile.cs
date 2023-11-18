@@ -11,9 +11,13 @@ namespace LibHIRT.Files.Base
         string Extension { get; }
         string TagGroup { get; }
 
+        string Path_string { get; }
+        string InDiskPath { get; }
+
         long ByteSize { get; }
 
         int TryGetGlobalId();
+        HIRTStream GetStream();
 
         void reset();
 
