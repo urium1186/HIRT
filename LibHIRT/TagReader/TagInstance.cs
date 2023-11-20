@@ -1514,17 +1514,17 @@ namespace LibHIRT.TagReader
         }
 
     }
-    public class RenderGeometryTag : TagStructData
+    public class RenderGeometryTag : StructTagInstance
     {
         public RenderGeometryTag(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
         }
     }
-    public class TagStructData : ParentTagInstance
+    public class StructTagInstance : ParentTagInstance
     {
         //bool generateEntry = false;
         //string comment = "";
-        public TagStructData(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
+        public StructTagInstance(Template tagDef, long addressStart, long offset) : base(tagDef, addressStart, offset)
         {
             //  generateEntry = (bool)tagDef.P["generateEntry"];
         }

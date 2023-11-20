@@ -448,7 +448,7 @@ namespace LibHIRT.TagReader
                 var entry = instance_parent.Content_entry.Childs[i];
                 var tag_child_inst = tagBlocks[i];
 
-                if (tag_child_inst.GetType() == typeof(TagStructData))
+                if (tag_child_inst.GetType() == typeof(StructTagInstance))
                 {
                     /*
                      assert entry.type_id_tg == TagStructType.NoDataStartBlock, 'Coinciden en tipo NoDataStartBlock'
@@ -685,7 +685,7 @@ namespace LibHIRT.TagReader
                 var entry = instance_parent.Content_entry.Childs[i];
                 var tag_child_inst = tagBlocks[i];
 
-                if (tag_child_inst.GetType() == typeof(TagStructData))
+                if (tag_child_inst.GetType() == typeof(StructTagInstance))
                 {
                     /*
                      assert entry.type_id_tg == TagStructType.NoDataStartBlock, 'Coinciden en tipo NoDataStartBlock'

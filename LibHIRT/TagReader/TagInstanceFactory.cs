@@ -26,7 +26,7 @@ namespace LibHIRT.TagReader
                 case TagElemntType.TagStructData:
                     if (tagDef.E != null && tagDef.E.ContainsKey("hash") && tagDef.E["hash"].ToString() == "E423D497BA42B08FA925E0B06C3C363A")
                         return new RenderGeometryTag(tagDef, addressStart, offset);
-                    return new TagStructData(tagDef, addressStart, offset);
+                    return new StructTagInstance(tagDef, addressStart, offset);
                 case TagElemntType.TagData:
                     return new TagData(tagDef, addressStart, offset);
                 case TagElemntType.EnumGroup:
