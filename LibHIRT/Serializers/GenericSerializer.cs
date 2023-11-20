@@ -33,7 +33,7 @@ namespace LibHIRT.Serializers
             }
             ITagParseControl tagParse = null;
             
-            if (_file.TagGroup == "����")
+            if (_file.TagGroup == "����" || _file.TagGroup is null)
             {
                 tagParse = new TagParserControlV2((_file as SSpaceFile).GroupRefHash.Item1, (_file as SSpaceFile).GroupRefHash.Item2, reader.BaseStream);
             }

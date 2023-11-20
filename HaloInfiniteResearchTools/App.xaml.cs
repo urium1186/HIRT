@@ -72,6 +72,10 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<ShaderBytecodeView>();
             services.AddTransient<CustomizationGlobalsDefinitionView>();
             services.AddTransient<GenericView>();
+            services.AddTransient<JsonSourceFileTagDefinitionView>();
+            services.AddTransient<HsSourceView>();
+            services.AddTransient<HsSymbolView>();
+            services.AddTransient<LuaScriptTagDefinitionView>();
             services.AddTransient<PsoDictionaryView>();
             services.AddTransient<ModuleIndexFileView>();
             services.AddTransient<ModuleIncrFileView>();
@@ -95,6 +99,9 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<TagStructsDumperViewModel>();
             services.AddTransient<ModelExportOptionsViewModel>();
             services.AddTransient<GenericViewModel>();
+            services.AddTransient<JsonSourceFileTagDefinitionViewModel>();
+            services.AddTransient<HsSourceViewModel>();
+            services.AddTransient<HsSymbolViewModel>();
             services.AddTransient<PsoDictionaryViewModel>();
             services.AddTransient<StringListResourceViewModel>();
             services.AddTransient<ModuleIndexFileViewModel>();
@@ -102,6 +109,7 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<LevelViewModel>();
             services.AddTransient<RenderModelViewModel>();
             services.AddTransient<ModelViewModel>();
+            services.AddTransient<LuaScriptTagDefinitionViewModel>();
             services.AddTransient<ShaderBytecodeViewModel>();
             services.AddTransient<CustomizationGlobalsDefinitionViewModel>();
             services.AddTransient<PreferencesViewModel>();

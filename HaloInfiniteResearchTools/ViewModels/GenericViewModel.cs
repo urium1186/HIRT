@@ -419,7 +419,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     this.OnPropertyChanged("TagFile");
 
                     FileStream = _file.GetStream();
-                    if (_file.TagGroup != "����")
+                    if (_file.TagGroup != "����" && !(_file.TagGroup is null))
                         XmlPath = _file.GetTagXmlTempaltePath();
                     IsBusy = false;
                 }

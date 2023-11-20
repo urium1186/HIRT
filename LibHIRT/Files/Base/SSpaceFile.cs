@@ -5,6 +5,7 @@ using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Headers;
+using System.Data.Entity.Core.Metadata.Edm;
 using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.Files
@@ -293,6 +294,11 @@ namespace LibHIRT.Files
                     _baseStream = HIRTExtractedFileStream.FromStream(paret.GetMemoryStreamFromFile(fileMemDescriptor));
                     _reader = new BinaryReader(_baseStream, System.Text.Encoding.UTF8, true);
                 }
+            }
+            else if (File.Exists(InDiskPath))
+            {
+                _baseStream = HIRTExtractedFileStream.FromFile(InDiskPath);
+                _reader = new BinaryReader(_baseStream, System.Text.Encoding.UTF8, true);
             }
             return _baseStream;
         }

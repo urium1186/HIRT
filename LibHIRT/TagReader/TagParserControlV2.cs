@@ -41,7 +41,9 @@ namespace LibHIRT.TagReader
 
         public TagParserControlV2(string tagGroup, Stream? f)
         {
-            _tagLayout = TagXmlParseV2.parse_the_mfing_xmls(tagGroup);
+            if (!(tagGroup is null))
+                _tagLayout = TagXmlParseV2.parse_the_mfing_xmls(tagGroup);
+
             _tagFile = new TagFile();
             _f = f;
         }
@@ -60,10 +62,12 @@ namespace LibHIRT.TagReader
 
         public void readFile()
         {
+            if (_tagLayout != null) {
+                _tagFile.TagStructTable.OnReadEntryEvent += TagStructTable_OnReadEntryEvent;
+                _tagFile.DataReferenceTable.OnReadEntryEvent += DataReferenceTable_OnReadEntryEvent;
+                _tagFile.TagReferenceFixUpTable.OnReadEntryEvent += TagReferenceFixUpTable_OnReadEntryEvent;
+            }
 
-            _tagFile.TagStructTable.OnReadEntryEvent += TagStructTable_OnReadEntryEvent;
-            _tagFile.DataReferenceTable.OnReadEntryEvent += DataReferenceTable_OnReadEntryEvent;
-            _tagFile.TagReferenceFixUpTable.OnReadEntryEvent += TagReferenceFixUpTable_OnReadEntryEvent;
             try
             {
                 _tagFile.readIn(_f);
@@ -73,10 +77,12 @@ namespace LibHIRT.TagReader
 
                 throw ex;
             }
-
-            _tagFile.TagStructTable.OnReadEntryEvent -= TagStructTable_OnReadEntryEvent;
-            _tagFile.DataReferenceTable.OnReadEntryEvent -= DataReferenceTable_OnReadEntryEvent;
-            _tagFile.TagReferenceFixUpTable.OnReadEntryEvent -= TagReferenceFixUpTable_OnReadEntryEvent;
+            if (_tagLayout != null) {
+                _tagFile.TagStructTable.OnReadEntryEvent -= TagStructTable_OnReadEntryEvent;
+                _tagFile.DataReferenceTable.OnReadEntryEvent -= DataReferenceTable_OnReadEntryEvent;
+                _tagFile.TagReferenceFixUpTable.OnReadEntryEvent -= TagReferenceFixUpTable_OnReadEntryEvent;
+            }
+            
         }
 
         private void TagReferenceFixUpTable_OnReadEntryEvent(object? sender, TagReferenceFixup e)
@@ -102,7 +108,13 @@ namespace LibHIRT.TagReader
             bool isLast = false;
             if (entry.TypeIdTg == TagStructType.Root)
             {
-                _rootTagInst = (CompoundTagInstance)TagInstanceFactoryV2.Create(_tagLayout[0], 0, 0);
+                var temp = TagInstanceFactoryV2.Create(_tagLayout[0], 0, 0);
+                if (temp is StructTagInstance)
+                {
+                    _rootTagInst = new RootTagInstance(temp.TagDef,0,0);
+                }
+                else
+                    _rootTagInst = (CompoundTagInstance)temp;
                 _rootTagInst.Entry = entry;
                 tag = _rootTagInst;
                 tag.ReadIn(new BinaryReader(_f));
@@ -137,7 +149,9 @@ namespace LibHIRT.TagReader
             if (entry.Info.n_childs > 0)
             {
                 TagElemntTypeV2? type = (tag.TagDef as TagLayoutsV2.C).T;
-                if (type == TagElemntTypeV2.RootTagInstance)
+
+                //if (type == TagElemntTypeV2.RootTagInstance)
+                if (tag is RootTagInstance)
                 {
                     readTagDefinition(_f, entry, (P)tag.TagDef, (CompoundTagInstance)tag, outresult, 0);
                 }
