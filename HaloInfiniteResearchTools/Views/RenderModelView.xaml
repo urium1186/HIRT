@@ -5,6 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:beh="clr-namespace:HaloInfiniteResearchTools.UI.Behaviors"
       xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
            xmlns:m="clr-namespace:HaloInfiniteResearchTools.Models"
       xmlns:view="clr-namespace:HaloInfiniteResearchTools.Views"
@@ -29,6 +31,7 @@
               VerticalAlignment="Bottom">
             <MenuItem Header="File">
                 <MenuItem Header="Export" Command="{Binding ExportModelCommand}" />
+                <MenuItem Header="Import kit" Command="{Binding ImportKitCommand}"/>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Use Flycam" IsCheckable="True" IsChecked="{Binding UseFlycam}" />
@@ -100,7 +103,10 @@
                                      MinMoveSpeed="{Binding MinMoveSpeed}"
                                      MoveSpeed="{Binding MoveSpeed}"
                                      MaxMoveSpeed="{Binding MaxMoveSpeed}"
-                                     UseFlycam="{Binding UseFlycam}" />
+                                     UseFlycam="{Binding UseFlycam}" 
+                                     MeshSelectedCommand="{Binding MeshSelectedCommand}"
+                                     SelectedMesh="{Binding SelectedMesh}"
+                                     />
 
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" />
 
@@ -147,6 +153,8 @@
                                 <ContextMenu Loaded="OnContextMenuLoaded">
                                     <MenuItem Header="Show All" Command="{Binding ShowAllCommand}" />
                                     <MenuItem Header="Hide All" Command="{Binding HideAllCommand}" />
+                                    <MenuItem Header="Show Only Selected" Command="{Binding ShowOnlySelectedCommand}" />
+                                    <MenuItem Header="Hide Only Selected" Command="{Binding HideOnlySelectedCommand}" />
                                     <Separator />
                                     <MenuItem Header="Hide LODs" Command="{Binding HideLODsCommand}" />
                                     <MenuItem Header="Hide Volumes" Command="{Binding HideVolumesCommand}" />
@@ -241,6 +249,7 @@
 
                         <ListView Grid.Row="1"
                       ItemsSource="{Binding Nodes}"
+                                              SelectedItem="{Binding ListSelectedItem}"
                       VirtualizingPanel.IsContainerVirtualizable="True"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.IsVirtualizingWhenGrouping="True"
@@ -248,6 +257,9 @@
                       HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                       SizeChanged="OnListViewSizeChanged"
                       Loaded="OnListViewLoaded">
+                            <i:Interaction.Behaviors>
+                                <beh:ScrollToSelectedListBoxItemBehavior />
+                            </i:Interaction.Behaviors>
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn>

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -94,6 +95,9 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICollectionView Nodes => _nodeCollectionView;
 
 
+        public ModelNodeModel ListSelectedItem { get; set; }
+
+        public GeometryNode SelectedMesh { get; set; }
 
         public int MeshCount { get; set; }
         public int VertexCount { get; set; }
@@ -108,12 +112,16 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         public ICommand ShowAllCommand { get; }
         public ICommand HideAllCommand { get; }
+        public ICommand ShowOnlySelectedCommand { get; }
+        public ICommand HideOnlySelectedCommand { get; }
         public ICommand HideLODsCommand { get; }
         public ICommand HideVolumesCommand { get; }
         public ICommand ExpandAllCommand { get; }
         public ICommand CollapseAllCommand { get; }
+        public ICommand MeshSelectedCommand { get; }
 
         public ICommand ExportModelCommand { get; }
+        public ICommand ImportKitCommand { get; }
         public ObservableCollection<TreeViewItemModel> Regions { get => _regions; set => _regions = value; }
         public ModelInfoToRM ModelInfo { get; set; }
         public ListTagInstance ThemeConfigurations { get; set; }
@@ -160,13 +168,47 @@ namespace HaloInfiniteResearchTools.ViewModels
             ShowAllCommand = new Command(ShowAllNodes);
             HideAllCommand = new Command(HideAllNodes);
             HideLODsCommand = new Command(HideLODNodes);
+            ShowOnlySelectedCommand = new Command(ShowOnlySelected);
+            HideOnlySelectedCommand = new Command(HideOnlySelected);
             HideVolumesCommand = new Command(HideVolumeNodes);
             ExpandAllCommand = new Command(ExpandAllNodes);
             CollapseAllCommand = new Command(CollapseAllNodes);
             SearchTermChangedCommand = new Command<string>(SearchTermChanged);
 
+            MeshSelectedCommand = new Command<GeometryNode>(MeshSelected);
             ExportModelCommand = new AsyncCommand(ExportModel);
+            ImportKitCommand = new AsyncCommand(ImportKit);
 
+            PropertyChanged += Model3DViewerControlModel_PropertyChanged;
+
+        }
+
+        private void MeshSelected(GeometryNode obj)
+        {
+            ListSelectedItem = _nodesNameLookUp[obj.Name];
+        }
+
+        private void Model3DViewerControlModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ListSelectedItem")
+            {
+                if (SelectedMesh != null)
+                    SelectedMesh.PostEffects = null;
+
+                SelectedMesh = (ListSelectedItem.Node as GeometryNode);
+                SelectedMesh.PostEffects = "border";
+            }
+        }
+
+        private async Task ImportKit()
+        {
+            var jsonString_temp = await ShowOpenFileDialog(
+              title: "Open File",
+              initialDirectory: GetPreferences().HIDirectoryPath); // TODO: Add filter
+
+            if (jsonString_temp == null)
+                return;
+            SelectCore(jsonString_temp[0]);
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
@@ -1079,7 +1121,16 @@ namespace HaloInfiniteResearchTools.ViewModels
                     node.IsVisible = false;
             }
         }
+        private void ShowOnlySelected()
+        {
+            HideAllNodes();
+            foreach (var node in Traverse(_nodes))
+            {
+                if (node == ListSelectedItem)
+                    node.IsVisible = true;
+            }
 
+        }
         private void HideVolumeNodes()
         {
             foreach (var node in Traverse(_nodes))
@@ -1089,6 +1140,15 @@ namespace HaloInfiniteResearchTools.ViewModels
             }
         }
 
+        private void HideOnlySelected()
+        {
+            foreach (var node in Traverse(_nodes))
+            {
+                if (node == ListSelectedItem)
+                    node.IsVisible = false;
+            }
+
+        }
         private void ExpandAllNodes()
         {
             foreach (var node in Traverse(_nodes))
@@ -1237,14 +1297,72 @@ namespace HaloInfiniteResearchTools.ViewModels
             }
         }
 
+        public void SelectCore(string full_path)
+        {
+            if (System.IO.File.Exists(full_path))
+            {
+                
+                
+               string jsonString_temp = System.IO.File.ReadAllText(full_path);
+                
+                ArmorTheme tempArmorTheme = (ArmorTheme)JsonSerializer.Deserialize(jsonString_temp, typeof(ArmorTheme), JsonSerializerFix.SerializerOptions);
+
+                HideAllCommand.Execute(true);
+
+                SelectRegionsDatas(tempArmorTheme.CoreRegionData.BaseRegionData);
+
+                SelectArmorCorePart(tempArmorTheme.Gloves.DefaultOptionPath);
+                SelectArmorCorePart(tempArmorTheme.Helmets.DefaultOptionPath);
+                SelectArmorCorePart(tempArmorTheme.KneePads.DefaultOptionPath);
+                SelectArmorCorePart(tempArmorTheme.RightShoulderPads.DefaultOptionPath);
+                SelectArmorCorePart(tempArmorTheme.LeftShoulderPads.DefaultOptionPath);
+
+                SelectArmorCoreAttach(tempArmorTheme.ChestAttachments.DefaultOptionPath);
+                SelectArmorCoreAttach(tempArmorTheme.HipAttachments.DefaultOptionPath);
+                SelectArmorCoreAttach(tempArmorTheme.WristAttachments.DefaultOptionPath);
+                SelectArmorCoreAttach(tempArmorTheme.Helmets.Options[0].HelmetAttachments.DefaultOptionPath);
+                
+                
+                /*
+
+                SelectArmorCoreAttach(armorCore.Themes[0].ChestAttachmentPath);
+                SelectArmorCoreAttach(armorCore.Themes[0].HelmetAttachmentPath);
+                SelectArmorCoreAttach(armorCore.Themes[0].HipAttachmentPath);
+                SelectArmorCoreAttach(armorCore.Themes[0].WristAttachmentPath);
+                 if (CmsJsonPair.ContainsKey("bodyCustomization.json"))
+                {
+                    string bodyCustomization_temp = CmsJsonPair["bodyCustomization.json"];
+                    BodyCustomization bodyCustomization = (BodyCustomization)JsonSerializer.Deserialize(bodyCustomization_temp, typeof(BodyCustomization), JsonSerializerFix.SerializerOptions);
+                    SelectBodyCustomization(bodyCustomization, tempArmorTheme.CoreRegionData);
+                }*/
+
+            }
+        }
+
         private void SelectArmorCorePart(string path)
         {
-            if (CmsJsonPair.ContainsKey(path))
+            if (!string.IsNullOrEmpty(path))
             {
                 try
                 {
-                    ArmorCorePart _armorCorePart = (ArmorCorePart)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCorePart), JsonSerializerFix.SerializerOptions);
-                    SelectRegionsDatas(_armorCorePart.RegionData);
+                    ArmorCorePart _armorCorePart = null;
+                    if (CmsJsonPair.ContainsKey(path))
+                    {
+                        _armorCorePart = (ArmorCorePart)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCorePart), JsonSerializerFix.SerializerOptions);
+                    }
+                    else {
+                        string full_path = LibHIRT.Utils.Utils.CreatePathFromString(path, "", "json");
+
+                        if (System.IO.File.Exists(full_path))
+                        {
+                            string jsonString_temp = System.IO.File.ReadAllText(full_path);
+                            CmsJsonPair[path] = jsonString_temp;
+                            _armorCorePart = (ArmorCorePart)JsonSerializer.Deserialize(jsonString_temp, typeof(ArmorCorePart), JsonSerializerFix.SerializerOptions);
+                        }
+                        
+                    }
+                    if (_armorCorePart!=null)
+                        SelectRegionsDatas(_armorCorePart.RegionData);
                 }
                 catch (Exception noImop)
                 {
@@ -1255,20 +1373,35 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private void SelectArmorCoreAttach(string path)
         {
-            if (CmsJsonPair.ContainsKey(path))
+            if (!string.IsNullOrEmpty(path))
             {
-                try
+                ArmorCoreAttach _armorCorePart = null;
+                if (CmsJsonPair.ContainsKey(path))
                 {
-                    ArmorCoreAttach _armorCorePart = (ArmorCoreAttach)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCoreAttach), JsonSerializerFix.SerializerOptions);
-                    if (attachments_dict.ContainsKey(_armorCorePart.TagId))
+                    try
                     {
-                        var temp = attachments_dict[_armorCorePart.TagId];
-                        SelectInTreeViewItemModel(temp);
+                        _armorCorePart = (ArmorCoreAttach)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCoreAttach), JsonSerializerFix.SerializerOptions);
+
+                    }
+                    catch (Exception noImop)
+                    {
+
                     }
                 }
-                catch (Exception noImop)
-                {
+                else {
+                    string full_path = LibHIRT.Utils.Utils.CreatePathFromString(path, "", "json");
 
+                    if (System.IO.File.Exists(full_path))
+                    {
+                        string jsonString_temp = System.IO.File.ReadAllText(full_path);
+                        CmsJsonPair[path] = jsonString_temp;
+                        _armorCorePart = (ArmorCoreAttach)JsonSerializer.Deserialize(jsonString_temp, typeof(ArmorCoreAttach), JsonSerializerFix.SerializerOptions);
+                    }
+                }
+                if (attachments_dict.ContainsKey(_armorCorePart.TagId))
+                {
+                    var temp = attachments_dict[_armorCorePart.TagId];
+                    SelectInTreeViewItemModel(temp);
                 }
             }
         }
@@ -1361,6 +1494,8 @@ namespace HaloInfiniteResearchTools.ViewModels
         }
         private void SelectRegionsDatas(List<RegionData>? regionsDatas, bool value = true, bool allRegion = false)
         {
+            if (regionsDatas == null)
+                return;
             foreach (RegionData region_data in regionsDatas)
             {
                 foreach (var region_ch in _regions)

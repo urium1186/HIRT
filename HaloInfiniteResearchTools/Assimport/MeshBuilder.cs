@@ -4,10 +4,8 @@ using LibHIRT.Data;
 using LibHIRT.Data.Geometry;
 using LibHIRT.Domain;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace HaloInfiniteResearchTools.Assimport
 {

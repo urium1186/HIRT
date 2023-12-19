@@ -28,11 +28,13 @@
                         IsMoveEnabled="True"
                         ZoomDistanceLimitNear="0"
                         EnableRenderFrustum="True"
-                        ShowViewCube="{Binding UseFlycam, ElementName=self, Converter={StaticResource InverseBoolConverter}}">
+                        ShowViewCube="{Binding UseFlycam, ElementName=self, Converter={StaticResource InverseBoolConverter}}" MouseDown3D="ViewportControl_MouseDown3D"
+                        
+                        >
 
             <hx:Viewport3DX.InputBindings>
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
+                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="Control+RightClick" />
+                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Control+LeftClick" />
             </hx:Viewport3DX.InputBindings>
 
 
@@ -41,7 +43,14 @@
             <hx:SortingGroupModel3D SortingMethod="BoundingBoxCorners" SortingInterval="2" EnableSorting="True">
                 <hx:Element3DPresenter Content="{Binding Model, ElementName=self}" />
             </hx:SortingGroupModel3D>
+
+            <hx:PostEffectMeshBorderHighlight
+                x:Name="border"
+                EffectName="border"
+                Color="Red" />
         </hx:Viewport3DX>
+        
+        
 
         <StackPanel HorizontalAlignment="Left" Margin="5">
             <Label ContentStringFormat="FPS: {0:0.00}" Padding="0" 

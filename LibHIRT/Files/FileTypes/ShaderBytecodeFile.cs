@@ -7,6 +7,7 @@
     {
         public ShaderBytecodeFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
+
         }
 
         public override string FileTypeDisplay => "Shader Bytecode (.shader_bytecode)";
