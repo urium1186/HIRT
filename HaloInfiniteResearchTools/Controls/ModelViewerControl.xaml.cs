@@ -2,6 +2,7 @@
 using HaloInfiniteResearchTools.ControlsModel;
 using HaloInfiniteResearchTools.ViewModels;
 using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using LibHIRT.Common;
 using System;
@@ -69,6 +70,19 @@ namespace HaloInfiniteResearchTools.Controls
           typeof(bool),
           typeof(ModelViewerControl));
 
+        public static readonly DependencyProperty MeshSelectedCommandProperty = DependencyProperty.Register(
+         nameof(MeshSelectedCommand),
+         typeof(ICommand),
+         typeof(ModelViewerControl),
+         new PropertyMetadata());
+        
+        public static readonly DependencyProperty SelectedMeshProperty = DependencyProperty.Register(
+         nameof(SelectedMesh),
+         typeof(GeometryNode),
+         typeof(ModelViewerControl),
+         new PropertyMetadata());
+
+
         #endregion
 
         private bool _isMouseCaptured;
@@ -85,6 +99,8 @@ namespace HaloInfiniteResearchTools.Controls
         private ManualResetEvent _isFocusedEvent;
         private Thread _monitorThread;
         private CancellationTokenSource _monitorCts;
+
+        GeometryNode curretSelected = null;
 
         #endregion
 
@@ -136,6 +152,17 @@ namespace HaloInfiniteResearchTools.Controls
         {
             get => (bool)GetValue(UseFlycamProperty);
             set => SetValue(UseFlycamProperty, value);
+        }
+
+        public ICommand MeshSelectedCommand
+        {
+            get => (ICommand)GetValue(MeshSelectedCommandProperty);
+            set => SetValue(MeshSelectedCommandProperty, value);
+        }
+        public GeometryNode SelectedMesh
+        {
+            get => (GeometryNode)GetValue(SelectedMeshProperty);
+            set => SetValue(SelectedMeshProperty, value);
         }
 
         public Viewport3DX Viewport
@@ -419,6 +446,39 @@ namespace HaloInfiniteResearchTools.Controls
           => _isRendered = true;
 
         #endregion
+
+        private void ViewportControl_MouseDown3D(object sender, RoutedEventArgs e)
+        {
+            Viewport3DX vp = e.Source as Viewport3DX;
+            MouseDown3DEventArgs event_arg = e as MouseDown3DEventArgs;
+            if ((event_arg.OriginalInputEventArgs as MouseButtonEventArgs).RightButton == MouseButtonState.Pressed && (event_arg.OriginalInputEventArgs as MouseButtonEventArgs).ClickCount < 2) {
+                return;
+            }
+            SharpDX.Vector3 p;
+            SharpDX.Vector3 v;
+            object m;
+            if (vp.FindNearest(new SharpDX.Vector2((float)event_arg.Position.X, (float)event_arg.Position.Y), out p, out v, out m))
+            {
+                var hit = event_arg.HitTestResult;
+                if (m is GeometryNode) {
+                    if (curretSelected != null)
+                        curretSelected.PostEffects = null;
+                    curretSelected = ((HelixToolkit.SharpDX.Core.Model.Scene.GeometryNode)m);
+                    curretSelected.PostEffects = "border";
+                    MeshSelectedCommand?.Execute(curretSelected);
+                }
+                //"border"
+                //Do something with the found object
+            }
+            else {
+                if (curretSelected != null) {
+                    curretSelected.PostEffects = null;
+                    curretSelected = null;
+                }
+
+                
+            }
+        }
 
     }
 }

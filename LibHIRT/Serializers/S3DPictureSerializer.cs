@@ -108,7 +108,7 @@ namespace LibHIRT.Serializers
             pict.SFormat = val;
             pict.MipMapCount = (sbyte)bitmap_i["mipmap count"].AccessValue;
 
-            pict.MipMapCount = (sbyte)bitmapRH["mipCountPerArraySlice"].AccessValue;
+            // pict.MipMapCount = (sbyte)bitmapRH["mipCountPerArraySlice"].AccessValue;
 
             int pixels = (int)bitmapRH.GetObjByPath("pixels").AccessValue;
             if (pixels == 0)

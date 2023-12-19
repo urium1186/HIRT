@@ -31,11 +31,33 @@
                     
                 </Grid>
             </TabItem>
+            <TabItem Header="DXIL">
+                <Grid>
+                    <TextBox Text="{Binding DecompiledDxil}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
+                </Grid>
+            </TabItem><TabItem Header="SPV">
+                <Grid>
+                    <TextBox Text="{Binding DecompiledStrSPV}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
+                </Grid>
+            </TabItem>
             <TabItem Header="GLSL">
                 <Grid>
                     <TextBox Text="{Binding DecompiledStrGLSL}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
                 </Grid>
             </TabItem>
+            <TabItem Header="HLSL">
+                <Grid>
+                    <TextBox Text="{Binding DecompiledStrHLSL}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Mod-HLSL">
+                <Grid>
+                    <TextBox Text="{Binding ModDecompiledStrHLSL}" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" ></TextBox>
+                </Grid>
+            </TabItem>
+            
+            
+            
         </TabControl>
         
         

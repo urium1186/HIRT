@@ -433,10 +433,10 @@ namespace LibHIRT.Files
             if (connectionDb != null)
                 connectionDb.Dispose();
 
-            foreach (var item in _filesModuleGlobalIdLockUp)
+            /*foreach (var item in _filesModuleGlobalIdLockUp)
             {
                 _files[item].reset();
-            } 
+            } */
             _filesModuleGlobalIdLockUp.Clear();
             
             foreach (var item in _files)

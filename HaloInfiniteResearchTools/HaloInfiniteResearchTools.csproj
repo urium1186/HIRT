@@ -29,6 +29,8 @@
     <PackageReference Include="DirectXTexNet" Version="1.0.3">
       
     </PackageReference>
+    <PackageReference Include="Microsoft.Direct3D.DXC" Version="1.7.2308.12" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
 	  <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
     <PackageReference Include="Javi.ExplorerTreeView" Version="1.0.4" />
@@ -107,17 +109,20 @@
     <None Update="Resources\Icon\Save-Icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\shaders\dxil-spirv\dxil-extract.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\shaders\dxil-spirv\dxil-spirv-c-shared.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\shaders\dxil-spirv\dxil-spirv.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\shaders\spirv-cross\spirv-cross-c-shared.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\shaders\spirv-cross\spirv-cross.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\xboxservice\client.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

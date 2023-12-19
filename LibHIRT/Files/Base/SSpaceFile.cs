@@ -282,7 +282,7 @@ namespace LibHIRT.Files
 
         protected HIRTStream GetFromFileDescriptor()
         {
-            if (_baseStream != null)
+            if (_baseStream != null && _baseStream.CanRead)
             {
                 return _baseStream;
             }

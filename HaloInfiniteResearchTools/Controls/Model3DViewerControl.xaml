@@ -6,6 +6,8 @@
               xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
             xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
             xmlns:m="clr-namespace:HaloInfiniteResearchTools.Models"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:beh="clr-namespace:HaloInfiniteResearchTools.UI.Behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="_this"
@@ -96,7 +98,10 @@
                                      MinMoveSpeed="{Binding MinMoveSpeed}"
                                      MoveSpeed="{Binding MoveSpeed}"
                                      MaxMoveSpeed="{Binding MaxMoveSpeed}"
-                                     UseFlycam="{Binding UseFlycam}" />
+                                     UseFlycam="{Binding UseFlycam}" 
+                                     MeshSelectedCommand="{Binding MeshSelectedCommand}"
+                                     SelectedMesh="{Binding SelectedMesh}"
+                                     />
 
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" />
 
@@ -143,6 +148,8 @@
                                 <ContextMenu Loaded="OnContextMenuLoaded">
                                     <MenuItem Header="Show All" Command="{Binding ShowAllCommand}" />
                                     <MenuItem Header="Hide All" Command="{Binding HideAllCommand}" />
+                                    <MenuItem Header="Show Only Selected" Command="{Binding ShowOnlySelectedCommand}" />
+                                    <MenuItem Header="Hide Only Selected" Command="{Binding HideOnlySelectedCommand}" />
                                     <Separator />
                                     <MenuItem Header="Hide LODs" Command="{Binding HideLODsCommand}" />
                                     <MenuItem Header="Hide Volumes" Command="{Binding HideVolumesCommand}" />
@@ -217,12 +224,16 @@
 
                         <ListView Grid.Row="1"
                       ItemsSource="{Binding Nodes}"
+                                  SelectedItem="{Binding ListSelectedItem}"
                       VirtualizingPanel.IsContainerVirtualizable="True"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                       VirtualizingPanel.VirtualizationMode="Recycling" HorizontalContentAlignment="Stretch"
                       SizeChanged="OnListViewSizeChanged"
                       Loaded="OnListViewLoaded" Grid.ColumnSpan="2">
+                            <i:Interaction.Behaviors>
+                                <beh:ScrollToSelectedListBoxItemBehavior />
+                            </i:Interaction.Behaviors>
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn>

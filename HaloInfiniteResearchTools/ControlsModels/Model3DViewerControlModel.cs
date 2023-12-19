@@ -90,7 +90,9 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
         public ICollectionView Nodes => _nodeCollectionView;
 
+        public ModelNodeModel ListSelectedItem { get; set; }
 
+        public GeometryNode SelectedMesh { get; set; }
 
         public int MeshCount { get; set; }
         public int VertexCount { get; set; }
@@ -100,10 +102,13 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
         public ICommand ShowAllCommand { get; }
         public ICommand HideAllCommand { get; }
+        public ICommand ShowOnlySelectedCommand { get; }
+        public ICommand HideOnlySelectedCommand { get; }
         public ICommand HideLODsCommand { get; }
         public ICommand HideVolumesCommand { get; }
         public ICommand ExpandAllCommand { get; }
         public ICommand CollapseAllCommand { get; }
+        public ICommand MeshSelectedCommand { get; }
 
         public ICommand ExportModelCommand { get; }
         public ICommand ExtExportModelCommand { get; set; }
@@ -153,11 +158,14 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
             ShowAllCommand = new Command(ShowAllNodes);
             HideAllCommand = new Command(HideAllNodes);
+            ShowOnlySelectedCommand = new Command(ShowOnlySelected);
+            HideOnlySelectedCommand = new Command(HideOnlySelected);
             HideLODsCommand = new Command(HideLODNodes);
             HideVolumesCommand = new Command(HideVolumeNodes);
             ExpandAllCommand = new Command(ExpandAllNodes);
             CollapseAllCommand = new Command(CollapseAllNodes);
             SearchTermChangedCommand = new Command<string>(SearchTermChanged);
+            MeshSelectedCommand = new Command<GeometryNode>(MeshSelected);
 
             ExportModelCommand = new AsyncCommand(ExportModel);
 
@@ -165,9 +173,20 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
         }
 
+        private void MeshSelected(GeometryNode obj)
+        {
+            ListSelectedItem = _nodesNameLookUp[obj.Name];
+        }
+
         private void Model3DViewerControlModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-
+            if (e.PropertyName == "ListSelectedItem") {
+                if (SelectedMesh!=null)
+                    SelectedMesh.PostEffects = null;
+                
+                SelectedMesh = (ListSelectedItem.Node as GeometryNode);
+                SelectedMesh.PostEffects = "border";
+            }
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
@@ -363,8 +382,21 @@ namespace HaloInfiniteResearchTools.ControlsModel
                 MyGeometrySceneContex = new RenderGeometrySceneContext(null, null);
 
 
-                Viewport.Items.Clear();
-                Viewport.Items.Add(Model);
+                //Viewport.Items.Clear();
+                SortingGroupModel3D found= null;
+                foreach (var item in Viewport.Items)
+                {
+                    if (item is SortingGroupModel3D) {
+                        found = (SortingGroupModel3D)item;
+                        break;
+                    }
+                }
+                if (found != null) {
+                    found.Children.Clear();
+                    found.Children.Add(Model);
+                }
+                
+                //Viewport.Items.Add(Model);
             });
 
             await Task.Delay(450).ContinueWith(t =>
@@ -434,12 +466,30 @@ namespace HaloInfiniteResearchTools.ControlsModel
         {
             foreach (var node in Traverse(_nodes))
                 node.IsVisible = true;
+        } 
+        
+        private void ShowOnlySelected()
+        {
+            HideAllNodes();
+            foreach (var node in Traverse(_nodes)) {
+                if (node == ListSelectedItem)
+                    node.IsVisible = true;
+            }
+                
         }
 
         private void HideAllNodes()
         {
             foreach (var node in Traverse(_nodes))
                 node.IsVisible = false;
+        }
+         private void HideOnlySelected()
+        {
+            foreach (var node in Traverse(_nodes)) {
+                if (node == ListSelectedItem)
+                    node.IsVisible = false;
+            }
+            
         }
 
         private void HideLODNodes()
