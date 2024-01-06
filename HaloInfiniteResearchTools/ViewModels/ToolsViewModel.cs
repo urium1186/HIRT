@@ -32,6 +32,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         private string _pathExport;
         
         public ICommand ProcessTextCommand { get; }
+        public ICommand ProcessJsonCommand { get; }
         public ICommand BCInSVToTxtCommand { get; }
         public ICommand ProcessAllBytecodeToTxtCommand { get; }
         public ICommand GenerateFromStrValueCommand { get; }
@@ -47,6 +48,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             //_hiFileContext = ((App)App.Current).ServiceProvider.GetRequiredService<IHIFileContext>();
             _hiFileContext = HIFileContext.Instance;
             ProcessTextCommand = new AsyncCommand(doSome);
+            ProcessJsonCommand = new AsyncCommand(ProcessJson);
             BCInSVToTxtCommand = new AsyncCommand(ProcessAllBytecodeToTxtInShaderVariantMain);
             ProcessAllBytecodeToTxtCommand = new AsyncCommand(ProcessAllBytecodeToTx);
             GenerateFromStrValueCommand = new Command(GenerateFromStrValue);
@@ -124,7 +126,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 {
                     lock (objLock)
                     {
-                        //progress.CompletedUnits++; GetFromXboxWebApiItemsProcess
+                        progress.CompletedUnits++; //GetFromXboxWebApiItemsProcess
                     }
 
                 }
@@ -459,12 +461,38 @@ namespace HaloInfiniteResearchTools.ViewModels
                 await RunProcess(process);
             }
         }
+         public async Task ProcessJson()
+        {
+            if (Directory.Exists(TextFilesPath))
+            {
+
+                List<string>? list = new List<string>
+                {
+                    TextFilesPath
+                };
+                var process = new ItemJsonToMmh3LTUProcess(list, Spliters, _forceLowerCase);
+                process.Completed += ProcessItemJsonToMmh3_Completed;
+                await RunProcess(process);
+            }
+        }
 
         private void ProcessTextToMmh3_Completed(object? sender, EventArgs e)
         {
             if (sender is TextToMmh3LTUProcess)
             {
                 if ((sender as TextToMmh3LTUProcess).DbModify)
+                    MessageBox.Show("Saved to DB");
+                else
+                {
+                    MessageBox.Show("Not need to save.");
+                }
+            }
+        }
+        private void ProcessItemJsonToMmh3_Completed(object? sender, EventArgs e)
+        {
+            if (sender is ItemJsonToMmh3LTUProcess)
+            {
+                if ((sender as ItemJsonToMmh3LTUProcess).DbModify)
                     MessageBox.Show("Saved to DB");
                 else
                 {

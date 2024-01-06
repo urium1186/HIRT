@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -152,7 +153,10 @@ namespace LibHIRT.Processes.OnGeometry
                     }
                     var parent = _context.NodeNames[nodes1[marker.NodeIndex].Name];
                     var marker_node = new Node($"{group.Name}_{marker.Index}_{marker.RegionIndex}_{marker.PermutationIndex}_{marker.NodeIndex}", parent);
-                    marker_node.Transform = NumericExtensions.TRS(marker.Translation, marker.Rotation, marker.Scale).ToAssimp();
+                    //marker_node.Transform = NumericExtensions.TRS(marker.Translation, marker.Rotation, marker.Scale).ToAssimp(); //  new Vector3(1,1,1)
+                    marker_node.Transform = NumericExtensions.TRS(marker.Translation, marker.Rotation, new Vector3(1, 1, 1)).ToAssimp(); //  new Vector3(1,1,1)
+                    if (marker.Scale.X != 0.1) { 
+                    }
                     parent.Children.Add(marker_node);
                     _marker_lookup[marker_node.Name] = marker_node;
                     var mesh_1 = MeshBuilder.CreatePiramide(0.01f, $"{marker_node.Name}_marker");

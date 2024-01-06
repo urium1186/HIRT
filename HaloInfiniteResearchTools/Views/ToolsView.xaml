@@ -27,7 +27,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding Str_value}" Grid.Column="0"></TextBox>
                     <TextBox Text="{Binding Int_value}" Grid.Column="1"></TextBox>
-                    <TextBox Text="{Binding Str_hash}" Grid.Column="2" MaxLength="6"></TextBox>
+                    <TextBox Text="{Binding Str_hash}" Grid.Column="2" MaxLength="8"></TextBox>
                     <StackPanel  Grid.Column="0" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
                         <CheckBox IsChecked="{Binding ForceLowerCase}" Content="Force Lower Case"></CheckBox>
                         <Button Content="Generate" Width="80" Command="{Binding GenerateFromStrValueCommand}" ></Button>
@@ -45,6 +45,8 @@
                             <Label Content="Spliters"></Label>
                             <TextBox Width="120" Text="{Binding Spliters}"></TextBox>
                             <Button Content="Process Text" Width="80" Command="{Binding ProcessTextCommand}"  ></Button>
+                            <Button Content="Process json" Width="80" Command="{Binding ProcessJsonCommand}"  ></Button>
+                            
                         </StackPanel>
                     </Grid>
 

@@ -1011,17 +1011,27 @@ namespace HaloInfiniteResearchTools.ViewModels
                     ModelInfoToRM vara_reg = modelFile.GetModelVariants();
                     bool found = false;
                     TreeViewItemModel temp_tvm = null;
-                    foreach (var item_variant in vara_reg.Variants)
+                    if ((modelAttachment["Variant"] as LibHIRT.TagReader.Mmr3Hash).Str_value == "")
                     {
-                        if ((item_variant["name"] as Mmr3Hash).AccessValue.ToString() == modelAttachment["Variant"].AccessValue.ToString())
-                        {
+                        if (vara_reg.Variants.Count > 0) {
                             found = true;
-                            temp_tvm = GetMeshInVariant(item_variant, temp_renderModelDef, vara_reg);
-
-
-                            break;
+                            temp_tvm = GetMeshInVariant(vara_reg.Variants[0], temp_renderModelDef, vara_reg);
                         }
+                        
+                    }
+                    else { 
+                        foreach (var item_variant in vara_reg.Variants)
+                        {
+                            if ((item_variant["name"] as Mmr3Hash).AccessValue.ToString() == modelAttachment["Variant"].AccessValue.ToString())
+                            {
+                                found = true;
+                                temp_tvm = GetMeshInVariant(item_variant, temp_renderModelDef, vara_reg);
 
+
+                                break;
+                            }
+
+                        }
                     }
                     if (!found)
                         continue;
