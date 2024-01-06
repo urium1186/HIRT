@@ -663,8 +663,8 @@ private HashSet<int> unique_items_9 = new HashSet<int>();
                 }
                 if (ts != "")
                 {
-                    ts = new string(ts.Reverse().ToArray());
-                    textWriter.WriteAttributeString("us", ts);
+                   // ts = new string(ts.Reverse().ToArray());
+                   // textWriter.WriteAttributeString("us", ts);
                     
                 }
 

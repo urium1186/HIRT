@@ -10,13 +10,35 @@
       mc:Ignorable="d" d:DesignWidth="400"
            Height="230" Width="400"
       >
-    <Grid>
+    <Grid Margin="0,0,0,-66">
         <Grid.RowDefinitions>
             <RowDefinition Height="75"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
+
         <GroupBox Grid.Row="0"
+                  Grid.ColumnSpan="2"
+                  Margin="5,5,5,0">
+            <GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0"
+                           Content="Game Location" />
+
+
+                </Grid>
+            </GroupBox.Header>
+            <controls:FileBrowserBox x:Name="Gamelocation" 
+                                     Path="{Binding ModelOptions.GameLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     DialogPathType="File"
+                                     IsValidPath="{Binding IsValidPath, Mode=OneWayToSource}" />
+        </GroupBox>
+        <GroupBox Grid.Row="1"
                   Grid.ColumnSpan="2"
                   Margin="5,5,5,0">
             <GroupBox.Header>
@@ -36,7 +58,7 @@
                                      DialogPathType="Directory"
                                      IsValidPath="{Binding IsValidPath, Mode=OneWayToSource}" />
         </GroupBox>
-        <GroupBox Grid.Row="1"
+        <GroupBox Grid.Row="2"
                   Grid.ColumnSpan="2"
                   Margin="5,5,5,0"
                   Visibility="{Binding IsForBatch, Converter={StaticResource BoolVisibilityConverter}}">
@@ -65,7 +87,7 @@
             </Grid>
 
         </GroupBox>
-        <GroupBox Grid.Row="2"
+        <GroupBox Grid.Row="3"
                   Grid.ColumnSpan="2"
                   Margin="5,5,5,0"
                   Visibility="{Binding IsForBatch, Converter={StaticResource BoolVisibilityConverter}}">
