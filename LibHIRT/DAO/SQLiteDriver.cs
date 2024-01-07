@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using LibHIRT.Files.Base;
+using Microsoft.VisualBasic;
 using System.Collections.Concurrent;
 using System.Data.SQLite;
 
@@ -6,6 +7,7 @@ namespace LibHIRT.DAO
 {
     public class SQLiteDriver
     {
+        static private ConcurrentQueue<SQLiteConnection> _connectionsQueue = new ConcurrentQueue<SQLiteConnection>();
         public static SQLiteConnection CreateConnection()
         {
 
@@ -18,7 +20,8 @@ namespace LibHIRT.DAO
                 // Open the connection:
                 try
                 {
-                    sqlite_conn.Open();
+                    sqlite_conn.OpenAsync().Wait();
+                    _connectionsQueue.Enqueue(sqlite_conn);
                 }
                 catch (Exception ex)
                 {
@@ -29,6 +32,13 @@ namespace LibHIRT.DAO
             return sqlite_conn;
         }
 
+        public static void RemoveConnection(SQLiteConnection connect) {
+            connect?.Close();
+            if (_connectionsQueue.TryDequeue(out var outConnection)) {
+
+            };
+        }
+
         public static void CreateTable(SQLiteConnection conn)
         {
             //SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';
@@ -37,9 +47,9 @@ namespace LibHIRT.DAO
             string Createsql1 = "CREATE TABLE SampleTable1 (Col1 VARCHAR(20), Col2 INT)";
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = Createsql;
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
             sqlite_cmd.CommandText = Createsql1;
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -49,15 +59,15 @@ namespace LibHIRT.DAO
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = "INSERT INTO StringMmh3LTU (mmh3_id, str_value) VALUES('Test Text ', 1); ";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
             sqlite_cmd.CommandText = "INSERT INTO SampleTable (Col1, Col2) VALUES('Test1 Text1 ', 2); ";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
             sqlite_cmd.CommandText = "INSERT INTO SampleTable (Col1, Col2) VALUES('Test2 Text2 ', 3); ";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
 
             sqlite_cmd.CommandText = "INSERT INTO SampleTable1 (Col1, Col2) VALUES('Test3 Text3 ', 3); ";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -66,7 +76,7 @@ namespace LibHIRT.DAO
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = "INSERT INTO StringMmh3LTU (mmh3_id, str_value, in_use , generated) VALUES(" + int_hash.ToString() + ",'" + str_value + "','" + (in_use ? "1" : "0") + "','" + (generate ? "1" : "0") + "'); ";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -75,7 +85,7 @@ namespace LibHIRT.DAO
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = "INSERT INTO StringMmh3LTU (mmh3_id, str_value) VALUES(" + int_hash.ToString() + ",'" + str_value + "'); ";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -84,7 +94,7 @@ namespace LibHIRT.DAO
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = "UPDATE StringMmh3LTU SET in_use = '" + (in_use ? "1" : "0") + "', generated = '" + (generate ? "1" : "0") + "', str_value = '" + str_value + "' WHERE mmh3_id = '" + int_hash + "';";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -109,9 +119,9 @@ namespace LibHIRT.DAO
         {
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
-            
-            sqlite_cmd.CommandText = "INSERT INTO InDiskPath (path_string, file_id, module_id, ref_path, mod_date) VALUES(" + path_string + ",'" + file_id.ToString() + ",'" + module_id.ToString() + "','" + ref_path + "','" + DateAndTime.Now.ToString() + "'); ";
-            sqlite_cmd.ExecuteNonQuery();
+            path_string = path_string.Replace("\0","");
+            sqlite_cmd.CommandText = "INSERT INTO InDiskPath (path_string, file_id, module_id, ref_path, mod_date) VALUES('" + path_string + "'," + file_id.ToString() + "," + module_id.ToString() + ",'" + ref_path + "','" + DateAndTime.Now.ToString() + "'); ";
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -120,7 +130,7 @@ namespace LibHIRT.DAO
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = "UPDATE InDiskPath SET ref_path = '" + ref_path + "' WHERE file_id = " + file_id.ToString() + " and module_id = "+ module_id.ToString() + ";";
-            sqlite_cmd.ExecuteNonQuery();
+            sqlite_cmd.ExecuteNonQueryAsync().Wait();
 
         }
 
@@ -129,9 +139,31 @@ namespace LibHIRT.DAO
             SQLiteDataReader sqlite_datareader;
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
-            string pathQ = path_string == "" ? "" : " and path_string = '" + module_id + "' ";
+            string pathQ = path_string == "" ? "" : " and path_string = '" + path_string + "' ";
             sqlite_cmd.CommandText = "SELECT * FROM InDiskPath  WHERE file_id = " + file_id.ToString() + " and module_id = " + module_id.ToString() + path_string + ";";
             List<Dictionary<string,object>> result = new List<Dictionary<string, object>>();
+            sqlite_datareader = sqlite_cmd.ExecuteReader();
+            while (sqlite_datareader.Read())
+            {
+                Dictionary<string, object> temp = new Dictionary<string, object>();
+                temp["path_string"] = sqlite_datareader.GetString(0);
+                temp["file_id"] = sqlite_datareader.GetInt32(1);
+                temp["module_id"] = sqlite_datareader.GetInt32(2);
+                temp["ref_path"] = sqlite_datareader.GetString(3);
+                temp["mod_date"] = sqlite_datareader.GetString(4);
+                result.Add(temp);
+            }
+            conn.Close();
+            return result;
+        }
+
+        public static List<Dictionary<string, object>> GetInDiskPath(SQLiteConnection conn, int module_id)
+        {
+            SQLiteDataReader sqlite_datareader;
+            SQLiteCommand sqlite_cmd;
+            sqlite_cmd = conn.CreateCommand();
+            sqlite_cmd.CommandText = "SELECT * FROM InDiskPath  WHERE module_id = " + module_id.ToString() + ";";
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
             sqlite_datareader = sqlite_cmd.ExecuteReader();
             while (sqlite_datareader.Read())
             {
