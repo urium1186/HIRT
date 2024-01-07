@@ -1,4 +1,5 @@
-﻿using LibHIRT.Common;
+﻿using Aspose.ThreeD;
+using LibHIRT.Common;
 using LibHIRT.Files.Base;
 using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
@@ -345,6 +346,10 @@ namespace LibHIRT.Files.FileTypes
                 Debug.Assert(BaseStream.Position == (long)_moduleHeader.DataOffset + 1);
             }
 
+            List<Dictionary<string, object>> retorno;
+            FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out retorno);
+            if (retorno?.Count > 0) { 
+            }
 
         }
         private HiModuleFileEntry readFileEntryIn(int index = -1)
@@ -381,7 +386,7 @@ namespace LibHIRT.Files.FileTypes
             if (_moduleHeader.StringsSize != 0)
             {
                 Reader.BaseStream.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
-                entry.Path_string = Reader.ReadStringNullTerminated();
+                entry.Path_string = Reader.ReadStringNullTerminated()?.Replace("\0", "");
                 getOrSetInDiskPatDB(entry);
             }
             else
@@ -428,14 +433,17 @@ namespace LibHIRT.Files.FileTypes
             List<Dictionary<string, object>> retorno;
             if (string.IsNullOrEmpty(entry.Path_string))
             {
-
-                FileInDiskPathDA.getFromDbInDiskPath(entry.GlobalTagId1, TryGetGlobalId(), out retorno);
-                if (retorno.Count > 0) {
-                    entry.Path_string = retorno[0]["path_string"]?.ToString();
-                }
+                //FileInDiskPathDA.getFromDbInDiskPath(entry.GlobalTagId1, TryGetGlobalId(), out retorno);
+                //if (retorno != null && retorno.Count > 0) {
+                //    entry.Path_string = retorno[0]["path_string"]?.ToString();
+                //}
             }
             else {
-                FileInDiskPathDA.getFromDbInDiskPath(entry.GlobalTagId1, TryGetGlobalId(), out retorno);
+                if (entry.GlobalTagId1 == -1)
+                    return;
+                
+                FileInDiskPathDA.insertToDbInDiskPath(entry.Path_string, entry.GlobalTagId1, TryGetGlobalId());
+                
             }
             
         }

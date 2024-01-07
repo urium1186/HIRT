@@ -54,7 +54,7 @@ namespace LibHIRT.TagReader
 
                 }
             }
-            connectionDb.Close();
+            SQLiteDriver.RemoveConnection(connectionDb);
             */
         }
 
@@ -70,8 +70,8 @@ namespace LibHIRT.TagReader
             {
                 result = false;
             }
-
-            connectionDb.Close();
+            SQLiteDriver.RemoveConnection(connectionDb);
+            
             return result;
         }
 
@@ -88,7 +88,7 @@ namespace LibHIRT.TagReader
                 result = false;
             }
 
-            connectionDb.Close();
+            SQLiteDriver.RemoveConnection(connectionDb);
             return result;
         }
         static public bool insertToDbLtuCollaide(int hash, string str_value)
@@ -104,7 +104,7 @@ namespace LibHIRT.TagReader
                 result = false;
             }
 
-            connectionDb.Close();
+            SQLiteDriver.RemoveConnection(connectionDb);
             return result;
         }
         static public bool updateToDbLtu(int hash, string str_value, bool in_use, bool generate)
@@ -120,7 +120,7 @@ namespace LibHIRT.TagReader
                 result = false;
             }
 
-            connectionDb.Close();
+            SQLiteDriver.RemoveConnection(connectionDb);
             return result;
         }
 
