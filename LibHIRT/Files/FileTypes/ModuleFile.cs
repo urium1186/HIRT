@@ -356,6 +356,7 @@ namespace LibHIRT.Files.FileTypes
                 Reader.BaseStream.Seek(pos, SeekOrigin.Begin);
             }
             entry.ReadIn(Reader);
+            
             entry.Index = index;
             checkFileHeader(entry.First_block_index);
             if (index == ModuleHeader.MapRefIndex) {
@@ -381,6 +382,7 @@ namespace LibHIRT.Files.FileTypes
             {
                 Reader.BaseStream.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
                 entry.Path_string = Reader.ReadStringNullTerminated();
+                getOrSetInDiskPatDB(entry);
             }
             else
             {
@@ -410,13 +412,32 @@ namespace LibHIRT.Files.FileTypes
                 else
                 {
                     Debug.Assert(index < _moduleHeader.ResourceIndex);
-                    entry.Path_string = entry.TagGroupRev + "\\" + Mmr3HashLTU.getMmr3HashFromInt(entry.GlobalTagId1) + "_" + entry.GlobalTagId1 + "." + entry.TagGroupRev;
+                    getOrSetInDiskPatDB(entry);
+                    if (string.IsNullOrEmpty(entry.Path_string))
+                        entry.Path_string = entry.TagGroupRev + "\\" + Mmr3HashLTU.getMmr3HashFromInt(entry.GlobalTagId1) + "_" + entry.GlobalTagId1 + "." + entry.TagGroupRev;
                 }
 
             }
 
             Debug.Assert(entry.First_block_index + entry.Block_count <= _moduleHeader.BlockCount);
             return entry;
+        }
+
+        private void getOrSetInDiskPatDB(HiModuleFileEntry entry)
+        {
+            List<Dictionary<string, object>> retorno;
+            if (string.IsNullOrEmpty(entry.Path_string))
+            {
+
+                FileInDiskPathDA.getFromDbInDiskPath(entry.GlobalTagId1, TryGetGlobalId(), out retorno);
+                if (retorno.Count > 0) {
+                    entry.Path_string = retorno[0]["path_string"]?.ToString();
+                }
+            }
+            else {
+                FileInDiskPathDA.getFromDbInDiskPath(entry.GlobalTagId1, TryGetGlobalId(), out retorno);
+            }
+            
         }
 
         private HiModuleBlockEntry readBlockEntryIn(int index = -1)
