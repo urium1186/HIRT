@@ -74,6 +74,9 @@ namespace LibHIRT.TagReader
                     }
 
                 }
+                else {
+                    //poopdict[0] = new P { G = "root", T = TagElemntTypeV2.RootTagInstance, N = "root", B = new Dictionary<int, Template>(), E = new Dictionary<string, object>(), S = 0, xmlPath = ("root", "root") };
+                }
 
                 return poopdict;
             }

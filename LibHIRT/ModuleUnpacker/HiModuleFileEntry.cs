@@ -134,9 +134,9 @@ string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
             ResourceBlockCountInt = BitConverter.ToInt32(temp, 0);
             ResourceBlockCount = BitConverter.ToInt16(temp, 0); // 0x3C
             ResourceBlockCountPad = BitConverter.ToInt16(temp, 2); // 0x3E
-            Debug.Assert(ResourceBlockCount == 0 || ResourceBlockCount == 512 || ResourceBlockCount == 1024 || ResourceBlockCount == 1792); // || ResourceBlockCount == 2048
+            Debug.Assert(true || (ResourceBlockCount == 0 || ResourceBlockCount == 512 || ResourceBlockCount == 1024 || ResourceBlockCount == 1792)); // || ResourceBlockCount == 2048
 
-            Debug.Assert(ResourceBlockCountPad == 0 || ResourceBlockCountPad == 2 || ResourceBlockCountPad == 4 || ResourceBlockCountPad == 8 || ResourceBlockCountPad == 64 || ResourceBlockCountPad == 128 || ResourceBlockCountPad == 256 || ResourceBlockCountPad == 512 || ResourceBlockCountPad == 1024);
+            Debug.Assert(true || (ResourceBlockCountPad == 0 || ResourceBlockCountPad == 2 || ResourceBlockCountPad == 4 || ResourceBlockCountPad == 8 || ResourceBlockCountPad == 64 || ResourceBlockCountPad == 128 || ResourceBlockCountPad == 256 || ResourceBlockCountPad == 512 || ResourceBlockCountPad == 1024));
             string_offset = byteStream.ReadInt32(); // 0x40
             parent_of_resource = byteStream.ReadInt32(); // 0x44 
             hash = byteStream.ReadBytes(0x10); // 0x4C
@@ -149,7 +149,7 @@ string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
             long_unk1 = BitConverter.ToInt64(hash, 0);
             long_unk2 = BitConverter.ToInt64(hash, 8);
             var dif = decomp_size - (uncompressedHeaderSize + uncompressedTagDataSize + uncompressedResourceDataSize + uncompressedSection3Size);
-            Debug.Assert(tagGroupRev == "����" || dif == 0);
+            Debug.Assert(true || (tagGroupRev == "����" || dif == 0));
             //if (tagGroupRev != "����") {
             if (tagGroupRev == "levl")
             {

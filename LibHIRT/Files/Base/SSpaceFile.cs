@@ -138,7 +138,7 @@ namespace LibHIRT.Files
             _hash = name.GetHashCode();
             //_name = _hash.ToString() + SanitizeName(name);
             _name = SanitizeName(name);
-            if (parent != null && parent is ModuleFile)
+            if (false && parent != null && parent is ModuleFile)
                 _name = (((ModuleFile)parent).TryGetGlobalId().ToString()) + "_" + _name;
             _extension = Path.GetExtension(_name);
 
