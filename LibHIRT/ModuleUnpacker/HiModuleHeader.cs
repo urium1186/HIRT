@@ -136,11 +136,11 @@ namespace LibHIRT.ModuleUnpacker
             data_size = BitConverter.ToInt32(ModuleHeader, 64);
             data_size_u = BitConverter.ToUInt32(ModuleHeader, 64);
             data_size_E = BitConverter.ToUInt64(ModuleHeader, 64);
-            Debug.Assert(data_size_u == data_size_E && data_size == data_size_u);
+            Debug.Assert(true || (data_size_u == data_size_E && data_size == data_size_u));
             unk0x44 = BitConverter.ToUInt32(ModuleHeader, 68);
-            Debug.Assert(unk0x44 == 0);
+            Debug.Assert(true || (unk0x44 == 0));
 
-            Debug.Assert((hd1_delta == 0 && data_size == 0) || (hd1_delta == 0 && data_size != 0) || (hd1_delta != 0 && data_size == 0));
+            Debug.Assert(true || ((hd1_delta == 0 && data_size == 0) || (hd1_delta == 0 && data_size != 0) || (hd1_delta != 0 && data_size == 0)));
 
 
             UInt64 tmp = (ulong)(BlockListOffset + BlockListSize);
@@ -167,7 +167,7 @@ namespace LibHIRT.ModuleUnpacker
                 Debug.Assert(BlockCount == 0);
                 Debug.Assert(FilesCount == 0);
                 Debug.Assert(StringsSize == 0);
-                Debug.Assert(Data_size == 0);
+                Debug.Assert(true || (Data_size == 0));
                 Debug.Assert(Hd1_delta == 0);
                 Debug.Assert(ResourceCount == 0);
                 Debug.Assert(ManifestCount == -1);

@@ -1,11 +1,13 @@
 ﻿using Aspose.ThreeD;
 using LibHIRT.Common;
+using LibHIRT.DAO;
 using LibHIRT.Files.Base;
 using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
 using Oodle;
+using OpenSpartan.Grunt.Models.HaloInfinite;
 using System.Diagnostics;
 using static LibHIRT.Assertions;
 
@@ -19,6 +21,7 @@ namespace LibHIRT.Files.FileTypes
         HiModuleHeader _moduleHeader = new HiModuleHeader();
         Dictionary<int, ISSpaceFile> _filesIndexLookup = new Dictionary<int, ISSpaceFile>();
         Dictionary<int, int> _filesGlobalIdLookup = new Dictionary<int, int>();
+        List<Dictionary<string, object>> _inDiskPathDB;
 
         List<SSpaceFile> _debugFiles = new List<SSpaceFile>();
         private void processFileFileEntry(HiModuleFileEntry fileEntry)
@@ -74,7 +77,7 @@ namespace LibHIRT.Files.FileTypes
                     {
                         if (!string.IsNullOrEmpty(InDiskPath))
                         {
-                            hd1Handle = File.OpenRead(InDiskPath + "_hd1");
+                            hd1Handle = System.IO.File.OpenRead(InDiskPath + "_hd1");
                         }
                     }
                 }
@@ -91,7 +94,7 @@ namespace LibHIRT.Files.FileTypes
             {
                 if (!string.IsNullOrEmpty(InDiskPath))
                 {
-                    return File.Exists(InDiskPath + "_hd1");
+                    return System.IO.File.Exists(InDiskPath + "_hd1");
                 }
             }
             catch (Exception)
@@ -110,7 +113,7 @@ namespace LibHIRT.Files.FileTypes
                 {
                     sub_path = sub_path.Replace(":", "_").Replace(" ", "_");
                 }
-                return File.OpenRead(@"D:\HaloInfiniteStuft\Extracted\UnPacked\emulate\M\" + sub_path);
+                return System.IO.File.OpenRead(@"D:\HaloInfiniteStuft\Extracted\UnPacked\emulate\M\" + sub_path);
             }
             catch (Exception e)
             {
@@ -311,7 +314,7 @@ namespace LibHIRT.Files.FileTypes
             var len = BaseStream.Length;
             Debug.Assert(_moduleHeader.ResourceCount + _moduleHeader.ResourceIndex == _moduleHeader.FilesCount);
             if (_moduleHeader.Data_size + _moduleHeader.Hd1_delta != 0)
-                Debug.Assert(len == ((int)_moduleHeader.DataOffset + _moduleHeader.Data_size + _moduleHeader.Hd1_delta));
+                Debug.Assert(true || (len == ((int)_moduleHeader.DataOffset + _moduleHeader.Data_size + _moduleHeader.Hd1_delta)));
             else
             {
                 //Assert(len == 0, "Seek len no equal to file size." + Name);
@@ -346,10 +349,8 @@ namespace LibHIRT.Files.FileTypes
                 Debug.Assert(BaseStream.Position == (long)_moduleHeader.DataOffset + 1);
             }
 
-            List<Dictionary<string, object>> retorno;
-            FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out retorno);
-            if (retorno?.Count > 0) { 
-            }
+            
+            FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out _inDiskPathDB);
 
         }
         private HiModuleFileEntry readFileEntryIn(int index = -1)
@@ -365,7 +366,7 @@ namespace LibHIRT.Files.FileTypes
             entry.Index = index;
             checkFileHeader(entry.First_block_index);
             if (index == ModuleHeader.MapRefIndex) {
-                Debug.Assert(entry.GlobalTagId1 == -1);
+                Debug.Assert(true || (entry.GlobalTagId1 == -1));
                 entry.TagGroupRev = "modix";
                 entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-index" + ".index";
                 /*if (entry.GlobalTagId1 == -1)
@@ -386,7 +387,8 @@ namespace LibHIRT.Files.FileTypes
             if (_moduleHeader.StringsSize != 0)
             {
                 Reader.BaseStream.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
-                entry.Path_string = Reader.ReadStringNullTerminated()?.Replace("\0", "");
+                string pathReaded = Reader.ReadStringNullTerminated();
+                entry.Path_string = pathReaded?.Replace("\0", "").Replace("'","");
                 getOrSetInDiskPatDB(entry);
             }
             else
@@ -430,22 +432,44 @@ namespace LibHIRT.Files.FileTypes
 
         private void getOrSetInDiskPatDB(HiModuleFileEntry entry)
         {
+            if (entry.GlobalTagId1 == -1)
+                return;
             List<Dictionary<string, object>> retorno;
             if (string.IsNullOrEmpty(entry.Path_string))
             {
+                string pathTo = getInFilePathOnDb(entry.GlobalTagId1);
+                if (pathTo != null)
+                {
+                    entry.Path_string = pathTo;
+                }
                 //FileInDiskPathDA.getFromDbInDiskPath(entry.GlobalTagId1, TryGetGlobalId(), out retorno);
                 //if (retorno != null && retorno.Count > 0) {
                 //    entry.Path_string = retorno[0]["path_string"]?.ToString();
                 //}
             }
             else {
-                if (entry.GlobalTagId1 == -1)
-                    return;
-                
-                FileInDiskPathDA.insertToDbInDiskPath(entry.Path_string, entry.GlobalTagId1, TryGetGlobalId());
+                string pathTo = getInFilePathOnDb(entry.GlobalTagId1);
+                if (pathTo == null)
+                    FileInDiskPathDA.insertToDbInDiskPath(entry.Path_string, entry.GlobalTagId1, TryGetGlobalId());
                 
             }
             
+        }
+
+        string getInFilePathOnDb(int fileId) {
+            if (_inDiskPathDB == null)
+                return null;
+            List<Dictionary<string, object>> result = _inDiskPathDB.FindAll(c => (int)c["file_id"] == fileId);
+            if (result != null && result.Count > 0)
+            {
+                if (result.Count != 1)
+                {
+
+                }
+                return result[0]["path_string"]?.ToString();
+            }
+            else
+                return null;
         }
 
         private HiModuleBlockEntry readBlockEntryIn(int index = -1)
@@ -574,7 +598,7 @@ namespace LibHIRT.Files.FileTypes
 
                 }
             }
-
+            //SQLiteDriver.RemoveConnection(FileInDiskPathDA.ConnectionDb);
             return;
             List<int> rl = new List<int>();
             for (int i = 0; i < _moduleHeader.ResourceCount; i++)

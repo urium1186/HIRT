@@ -21,7 +21,7 @@ namespace LibHIRT.DAO
                 try
                 {
                     sqlite_conn.OpenAsync().Wait();
-                    _connectionsQueue.Enqueue(sqlite_conn);
+                    //_connectionsQueue.Enqueue(sqlite_conn);
                 }
                 catch (Exception ex)
                 {
@@ -34,9 +34,9 @@ namespace LibHIRT.DAO
 
         public static void RemoveConnection(SQLiteConnection connect) {
             connect?.Close();
-            if (_connectionsQueue.TryDequeue(out var outConnection)) {
+            /*if (_connectionsQueue.TryDequeue(out var outConnection)) {
 
-            };
+            };*/
         }
 
         public static void CreateTable(SQLiteConnection conn)

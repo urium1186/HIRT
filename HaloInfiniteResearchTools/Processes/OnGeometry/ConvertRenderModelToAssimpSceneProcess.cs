@@ -44,8 +44,8 @@ namespace LibHIRT.Processes.OnGeometry
         #region Properties
 
         //public override Scene Result => new Scene();
-        public override Scene Result => _context.Scene;
-        public RenderModelDefinition RenderModelDef => _context.Tpl;
+        public override Scene Result => _context?.Scene;
+        public RenderModelDefinition RenderModelDef => _context?.Tpl;
 
         public CancellationToken GetCancelToken => CancellationToken;
 

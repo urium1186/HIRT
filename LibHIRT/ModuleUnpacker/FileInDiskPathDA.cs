@@ -35,7 +35,7 @@ namespace LibHIRT.ModuleUnpacker
                 }
                 catch (Exception ex)
                 {
-                    SQLiteDriver.RemoveConnection(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
                     result = false;
                 }
             }
@@ -51,11 +51,11 @@ namespace LibHIRT.ModuleUnpacker
             try
             {
                 SQLiteDriver.UpdateInDiskPath(connectionDb, path_string, file_id, module_id, ref_path);
-                SQLiteDriver.RemoveConnection(connectionDb);
+                //SQLiteDriver.RemoveConnection(connectionDb);
             }
             catch (Exception ex)
             {
-                SQLiteDriver.RemoveConnection(connectionDb);
+                //SQLiteDriver.RemoveConnection(connectionDb);
                 result = false;
             }
 
@@ -74,11 +74,11 @@ namespace LibHIRT.ModuleUnpacker
                         ConnectionDb.Open();
                     }
                     salida = SQLiteDriver.GetInDiskPath(ConnectionDb, module_id);
-                    SQLiteDriver.RemoveConnection(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
                 }
                 catch (Exception ex)
                 {
-                    SQLiteDriver.RemoveConnection(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
                     result = false;
                     salida = null;
                 }
@@ -99,11 +99,11 @@ namespace LibHIRT.ModuleUnpacker
                         ConnectionDb.Open();
                     }
                     salida = SQLiteDriver.GetInDiskPath(ConnectionDb, file_id, module_id, path_string);
-                    SQLiteDriver.RemoveConnection(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
                 }
                 catch (Exception ex)
                 {
-                    SQLiteDriver.RemoveConnection(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
                     result = false;
                     salida = null;
                 }
