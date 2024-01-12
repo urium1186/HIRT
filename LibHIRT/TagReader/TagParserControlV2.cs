@@ -22,7 +22,9 @@ namespace LibHIRT.TagReader
         Stream? _f;
         CompoundTagInstance _rootTagInst;
 
-        List<string> _extResource=new List<string>(); 
+        List<string> _extResource = new List<string>();
+
+        private List<Exception> listEx = new List<Exception>();
 
         TagParseControlFiltter parseControlFiltter;
 
@@ -59,10 +61,13 @@ namespace LibHIRT.TagReader
         public TagFile? TagFile { get => _tagFile; set => _tagFile = value; }
         public TagParseControlFiltter ParseControlFiltter { get => parseControlFiltter; set => parseControlFiltter = value; }
         public List<string> ExtResource { get => _extResource; }
+        public List<Exception> ListEx { get => listEx; }
 
         public void readFile()
         {
-            if (_tagLayout != null) {
+            listEx.Clear();
+            if (_tagLayout != null && _tagLayout.Count != 0)
+            {
                 _tagFile.TagStructTable.OnReadEntryEvent += TagStructTable_OnReadEntryEvent;
                 _tagFile.DataReferenceTable.OnReadEntryEvent += DataReferenceTable_OnReadEntryEvent;
                 _tagFile.TagReferenceFixUpTable.OnReadEntryEvent += TagReferenceFixUpTable_OnReadEntryEvent;
@@ -77,12 +82,13 @@ namespace LibHIRT.TagReader
 
                 throw ex;
             }
-            if (_tagLayout != null) {
+            if (_tagLayout != null && _tagLayout.Count != 0)
+            {
                 _tagFile.TagStructTable.OnReadEntryEvent -= TagStructTable_OnReadEntryEvent;
                 _tagFile.DataReferenceTable.OnReadEntryEvent -= DataReferenceTable_OnReadEntryEvent;
                 _tagFile.TagReferenceFixUpTable.OnReadEntryEvent -= TagReferenceFixUpTable_OnReadEntryEvent;
             }
-            
+
         }
 
         private void TagReferenceFixUpTable_OnReadEntryEvent(object? sender, TagReferenceFixup e)
@@ -100,98 +106,111 @@ namespace LibHIRT.TagReader
 
         private void TagStructTable_OnReadEntryEvent(object? sender, TagStruct entry)
         {
-            
+
             if (entry == null)
                 return;
             TagInstance tag = null;
             var pos_toRetunr = _f.Position;
-            bool isLast = false;
-            if (entry.TypeIdTg == TagStructType.Root)
+            try
             {
-                var temp = TagInstanceFactoryV2.Create(_tagLayout[0], 0, 0);
-                if (temp is StructTagInstance)
+
+                bool isLast = false;
+                if (entry.TypeIdTg == TagStructType.Root)
                 {
-                    _rootTagInst = new RootTagInstance(temp.TagDef,0,0);
-                }
-                else
-                    _rootTagInst = (CompoundTagInstance)temp;
-                _rootTagInst.Entry = entry;
-                tag = _rootTagInst;
-                tag.ReadIn(new BinaryReader(_f));
-
-            }
-            else
-            {
-                // !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset) && 
-                if (entry.TypeIdTg == TagStructType.NoDataStartBlock) {
-                    _f.Seek(pos_toRetunr, SeekOrigin.Begin);
-                    return;
-                }
-                    
-                if (!tag_structs_list.ContainsKey(entry.Parent_entry_index) || !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset)) {
-                    _f.Seek(pos_toRetunr, SeekOrigin.Begin);
-                    return;
-                }
-
-                    
-                tag = tag_structs_list[entry.Parent_entry_index].Blocks[entry.Field_offset];
-                isLast = tag_structs_list[entry.Parent_entry_index].Blocks.Keys.Last() == entry.Field_offset;
-                if ((tag.TagDef as TagLayoutsV2.C).T == TagElemntTypeV2.Struct)
-                {
-                    if (entry.TypeIdTg != TagStructType.NoDataStartBlock)
-                        throw new Exception("Error al hacer parse");
-                }
-                Debug.Assert(tag.TagDef.E["hash"].ToString().ToUpper() == entry.UID.ToUpper());
-            }
-
-            TagFileMap outresult = new TagFileMap();
-
-            if (entry.Info.n_childs > 0)
-            {
-                TagElemntTypeV2? type = (tag.TagDef as TagLayoutsV2.C).T;
-
-                //if (type == TagElemntTypeV2.RootTagInstance)
-                if (tag is RootTagInstance)
-                {
-                    readTagDefinition(_f, entry, (P)tag.TagDef, (CompoundTagInstance)tag, outresult, 0);
-                }
-                else
-                {
-                    int size = int.Parse(tag.TagDef.E["size"].ToString());
-                    for (int i = 0; i < entry.Info.n_childs; i++)
+                    var temp = TagInstanceFactoryV2.Create(_tagLayout[0], 0, 0);
+                    if (temp is StructTagInstance)
                     {
-                        ListItemTagInstance sub_child_elemnt = new ListItemTagInstance(tag.TagDef, 0, 0);
-                        sub_child_elemnt.Index = i;
-                        sub_child_elemnt.Parent = tag;
-                        sub_child_elemnt.ReadIn(new BinaryReader(_f));
-                        readTagDefinition(_f, entry, (P)tag.TagDef, sub_child_elemnt, outresult, (i * size));
-                        ((ListTagInstance)tag).AddChild(sub_child_elemnt);
+                        _rootTagInst = new RootTagInstance(temp.TagDef, 0, 0);
+                    }
+                    else
+                        _rootTagInst = (CompoundTagInstance)temp;
+                    _rootTagInst.Entry = entry;
+                    tag = _rootTagInst;
+                    tag.ReadIn(new BinaryReader(_f));
+
+                }
+                else
+                {
+                    // !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset) && 
+                    if (entry.TypeIdTg == TagStructType.NoDataStartBlock)
+                    {
+                        _f.Seek(pos_toRetunr, SeekOrigin.Begin);
+                        return;
+                    }
+
+                    if (!tag_structs_list.ContainsKey(entry.Parent_entry_index) || !tag_structs_list[entry.Parent_entry_index].Blocks.ContainsKey(entry.Field_offset))
+                    {
+                        _f.Seek(pos_toRetunr, SeekOrigin.Begin);
+                        return;
+                    }
+
+
+                    tag = tag_structs_list[entry.Parent_entry_index].Blocks[entry.Field_offset];
+                    isLast = tag_structs_list[entry.Parent_entry_index].Blocks.Keys.Last() == entry.Field_offset;
+                    if ((tag.TagDef as TagLayoutsV2.C).T == TagElemntTypeV2.Struct)
+                    {
+                        if (entry.TypeIdTg != TagStructType.NoDataStartBlock)
+                            throw new Exception("Error al hacer parse");
+                    }
+                    Debug.Assert(true || (tag.TagDef.E["hash"].ToString().ToUpper() == entry.UID.ToUpper()));
+                }
+
+                TagFileMap outresult = new TagFileMap();
+
+                if (entry.Info.n_childs > 0)
+                {
+                    TagElemntTypeV2? type = (tag.TagDef as TagLayoutsV2.C).T;
+
+                    //if (type == TagElemntTypeV2.RootTagInstance)
+                    if (tag is RootTagInstance)
+                    {
+                        readTagDefinition(_f, entry, (P)tag.TagDef, (CompoundTagInstance)tag, outresult, 0);
+                    }
+                    else
+                    {
+                        int size = int.Parse(tag.TagDef.E["size"].ToString());
+                        for (int i = 0; i < entry.Info.n_childs; i++)
+                        {
+                            ListItemTagInstance sub_child_elemnt = new ListItemTagInstance(tag.TagDef, 0, 0);
+                            sub_child_elemnt.Index = i;
+                            sub_child_elemnt.Parent = tag;
+                            sub_child_elemnt.ReadIn(new BinaryReader(_f));
+                            readTagDefinition(_f, entry, (P)tag.TagDef, sub_child_elemnt, outresult, (i * size));
+                            ((ListTagInstance)tag).AddChild(sub_child_elemnt);
+                        }
                     }
                 }
-            }
-            else { 
-                
-            }
+                else
+                {
 
-            if (entry.TypeIdTg == TagStructType.ExternalFileDescriptor)
+                }
+
+                if (entry.TypeIdTg == TagStructType.ExternalFileDescriptor)
+                {
+                    (tag as ResourceHandle).IsExternal = true;
+                    (tag as ResourceHandle).Index = (_extResource.Count);
+                    Debug.Assert((tag.TagDef as TagLayoutsV2.C).T == TagElemntTypeV2.ResourceHandle);
+                    _extResource.Add(tag.TagDef.E["hash"].ToString());
+                }
+
+                tag_structs_list[entry.Index] = outresult;
+
+
+                _f.Seek(pos_toRetunr, SeekOrigin.Begin);
+
+                if (outresult.Blocks.Count == 0)
+                {
+                    OnInstanceLoad(tag);
+                    if (isLast && tag.Parent != null)
+                        OnInstanceLoad(tag.Parent);
+                }
+            }
+            catch (Exception ex)
             {
-                (tag as ResourceHandle).IsExternal = true;
-                (tag as ResourceHandle).Index = (_extResource.Count);
-                Debug.Assert((tag.TagDef as TagLayoutsV2.C).T == TagElemntTypeV2.ResourceHandle);
-                _extResource.Add(tag.TagDef.E["hash"].ToString());
+                _f.Seek(pos_toRetunr, SeekOrigin.Begin);
+                listEx.Add(ex);
             }
 
-            tag_structs_list[entry.Index] = outresult;
-            
-                
-            _f.Seek(pos_toRetunr, SeekOrigin.Begin);
-           
-            if (outresult.Blocks.Count == 0) {
-                OnInstanceLoad(tag);
-                if (isLast && tag.Parent!=null )
-                    OnInstanceLoad(tag.Parent);
-            }
-                
         }
 
         private int readTagDefinition(Stream f, TagStruct entry, P tags, CompoundTagInstance parent, TagFileMap outresult, int field_offset = 0)
@@ -257,7 +276,8 @@ namespace LibHIRT.TagReader
                     tag_maps.Blocks[field_offset] = (CompoundTagInstance?)child_item;
 
             }
-            else if (tagType == TagElemntTypeV2.ResourceHandle) {
+            else if (tagType == TagElemntTypeV2.ResourceHandle)
+            {
                 tag_maps.Blocks[field_offset] = (CompoundTagInstance?)child_item;
             }
             else
@@ -268,14 +288,15 @@ namespace LibHIRT.TagReader
         {
             if ((tag as C).T == TagElemntTypeV2.EndStruct)
                 return false;
-            if (parseControlFiltter != null) {
+            if (parseControlFiltter != null)
+            {
                 foreach (var item_xml_path in parseControlFiltter.PermitedXmlPaths)
                 {
                     if (tag.xmlPath.Item2.IndexOf(item_xml_path) == 0)
                         return true;
                 }
             }
-                
+
             P child_lay_tag = tag as P;
             if (child_lay_tag == null)
                 return true;
@@ -301,7 +322,8 @@ namespace LibHIRT.TagReader
                     }
                 }
 
-            }else
+            }
+            else
             {
                 return true;
             }

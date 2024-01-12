@@ -55,10 +55,10 @@
             <TabItem Header="Generic Tools">
                 <Grid >
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="13*"/>
-                        <ColumnDefinition Width="284*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
@@ -73,7 +73,11 @@
                             <Button x:Name="BCInSVToTxtBtn" Content="Export BC in SV To Txt" Command="{Binding BCInSVToTxtCommand}"></Button>
                         </StackPanel>
                     </StackPanel>
-
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <controls:FileBrowserBox  Width="230px" Path="{Binding PathTextFilesPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     DialogPathType="File"></controls:FileBrowserBox>
+                        <Button x:Name="PathFromtxtBT" Content="Save file Paths" Command="{Binding LoadFilePathFromTxCommand}"></Button>
+                    </StackPanel>
                 </Grid>
 
             </TabItem>

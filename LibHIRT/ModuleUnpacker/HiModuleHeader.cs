@@ -54,7 +54,7 @@ namespace LibHIRT.ModuleUnpacker
         public int FileEntrysOffset { get => (72); }
         public int FileEntrysSize { get => (FilesCount * 88); }
         public int FileEntrysTypeSize { get => (88); }
-        public int StringTableOffset { get => FileEntrysSize + 72 + 8; }
+        public int StringTableOffset { get => FileEntrysSize + 72+ (Version > 48 ? 8:0); }
 
 
         public Dictionary<int, string> Strings { get; set; }
@@ -95,6 +95,10 @@ namespace LibHIRT.ModuleUnpacker
             //moduleHeaderHex = BitConverter.ToString(moduleHeaderBytes).Replace("-", "");
             Magic = Encoding.ASCII.GetString(ModuleHeader, 0, 4);
             Version = BitConverter.ToInt32(ModuleHeader, 4);
+            if (Version == 48 || Version == 51) {
+                Readflight_1_2(ModuleHeader);
+                return;
+            }
             ModuleId = BitConverter.ToInt64(ModuleHeader, 8);
             ModuleIntId = BitConverter.ToInt32(ModuleHeader, 8);
             ModuleIntId1 = BitConverter.ToInt32(ModuleHeader, 12);
@@ -160,7 +164,7 @@ namespace LibHIRT.ModuleUnpacker
                     if (_dataOffset == 4096 && tmp == 80)
                     Debug.Assert(MapRefIndex == -1);
                 else
-                    Debug.Assert(MapRefIndex != -1);
+                    Debug.Assert(MapRefIndex != -1 || FilesCount == 0);
             }
             if (MapRefIndex == -1)
             {
@@ -208,6 +212,47 @@ namespace LibHIRT.ModuleUnpacker
 
             _loaded = true;
         }
-
+        // version in [48, 51]
+        private void Readflight_1_2(byte[] ModuleHeader) {
+            Magic = Encoding.ASCII.GetString(ModuleHeader, 0, 4); // mohd
+            Version = BitConverter.ToInt32(ModuleHeader, 4);
+            
+            ModuleId = BitConverter.ToInt64(ModuleHeader, 8);
+            ModuleIntId = BitConverter.ToInt32(ModuleHeader, 8);
+            ModuleIntId1 = BitConverter.ToInt32(ModuleHeader, 12);
+            FilesCount = BitConverter.ToInt32(ModuleHeader, 16);
+            ManifestCount = BitConverter.ToInt32(ModuleHeader, 20);
+            mapRefIndex = BitConverter.ToInt32(ModuleHeader, 24);
+            unk0x1C = BitConverter.ToInt32(ModuleHeader, 28);
+            ResourceIndex = BitConverter.ToInt32(ModuleHeader, 32);
+            StringsSize = BitConverter.ToUInt32(ModuleHeader, 36);
+            ResourceCount = BitConverter.ToUInt32(ModuleHeader, 40);
+            BlockCount = BitConverter.ToUInt32(ModuleHeader, 44);
+            unk0x30 = BitConverter.ToUInt32(ModuleHeader, 48);
+            unk0x34 = BitConverter.ToUInt32(ModuleHeader, 52);
+            hd1_delta = BitConverter.ToInt64(ModuleHeader, 56);
+            data_size = BitConverter.ToInt32(ModuleHeader, 64);
+            unk0x44 = BitConverter.ToUInt32(ModuleHeader, 68);
+            // hd1_delta = file_size
+            UInt64 tmp = (ulong)(BlockListOffset + BlockListSize);
+            _dataOffset = tmp;
+            if ((tmp & 0xfff) == 0)
+            {
+                _dataOffset = tmp;
+                Debug.Assert(MapRefIndex == -1);
+                Debug.Assert(tmp == 4095);
+            }
+            else
+            {
+                _dataOffset = (tmp & 0xfffffffffffff000) + 0x1000; // min file size 4096; a file with size of 4096 is a no data file Unk0x18 = -1
+                if (_dataOffset < 4096)
+                    Debug.Assert(MapRefIndex == -1);
+                else
+                    if (_dataOffset == 4096 && tmp == 80)
+                    Debug.Assert(MapRefIndex == -1);
+                else
+                    Debug.Assert(MapRefIndex != -1 || FilesCount == 0);
+            }
+        }
     }
 }

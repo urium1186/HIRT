@@ -178,5 +178,48 @@ namespace LibHIRT.DAO
             conn.Close();
             return result;
         }
+        
+        public static List<Dictionary<string, object>> GetInDiskPathFileId(SQLiteConnection conn, int file_id)
+        {
+            SQLiteDataReader sqlite_datareader;
+            SQLiteCommand sqlite_cmd;
+            sqlite_cmd = conn.CreateCommand();
+            sqlite_cmd.CommandText = "SELECT * FROM InDiskPath  WHERE file_id = " + file_id.ToString() + ";";
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            sqlite_datareader = sqlite_cmd.ExecuteReader();
+            while (sqlite_datareader.Read())
+            {
+                Dictionary<string, object> temp = new Dictionary<string, object>();
+                temp["path_string"] = sqlite_datareader.GetString(0);
+                temp["file_id"] = sqlite_datareader.GetInt32(1);
+                temp["module_id"] = sqlite_datareader.GetInt32(2);
+                temp["ref_path"] = sqlite_datareader.GetString(3);
+                temp["mod_date"] = sqlite_datareader.GetString(4);
+                result.Add(temp);
+            }
+            conn.Close();
+            return result;
+        }
+        public static List<Dictionary<string, object>> GetInDiskPath(SQLiteConnection conn)
+        {
+            SQLiteDataReader sqlite_datareader;
+            SQLiteCommand sqlite_cmd;
+            sqlite_cmd = conn.CreateCommand();
+            sqlite_cmd.CommandText = "SELECT * FROM InDiskPath;";
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            sqlite_datareader = sqlite_cmd.ExecuteReader();
+            while (sqlite_datareader.Read())
+            {
+                Dictionary<string, object> temp = new Dictionary<string, object>();
+                temp["path_string"] = sqlite_datareader.GetString(0);
+                temp["file_id"] = sqlite_datareader.GetInt32(1);
+                temp["module_id"] = sqlite_datareader.GetInt32(2);
+                temp["ref_path"] = sqlite_datareader.GetString(3);
+                temp["mod_date"] = sqlite_datareader.GetString(4);
+                result.Add(temp);
+            }
+            conn.Close();
+            return result;
+        }
     }
 }

@@ -85,8 +85,57 @@ namespace LibHIRT.ModuleUnpacker
             }
 
             return result;
+        }  
+        static public bool GetInDiskPathFileId(int file_id, out List<Dictionary<string, object>> salida)
+        {
+            var result = true;
+            lock (locker)
+            {
+                try
+                {
+                    if (ConnectionDb.State != ConnectionState.Open)
+                    {
+                        ConnectionDb.Open();
+                    }
+                    salida = SQLiteDriver.GetInDiskPathFileId(ConnectionDb, file_id);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                }
+                catch (Exception ex)
+                {
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                    result = false;
+                    salida = null;
+                }
+            }
+
+            return result;
         }
-        
+
+        static public bool GetInDiskPath(out List<Dictionary<string, object>> salida)
+        {
+            var result = true;
+            lock (locker)
+            {
+                try
+                {
+                    if (ConnectionDb.State != ConnectionState.Open)
+                    {
+                        ConnectionDb.Open();
+                    }
+                    salida = SQLiteDriver.GetInDiskPath(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                }
+                catch (Exception ex)
+                {
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                    result = false;
+                    salida = null;
+                }
+            }
+
+            return result;
+        }
+
         static public bool getFromDbInDiskPath( int file_id, int module_id,out List<Dictionary<string, object>>  salida, string path_string = "")
         {
             var result = true;

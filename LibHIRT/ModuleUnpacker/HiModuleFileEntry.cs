@@ -1,4 +1,5 @@
-﻿using LibHIRT.Files;
+﻿using Aspose.ThreeD;
+using LibHIRT.Files;
 using System.Diagnostics;
 
 namespace LibHIRT.ModuleUnpacker
@@ -96,6 +97,80 @@ string hash; // = fb.read(0x10).hex().upper()  # 0x48 72 -> 0x58 88
         public ISSpaceFile ParentOffResourceRef { get; internal set; }
 
         public HiModuleFileEntry ParentEntryOffResourceRef { get; internal set; }
+
+        public void ReadIn_48(BinaryReader byteStream) {
+            
+            string_offset = byteStream.ReadInt32();
+            
+            parent_file_index = byteStream.ReadInt32();  // 0x04
+            resource_count = byteStream.ReadInt16(); // 0x00
+            block_count = byteStream.ReadInt16();
+            
+            first_resource_index = byteStream.ReadInt32(); // 0x0C
+            first_block_index = byteStream.ReadInt32();  // 0x10
+            
+            tag = byteStream.ReadChars(4);
+            Array.Reverse(tag);// 0x14
+            tagGroupRev = new string(tag);
+
+            local_data_offset = byteStream.ReadInt32();
+
+            comp_size = byteStream.ReadInt32(); // 0x20
+            decomp_size = byteStream.ReadInt32(); // 0x24
+            
+            ResourceBlockCountInt = byteStream.ReadInt32(); // header_size // global_id
+            
+
+            uncompressedHeaderSize = byteStream.ReadInt32(); // 0x2C
+            uncompressedTagDataSize = byteStream.ReadInt32(); // 0x30
+            uncompressedResourceDataSize = byteStream.ReadInt32(); // 0x34
+            uncompressedSection3Size = byteStream.ReadInt32(); // 0x38
+            
+            GlobalTagId = byteStream.ReadInt32(); // header_size // global_id
+            
+
+            int tag_data_size = byteStream.ReadInt32(); // ?
+            
+            parent_of_resource = byteStream.ReadInt32(); // 0x44 
+            hash = byteStream.ReadBytes(0x10); // 0x4C    
+        }
+        public void ReadIn_51(BinaryReader byteStream) {
+            
+            resource_count = byteStream.ReadInt32(); // 0x00
+            parent_file_index = byteStream.ReadInt32();  // 0x04
+            int unk0x08 = byteStream.ReadInt16();
+            block_count = byteStream.ReadInt16();
+
+            first_block_index = byteStream.ReadInt32(); // 0x0C
+            first_resource_index = byteStream.ReadInt32(); // 0x10
+            
+            tag = byteStream.ReadChars(4);
+            Array.Reverse(tag);// 0x14
+            tagGroupRev = new string(tag);
+
+            var temp_dataOffset = (byteStream.ReadUInt64() & 0xffffffffffff);
+            local_data_offset = ((long)temp_dataOffset); // 0x18
+            byteStream.BaseStream.Seek(byteStream.BaseStream.Position - 2, SeekOrigin.Begin);
+            flags = byteStream.ReadUInt16(); // 0x1E
+
+            comp_size = byteStream.ReadInt32(); // 0x20
+            decomp_size = byteStream.ReadInt32(); // 0x24
+            
+            GlobalTagId = byteStream.ReadInt32(); // header_size // global_id
+            
+
+            uncompressedHeaderSize = byteStream.ReadInt32(); // 0x2C
+            uncompressedTagDataSize = byteStream.ReadInt32(); // 0x30
+            uncompressedResourceDataSize = byteStream.ReadInt32(); // 0x34
+            uncompressedSection3Size = byteStream.ReadInt32(); // 0x38
+            
+            ResourceBlockCountInt = byteStream.ReadInt32(); // header_size // global_id
+            
+            string_offset = byteStream.ReadInt32();
+            
+            parent_of_resource = byteStream.ReadInt32(); // 0x44 
+            hash = byteStream.ReadBytes(0x10); // 0x4C    
+        }
 
         public void ReadIn(BinaryReader byteStream)
         {

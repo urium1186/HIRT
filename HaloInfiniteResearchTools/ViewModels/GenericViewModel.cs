@@ -396,7 +396,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     tagParse = process.TagParse;
 
                     _optResource.Clear();
-                    int r_count = (tagParse as TagParserControlV2).ExtResource.Count;
+                    int r_count = (tagParse as TagParserControlV2).ExtResource == null?0: (tagParse as TagParserControlV2).ExtResource.Count;
                     if (r_count > 0)
                     {
                         for (int i = 0; i < r_count; i++)
@@ -425,6 +425,11 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
 
                 var statusList = process.StatusList;
+                if ((tagParse as TagParserControlV2).ListEx.Count>0)
+                    foreach (var item in (tagParse as TagParserControlV2).ListEx)
+                    {
+                        statusList.AddError("leer en parse", item.Message, item);
+                    }
                 if (statusList.HasErrors || statusList.HasWarnings)
                     await ShowStatusListModal(statusList);
                 

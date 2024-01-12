@@ -40,6 +40,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand ProcessLoginCommand { get; }
         public ICommand WebApiCommand { get; }
         public ICommand WebApiItemsCommand { get; }
+        public ICommand LoadFilePathFromTxCommand { get; }
         public bool HaveCredentials { get => _hiFileContext  != null && _hiFileContext.ConnectXbox != null; }
 
 
@@ -56,6 +57,17 @@ namespace HaloInfiniteResearchTools.ViewModels
             ProcessLoginCommand = new Command(ProcessLogin);
             WebApiCommand = new Command(CallApi);
             WebApiItemsCommand = new Command(GetApiItems);
+            LoadFilePathFromTxCommand = new AsyncCommand(LoadFilePathFromTx);
+        }
+
+        private async Task LoadFilePathFromTx()
+        {
+            if (File.Exists(PathTextFilesPath))
+            {
+                var process = new LoadFilePathFromTxProcess(PathTextFilesPath);
+                //process.Completed += ProcessTextToMmh3_Completed;
+                await RunProcess(process);
+            }
         }
 
         private async void ProcessLogin()
@@ -268,7 +280,8 @@ namespace HaloInfiniteResearchTools.ViewModels
         public int VertType { get => _vertType; set => _vertType = value; }
         public bool OnlyVertexShaders { get => _onlyVertexShaders; set => _onlyVertexShaders = value; }
         public Array ItemTypes { get => Enum.GetValues(typeof(ItemType)); }
-        public ItemType ItemTypeSel { get; set; } 
+        public ItemType ItemTypeSel { get; set; }
+        public string? PathTextFilesPath { get; set; }
 
         public void GenerateFromStrValue()
         {

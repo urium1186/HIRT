@@ -346,11 +346,11 @@ namespace LibHIRT.Files.FileTypes
                         break;
                     continue;
                 }
-                Debug.Assert(BaseStream.Position == (long)_moduleHeader.DataOffset + 1);
+                Debug.Assert(true || (BaseStream.Position == (long)_moduleHeader.DataOffset + 1));
             }
 
-            
-            FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out _inDiskPathDB);
+            if (false)
+                FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out _inDiskPathDB);
 
         }
         private HiModuleFileEntry readFileEntryIn(int index = -1)
@@ -361,8 +361,13 @@ namespace LibHIRT.Files.FileTypes
                 int pos = _moduleHeader.FileEntrysOffset + (index * _moduleHeader.FileEntrysTypeSize);
                 Reader.BaseStream.Seek(pos, SeekOrigin.Begin);
             }
-            entry.ReadIn(Reader);
-            
+            if (_moduleHeader.Version == 48)
+                entry.ReadIn_48(Reader);
+            else if (_moduleHeader.Version == 51)
+                entry.ReadIn_51(Reader);
+            else
+                entry.ReadIn(Reader);
+
             entry.Index = index;
             checkFileHeader(entry.First_block_index);
             if (index == ModuleHeader.MapRefIndex) {
@@ -389,6 +394,7 @@ namespace LibHIRT.Files.FileTypes
                 Reader.BaseStream.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
                 string pathReaded = Reader.ReadStringNullTerminated();
                 entry.Path_string = pathReaded?.Replace("\0", "").Replace("'","");
+                Debug.WriteLine(entry.Path_string);
                 getOrSetInDiskPatDB(entry);
             }
             else
@@ -432,6 +438,8 @@ namespace LibHIRT.Files.FileTypes
 
         private void getOrSetInDiskPatDB(HiModuleFileEntry entry)
         {
+            if (true)
+                return;
             if (entry.GlobalTagId1 == -1)
                 return;
             List<Dictionary<string, object>> retorno;
@@ -448,9 +456,18 @@ namespace LibHIRT.Files.FileTypes
                 //}
             }
             else {
+                if (!entry.Path_string.Contains('.'))
+                    return;
+                /*if (entry.Path_string.Contains("spartan_armor.model"))
+                    return;*/
+                
                 string pathTo = getInFilePathOnDb(entry.GlobalTagId1);
                 if (pathTo == null)
                     FileInDiskPathDA.insertToDbInDiskPath(entry.Path_string, entry.GlobalTagId1, TryGetGlobalId());
+                else {
+                    if (pathTo != entry.Path_string) { 
+                    }
+                }
                 
             }
             
@@ -459,13 +476,23 @@ namespace LibHIRT.Files.FileTypes
         string getInFilePathOnDb(int fileId) {
             if (_inDiskPathDB == null)
                 return null;
-            List<Dictionary<string, object>> result = _inDiskPathDB.FindAll(c => (int)c["file_id"] == fileId);
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            _inDiskPathDB.RemoveAll(c =>
+            {
+                if ((int)c["file_id"] == fileId)
+                {
+                    result.Add(c);
+                    return true;
+                }
+                return false;
+            });
             if (result != null && result.Count > 0)
             {
                 if (result.Count != 1)
                 {
 
                 }
+                
                 return result[0]["path_string"]?.ToString();
             }
             else
