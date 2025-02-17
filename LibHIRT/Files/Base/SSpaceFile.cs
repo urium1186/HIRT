@@ -1,12 +1,9 @@
 ﻿using LibHIRT.Domain;
-using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Headers;
-using System.Data.Entity.Core.Metadata.Edm;
-using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.Files
 {
@@ -24,7 +21,7 @@ namespace LibHIRT.Files
 
         private string _name;
         private string _tagGroup;
-        private (string,string) _groupRefHash = ("","");
+        private (string, string) _groupRefHash = ("", "");
 
         private string _extension;
         private long _hash;
@@ -107,17 +104,20 @@ namespace LibHIRT.Files
 
         public string DisplayName
         {
-            get {
+            get
+            {
                 return $"{TryGetGlobalId().ToString("X")}_{TryGetGlobalId()}";
             }
         }
 
-        public DinamycType? Deserialized(TagParseControlFiltter parseControlFiltter = null, bool forceReload = false,EventHandler<ITagInstance> _onDeserialized = null)
+        public DinamycType? Deserialized(TagParseControlFiltter parseControlFiltter = null, bool forceReload = false, EventHandler<ITagInstance> _onDeserialized = null)
         {
             if (_deserialized == null)
                 _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized, parseControlFiltter);
-            else {
-                if (forceReload) {
+            else
+            {
+                if (forceReload)
+                {
                     _deserialized.Dispose();
                     _deserialized = GenericSerializer.Deserialize(GetStream(), this, _onDeserialized, parseControlFiltter);
                 }
@@ -148,14 +148,16 @@ namespace LibHIRT.Files
             _resource = new Dictionary<int, ISSpaceFile>();
         }
 
-       public ISSpaceFile GetResourceAt(int index)
+        public ISSpaceFile GetResourceAt(int index)
         {
             if (_resource.ContainsKey(index))
                 return _resource[index];
-            else {
+            else
+            {
                 var temp = Parent as ModuleFile;
                 var r_file = (SSpaceFile)temp.getResourceOfFileAt(this, index);
-                if (r_file != null) {
+                if (r_file != null)
+                {
                     _resource[index] = r_file;
                     return r_file;
                 }
@@ -230,7 +232,7 @@ namespace LibHIRT.Files
 
         protected virtual void Dispose(bool isDisposing)
         {
-           if (_isDisposed)
+            if (_isDisposed)
                 return;
 
             OnDisposing(isDisposing);
@@ -259,7 +261,8 @@ namespace LibHIRT.Files
             return Name.Equals(other.Name);
         }
 
-        public void InitReaderFromMemStream() {
+        public void InitReaderFromMemStream()
+        {
             _reader = new BinaryReader(GetMemoryStream_());
         }
         public Stream GetMemoryStream_()
@@ -273,7 +276,7 @@ namespace LibHIRT.Files
                 var paret = (Parent as ModuleFile);
                 if (paret != null)
                 {
-                    
+
                     return paret.GetMemoryStreamFromFile(fileMemDescriptor);
                 }
             }
@@ -335,7 +338,7 @@ namespace LibHIRT.Files
         {
             if (_baseStream != null)
                 BaseStream.Close();
-           foreach (var child in _children)
+            foreach (var child in _children)
                 child?.reset();
         }
         #endregion

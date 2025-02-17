@@ -1,13 +1,13 @@
 ﻿using HaloInfiniteResearchTools.Common;
+using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
-using LibHIRT.Files.Base;
 using LibHIRT.Files;
+using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using HaloInfiniteResearchTools.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -19,7 +19,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand OpenGenFileViewCommand { get; }
         public PsoDictionaryViewModel(IServiceProvider serviceProvider, PsoDictionaryFile file) : base(serviceProvider, file)
         {
-            OpenGenFileViewCommand= new AsyncCommand<int>(OpenGenFileTab);
+            OpenGenFileViewCommand = new AsyncCommand<int>(OpenGenFileTab);
             _tabService = serviceProvider.GetService<ITabService>();
         }
 
@@ -49,7 +49,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         protected override Task OnInitializing()
         {
-            if (File!= null)
+            if (File != null)
             {
                 File.ReadFile();
             }

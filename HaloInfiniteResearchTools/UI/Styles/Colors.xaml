@@ -78,9 +78,58 @@
     <Color x:Key="Color.Warning"                                 R="230"  G="200" B="25"  A="255"/>
     <Color x:Key="Color.Error"                                   R="255"  G="0"   B="0"   A="255"/>
 
+    
     <!--#endregion-->
     
     <!--#region Brushes -->
+
+    <LinearGradientBrush x:Key="Brush.Border.Button.Gradien"  EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FFEBEBEB"/>
+        <GradientStop Color="#FF232137" Offset="0.25"/>
+        <GradientStop Color="#FF574D63" Offset="0.5"/>
+        <GradientStop Color="#FF232137" Offset="0.75"/>
+        <GradientStop Color="White" Offset="1"/>
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="Brush.Border.Button.Radial.Gradien" >
+        <GradientStop Color="Transparent"/>
+        <GradientStop Color="#FF232137" Offset="0.15"/>
+        <GradientStop Color="#FF574D63" Offset="0.5"/>
+        <GradientStop Color="#FF232137" Offset="0.85"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="Brush.Border.Button.Radial.Gradien.Over" >
+        <GradientStop Color="Transparent"/>
+        <GradientStop Color="#FF232137" Offset="0.05"/>
+        <GradientStop Color="#FF574D63" Offset="0.5"/>
+        <GradientStop Color="#FF232137" Offset="0.95"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="Brush.Border.Button.Radial.Gradien.Press" >
+        <GradientStop Color="Transparent"/>
+        <GradientStop Color="#FF232137" Offset="0.25"/>
+        <GradientStop Color="#FF574D63" Offset="0.5"/>
+        <GradientStop Color="#FF232137" Offset="0.75"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </RadialGradientBrush>
+
+    <LinearGradientBrush x:Key="Brush.Background.Button.Gradien"  EndPoint="0.5,1" StartPoint="0.5,0">
+        <LinearGradientBrush.RelativeTransform>
+            <TransformGroup>
+                <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                <SkewTransform CenterX="0.5" CenterY="0.5"/>
+                <RotateTransform Angle="-90" CenterX="0.5" CenterY="0.5"/>
+                <TranslateTransform/>
+            </TransformGroup>
+        </LinearGradientBrush.RelativeTransform>
+        <GradientStop Color="#FF201930"/>
+        <GradientStop Color="#FF263245" Offset="0.25"/>
+        <GradientStop Color="#FF264054" Offset="0.5"/>
+        <GradientStop Color="#FF263245" Offset="0.75"/>
+        <GradientStop Color="#FF201930" Offset="1"/>
+    </LinearGradientBrush>
 
     <SolidColorBrush x:Key="Brush.Foreground.Static"                          Color="{StaticResource Color.Foreground.Static}"/>
     <SolidColorBrush x:Key="Brush.Foreground.Deeper"                          Color="{StaticResource Color.Foreground.Deeper}"/>

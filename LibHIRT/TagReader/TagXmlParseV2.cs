@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using System.Xml;
-using System.Xml.Linq;
 
 using static LibHIRT.TagReader.TagLayoutsV2;
 
@@ -31,9 +24,21 @@ namespace LibHIRT.TagReader
             }
             string tempDirPath = Directory.GetCurrentDirectory() + "\\TagReader\\Tags\\";
             if (Directory.Exists(_tagsPath))
+            {
                 tempDirPath = _tagsPath + "\\";
+            }
 
-            string predicted_file = tempDirPath + file_to_find + ".xml";
+            else
+            {
+                tempDirPath = Utils.Utils.GetUserDefaultXmlFolderPath();
+                if (Utils.Utils.DirectorioEstaVacio(tempDirPath))
+                {
+                    string zip_path = Path.Combine(Utils.Utils.GetResourcesAppPath(), "xml_tags", "xml_tags.zip");
+                    Utils.Utils.DescomprimirArchivoZip(zip_path, Utils.Utils.GetUserAppPath());
+                }
+            }
+
+            string predicted_file = Path.Combine(tempDirPath, file_to_find + ".xml");
             return predicted_file;
         }
 
@@ -74,7 +79,8 @@ namespace LibHIRT.TagReader
                     }
 
                 }
-                else {
+                else
+                {
                     //poopdict[0] = new P { G = "root", T = TagElemntTypeV2.RootTagInstance, N = "root", B = new Dictionary<int, Template>(), E = new Dictionary<string, object>(), S = 0, xmlPath = ("root", "root") };
                 }
 
@@ -133,9 +139,9 @@ namespace LibHIRT.TagReader
             if (xn.Name == "root")
                 t_type = TagElemntTypeV2.RootTagInstance;
             else
-                t_type = (TagElemntTypeV2)Convert.ToInt32(xn.Name.Replace("_",""), 16);
+                t_type = (TagElemntTypeV2)Convert.ToInt32(xn.Name.Replace("_", ""), 16);
             int t_size = 0;
-            
+
             if (xn.Attributes.GetNamedItem("s") != null)
                 t_size = int.Parse(xn.Attributes.GetNamedItem("s").InnerText);
             int class_size = -1;
@@ -188,7 +194,7 @@ namespace LibHIRT.TagReader
                     {
                         childdictionary4.Add(iu, xn.ChildNodes[iu].Attributes.GetNamedItem("v").InnerText);
                     }
-                    pairs.Add(offset, new F { G = xn.Name, N = xn.Attributes.GetNamedItem("v").InnerText, T = t_type,STR = childdictionary4, S = t_size, E = extra_afl, xmlPath = (s_p, s_p_n) });
+                    pairs.Add(offset, new F { G = xn.Name, N = xn.Attributes.GetNamedItem("v").InnerText, T = t_type, STR = childdictionary4, S = t_size, E = extra_afl, xmlPath = (s_p, s_p_n) });
                     return t_size;
                 case TagElemntTypeV2.Struct:
                     var temp_index = offset;
@@ -237,16 +243,17 @@ namespace LibHIRT.TagReader
                     return t_size;
                 default:
                     int key = offset;
-                    
-                        if (t_size == 0)
-                        {
-                            key = offset + evalutated_index_PREVENT_DICTIONARYERROR;
-                            evalutated_index_PREVENT_DICTIONARYERROR++;
-                        }
-                        else { 
-                        }
-                        
-                    
+
+                    if (t_size == 0)
+                    {
+                        key = offset + evalutated_index_PREVENT_DICTIONARYERROR;
+                        evalutated_index_PREVENT_DICTIONARYERROR++;
+                    }
+                    else
+                    {
+                    }
+
+
                     pairs.Add(key, new C { G = xn.Name, T = t_type, N = xn.Attributes.GetNamedItem("v").InnerText, S = t_size, E = extra_afl, xmlPath = (s_p, s_p_n) });
                     return t_size;
             }

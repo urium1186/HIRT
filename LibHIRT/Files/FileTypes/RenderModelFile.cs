@@ -1,5 +1,4 @@
-﻿using LibHIRT.Data;
-using LibHIRT.Domain.RenderModel;
+﻿using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files.Base;
 using LibHIRT.Serializers;
 
@@ -29,12 +28,14 @@ namespace LibHIRT.Files.FileTypes
 
         #region Public Methods
 
-        public RenderModelDefinition Deserialize(bool forceReload = false) {
+        public RenderModelDefinition Deserialize(bool forceReload = false)
+        {
             if (modelDefinition == null)
             {
                 modelDefinition = RenderModelSerializer.Deserialize(this);
             }
-            else if (forceReload) {
+            else if (forceReload)
+            {
                 modelDefinition = RenderModelSerializer.Deserialize(this);
             }
             return modelDefinition;

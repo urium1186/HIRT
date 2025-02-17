@@ -1,11 +1,4 @@
 ﻿using LibHIRT.Common;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Files.FileTypes
 {
@@ -91,7 +84,7 @@ namespace LibHIRT.Files.FileTypes
                     GloIduk3 = Reader.ReadInt32(),
                     Index = i
                 };
-                byte[] bytes= Reader.ReadBytes(64);
+                byte[] bytes = Reader.ReadBytes(64);
                 entry.Path = bytes.ReadStringNullTerminated(0);
                 //entry.Path = Reader.ReadStringNullTerminatedRejectLast();
                 /*byte temp = Reader.ReadByte();
@@ -108,6 +101,6 @@ namespace LibHIRT.Files.FileTypes
             }
             BaseStream.Close();
         }
-        
+
     }
 }

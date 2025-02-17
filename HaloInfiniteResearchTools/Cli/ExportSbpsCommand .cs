@@ -1,7 +1,6 @@
 ﻿
 using Aspose.ThreeD.Shading;
 using HaloInfiniteResearchTools.Assimport;
-using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Processes.OnGeometry;
 using LibHIRT.Exporters;
@@ -64,7 +63,7 @@ namespace HaloInfiniteResearchTools.Cli
                 if (founds != null && founds.Count() == 1 && founds.First() is ScenarioStructureBspFile)
                 {
 
-                    
+
 
                     var item = (ScenarioStructureBspFile)founds.First();
                     {

@@ -1,5 +1,6 @@
 ﻿using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Processes;
+using HaloInfiniteResearchTools.Processes.Online;
 using HaloInfiniteResearchTools.Services;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
@@ -30,7 +31,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         bool _onlyVertexShaders = true;
         string _spliters = "";
         private string _pathExport;
-        
+
         public ICommand ProcessTextCommand { get; }
         public ICommand ProcessJsonCommand { get; }
         public ICommand BCInSVToTxtCommand { get; }
@@ -40,7 +41,9 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand ProcessLoginCommand { get; }
         public ICommand WebApiCommand { get; }
         public ICommand WebApiItemsCommand { get; }
-        public bool HaveCredentials { get => _hiFileContext  != null && _hiFileContext.ConnectXbox != null; }
+        public ICommand WebApiStoresCommand { get; }
+        public ICommand LoadFilePathFromTxCommand { get; }
+        public bool HaveCredentials { get => _hiFileContext != null && _hiFileContext.ConnectXbox != null; }
 
 
         public ToolsViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
@@ -56,6 +59,18 @@ namespace HaloInfiniteResearchTools.ViewModels
             ProcessLoginCommand = new Command(ProcessLogin);
             WebApiCommand = new Command(CallApi);
             WebApiItemsCommand = new Command(GetApiItems);
+            WebApiStoresCommand = new Command(GetApiStores);
+            LoadFilePathFromTxCommand = new AsyncCommand(LoadFilePathFromTx);
+        }
+
+        private async Task LoadFilePathFromTx()
+        {
+            if (File.Exists(PathTextFilesPath))
+            {
+                var process = new LoadFilePathFromTxProcess(PathTextFilesPath);
+                //process.Completed += ProcessTextToMmh3_Completed;
+                await RunProcess(process);
+            }
         }
 
         private async void ProcessLogin()
@@ -113,7 +128,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                 try
                 {
-                    var process = new GetFromXboxWebApiCurrentArmorCoreProcess(_hiFileContext.ConnectXbox);
+                    var process = new XboxWebApiArmorCoresProcess(_hiFileContext.ConnectXbox);
                     process.Completed += GetFromXboxWebApiProcess_Completed;
                     await RunProcess(process);
 
@@ -150,6 +165,44 @@ namespace HaloInfiniteResearchTools.ViewModels
                 try
                 {
                     var process = new GetFromXboxWebApiItemsProcess(_hiFileContext.ConnectXbox, ItemTypeSel);
+                    //var process = new GetFromXboxWebApiStoreProcess(_hiFileContext.ConnectXbox);
+
+                    //process.Completed += GetFromXboxWebApiProcess_Completed;
+                    await RunProcess(process);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    lock (objLock)
+                    {
+                        //progress.CompletedUnits++; 
+                    }
+
+                }
+
+            }
+        }
+
+        private async void GetApiStores()
+        {
+            //throw new NotImplementedException();
+            using (var progress = ShowProgress())
+            {
+                progress.IsIndeterminate = true;
+                progress.Status = "Login";
+
+                var objLock = new object();
+
+
+                try
+                {
+                    //var process = new GetFromXboxWebApiItemsProcess(_hiFileContext.ConnectXbox, ItemTypeSel);
+                    var process = new GetFromXboxWebApiStoreProcess(_hiFileContext.ConnectXbox);
+
                     //process.Completed += GetFromXboxWebApiProcess_Completed;
                     await RunProcess(process);
 
@@ -268,7 +321,10 @@ namespace HaloInfiniteResearchTools.ViewModels
         public int VertType { get => _vertType; set => _vertType = value; }
         public bool OnlyVertexShaders { get => _onlyVertexShaders; set => _onlyVertexShaders = value; }
         public Array ItemTypes { get => Enum.GetValues(typeof(ItemType)); }
-        public ItemType ItemTypeSel { get; set; } 
+        public Array StoreIds { get => Enum.GetValues(typeof(StoreId)); }
+        public ItemType ItemTypeSel { get; set; }
+        public StoreId StoreIdSel { get; set; }
+        public string? PathTextFilesPath { get; set; }
 
         public void GenerateFromStrValue()
         {
@@ -287,7 +343,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 Int_value = Mmr3HashLTU.fromStrHash(_str_hash);
                 _str_value = "";
             }
-            
+
 
         }
 
@@ -461,7 +517,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 await RunProcess(process);
             }
         }
-         public async Task ProcessJson()
+        public async Task ProcessJson()
         {
             if (Directory.Exists(TextFilesPath))
             {

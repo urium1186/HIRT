@@ -64,15 +64,15 @@ namespace HaloInfiniteResearchTools.Models
         {
             CloseAllTabRequested?.Invoke(this, EventArgs.Empty);
         }
-         public void CloseOthersTab()
+        public void CloseOthersTab()
         {
             CloseOthersTabRequested?.Invoke(this, EventArgs.Empty);
         }
-         public void CloseLeftTab()
+        public void CloseLeftTab()
         {
             CloseLeftTabRequested?.Invoke(this, EventArgs.Empty);
         }
-         public void CloseRightTab()
+        public void CloseRightTab()
         {
             CloseRightTabRequested?.Invoke(this, EventArgs.Empty);
         }

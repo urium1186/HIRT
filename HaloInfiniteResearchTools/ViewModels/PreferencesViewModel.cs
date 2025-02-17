@@ -1,14 +1,17 @@
 ﻿using HaloInfiniteResearchTools.Common.Enumerations;
 using HaloInfiniteResearchTools.Models;
+using HaloInfiniteResearchTools.UI.Modals;
 using HelixToolkit.SharpDX.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
-    public class PreferencesViewModel : ViewModel
+    public class PreferencesViewModel : ViewModel, IModalFooterButtons
     {
 
         #region Properties
@@ -67,6 +70,22 @@ namespace HaloInfiniteResearchTools.ViewModels
             }
         }
 
+        public IEnumerable<Button> GetFooterButtons()
+        {
+            yield return new Button { Content = "Cancel" };
 
+            var exportBtn = new Button
+            {
+                Content = "Save",
+                Style = (Style)App.Current.FindResource("ColorfulFooterButtonStyle"),
+                CommandParameter = Preferences
+            };
+            /*
+            var exportBtnEnabledBinding = new Binding(nameof(IsValidPath));
+            exportBtnEnabledBinding.Source = this;
+            BindingOperations.SetBinding(exportBtn, Button.IsEnabledProperty, exportBtnEnabledBinding);
+            */
+            yield return exportBtn;
+        }
     }
 }

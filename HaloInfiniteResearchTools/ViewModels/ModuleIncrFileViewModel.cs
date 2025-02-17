@@ -3,10 +3,7 @@ using HaloInfiniteResearchTools.ViewModels.Abstract;
 using LibHIRT.Files.FileTypes;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
@@ -24,7 +21,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ModuleIncrFileViewModel(IServiceProvider serviceProvider, ModuleIncrFile file) : base(serviceProvider, file)
         {
             _collectionViewSource = InitializeCollectionView(this.File.Entries);
-            
+
         }
 
 

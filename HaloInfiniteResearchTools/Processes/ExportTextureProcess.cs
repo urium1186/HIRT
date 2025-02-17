@@ -6,14 +6,11 @@ using ImageMagick;
 using LibHIRT.Data.Textures;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.Serializers.Configurations;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes

@@ -41,13 +41,16 @@ namespace HaloInfiniteResearchTools.ViewModels
         public ICommand OpenTextureDefinitionCommand { get; }
         public ICommand ExportTextureCommand { get; }
         public int[] Opciones { get => _options; set => _options = value; }
-        public int OpcionSeleccionada { get => _optionSelected; set {
+        public int OpcionSeleccionada
+        {
+            get => _optionSelected; set
+            {
                 if (_optionSelected != value)
                 {
                     _optionSelected = value;
                     changeTextureView();
                 }
-                
+
 
             }
         }
@@ -93,7 +96,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             }
         }
 
-        protected async void changeTextureView() {
+        protected async void changeTextureView()
+        {
             using (var progress = ShowProgress())
             {
                 progress.IsIndeterminate = true;

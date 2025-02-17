@@ -60,8 +60,8 @@ namespace Oodle
             byte[] skBuffer = new byte[0];
             uint skBufferSize = (uint)skBuffer.Length;
             uint compressedBufferSize = out_size;
-            if (out_size==0)
-                compressedBufferSize  = GetCompressionBound((uint)size);
+            if (out_size == 0)
+                compressedBufferSize = GetCompressionBound((uint)size);
             byte[] compressedBuffer = new byte[compressedBufferSize];
 
             long compressedCount = oodle.CompressBuffer(format, buffer, size, compressedBuffer, level, 0L, 0L, 0L, 0L, skBufferSize);

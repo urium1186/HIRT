@@ -197,7 +197,7 @@ namespace LibHIRT.Common
             var builder = new StringBuilder();
 
             List<byte> c = new List<byte> { reader.ReadByte() };
-            
+
             while (c.Last() != 0)
             {
                 c.Add(reader.ReadByte());
@@ -208,13 +208,13 @@ namespace LibHIRT.Common
             //return builder.ToString();
             return enco.GetString(c.ToArray());
         }
-        
+
         public static string ReadStringNullTerminatedRejectLast(this BinaryReader reader)
         {
             var builder = new StringBuilder();
 
             List<byte> c = new List<byte> { reader.ReadByte() };
-            
+
             while (c.Last() != 0)
             {
                 c.Add(reader.ReadByte());
@@ -241,12 +241,12 @@ namespace LibHIRT.Common
         public static string ReadStringNullTerminated(this byte[] data, int offset)
         {
             Encoding Enc = Encoding.UTF8;
-            Debug.Assert(data.Length>offset); 
+            Debug.Assert(data.Length > offset);
             int inx = Array.FindIndex(data, offset, (x) => x == 0);//search for 0
             if (inx >= 0)
                 return (Enc.GetString(data, offset, inx));
             else
-                return (Enc.GetString(data, offset, (data.Length-offset)-1));
+                return (Enc.GetString(data, offset, (data.Length - offset) - 1));
         }
 
         /// <summary>

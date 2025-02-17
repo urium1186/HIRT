@@ -1,0 +1,96 @@
+﻿//var example = await client.StatsGetMatchStats("21416434-4717-4966-9902-af7097469f74");
+
+
+                    /*var wlv_c13d0b38 = await connectXbox.Client.EconomyArmorCoreCustomization(strPlayerXUID, "017-001-wlv-c13d0b38");
+                    if (wlv_c13d0b38.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("017-001-wlv-c13d0b38.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(wlv_c13d0b38.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                        var result_put = await connectXbox.Client.EconomyArmorCoreCustomization(strPlayerXUID, "017-001-wlv-c13d0b38", jsonString);
+                        
+                    }*/
+
+                    //var example = await connectXbox.Client.EconomyPlayerOperations(strPlayerXUID);
+                    
+                    
+                    /*
+                    var allOwnedCoresDetails = await connectXbox.Client.EconomyAllOwnedCoresDetails(strPlayerXUID);
+                    if (allOwnedCoresDetails.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("allOwnedCoresDetails.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(allOwnedCoresDetails.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                    }
+
+
+                    
+
+                    var gamecmsgetmetadata = await connectXbox.Client.GameCmsGetMetadata(connectXbox.Client.ClearanceToken);
+                    if (gamecmsgetmetadata.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("gamecmsgetmetadata.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(gamecmsgetmetadata.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                    }
+
+
+                     
+
+                    var customizationCatalog = await connectXbox.Client.GameCmsGetCustomizationCatalog(connectXbox.Client.ClearanceToken);
+                    if (customizationCatalog.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("customizationCatalog.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(customizationCatalog.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                    }
+
+                    var inventoryItems = await connectXbox.Client.EconomyGetInventoryItems(strPlayerXUID);
+                    if (inventoryItems.Result != null)
+                    {
+                        string fileName = LibHIRT.Utils.Utils.CreatePathFromString("inventoryItems.json", "", "json");
+                        string jsonString = JsonSerializer.Serialize(inventoryItems.Result);
+                        System.IO.File.WriteAllText(fileName, jsonString);
+                    }
+                    */
+
+                    
+
+
+                /* 017-001-wlv-c13d0b38
+                 * Inventory/Armor/Themes/007-000-lone-wolf-0903655e.json
+                if (_responseThread.IsAlive)
+                {
+                    do_not_stop_listener = false;
+                }*/
+
+                //var theme_wlv_c13d0b38 = await connectXbox.Client.GameCmsGetItem("/inventory/armor/themes/007-000-lone-wolf-0903655e.json", connectXbox.Client.ClearanceToken);
+
+                
+            //DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(38, 4);
+            //defaultInterpolatedStringHandler.AppendFormatted("/inventory/armor/themes/007-000-lone-wolf-0903655e.json");
+            // connectXbox.Client = new HaloInfiniteClientFix(connectXbox.Client.SpartanToken, connectXbox.Client.Xuid, connectXbox.Client.ClearanceToken);
+
+            
+                /*string fileName = LibHIRT.Utils.Utils.CreatePathFromString("017-001-wlv-c13d0b38.json", "", "json");
+                string jsonString = JsonSerializer.Serialize(wlv_c13d0b38.Result);
+                System.IO.File.WriteAllText(fileName, jsonString);*/
+                //var result_put = await connectXbox.Client.EconomyArmorCoreCustomization(strPlayerXUID, "017-001-wlv-c13d0b38", jsonString);
+
+
+                /*DisplayPath tempDisplay = armorCoreTheme.CommonData.DisplayPath;
+                string havePict = await SaveCmsImageToDisk(tempDisplay);
+                if (string.IsNullOrEmpty(havePict) && armorCoreTheme.CommonData.ParentPaths?.Count > 0)
+                {
+                    OnlineItemModel themeItemModel = await SaveCmsItemToDisk(armorTheme.CommonData.ParentPaths[0]?.Path, true, true);
+                }
+                */
+
+
+                //string jsonString = JsonSerializer.Serialize(theme_wlv_c13d0b38.Result);
+
+                
+                    //string jsonString = JsonSerializer.Serialize(theme_wlv_c13d0b38.Result);
+
+                    
+                //string jsonString = JsonSerializer.Serialize(theme_wlv_c13d0b38.Result);

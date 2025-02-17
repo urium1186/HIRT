@@ -1,15 +1,7 @@
 ﻿using LibHIRT.Common;
-using LibHIRT.Files;
-using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
-using LibHIRT.Utils;
-using Microsoft.Diagnostics.Tracing.Utilities;
-using Oodle;
 //using OodleSharp;
 using System.Diagnostics;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.ModuleUnpacker
 {
@@ -17,15 +9,15 @@ namespace LibHIRT.ModuleUnpacker
     public class HiModule
     {
         HiModuleHeader _moduleHeader = new HiModuleHeader();
-        Dictionary<int,HiModuleFileEntry> _filesIndexLookup = new Dictionary<int, HiModuleFileEntry>();
+        Dictionary<int, HiModuleFileEntry> _filesIndexLookup = new Dictionary<int, HiModuleFileEntry>();
         List<int> t3es = new List<int>();
         List<HiModuleBlockEntry> blocks = new List<HiModuleBlockEntry>();
 
-        
+
         private long data_offset;
         private string unpack_dir = "";
         FileStream? _moduleFile;
-        BinaryReader  _reader;
+        BinaryReader _reader;
         FileStream? _moduleFileHd;
         string _filePath = "";
         private int filesEntryBytesSize;
@@ -48,7 +40,8 @@ namespace LibHIRT.ModuleUnpacker
             _reader = new BinaryReader(_moduleFile);
         }
 
-        public void ReadIn() {
+        public void ReadIn()
+        {
             ReadHeader();
         }
 
@@ -81,29 +74,30 @@ namespace LibHIRT.ModuleUnpacker
                 int pos = _moduleHeader.FileEntrysOffset + (index * _moduleHeader.FileEntrysTypeSize);
                 _moduleFile.Seek(pos, SeekOrigin.Begin);
             }
-            else {
+            else
+            {
                 return null;
             }
             entry.ReadIn(new BinaryReader(_moduleFile));
             entry.Index = index;
-            
+
             if (_moduleHeader.StringsSize != 0)
             {
                 _moduleFile.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
                 entry.Path_string = _reader.ReadStringNullTerminated();
             }
 
-            
+
             if (entry.GlobalTagId1 == -1)
             {
                 if (entry.ParentOffResource != -1)
                 {
                     Debug.Assert(index >= _moduleHeader.ResourceIndex);
                     Debug.Assert(index < _moduleHeader.ResourceIndex + _moduleHeader.ResourceCount);
-                    
+
                     if (_filesIndexLookup.TryGetValue(entry.ParentOffResource, out var tempFD))
                     {
-                        
+
                         var i_n = tempFD.ResourceFiles.Count;
 
                         entry.Path_string = tempFD.Path_string + "[" + i_n.ToString() + "_resource_chunk_" + i_n.ToString() + "]";
@@ -119,11 +113,11 @@ namespace LibHIRT.ModuleUnpacker
             else
             {
                 Debug.Assert(index < _moduleHeader.ResourceIndex);
-                if (entry.Path_string=="")
+                if (entry.Path_string == "")
                     entry.Path_string = entry.TagGroupRev + "\\" + Mmr3HashLTU.getMmr3HashFromInt(entry.GlobalTagId1) + "_" + entry.GlobalTagId1 + "." + entry.TagGroupRev;
             }
 
-            
+
 
             Debug.Assert(entry.First_block_index + entry.Block_count <= _moduleHeader.BlockCount);
             return entry;
@@ -169,5 +163,5 @@ namespace LibHIRT.ModuleUnpacker
         }
     }
 
-    
+
 }

@@ -1,12 +1,6 @@
 ﻿using LibHIRT.Domain;
 using LibHIRT.Files;
 using LibHIRT.Files.Base;
-using Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.TagReader.RuntimeViewer
 {
@@ -30,7 +24,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
         public bool unloaded;
 
-        public Mem M;
+        public object M;// Memory.Mem
 
         public string Name => $"{ObjectId}-{ObjectIdStr}";
 
@@ -59,7 +53,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
         public void Dispose()
         {
-            
+
         }
 
         public HIRTStream GetStream()
@@ -69,7 +63,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
 
         public void reset()
         {
-            
+
         }
 
         public int TryGetGlobalId()

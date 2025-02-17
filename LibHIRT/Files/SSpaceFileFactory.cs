@@ -11,7 +11,7 @@ namespace LibHIRT.Files
         #region Delegates
 
         private delegate ISSpaceFile CreateFileDelegate(string name, ISSpaceFile parent = null);
-        
+
 
         #endregion
 
@@ -47,14 +47,14 @@ namespace LibHIRT.Files
 
         #region Public Methods
 
-        public static ISSpaceFile CreateFile(string name, string tagGroup,string signature = "",
+        public static ISSpaceFile CreateFile(string name, string tagGroup, string signature = "",
           ISSpaceFile parent = null)
         {
             var ext = Path.GetExtension(name);
             //var signature = ReadSignature(baseStream, dataStartOffset);
 
             if (!_signatureLookup.TryGetValue(signature, out var fileType))
-                if (!_tagGroupLookup.TryGetValue(tagGroup, out fileType)) 
+                if (!_tagGroupLookup.TryGetValue(tagGroup, out fileType))
                     if (!_extensionLookup.TryGetValue(ext, out fileType))
                         if (!_tagGroupLookup.TryGetValue("_*.*", out fileType))
                             return FailReturn<ISSpaceFile>($"Could not determine a FileType for '{name}'.");
@@ -162,7 +162,7 @@ namespace LibHIRT.Files
             return extLookup;
         }
 
-        
+
         private static Dictionary<string, Type> BuildTagGroupLookup()
         {
             var groupLookup = new Dictionary<string, Type>();

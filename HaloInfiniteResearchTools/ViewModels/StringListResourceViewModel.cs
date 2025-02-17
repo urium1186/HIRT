@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.ViewModels
@@ -26,13 +24,14 @@ namespace HaloInfiniteResearchTools.ViewModels
         protected override Task OnInitializing()
         {
             var root = File.Deserialized().Root as ResourceHandle;
-            
-            if (root is not null) {
-                
+
+            if (root is not null)
+            {
+
                 {
                     _stringLookupInfo.Clear();
                     Debug.Assert(root.Count == 1);
-                    
+
                     foreach (var item in root)
                     {
                         TagData data = item["string data utf8"] as TagData;
@@ -59,7 +58,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                 }
             }
-            
+
             return base.OnInitializing();
         }
     }

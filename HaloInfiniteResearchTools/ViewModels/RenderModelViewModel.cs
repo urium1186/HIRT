@@ -3,6 +3,7 @@ using HaloInfiniteResearchTools.Common.Extensions;
 using HaloInfiniteResearchTools.Controls;
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
+using HaloInfiniteResearchTools.Processes.Online;
 using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.Services.Abstract;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
@@ -16,6 +17,7 @@ using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Grunt;
+using LibHIRT.Grunt.Models.HaloInfinite;
 using LibHIRT.Processes.OnGeometry;
 using LibHIRT.TagReader;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +28,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -122,6 +123,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         public ICommand ExportModelCommand { get; }
         public ICommand ImportKitCommand { get; }
+        public ICommand ImportStoreOfferKitCommand { get; }
+        public ICommand RefreshModelCommand { get; }
         public ObservableCollection<TreeViewItemModel> Regions { get => _regions; set => _regions = value; }
         public ModelInfoToRM ModelInfo { get; set; }
         public ListTagInstance ThemeConfigurations { get; set; }
@@ -174,10 +177,12 @@ namespace HaloInfiniteResearchTools.ViewModels
             ExpandAllCommand = new Command(ExpandAllNodes);
             CollapseAllCommand = new Command(CollapseAllNodes);
             SearchTermChangedCommand = new Command<string>(SearchTermChanged);
+            RefreshModelCommand = new Command(refreshModel);
 
             MeshSelectedCommand = new Command<GeometryNode>(MeshSelected);
             ExportModelCommand = new AsyncCommand(ExportModel);
             ImportKitCommand = new AsyncCommand(ImportKit);
+            ImportStoreOfferKitCommand = new AsyncCommand(ImportStoreOfferKit);
 
             PropertyChanged += Model3DViewerControlModel_PropertyChanged;
 
@@ -192,11 +197,16 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             if (e.PropertyName == "ListSelectedItem")
             {
-                if (SelectedMesh != null)
-                    SelectedMesh.PostEffects = null;
+                if (ListSelectedItem != null && ListSelectedItem.Node != null)
+                {
+                    if (SelectedMesh != null)
+                        SelectedMesh.PostEffects = null;
 
-                SelectedMesh = (ListSelectedItem.Node as GeometryNode);
-                SelectedMesh.PostEffects = "border";
+
+                    SelectedMesh = (ListSelectedItem.Node as GeometryNode);
+                    SelectedMesh.PostEffects = "border";
+                }
+
             }
         }
 
@@ -204,11 +214,24 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             var jsonString_temp = await ShowOpenFileDialog(
               title: "Open File",
-              initialDirectory: GetPreferences().HIDirectoryPath); // TODO: Add filter
+              initialDirectory: GetPreferences().HIDirectoryPath,
+              filter: "Json files (*.json)|*.json"); // TODO: Add filter
 
             if (jsonString_temp == null)
                 return;
             SelectCore(jsonString_temp[0]);
+        }
+
+        private async Task ImportStoreOfferKit()
+        {
+            var jsonString_temp = await ShowOpenFileDialog(
+              title: "Open File",
+              initialDirectory: GetPreferences().HIDirectoryPath,
+              filter: "Json files (*.json)|*.json"); // TODO: Add filter
+
+            if (jsonString_temp == null)
+                return;
+            SelectOfferOn(jsonString_temp[0]);
         }
 
         private void RenderModelViewModel_ChangeNodeAttacth(object? sender, ICheckedModel e)
@@ -394,6 +417,15 @@ namespace HaloInfiniteResearchTools.ViewModels
                 App.Current.Dispatcher.Invoke(() => Camera.ZoomExtents(Viewport));
             });
         }
+
+        public void refreshModel()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                OnPropertyChanged("Model");
+            });
+        }
+
         void AddNodeModels(SceneNode node)
         {
             if (node is MeshNode meshNode)
@@ -546,15 +578,40 @@ namespace HaloInfiniteResearchTools.ViewModels
             foreach (var themeConfiguration in ThemeConfigurations)
             {
                 var temp = new TreeViewItemModel();
-                temp.Header = themeConfiguration["Theme Name"].AccessValue.ToString();
+                temp.Header = (themeConfiguration["Theme Name"] as Mmr3Hash)?.Str_value;
+                temp.Tag = themeConfiguration;
+
+                var kits = themeConfiguration["Kit Configurations"] as ListTagInstance;
+                if (kits != null && kits.Count > 0)
+                {
+                    var tempKitConfTV = new TreeViewItemModel();
+                    tempKitConfTV.Header = "Kit Configurations";
+                    foreach (var kit in kits)
+                    {
+                        var tempKitTV = new TreeViewItemModel();
+                        tempKitTV.Header = (kit["Theme Name"] as Mmr3Hash)?.Str_value;
+                        tempKitTV.Tag = (kit["Theme Name"] as Mmr3Hash);
+                        ReadMeshCoustoms(null, tempKitTV, "Regions", kit["Kit Base Regions"] as ListTagInstance, kit["Theme Name"] as Mmr3Hash);
+                        tempKitTV.SetValue(ItemHelper.ParentProperty, tempKitConfTV);
+                        tempKitConfTV.Children.Add(tempKitTV);
+                    }
+                    tempKitConfTV.SetValue(ItemHelper.ParentProperty, temp);
+                    temp.Children.Add(tempKitConfTV);
+                }
                 var result = HIFileContext.Instance.GetFileFrom(themeConfiguration["Theme Configs"] as TagRef, _file.Parent as ModuleFile);
                 if (result != null)
                 {
                     var r = result as ObjectCustomizationThemeConfiguration;
                     #region Regions
 
-                    ReadMeshCoustoms(r, ref temp, "Regions");
+                    ReadMeshCoustoms(r, temp, "Regions");
 
+                    var tempSelectDefault = new TreeViewItemModel();
+                    tempSelectDefault.Header = "Select Variant " + (themeConfiguration["Theme Variant Name"] as Mmr3Hash)?.Str_value;
+                    tempSelectDefault.Tag = themeConfiguration["Theme Variant Name"] as Mmr3Hash;
+                    tempSelectDefault.SetValue(ItemHelper.ParentProperty, temp);
+                    temp.Children.Add(tempSelectDefault);
+                    ReadMeshCoustoms(r, tempSelectDefault, "Regions", null, themeConfiguration["Theme Variant Name"] as Mmr3Hash);
                     #endregion
                     #region Attachments
 
@@ -563,46 +620,123 @@ namespace HaloInfiniteResearchTools.ViewModels
                     #endregion
 
                     #region Prosthetics
-                    ReadMeshCoustoms(r, ref temp, "Prosthetics");
+                    ReadMeshCoustoms(r, temp, "Prosthetics");
                     #endregion
 
                     #region Body Types
-                    ReadMeshCoustoms(r, ref temp, "Body Types");
+                    ReadMeshCoustoms(r, temp, "Body Types");
                     #endregion
                 }
                 _themeConfigurations.Add(temp);
             }
         }
 
-        private void ReadMeshCoustoms(ObjectCustomizationThemeConfiguration? r, ref TreeViewItemModel parent, string part)
+        private async void ReadMeshCoustoms(ObjectCustomizationThemeConfiguration? r, TreeViewItemModel parent, string part, ListTagInstance regions = null, Mmr3Hash variant = null)
         {
             TreeViewItemModel tempPart = new TreeViewItemModel();
             tempPart.Header = part;
-            var items = r.Deserialized?[part] as ListTagInstance;
+            var items = r != null ? r.Deserialized?[part] as ListTagInstance : regions;
             foreach (var item in items)
             {
                 var temp1 = new TreeViewItemModel();
-                string name = part == "Regions" ? "Region Name" : "Name";
+                string name = (part == "Regions" || part == "Kit Base Regions") ? "Region Name" : "Name";
 
-                temp1.Header = item[name].AccessValue.ToString();
+                //temp1.Header = item[name].AccessValue.ToString();
+                temp1.Tag = item[name].AccessValue;
+                temp1.Header = (item[name] as Mmr3Hash).Str_value;
                 ListTagInstance p_r_l = item["Permutation Regions"] as ListTagInstance;
                 ListTagInstance p_s_l = item["Permutation Settings"] as ListTagInstance;
                 foreach (var p_r in p_r_l)
                 {
                     var temp2 = new TreeViewItemModel();
-                    temp2.Header = p_r["Permutation Region"].AccessValue.ToString();
-
+                    //temp2.Header = p_r["Permutation Region"].AccessValue.ToString();
+                    temp2.Tag = p_r["Permutation Region"].AccessValue;
+                    temp2.Header = (p_r["Permutation Region"] as Mmr3Hash).Str_value;
+                    var found = false;
                     foreach (var p_s in p_s_l)
                     {
+                        if (variant != null)
+                        {
+                            if (variant.Str_value != (p_s["Permutation Name"] as Mmr3Hash).Str_value)
+                                continue;
+                            else
+                            {
+                                found = true;
+                            }
+                        }
+
                         var temp3 = new TreeViewItemModel();
-                        temp3.Header = p_s["Permutation Name"].AccessValue.ToString();
+                        //temp3.Header = p_s["Permutation Name"].AccessValue.ToString();
+                        temp3.Tag = p_s["Permutation Name"].AccessValue;
+                        temp3.Header = (p_s["Permutation Name"] as Mmr3Hash).Str_value;
+
                         List<TreeViewItemChModel> meshs = GetPermutationBy((int)p_r["Permutation Region"].AccessValue, (int)p_s["Permutation Name"].AccessValue);
-                        if (meshs != null)
+                        TagRef tempAttch = p_s["Attachment"] as TagRef;
+                        if (meshs != null && meshs.Count > 0)
                         {
                             foreach (var mesh in meshs)
                             {
                                 mesh.SetValue(ItemHelper.ParentProperty, temp3);
                                 temp3.Children.Add(mesh);
+                            }
+                            if (tempAttch != null && tempAttch.Ref_id_int != -1)
+                            {
+
+                            }
+                        }
+                        else
+                        {
+
+                            TreeViewItemModel tempPart1 = new TreeViewItemModel();
+                            tempPart1.Header = "Attachments";
+                            temp3.Children.Add(tempPart1);
+                            tempPart1.SetValue(ItemHelper.ParentProperty, parent);
+                            Dictionary<string, TreeViewItemModel> keyValuePairs = new Dictionary<string, TreeViewItemModel>();
+                            if (tempAttch != null && tempAttch.Ref_id_int != -1)
+                            {
+                                await ReadCustomizationAttachmentConfiguration(tempAttch, keyValuePairs, tempPart1, temp3, true);
+                            }
+                            if (found && variant != null)
+                            {
+                                if (tempPart1.Children.Count == 0)
+                                    found = false;
+                            }
+                        }
+                        temp3.SetValue(ItemHelper.ParentProperty, temp2);
+                        temp2.Children.Add(temp3);
+                    }
+                    if (!found && variant != null && p_s_l.Count > 0)
+                    {
+                        var p_s = p_s_l[0];
+                        var temp3 = new TreeViewItemModel();
+                        //temp3.Header = p_s["Permutation Name"].AccessValue.ToString();
+                        temp3.Tag = p_s["Permutation Name"].AccessValue;
+                        temp3.Header = (p_s["Permutation Name"] as Mmr3Hash).Str_value;
+
+                        List<TreeViewItemChModel> meshs = GetPermutationBy((int)p_r["Permutation Region"].AccessValue, (int)p_s["Permutation Name"].AccessValue);
+                        TagRef tempAttch = p_s["Attachment"] as TagRef;
+                        if (meshs != null && meshs.Count > 0)
+                        {
+                            foreach (var mesh in meshs)
+                            {
+                                mesh.SetValue(ItemHelper.ParentProperty, temp3);
+                                temp3.Children.Add(mesh);
+                            }
+                            if (tempAttch != null && tempAttch.Ref_id_int != -1)
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            TreeViewItemModel tempPart1 = new TreeViewItemModel();
+                            tempPart1.Header = "Attachments";
+                            temp3.Children.Add(tempPart1);
+                            tempPart1.SetValue(ItemHelper.ParentProperty, parent);
+                            Dictionary<string, TreeViewItemModel> keyValuePairs = new Dictionary<string, TreeViewItemModel>();
+                            if (tempAttch != null && tempAttch.Ref_id_int != -1)
+                            {
+                                await ReadCustomizationAttachmentConfiguration(tempAttch, keyValuePairs, tempPart1, temp3, true);
                             }
                         }
                         temp3.SetValue(ItemHelper.ParentProperty, temp2);
@@ -720,7 +854,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             return result;
         }
 
-        private void SetAtachmentToRegions(Assimp.Scene attachnodeMesh, TagInstance attachmentDef, TreeViewItemModel meshs, TreeViewItemModel regions, int tag_id)
+        private void SetAtachmentToRegions(Assimp.Scene attachnodeMesh, TagInstance attachmentDef, TreeViewItemModel meshs, TreeViewItemModel regions, int tag_id, bool fromModel = false)
         {
             var tempRMD = this._renderModelDef.TagInstance;
             var markerGroup = this._renderModelDef.Marker_groups;
@@ -792,7 +926,16 @@ namespace HaloInfiniteResearchTools.ViewModels
                             if (!(p_i < _renderModelDef.Regions[r_i].permutations.Length))
                                 continue;
 
-                            TreeViewItemModel tvm = getVariant(regions, _renderModelDef.Regions[r_i].name_id, _renderModelDef.Regions[r_i].permutations[p_i].name_id, false);
+                            TreeViewItemModel tvm = null;
+                            if (!fromModel)
+                            {
+                                tvm = getVariant(regions, _renderModelDef.Regions[r_i].name_id, _renderModelDef.Regions[r_i].permutations[p_i].name_id, false);
+                            }
+                            else
+                            {
+                                tvm = regions;
+                            }
+
 
 
 
@@ -829,6 +972,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                             tempTVIM.SetValue(ItemHelper.ParentProperty, tvmAttachments);
                             tvmAttachments.Children.Add(tempTVIM);
+                            if (fromModel)
+                                break;
                         }
                     }
                     break;
@@ -917,11 +1062,11 @@ namespace HaloInfiniteResearchTools.ViewModels
                 TreeViewItemModel childs = regionTrv as TreeViewItemModel;
                 foreach (var subregionTrv in childs.Children)
                 {
-                    if (subregionTrv.Header == r_i.ToString())
+                    if (subregionTrv.Tag != null && (int)subregionTrv.Tag == r_i)
                     {
                         foreach (var itemVar in (subregionTrv as TreeViewItemModel).Children)
                         {
-                            if (itemVar.Header == p_i.ToString())
+                            if (itemVar.Tag != null && (int)itemVar.Tag == p_i)
                             {
                                 if (!v)
                                     return (TreeViewItemModel)itemVar;
@@ -946,108 +1091,127 @@ namespace HaloInfiniteResearchTools.ViewModels
             var items = r.Deserialized?[tempPart.Header] as ListTagInstance;
             foreach (var item in items)
             {
-
                 TagRef tagRef = item["Attachment"] as TagRef;
-                if (tagRef == null || tagRef.Ref_id_int == -1)
-                    continue;
-                CustomizationAttachmentConfiguration attachFile = HIFileContext.Instance.GetFileFrom(tagRef) as CustomizationAttachmentConfiguration;
-                if (attachFile == null)
-                    continue;
-                ListTagInstance tgl = attachFile.Deserialized.Root["Model Attachments"] as ListTagInstance;
-                if (tgl == null || tgl.Count == 0)
-                    continue;
-
-                foreach (var modelAttachment in tgl)
-                {
-                    TagRef attach_model_ref = modelAttachment["Attachment Model"] as TagRef;
-                    EnumGroup att_csm_type = modelAttachment["CMS Customization Item Type"] as EnumGroup;
-
-
-                    if (!keyValuePairs.ContainsKey(att_csm_type.Selected))
-                    {
-                        keyValuePairs[att_csm_type.Selected] = new TreeViewItemModel();
-                        keyValuePairs[att_csm_type.Selected].Header = att_csm_type.Selected;
-                        keyValuePairs[att_csm_type.Selected].SetValue(ItemHelper.ParentProperty, tempPart);
-                        tempPart.Children.Add(keyValuePairs[att_csm_type.Selected]);
-                    }
-
-
-
-                    if (attach_model_ref == null || attach_model_ref.TagGroupRev != "hlmt")
-                        continue;
-                    ModelFile modelFile = HIFileContext.Instance.GetFileFrom(attach_model_ref) as ModelFile;
-                    if (modelFile == null)
-                        continue;
-                    var rmf = modelFile.GetRenderModel();
-                    if (rmf == null)
-                        continue;
-                    var convertProcess = new ConvertRenderModelToAssimpSceneProcess(rmf);
-
-                    RenderModelDefinition temp_renderModelDef = null;
-                    try
-                    {
-                        await RunProcess(convertProcess);
-
-                        temp_renderModelDef = convertProcess.RenderModelDef;
-
-                        //assimpScene.RootNode.Children.AddRange(convertProcess.Result.RootNode.Children.ToArray());
-                        var importer = new Importer();
-                        importer.ToHelixToolkitScene(convertProcess.Result, out var scene);
-
-
-                        _secundaryMesh.Add((modelFile, temp_renderModelDef, convertProcess.Result));
-                        AddNodeModels(scene.Root);
-                        Model.AddNode(scene.Root);
-                    }
-                    catch (Exception exi)
-                    {
-                        temp_renderModelDef = convertProcess.RenderModelDef;
-
-                    }
-
-                    if (temp_renderModelDef == null)
-                        continue;
-
-                    ModelInfoToRM vara_reg = modelFile.GetModelVariants();
-                    bool found = false;
-                    TreeViewItemModel temp_tvm = null;
-                    if ((modelAttachment["Variant"] as LibHIRT.TagReader.Mmr3Hash).Str_value == "")
-                    {
-                        if (vara_reg.Variants.Count > 0) {
-                            found = true;
-                            temp_tvm = GetMeshInVariant(vara_reg.Variants[0], temp_renderModelDef, vara_reg);
-                        }
-                        
-                    }
-                    else { 
-                        foreach (var item_variant in vara_reg.Variants)
-                        {
-                            if ((item_variant["name"] as Mmr3Hash).AccessValue.ToString() == modelAttachment["Variant"].AccessValue.ToString())
-                            {
-                                found = true;
-                                temp_tvm = GetMeshInVariant(item_variant, temp_renderModelDef, vara_reg);
-
-
-                                break;
-                            }
-
-                        }
-                    }
-                    if (!found)
-                        continue;
-                    SetAtachmentToRegions(convertProcess.Result, modelAttachment, temp_tvm, (TreeViewItemModel)parent.Children[0], tagRef.Ref_id_int);
-                    TreeViewItemModel temp1 = new TreeViewItemModel
-                    {
-                        Header = modelAttachment["Variant"].AccessValue.ToString()
-                    };
-
-                    temp_tvm.SetValue(ItemHelper.ParentProperty, keyValuePairs[att_csm_type.Selected]);
-
-                    keyValuePairs[att_csm_type.Selected].Children.Add(temp_tvm);
-                }
+                await ReadCustomizationAttachmentConfiguration(tagRef, keyValuePairs, tempPart, parent);
             }
             tempPart.SetValue(ItemHelper.ParentProperty, parent);
             parent.Children.Add(tempPart);
+        }
+        private async Task ReadCustomizationAttachmentConfiguration(TagRef tagRef, Dictionary<string, TreeViewItemModel> keyValuePairs, TreeViewItemModel tempPart, TreeViewItemModel parent, bool fromModel = false)
+        {
+
+            if (tagRef == null || tagRef.Ref_id_int == -1)
+                return;
+            CustomizationAttachmentConfiguration attachFile = HIFileContext.Instance.GetFileFrom(tagRef) as CustomizationAttachmentConfiguration;
+            if (attachFile == null)
+                return;
+            ListTagInstance tgl = attachFile.Deserialized.Root["Model Attachments"] as ListTagInstance;
+            if (tgl == null || tgl.Count == 0)
+                return;
+
+            foreach (var modelAttachment in tgl)
+            {
+                TagRef attach_model_ref = modelAttachment["Attachment Model"] as TagRef;
+                EnumGroup att_csm_type = modelAttachment["CMS Customization Item Type"] as EnumGroup;
+
+
+                if (!keyValuePairs.ContainsKey(att_csm_type.Selected))
+                {
+                    keyValuePairs[att_csm_type.Selected] = new TreeViewItemModel();
+                    keyValuePairs[att_csm_type.Selected].Header = att_csm_type.Selected;
+                    keyValuePairs[att_csm_type.Selected].SetValue(ItemHelper.ParentProperty, tempPart);
+                    tempPart.Children.Add(keyValuePairs[att_csm_type.Selected]);
+                }
+
+
+
+                if (attach_model_ref == null || attach_model_ref.TagGroupRev != "hlmt")
+                    continue;
+                ModelFile modelFile = HIFileContext.Instance.GetFileFrom(attach_model_ref) as ModelFile;
+                if (modelFile == null)
+                    continue;
+                var rmf = modelFile.GetRenderModel();
+                if (rmf == null)
+                    continue;
+                var convertProcess = new ConvertRenderModelToAssimpSceneProcess(rmf);
+
+                RenderModelDefinition temp_renderModelDef = null;
+                try
+                {
+                    await RunProcess(convertProcess);
+
+                    temp_renderModelDef = convertProcess.RenderModelDef;
+
+                    //assimpScene.RootNode.Children.AddRange(convertProcess.Result.RootNode.Children.ToArray());
+                    var importer = new Importer();
+                    importer.ToHelixToolkitScene(convertProcess.Result, out var scene);
+
+
+                    _secundaryMesh.Add((modelFile, temp_renderModelDef, convertProcess.Result));
+                    AddNodeModels(scene.Root);
+                    Model.AddNode(scene.Root);
+                }
+                catch (Exception exi)
+                {
+                    temp_renderModelDef = convertProcess.RenderModelDef;
+
+                }
+
+                if (temp_renderModelDef == null)
+                    continue;
+
+                ModelInfoToRM vara_reg = modelFile.GetModelVariants();
+                bool found = false;
+                TreeViewItemModel temp_tvm = null;
+                if ((modelAttachment["Variant"] as LibHIRT.TagReader.Mmr3Hash).Str_value == "")
+                {
+                    if (vara_reg.Variants.Count > 0)
+                    {
+                        found = true;
+                        temp_tvm = GetMeshInVariant(vara_reg.Variants[0], temp_renderModelDef, vara_reg);
+                    }
+
+                }
+                else
+                {
+                    foreach (var item_variant in vara_reg.Variants)
+                    {
+                        if ((item_variant["name"] as Mmr3Hash).AccessValue.ToString() == modelAttachment["Variant"].AccessValue.ToString())
+                        {
+                            found = true;
+                            temp_tvm = GetMeshInVariant(item_variant, temp_renderModelDef, vara_reg);
+
+
+                            break;
+                        }
+
+                    }
+                }
+                if (!found)
+                    continue;
+                var subParent = parent.Children.Count > 0 ? (TreeViewItemModel)parent.Children[0] : parent;
+                if (parent.Children.Count > 0 && (subParent.Header == "Kit Configurations" || subParent.Header.IndexOf("Select Variant ") != -1))
+                {
+                    foreach (TreeViewItemModel item in parent.Children)
+                    {
+                        if (item.Header == "Regions")
+                        {
+                            subParent = item;
+                            break;
+                        }
+                    }
+                }
+                SetAtachmentToRegions(convertProcess.Result, modelAttachment, temp_tvm, subParent, tagRef.Ref_id_int, fromModel);
+                TreeViewItemModel temp1 = new TreeViewItemModel
+                {
+                    Header = modelAttachment["Variant"].AccessValue.ToString()
+                };
+
+                temp_tvm.SetValue(ItemHelper.ParentProperty, keyValuePairs[att_csm_type.Selected]);
+
+                keyValuePairs[att_csm_type.Selected].Children.Add(temp_tvm);
+            }
+
         }
         private List<TreeViewItemChModel> GetPermutationBy(int regName, int perName)
         {
@@ -1306,15 +1470,32 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             }
         }
+        public void SelectOfferOn(string full_path)
+        {
+            if (System.IO.File.Exists(full_path))
+            {
+                try
+                {
+                    string jsonString_temp = System.IO.File.ReadAllText(full_path);
+                    Store store = (Store)JsonSerializer.Deserialize(jsonString_temp, typeof(Store), JsonSerializerFix.SerializerOptions);
+                }
+                catch (Exception ex)
+                {
 
+                    throw ex;
+                }
+                
+
+            }
+        }
         public void SelectCore(string full_path)
         {
             if (System.IO.File.Exists(full_path))
             {
-                
-                
-               string jsonString_temp = System.IO.File.ReadAllText(full_path);
-                
+
+
+                string jsonString_temp = System.IO.File.ReadAllText(full_path);
+
                 ArmorTheme tempArmorTheme = (ArmorTheme)JsonSerializer.Deserialize(jsonString_temp, typeof(ArmorTheme), JsonSerializerFix.SerializerOptions);
 
                 HideAllCommand.Execute(true);
@@ -1331,8 +1512,8 @@ namespace HaloInfiniteResearchTools.ViewModels
                 SelectArmorCoreAttach(tempArmorTheme.HipAttachments.DefaultOptionPath);
                 SelectArmorCoreAttach(tempArmorTheme.WristAttachments.DefaultOptionPath);
                 SelectArmorCoreAttach(tempArmorTheme.Helmets.Options[0].HelmetAttachments.DefaultOptionPath);
-                
-                
+
+
                 /*
 
                 SelectArmorCoreAttach(armorCore.Themes[0].ChestAttachmentPath);
@@ -1360,7 +1541,8 @@ namespace HaloInfiniteResearchTools.ViewModels
                     {
                         _armorCorePart = (ArmorCorePart)JsonSerializer.Deserialize(CmsJsonPair[path], typeof(ArmorCorePart), JsonSerializerFix.SerializerOptions);
                     }
-                    else {
+                    else
+                    {
                         string full_path = LibHIRT.Utils.Utils.CreatePathFromString(path, "", "json");
 
                         if (System.IO.File.Exists(full_path))
@@ -1369,9 +1551,9 @@ namespace HaloInfiniteResearchTools.ViewModels
                             CmsJsonPair[path] = jsonString_temp;
                             _armorCorePart = (ArmorCorePart)JsonSerializer.Deserialize(jsonString_temp, typeof(ArmorCorePart), JsonSerializerFix.SerializerOptions);
                         }
-                        
+
                     }
-                    if (_armorCorePart!=null)
+                    if (_armorCorePart != null)
                         SelectRegionsDatas(_armorCorePart.RegionData);
                 }
                 catch (Exception noImop)
@@ -1398,7 +1580,8 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                     }
                 }
-                else {
+                else
+                {
                     string full_path = LibHIRT.Utils.Utils.CreatePathFromString(path, "", "json");
 
                     if (System.IO.File.Exists(full_path))

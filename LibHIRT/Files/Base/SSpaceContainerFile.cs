@@ -5,7 +5,7 @@
 
         #region Constructor
 
-        protected SSpaceContainerFile(string name, 
+        protected SSpaceContainerFile(string name,
           ISSpaceFile parent = null)
           : base(name, parent)
         {
@@ -28,7 +28,7 @@
 
         #region Private Methods
 
-        protected virtual ISSpaceFile CreateChildFile(string name, long offset, long size, string tagGruop, string signature="")
+        protected virtual ISSpaceFile CreateChildFile(string name, long offset, long size, string tagGruop, string signature = "")
         {
             var dataStartOffset = CalculateTrueChildOffset(offset);
             var dataEndOffset = dataStartOffset + size;

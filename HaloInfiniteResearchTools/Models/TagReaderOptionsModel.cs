@@ -16,11 +16,12 @@ namespace HaloInfiniteResearchTools.Models
 
         private void SetActivePath()
         {
-            if (Active) {
+            if (Active)
+            {
                 TagXmlParse.TagsPath = Path;
                 TagXmlParseV2.TagsPath = Path;
             }
-                
+
         }
 
         public TagReaderPath()

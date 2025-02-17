@@ -1,6 +1,5 @@
 ﻿using LibHIRT.TagReader.Headers;
-using Memory;
-using System.Reflection.PortableExecutable;
+//using Memory;
 using static LibHIRT.TagReader.TagLayoutsV2;
 
 namespace LibHIRT.TagReader
@@ -16,7 +15,7 @@ namespace LibHIRT.TagReader
 
         public TagFile TagFile => null;
 
-        public Mem Reader { get; set; }
+        public object Reader { get; set; } // Memory.Mem
 
         public long Address { get; set; }
 
@@ -34,22 +33,23 @@ namespace LibHIRT.TagReader
 
         public void Dispose()
         {
-            
+
         }
 
-        public TagParseControlMem(string tagGroup) {
+        public TagParseControlMem(string tagGroup)
+        {
             _tagLayoutTemplate = tagGroup;
         }
 
-        public TagParseControlMem( string tagGroup, Mem? reader)
+        public TagParseControlMem(string tagGroup, object? reader)
         {
             _tagLayoutTemplate = tagGroup;
             Reader = reader;
         }
 
         #region On Mem
-        
-        public void readOnMem(long address, Mem M)
+
+        public void readOnMem(long address, object M)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace LibHIRT.TagReader
             }
         }
 
-        private void readTagsAndCreateInstancesFromMem(CompoundTagInstance instance_parent, long address, Mem m)
+        private void readTagsAndCreateInstancesFromMem(CompoundTagInstance instance_parent, long address, object m)
         {
             long temp_size = instance_parent.TagDef.S;
             if (temp_size == 0)
@@ -81,8 +81,8 @@ namespace LibHIRT.TagReader
                 var last = (instance_parent.TagDef as TagLayouts.C).B.Last();
                 temp_size = last.Key + last.Value.S;
             }
-            
-            byte[] bytes = m.ReadBytes(address.ToString("X"), temp_size);
+
+            byte[] bytes = ((Memory.Mem)m).ReadBytes(address.ToString("X"), temp_size);
             var temp_f = new MemoryStream(bytes);
             if (MemoStream == null)
                 MemoStream = new MemoryStream(bytes);
@@ -128,7 +128,7 @@ namespace LibHIRT.TagReader
             {
                 parcial_addresstemp = f.Position;
                 var childItem = TagInstanceFactoryV2.Create(tagDefinitions[entry], parcial_address, entry);
-                childItem.InFileOffset = parcial_address + entry+ global_Address;
+                childItem.InFileOffset = parcial_address + entry + global_Address;
                 tagInstanceTemp.AddChild(childItem);
                 childItem.Parent = parent;
                 childItem.ReadIn(new BinaryReader(f), null);
@@ -171,14 +171,14 @@ namespace LibHIRT.TagReader
                     //ref_it.f += 1;
                     OnInstanceLoad(childItem);
                     break;
-               
+
 
                 case TagElemntTypeV2.TagReference:
-                   
+
                     OnInstanceLoad(childItem);
                     break;
                 case TagElemntTypeV2.Struct:
-                   
+
                     break;
                 case TagElemntTypeV2.Block:
                     tagBlocks.Add((CompoundTagInstance)childItem);
@@ -203,16 +203,21 @@ namespace LibHIRT.TagReader
 
         #endregion
 
-        public bool WriteTagToMem(TagInstance tag) {
+        public bool WriteTagToMem(TagInstance tag)
+        {
             try
             {
-                if (tag.InFileOffset != -1) {
+
+                if (tag.InFileOffset != -1)
+                {
+                    ;
                     byte[] bytesToWrite = tag.GetBytes();
-                    if (tag.TagDef.S != bytesToWrite.Length) { 
+                    if (tag.TagDef.S != bytesToWrite.Length)
+                    {
                     }
-                    var byt = Reader.ReadBytes(tag.InFileOffset.ToString("X"), bytesToWrite.Length);
-                    Reader.WriteBytes(tag.InFileOffset.ToString("X"),bytesToWrite);
-                    var byt2 = Reader.ReadBytes(tag.InFileOffset.ToString("X"), bytesToWrite.Length);
+                    var byt = ((Memory.Mem)Reader).ReadBytes(tag.InFileOffset.ToString("X"), bytesToWrite.Length);
+                    ((Memory.Mem)Reader).WriteBytes(tag.InFileOffset.ToString("X"), bytesToWrite);
+                    var byt2 = ((Memory.Mem)Reader).ReadBytes(tag.InFileOffset.ToString("X"), bytesToWrite.Length);
                     return true;
                 }
                 return false;
@@ -220,7 +225,7 @@ namespace LibHIRT.TagReader
             catch (Exception ex)
             {
                 return false;
-                
+
             }
         }
     }

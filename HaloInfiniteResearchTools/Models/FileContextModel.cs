@@ -1,19 +1,14 @@
 ﻿using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.Processes;
+using LibHIRT.Common;
 using LibHIRT.Files;
 using LibHIRT.Files.Base;
-using LibHIRT.Common;
 using PropertyChanged;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Xml;
 using System.Windows.Threading;
 
 namespace HaloInfiniteResearchTools.Models
@@ -89,9 +84,9 @@ namespace HaloInfiniteResearchTools.Models
             _collectionViewSource = InitializeCollectionView(_context.Files);
             _context.Init();
             HiContext.InitDbHashTable();
-            
+
             _throttler = new ActionThrottler(UpdateFiles, 1500);
-            
+
             SearchTermChangedCommand = new Command<string>(OnSearchTermUpdated);
         }
 
@@ -219,7 +214,7 @@ namespace HaloInfiniteResearchTools.Models
         private void OnSearchTermUpdated(string searchTerm)
         {
             _searchTerm = searchTerm;
-            
+
             _throttler.Execute();
         }
 

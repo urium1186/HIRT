@@ -1,8 +1,4 @@
-﻿using LibHIRT.Utils;
-using System.Diagnostics;
-using System.Xml;
-
-namespace LibHIRT.TagReader
+﻿namespace LibHIRT.TagReader
 {
     // ###### for anyone interested, check out https://github.com/Lord-Zedd/H5Tags/tree/master/tags // thank you lord zedd
     // ###### its quite useful for mapping out descriptions and stuff
@@ -89,6 +85,6 @@ namespace LibHIRT.TagReader
 			return r.parse_the_mfing_xmls(grouptype);
 		}*/
 
-       
+
     }
 }

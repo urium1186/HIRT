@@ -107,7 +107,8 @@ namespace HaloInfiniteResearchTools.Assimport
                 Mesh.Vertices.Add(vertex.Position.ToAssimp3D(false));
 
                 // assign to bone here
-                if (bones_ref != null){
+                if (bones_ref != null)
+                {
                     switch (mesh_vert_type)
                     {
                         case VertType.rigid:
@@ -120,7 +121,7 @@ namespace HaloInfiniteResearchTools.Assimport
                             // the last two are probably always set to 0 or null or whatever
 
                             float[] blend_weights = vertex.Node_weights.Node_weight;
-                            
+
                             int bones_count = 0;
                             for (int i = 7; i >= 0; i--)
                             {
@@ -184,50 +185,55 @@ namespace HaloInfiniteResearchTools.Assimport
 
                             foreach (var bone_i in uni_bones)
                             {
-                                if (bone_i < bones_ref.Length) {
+                                if (bone_i < bones_ref.Length)
+                                {
                                     if (bone_i == byte.MaxValue)
                                         continue;
                                     bones_ref[bone_i].VertexWeights.Add(new((int)offset, 1.0f));
                                 }
-                                    
+
                             }
 
                             break;
-                        
 
-                        
+
+
                         default:
                             break;
                     }
 
-                    if (false && bone_index == 255){ // then this is a weighted vert that may have 1 or more parent bones
+                    if (false && bone_index == 255)
+                    { // then this is a weighted vert that may have 1 or more parent bones
 
                         byte[] blend_indicies = vertex.Node_indices.Node_index;
                         // the last two are probably always set to 0 or null or whatever
 
                         float[] blend_weights = vertex.Node_weights.Node_weight;
-                        
-                            
-                            if (mesh_vert_type == VertType.dq_skinned){
-                            
+
+
+                        if (mesh_vert_type == VertType.dq_skinned)
+                        {
+
                             //    blend_weights[3] = null; // ignore whatever that extra value is
                             //    blend_weights[4] = null;
                             //    blend_weights[5] = null;
-                            
-                            }
-                        
+
+                        }
+
 
                         // to remove duplicates, we iterate through the list backwards, as for some reason duplicates are at the start
 
                         // count unique number of bone indexes
                         int bones_count = 0;
-                        for (int i = 7; i >= 0; i--){
+                        for (int i = 7; i >= 0; i--)
+                        {
                             int? target_bone_index = blend_indicies[i];
                             if (target_bone_index == null)
                                 continue;
 
-                            if (i < 7){
-                                if (blend_indicies[i+1] != target_bone_index)
+                            if (i < 7)
+                            {
+                                if (blend_indicies[i + 1] != target_bone_index)
                                     bones_count++;
                                 continue;
                             }
@@ -237,7 +243,8 @@ namespace HaloInfiniteResearchTools.Assimport
 
                         // preprocess to fill in missing values & normalize the weights
                         float normalization_value = 0.0f;
-                        for (int i = 7; i >= 0; i--){
+                        for (int i = 7; i >= 0; i--)
+                        {
                             int? target_bone_index = blend_indicies[i];
                             if (target_bone_index == null || target_bone_index >= 255) continue;
                             if (i < 7 && blend_indicies[i + 1] == target_bone_index) break;
@@ -253,7 +260,8 @@ namespace HaloInfiniteResearchTools.Assimport
                         // and now we iterate through the indexes & assign to bones
                         float debug_total_measured_weight = 0.0f;
                         float debug_total_adjusted_weight = 0.0f;
-                        for (int i = 7; i >= 0; i--){
+                        for (int i = 7; i >= 0; i--)
+                        {
                             int? target_bone_index = blend_indicies[i];
                             // if not assigned or potentially invalid index, then skip (we should actually break, as its unlikely the following items would have results)
                             if (target_bone_index == null || target_bone_index >= 255)
@@ -261,7 +269,7 @@ namespace HaloInfiniteResearchTools.Assimport
                             // it turns out unused indexes just copy the previous one (which doesn't cause any issues with the previous code) opposed to being set to 255
                             // se we're just checking to see if we already added that bone weight entry already
                             // to do this correctly, we have to iterate through the array backwards, as duplicates are stored at the front
-                            if (i < 7 && blend_indicies[i+1] == target_bone_index)
+                            if (i < 7 && blend_indicies[i + 1] == target_bone_index)
                                 break; // anything after this is probably also a duplicate
 
                             float? weight = blend_weights[i] * normalization_value;
@@ -288,7 +296,7 @@ namespace HaloInfiniteResearchTools.Assimport
                         // total weight should be 1.0f, but i feel like its possible that it doesn't always have to be?
                         if (debug_total_adjusted_weight != 1.0f)
                         {
-                             
+
                         }
 
                         // debugging breakpoints
@@ -318,7 +326,7 @@ namespace HaloInfiniteResearchTools.Assimport
             S3DFace[] salida = new S3DFace[vert_index.Count / 3];
             int rest = vert_index.Count % 3;
             int nFace = 0;
-            for (int i = 0; i < vert_index.Count-rest; i += 3)
+            for (int i = 0; i < vert_index.Count - rest; i += 3)
             {
 
                 salida[nFace++] = S3DFace.Create(new uint[3] { vert_index[i], vert_index[i + 1], vert_index[i + 2] });

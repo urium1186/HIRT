@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace LibHIRT.Common
+﻿namespace LibHIRT.Common
 {
 
     // Based on https://gist.github.com/mstepura/7ded78c66927114aa8fa

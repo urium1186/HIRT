@@ -1,13 +1,8 @@
 ﻿using HaloInfiniteResearchTools.Common;
-using HavokScriptToolsCommon;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.ViewModels
@@ -32,7 +27,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     if (data != null && data.ByteLengthCount != 0)
                     {
                         HsSource = System.Text.Encoding.Default.GetString(data.ReadBuffer());
-                        
+
                     }
                 }
             }

@@ -1,0 +1,14 @@
+﻿<Window x:Class="HaloInfiniteResearchTools.Controls.FullScreenWindow"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" WindowState="Maximized" Topmost="True"
+         Background="LightGray" AllowsTransparency="True"
+        Opacity="1" KeyUp="Window_KeyUp">
+    <Grid Margin="10,10,10,8">
+        <Canvas Name="canvas" Background="Transparent" Cursor="Cross"/>
+        <Button x:Name="Close" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Top" Click="Close_Click" >
+            <Image Source="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/Icon/icons8-close-40.png"></Image>
+        </Button>
+        
+    </Grid>
+</Window>

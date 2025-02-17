@@ -1,5 +1,4 @@
 ﻿using LibHIRT.Files;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,7 +33,7 @@ namespace HaloInfiniteResearchTools.Processes
             IsIndeterminate = true;
 
             var objLock = new object();
-            
+
             try
             {
                 var result = _fileContext.OpenFromRuntime("");
@@ -57,7 +56,7 @@ namespace HaloInfiniteResearchTools.Processes
                 lock (objLock)
                     CompletedUnits++;
             }
-            
+
         }
     }
 }

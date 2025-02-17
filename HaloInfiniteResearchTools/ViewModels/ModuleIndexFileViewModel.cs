@@ -1,30 +1,24 @@
 ﻿using HaloInfiniteResearchTools.Common;
-using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Services;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
 using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.TagReader;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.SqlClient;
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
-    public class ModuleIndexFileFilter { 
-        public string GlobalId { get; set;} 
-        public string GlobalIdRefIn { get; set;} 
+    public class ModuleIndexFileFilter
+    {
+        public string GlobalId { get; set; }
+        public string GlobalIdRefIn { get; set; }
     }
 
     [AcceptsFileType(typeof(ModuleIndexFile))]
@@ -58,7 +52,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private ICollectionView InitializeCollectionView(ConcurrentBag<EntryRef> values)
         {
-            
+
             var collectionView = CollectionViewSource.GetDefaultView(values);
             collectionView.Filter = OnFilterFiles;
 
@@ -69,25 +63,29 @@ namespace HaloInfiniteResearchTools.ViewModels
         {
             EntryRef entryRef = (EntryRef)obj;
             bool isValid = true;
-            if (!string.IsNullOrEmpty(Filters.GlobalId) && !entryRef.globalId.ToString().Contains(Filters.GlobalId)) {
+            if (!string.IsNullOrEmpty(Filters.GlobalId) && !entryRef.globalId.ToString().Contains(Filters.GlobalId))
+            {
                 isValid = false;
             }
-            if (!string.IsNullOrEmpty(Filters.GlobalIdRefIn)) {
+            if (!string.IsNullOrEmpty(Filters.GlobalIdRefIn))
+            {
                 bool refFound = false;
                 foreach (var item in entryRef.subentry)
                 {
                     foreach (var refers in item.references)
                     {
-                        if (refers.globalId.ToString().Contains(Filters.GlobalIdRefIn)) {
+                        if (refers.globalId.ToString().Contains(Filters.GlobalIdRefIn))
+                        {
                             refFound = true;
                             break;
                         }
                     }
-                    if (refFound) {
+                    if (refFound)
+                    {
                         break;
                     }
                 }
-                isValid = refFound; 
+                isValid = refFound;
             }
             return isValid;
         }
@@ -107,7 +105,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             if (!_tabService.CreateTabForFile(file, out _, true))
             {
-                
+
                 await ShowMessageModal(
                   title: "Unsupported File Type",
                   message: $"We can't open {file.TagGroup} files yet.");
@@ -137,7 +135,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 IsBusy = false;
             }
 
-            
+
             await base.OnInitializing();
         }
 

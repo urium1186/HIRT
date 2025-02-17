@@ -11,21 +11,26 @@ namespace LibHIRT.Exporters.Utils
             rootNode.Accept((node) =>
             {
                 var globalTransform = node.EvaluateGlobalTransform(false);
-                if (node.Name.Contains("instance_")) {
+                if (node.Name.Contains("instance_"))
+                {
                     bool found = false;
-                    if (node.Transform.EulerAngles.x > 180 || node.Transform.EulerAngles.x < -90) {
+                    if (node.Transform.EulerAngles.x > 180 || node.Transform.EulerAngles.x < -90)
+                    {
                         node.SetProperty("bug X", node.Transform.EulerAngles.x);
                         found = true;
                     }
-                    if (node.Transform.EulerAngles.y > 180 || node.Transform.EulerAngles.y < -90) {
+                    if (node.Transform.EulerAngles.y > 180 || node.Transform.EulerAngles.y < -90)
+                    {
                         node.SetProperty("bug Y", node.Transform.EulerAngles.y);
                         found = true;
                     }
-                    if (node.Transform.EulerAngles.z > 180 || node.Transform.EulerAngles.z < -90) {
+                    if (node.Transform.EulerAngles.z > 180 || node.Transform.EulerAngles.z < -90)
+                    {
                         node.SetProperty("bug Z", node.Transform.EulerAngles.z);
                         found = true;
                     }
-                    if (found) {
+                    if (found)
+                    {
                         node.SetProperty("xyz position", node.Transform.Translation);
 
                         Vector3 temp = new Vector3(node.Transform.Rotation.x, node.Transform.Rotation.y, node.Transform.Rotation.z);
@@ -33,7 +38,7 @@ namespace LibHIRT.Exporters.Utils
                         node.SetProperty("rot quater xyz", temp);
                         node.SetProperty("rot quater str", node.Transform.Rotation.ToString());
                         node.SetProperty("xyz scale", node.Transform.Scale);
-                        
+
                     }
                     node.SetProperty("bug", found);
                     node.SetProperty("xyz angles", node.Transform.EulerAngles);
@@ -44,7 +49,8 @@ namespace LibHIRT.Exporters.Utils
             });
         }
 
-        private static Vector3 radiansToAngle(Vector3 vector) {
+        private static Vector3 radiansToAngle(Vector3 vector)
+        {
             return new Vector3(
                      vector.x * (180 / Math.PI),
                      vector.y * (180 / Math.PI),

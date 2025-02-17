@@ -75,7 +75,7 @@ namespace HaloInfiniteResearchTools.Controls
          typeof(ICommand),
          typeof(ModelViewerControl),
          new PropertyMetadata());
-        
+
         public static readonly DependencyProperty SelectedMeshProperty = DependencyProperty.Register(
          nameof(SelectedMesh),
          typeof(GeometryNode),
@@ -451,7 +451,8 @@ namespace HaloInfiniteResearchTools.Controls
         {
             Viewport3DX vp = e.Source as Viewport3DX;
             MouseDown3DEventArgs event_arg = e as MouseDown3DEventArgs;
-            if ((event_arg.OriginalInputEventArgs as MouseButtonEventArgs).RightButton == MouseButtonState.Pressed && (event_arg.OriginalInputEventArgs as MouseButtonEventArgs).ClickCount < 2) {
+            if ((event_arg.OriginalInputEventArgs as MouseButtonEventArgs).RightButton == MouseButtonState.Pressed && (event_arg.OriginalInputEventArgs as MouseButtonEventArgs).ClickCount < 2)
+            {
                 return;
             }
             SharpDX.Vector3 p;
@@ -460,7 +461,8 @@ namespace HaloInfiniteResearchTools.Controls
             if (vp.FindNearest(new SharpDX.Vector2((float)event_arg.Position.X, (float)event_arg.Position.Y), out p, out v, out m))
             {
                 var hit = event_arg.HitTestResult;
-                if (m is GeometryNode) {
+                if (m is GeometryNode)
+                {
                     if (curretSelected != null)
                         curretSelected.PostEffects = null;
                     curretSelected = ((HelixToolkit.SharpDX.Core.Model.Scene.GeometryNode)m);
@@ -470,13 +472,15 @@ namespace HaloInfiniteResearchTools.Controls
                 //"border"
                 //Do something with the found object
             }
-            else {
-                if (curretSelected != null) {
+            else
+            {
+                if (curretSelected != null)
+                {
                     curretSelected.PostEffects = null;
                     curretSelected = null;
                 }
 
-                
+
             }
         }
 

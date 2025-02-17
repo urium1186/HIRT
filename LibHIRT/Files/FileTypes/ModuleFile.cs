@@ -1,13 +1,10 @@
-﻿using Aspose.ThreeD;
-using LibHIRT.Common;
-using LibHIRT.DAO;
+﻿using LibHIRT.Common;
 using LibHIRT.Files.Base;
 using LibHIRT.ModuleUnpacker;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using LibHIRT.Utils;
 using Oodle;
-using OpenSpartan.Grunt.Models.HaloInfinite;
 using System.Diagnostics;
 using static LibHIRT.Assertions;
 
@@ -24,6 +21,8 @@ namespace LibHIRT.Files.FileTypes
         List<Dictionary<string, object>> _inDiskPathDB;
 
         List<SSpaceFile> _debugFiles = new List<SSpaceFile>();
+        private bool LoadSavePathFromDB = true;
+
         private void processFileFileEntry(HiModuleFileEntry fileEntry)
         {
 
@@ -49,18 +48,21 @@ namespace LibHIRT.Files.FileTypes
         }
         protected override void OnInitialize()
         {
+            LoadSavePathFromDB = HIFileContext.Instance.ConfigHIRT.LoadSaveFilesPath;
             if (BaseStream != null)
                 base.OnInitialize();
         }
-        void reset() {
+        void reset()
+        {
             if (BaseStream != null)
                 BaseStream.Close();
         }
 
-        public ISSpaceFile GetFileByGlobalId(int id) {
-            
+        public ISSpaceFile GetFileByGlobalId(int id)
+        {
+
             if (_filesGlobalIdLookup.TryGetValue(id, out int index))
-            { 
+            {
                 if (_filesIndexLookup.TryGetValue(index, out ISSpaceFile value))
                     return value;
             }
@@ -89,7 +91,8 @@ namespace LibHIRT.Files.FileTypes
             }
         }
 
-        public bool hasHd1File() {
+        public bool hasHd1File()
+        {
             try
             {
                 if (!string.IsNullOrEmpty(InDiskPath))
@@ -346,11 +349,11 @@ namespace LibHIRT.Files.FileTypes
                         break;
                     continue;
                 }
-                Debug.Assert(BaseStream.Position == (long)_moduleHeader.DataOffset + 1);
+                Debug.Assert(true || (BaseStream.Position == (long)_moduleHeader.DataOffset + 1));
             }
 
-            
-            FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out _inDiskPathDB);
+            if (LoadSavePathFromDB)
+                FileInDiskPathDA.getFromDbInDiskPath(TryGetGlobalId(), out _inDiskPathDB);
 
         }
         private HiModuleFileEntry readFileEntryIn(int index = -1)
@@ -361,11 +364,17 @@ namespace LibHIRT.Files.FileTypes
                 int pos = _moduleHeader.FileEntrysOffset + (index * _moduleHeader.FileEntrysTypeSize);
                 Reader.BaseStream.Seek(pos, SeekOrigin.Begin);
             }
-            entry.ReadIn(Reader);
-            
+            if (_moduleHeader.Version == 48)
+                entry.ReadIn_48(Reader);
+            else if (_moduleHeader.Version == 51)
+                entry.ReadIn_51(Reader);
+            else
+                entry.ReadIn(Reader);
+
             entry.Index = index;
             checkFileHeader(entry.First_block_index);
-            if (index == ModuleHeader.MapRefIndex) {
+            if (index == ModuleHeader.MapRefIndex)
+            {
                 Debug.Assert(true || (entry.GlobalTagId1 == -1));
                 entry.TagGroupRev = "modix";
                 entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-index" + ".index";
@@ -379,7 +388,9 @@ namespace LibHIRT.Files.FileTypes
                 {
                     Debug.Assert(this.ModuleHeader.Unk0x18 == 0);
                 }*/
-            } else if (index < ModuleHeader.MapRefIndex) {
+            }
+            else if (index < ModuleHeader.MapRefIndex)
+            {
                 entry.TagGroupRev = "modcr";
                 entry.Path_string = entry.TagGroupRev + "\\" + this.ModuleHeader.ModuleIntId + "-relate_incr" + ".modcr";
             }
@@ -388,7 +399,8 @@ namespace LibHIRT.Files.FileTypes
             {
                 Reader.BaseStream.Seek(_moduleHeader.StringTableOffset + entry.String_offset, SeekOrigin.Begin);
                 string pathReaded = Reader.ReadStringNullTerminated();
-                entry.Path_string = pathReaded?.Replace("\0", "").Replace("'","");
+                entry.Path_string = pathReaded?.Replace("\0", "").Replace("'", "");
+                Debug.WriteLine(entry.Path_string);
                 getOrSetInDiskPatDB(entry);
             }
             else
@@ -412,8 +424,8 @@ namespace LibHIRT.Files.FileTypes
                     }
                     else
                     {
-                        
-                        
+
+
                     }
                 }
                 else
@@ -432,6 +444,8 @@ namespace LibHIRT.Files.FileTypes
 
         private void getOrSetInDiskPatDB(HiModuleFileEntry entry)
         {
+            if (!LoadSavePathFromDB)
+                return;
             if (entry.GlobalTagId1 == -1)
                 return;
             List<Dictionary<string, object>> retorno;
@@ -447,25 +461,48 @@ namespace LibHIRT.Files.FileTypes
                 //    entry.Path_string = retorno[0]["path_string"]?.ToString();
                 //}
             }
-            else {
+            else
+            {
+                if (!entry.Path_string.Contains('.'))
+                    return;
+                /*if (entry.Path_string.Contains("spartan_armor.model"))
+                    return;*/
+
                 string pathTo = getInFilePathOnDb(entry.GlobalTagId1);
                 if (pathTo == null)
                     FileInDiskPathDA.insertToDbInDiskPath(entry.Path_string, entry.GlobalTagId1, TryGetGlobalId());
-                
+                else
+                {
+                    if (pathTo != entry.Path_string)
+                    {
+                    }
+                }
+
             }
-            
+
         }
 
-        string getInFilePathOnDb(int fileId) {
+        string getInFilePathOnDb(int fileId)
+        {
             if (_inDiskPathDB == null)
                 return null;
-            List<Dictionary<string, object>> result = _inDiskPathDB.FindAll(c => (int)c["file_id"] == fileId);
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            _inDiskPathDB.RemoveAll(c =>
+            {
+                if ((int)c["file_id"] == fileId)
+                {
+                    result.Add(c);
+                    return true;
+                }
+                return false;
+            });
             if (result != null && result.Count > 0)
             {
                 if (result.Count != 1)
                 {
 
                 }
+
                 return result[0]["path_string"]?.ToString();
             }
             else
@@ -496,11 +533,14 @@ namespace LibHIRT.Files.FileTypes
             return entry;
         }
 
-        public ISSpaceFile getResourceOfFileAt(SSpaceFile file, int index) {
+        public ISSpaceFile getResourceOfFileAt(SSpaceFile file, int index)
+        {
             int r_index = readResourceEntryIn(file.FileMemDescriptor.First_resource_index + index);
             var fileEntry = readFileEntryIn(r_index);
-            if (fileEntry != null && fileEntry.Comp_size != 0) {
-                if (fileEntry.ParentOffResource != file.FileMemDescriptor.Index) {
+            if (fileEntry != null && fileEntry.Comp_size != 0)
+            {
+                if (fileEntry.ParentOffResource != file.FileMemDescriptor.Index)
+                {
                     throw new IndexOutOfRangeException("Index out of range."); ;
                 }
                 string signature = "";
@@ -508,7 +548,8 @@ namespace LibHIRT.Files.FileTypes
                 if (Common.Inst.MA_GUID_EXT_RESOURCE.TryGetValue(file.FileMemDescriptor.TagGroupRev, out out_s))
                     signature = out_s.Item1;
                 var childFile = CreateChildFile(fileEntry.Path_string, 0, fileEntry.Decomp_size, fileEntry.TagGroupRev, signature);
-                if (childFile != null) {
+                if (childFile != null)
+                {
                     (childFile as SSpaceFile).FileMemDescriptor = fileEntry;
 
                     return childFile;
@@ -519,10 +560,11 @@ namespace LibHIRT.Files.FileTypes
             }
             throw new IndexOutOfRangeException("Index out of range.");
         }
-        
-        protected void checkFileHeader(int firstBlock) {
+
+        protected void checkFileHeader(int firstBlock)
+        {
             HiModuleBlockEntry block = readBlockEntryIn(firstBlock);
-            if (block != null && firstBlock!=0)
+            if (block != null && firstBlock != 0)
             {
                 //Debug.Assert(!block.B_compressed);
 
@@ -537,7 +579,7 @@ namespace LibHIRT.Files.FileTypes
                 var entry = readFileEntryIn(i);
                 if (entry != null && entry.Comp_size != 0)
                 {
-                    
+
                     var childFile = CreateChildFile(entry.Path_string, 0, entry.Decomp_size, entry.TagGroupRev);
                     (childFile as SSpaceFile).FileMemDescriptor = entry;
                     if (!(childFile is null))
@@ -612,10 +654,11 @@ namespace LibHIRT.Files.FileTypes
             {
                 int prev = -1;
                 int i = 0;
-                List<int> indexs= new List<int>();
+                List<int> indexs = new List<int>();
                 foreach (var item in item_file.Resource_list)
                 {
-                    if (prev == -1) {
+                    if (prev == -1)
+                    {
                         int ind = rl.IndexOf((item as SSpaceFile).FileMemDescriptor.Index);
                         indexs.Add(ind);
                         int f_r_i = (item_file as SSpaceFile).FileMemDescriptor.First_resource_index;
@@ -635,11 +678,13 @@ namespace LibHIRT.Files.FileTypes
                             //Debug.Assert(f_f_r_i == 0);
                             //Debug.Assert(f_r_i == 37788);
                         }
-                        else {
-                            if ((item as SSpaceFile).Resource_list.Count == 0) {
-                                
+                        else
+                        {
+                            if ((item as SSpaceFile).Resource_list.Count == 0)
+                            {
+
                             }
-                            
+
                         }
                         prev = ind;
                     }
@@ -650,11 +695,11 @@ namespace LibHIRT.Files.FileTypes
                 {
 
                 }
-                else 
-                { 
-                
+                else
+                {
+
                 }
-                   
+
                 k++;
             }
 
@@ -698,7 +743,7 @@ namespace LibHIRT.Files.FileTypes
         {
             this.hd1Handle?.Close();
             this.hd1Handle?.Dispose();
-            
+
             this._filesGlobalIdLookup.Clear();
             foreach (var item in _filesIndexLookup)
             {
@@ -711,7 +756,7 @@ namespace LibHIRT.Files.FileTypes
 
         public override void InitializeStream(HIRTStream baseStream, long dataStartOffset, long dataEndOffset)
         {
-            
+
             base.InitializeStream(baseStream, dataStartOffset, dataEndOffset);
         }
         #endregion

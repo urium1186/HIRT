@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace HaloInfiniteResearchTools.Models
 {
@@ -56,7 +55,7 @@ namespace HaloInfiniteResearchTools.Models
             tab.CloseRightTabRequested -= OnCloseRightTab;
             tab.Dispose();
         }
-         private void OnCloseAllTab(object sender, EventArgs e)
+        private void OnCloseAllTab(object sender, EventArgs e)
         {
             foreach (var item in Tabs)
             {
@@ -68,26 +67,26 @@ namespace HaloInfiniteResearchTools.Models
                 item.Dispose();
             }
             Tabs.Clear();
-            
+
         }
-         private void OnCloseOthersTab(object sender, EventArgs e)
+        private void OnCloseOthersTab(object sender, EventArgs e)
         {
             var tab = sender as ITab;
             if (tab is null)
                 return;
-            ITab[] itemToRemove =  new Tab[Tabs.Count-1];
+            ITab[] itemToRemove = new Tab[Tabs.Count - 1];
             int i = 0;
             foreach (var item in Tabs)
             {
                 if (item == tab)
-                    continue; 
+                    continue;
                 item.CloseRequested -= OnCloseTab;
                 item.CloseAllTabRequested -= OnCloseAllTab;
                 item.CloseOthersTabRequested -= OnCloseOthersTab;
                 item.CloseLeftTabRequested -= OnCloseLeftTab;
                 item.CloseRightTabRequested -= OnCloseRightTab;
                 item.Dispose();
-                
+
                 itemToRemove[i] = item;
                 i++;
             }
@@ -96,50 +95,52 @@ namespace HaloInfiniteResearchTools.Models
             {
                 Tabs.Remove(item);
             }
-            
-        } 
+
+        }
         private void OnCloseLeftTab(object sender, EventArgs e)
         {
             var tab = sender as ITab;
             if (tab is null)
                 return;
-            
-            List<ITab> itemToRemove =  new List<ITab>();
-            
+
+            List<ITab> itemToRemove = new List<ITab>();
+
             foreach (var item in Tabs)
             {
                 if (item == tab)
-                    break; 
+                    break;
                 item.CloseRequested -= OnCloseTab;
                 item.CloseAllTabRequested -= OnCloseAllTab;
                 item.CloseOthersTabRequested -= OnCloseOthersTab;
                 item.CloseLeftTabRequested -= OnCloseLeftTab;
                 item.CloseRightTabRequested -= OnCloseRightTab;
                 item.Dispose();
-                
+
                 itemToRemove.Add(item);
-                
+
             }
 
             foreach (var item in itemToRemove)
             {
                 Tabs.Remove(item);
             }
-            
-        } 
+
+        }
         private void OnCloseRightTab(object sender, EventArgs e)
         {
             var tab = sender as ITab;
             if (tab is null)
                 return;
             List<ITab> itemToRemove = new List<ITab>();
-            bool found= false;
+            bool found = false;
             foreach (var item in Tabs)
             {
                 if (item == tab)
                     found = true;
-                else {
-                    if (found) {
+                else
+                {
+                    if (found)
+                    {
                         item.CloseRequested -= OnCloseTab;
                         item.CloseAllTabRequested -= OnCloseAllTab;
                         item.CloseOthersTabRequested -= OnCloseOthersTab;
@@ -149,17 +150,17 @@ namespace HaloInfiniteResearchTools.Models
 
                         itemToRemove.Add(item);
                     }
-                    
-                } 
-                
-                
+
+                }
+
+
             }
 
             foreach (var item in itemToRemove)
             {
                 Tabs.Remove(item);
             }
-            
+
         }
 
         #endregion

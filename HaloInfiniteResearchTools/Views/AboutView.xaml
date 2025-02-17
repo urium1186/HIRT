@@ -26,12 +26,13 @@
                            RenderOptions.BitmapScalingMode="HighQuality"
                            Grid.Column="0"
                            Height="125"
-                           Width="125"/>
+                           Width="125"/> 1.0.00
 -->
                     <Label Content="Halo Infinite Research Tool" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                    <Image Height="280" Width="280" Source="/Views/WhatsApp Image 2023-07-10 at 11.56.57.jpg">
+                    <Label Content="V 1.0.00" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <Image Height="280" Width="280" Source="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/paypal.jpg">
                         <Image.OpacityMask>
-                            <ImageBrush ImageSource="/Views/WhatsApp Image 2023-07-10 at 11.56.57.jpg"/>
+                            <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/paypal.jpg"/>
                         </Image.OpacityMask>
                     </Image>
 
@@ -56,7 +57,7 @@
                                 IsHitTestVisible="True"
                                 Cursor="Hand">
                             <Border.Background>
-                                <ImageBrush ImageSource="/Views/unnamed.jpg"/>
+                                <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/unnamed.jpg"/>
                             </Border.Background>
                             <Border.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" 
@@ -362,6 +363,10 @@
                 </ScrollViewer>
             </Grid>
         </TabItem>
-
+        <TabItem Header="Ref Ext Res">
+            <WebBrowser x:Name="web">
+                
+            </WebBrowser>
+        </TabItem>
     </TabControl>
 </view:View>

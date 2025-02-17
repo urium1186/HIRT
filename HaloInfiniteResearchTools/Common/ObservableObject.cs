@@ -40,7 +40,7 @@ namespace HaloInfiniteResearchTools.Common
         {
             Dispose(true);
         }
-        
+
         private void Dispose(bool disposing)
         {
             if (_isDisposed)

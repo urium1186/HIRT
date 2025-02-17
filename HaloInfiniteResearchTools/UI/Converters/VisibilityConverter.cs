@@ -13,13 +13,13 @@ namespace HaloInfiniteResearchTools.UI.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is ICollection collection)
-            { 
-                if (parameter!= null)
+            {
+                if (parameter != null)
                     return collection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
                 else
                     return collection.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
-                
+
             else
                 return Visibility.Collapsed;
         }
@@ -48,14 +48,17 @@ namespace HaloInfiniteResearchTools.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isVisible) {
-                
-                if (parameter != null && bool.TryParse(parameter.ToString(), out bool result)) {
-                    if (result) {
+            if (value is bool isVisible)
+            {
+
+                if (parameter != null && bool.TryParse(parameter.ToString(), out bool result))
+                {
+                    if (result)
+                    {
                         isVisible = !isVisible;
-                    }    
+                    }
                 }
-                    
+
                 return isVisible ? Visibility.Visible : Visibility.Collapsed;
             }
             else

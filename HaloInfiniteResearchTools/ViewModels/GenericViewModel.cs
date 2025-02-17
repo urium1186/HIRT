@@ -136,7 +136,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                              message: $"We can't open the global id {Ref_id_int}.");
                 return;
             }
-                
+
             if (!_tabService.CreateTabForFile(file, out _, true))
             {
                 var fileExt = Path.GetExtension(file.Name);
@@ -148,7 +148,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             }
         }
 
-        protected async Task<List<EntryRef>> GetAllFilesRefTo() {
+        protected async Task<List<EntryRef>> GetAllFilesRefTo()
+        {
             GetAllTagReferenceToProcess process = new GetAllTagReferenceToProcess(_file.TryGetGlobalId());
             var modal = ServiceProvider.GetService<ProgressModal>();
             modal.DataContext = process;
@@ -169,7 +170,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 return refsToFile;
 
             }
-                
+
         }
 
         public GenericViewModel(IServiceProvider serviceProvider, TagStructMemFile fileMem) : base(serviceProvider)
@@ -262,13 +263,13 @@ namespace HaloInfiniteResearchTools.ViewModels
 
                         throw ex;
                     }
-                    
+
                 }
             }
         }
 
 
-            private async Task ExportModel()
+        private async Task ExportModel()
         {
             Tuple<ModelExportOptionsModel, TextureExportOptionsModel> result = (Tuple<ModelExportOptionsModel, TextureExportOptionsModel>)await ShowViewModal<ModelExportOptionsView>();
             await _dViewerControlModel.ExportModel(result);
@@ -282,16 +283,17 @@ namespace HaloInfiniteResearchTools.ViewModels
                     return;
                 arg.WriteIn(FileStream);
             }
-            else {
+            else
+            {
                 (tagParse as TagParseControlMem).WriteTagToMem(arg);
             }
-            
+
         }
         private async Task WriteToMem(TagInstance arg)
         {
             if (tagParse is TagParseControlMem)
                 (tagParse as TagParseControlMem).WriteTagToMem(arg);
-            
+
         }
 
         private async Task RenderGeomGenOpen(RenderGeometryTag arg)
@@ -323,7 +325,8 @@ namespace HaloInfiniteResearchTools.ViewModels
             SelectedTabIndex = 1;
         }
 
-        private async Task WriteTagMem() { 
+        private async Task WriteTagMem()
+        {
         }
         private async Task WriteTagFile()
         {
@@ -339,10 +342,11 @@ namespace HaloInfiniteResearchTools.ViewModels
                             temp.WriteTag(_file);
                         }
                     }
-                    else { 
-                        
+                    else
+                    {
+
                     }
-                    
+
                 }
             }
             catch (Exception ex)
@@ -375,11 +379,12 @@ namespace HaloInfiniteResearchTools.ViewModels
             System.IO.File.WriteAllText(file_path, result);
         }
 
-       
+
 
         protected override async Task OnInitializing()
         {
-            if (_file != null) {
+            if (_file != null)
+            {
                 var process = new ReadTagInstanceProcessV2(_file);
                 var modal = ServiceProvider.GetService<ProgressModal>();
                 modal.DataContext = process;
@@ -396,7 +401,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     tagParse = process.TagParse;
 
                     _optResource.Clear();
-                    int r_count = (tagParse as TagParserControlV2).ExtResource.Count;
+                    int r_count = (tagParse as TagParserControlV2).ExtResource == null ? 0 : (tagParse as TagParserControlV2).ExtResource.Count;
                     if (r_count > 0)
                     {
                         for (int i = 0; i < r_count; i++)
@@ -414,7 +419,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                         _tagRoot.Add(root);
                         _tagRootModel.Add(new TagInstanceModel(root));
                     }
-                    
+
                     _tagFile = tagParse.TagFile;
                     this.OnPropertyChanged("TagFile");
 
@@ -425,9 +430,14 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
 
                 var statusList = process.StatusList;
+                if ((tagParse as TagParserControlV2).ListEx.Count > 0)
+                    foreach (var item in (tagParse as TagParserControlV2).ListEx)
+                    {
+                        statusList.AddError("leer en parse", item.Message, item);
+                    }
                 if (statusList.HasErrors || statusList.HasWarnings)
                     await ShowStatusListModal(statusList);
-                
+
             }
             else if (_fileMem != null)
             {
@@ -468,7 +478,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                         await ShowStatusListModal(statusList);
 
 
-                    
+
                 }
 
             }
@@ -534,13 +544,14 @@ namespace HaloInfiniteResearchTools.ViewModels
                 if (HIFileContext.Instance.RuntimeTagLoader.TagsList.ContainsKey(tagRef.Ref_id_int))
                 {
                     var file = HIFileContext.Instance.RuntimeTagLoader.TagsList[tagRef.Ref_id_int];
-                    if (file is null) {
+                    if (file is null)
+                    {
                         await ShowMessageModal(
                                 title: "Ref to file not found.",
                                 message: $"We can't open the global id {tagRef.Ref_id_int}.");
                         return;
                     }
-                        
+
                     if (!_tabService.CreateTabForFile(file, out _))
                     {
                         var fileExt = Path.GetExtension(file.TagGroup);
@@ -580,7 +591,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 }
                 else
                 {
-                    file =  HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
+                    file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
 
                 }
                 if (file == null)
@@ -607,7 +618,8 @@ namespace HaloInfiniteResearchTools.ViewModels
                 if (HIFileContext.Instance.RuntimeTagLoader.TagsList.ContainsKey(tagRef.Ref_id_int))
                 {
                     var file = HIFileContext.Instance.RuntimeTagLoader.TagsList[tagRef.Ref_id_int];
-                    if (file is null) {
+                    if (file is null)
+                    {
                         await ShowMessageModal(
                                 title: "Ref to file not found.",
                                 message: $"We can't open the global id {tagRef.Ref_id_int}.");
@@ -637,7 +649,7 @@ namespace HaloInfiniteResearchTools.ViewModels
         protected override void OnDisposing()
         {
             this.tagParse = null;
-            if (this.DViewerControlModel!=null)
+            if (this.DViewerControlModel != null)
                 this.DViewerControlModel.Dispose();
             this.JsonFile = null;
             this.TagRoot.Clear();
@@ -646,7 +658,7 @@ namespace HaloInfiniteResearchTools.ViewModels
             this.TagFile = null;
             this.TagRootModel.Clear();
             this.TagRootModel = null;
-            
+
             base.OnDisposing();
         }
     }

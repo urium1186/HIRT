@@ -66,7 +66,7 @@ namespace LibHIRT.TagReader.Headers
                     MemoryStream stream = new(buffer);
                     DataBlock entry = new(stream);
                     entry.ReadIn();
-                    entry.Index= i;
+                    entry.Index = i;
                     switch (entry.Section)
                     {
                         case 1:

@@ -22,7 +22,6 @@ namespace HaloInfiniteResearchTools.ViewModels
         protected override async Task OnInitializing()
         {
             await base.OnInitializing();
-
         }
     }
 }

@@ -1,11 +1,9 @@
 ﻿using LibHIRT.Files;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 
 namespace HaloInfiniteResearchTools.Processes
 {

@@ -1,0 +1,202 @@
+﻿<view:View x:Class="HaloInfiniteResearchTools.Views.SaludosView"
+           x:TypeArguments="vm:SaludosViewModel"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+       xmlns:view="clr-namespace:HaloInfiniteResearchTools.Views"
+            xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
+           xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1080"
+      >
+
+    <Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!--
+                    <Image Source="pack://application:,,,/H2AIndex;component/Index.png"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           Grid.Column="0"
+                           Height="125"
+                           Width="125"/>
+-->
+                <Image Height="50" Width="50" Source="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/icon/IconHIRT.ico">
+                </Image>
+                <Label Content="Halo Infinite Research Tool" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                <Label Content="Support Our App Development" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                <Image Height="280" Width="280" Source="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/paypal.jpg">
+                </Image>
+                <Label Content="Enjoy our app for free." FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                <TextBlock  FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap">
+                            This app is completely free and was developed non-profit. Your monetary contributions, if you wish to make them, will serve to support its development.
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Border
+                                    IsHitTestVisible="True"
+                                    Cursor="Hand">
+                            <Border.Background>
+                                <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/Icon/cup-border.png"/>
+                            </Border.Background>
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" 
+                                                  Command="{Binding ShowWebPageCommand}"
+                                                  CommandParameter="https://ko-fi.com/urium86" />
+                            </Border.InputBindings>
+                            <Path Fill="White" 
+                                          Height="21"
+                                          Width="32"
+                                          Stretch="Uniform"
+                                           />
+                        </Border>
+                        <TextBlock Background="Transparent"
+                                       IsHitTestVisible="True"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"
+                                       Cursor="Hand">
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Border
+                                    IsHitTestVisible="True"
+                                    Cursor="Hand">
+                            <Border.Background>
+                                <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/Icon/paypal.png"/>
+                            </Border.Background>
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" 
+                                                  Command="{Binding ShowWebPageCommand}"
+                                                  CommandParameter="https://www.paypal.com/donate/?hosted_button_id=C969993N2G68U" />
+                            </Border.InputBindings>
+                            <Path Fill="White" 
+                                          Height="38"
+                                          Width="32"
+                                          Stretch="Uniform"
+                                           />
+                        </Border>
+                        <TextBlock Background="Transparent"
+                                       IsHitTestVisible="True"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"
+                                       Cursor="Hand">
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,30" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border
+                                IsHitTestVisible="True"
+                                Cursor="Hand">
+                        <Border.Background>
+                            <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/unnamed.jpg"/>
+                        </Border.Background>
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" 
+                                              Command="{Binding ShowWebPageCommand}"
+                                              CommandParameter="https://www.youtube.com/@FromB1T0Life" />
+                        </Border.InputBindings>
+                        <Path Fill="White" 
+                                      Height="32"
+                                      Width="32"
+                                      Stretch="Uniform"
+                                       />
+                    </Border>
+                    <TextBlock Background="Transparent"
+                                   IsHitTestVisible="True"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Cursor="Hand">
+                    </TextBlock>
+                    <Label Content="Developed by urium86" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </StackPanel>
+                
+            </StackPanel>
+
+            <Rectangle Grid.Column="1" Width="1" Margin="0,10">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                        <GradientStop Color="Transparent" Offset="0.1"/>
+                        <GradientStop Color="{DynamicResource Color.Primary.1.Background.Disabled}" Offset="0.5" />
+                        <GradientStop Color="Transparent" Offset="0.9"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <Grid Grid.Column="2" VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2.5*"></RowDefinition>
+                    <RowDefinition Height="0.5*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Label Content="Tags Explorer" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <Button Style="{DynamicResource ButtonGoToRip}" Height="300" Width="300" Command="{Binding OpenViewRippingCommand}" Cursor="Hand">
+                        <Button.Background>
+                            <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/OIG1_8.jpeg"/>
+                        </Button.Background>
+                    </Button>
+                    <StackPanel Margin="0,30">
+                        <TextBlock  FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center">
+                            Explore Tags
+                        </TextBlock>
+                        <TextBlock  FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap">
+                            Exploring 'tags' in the expansive Halo Infinite game universe is crucial for players to uncover hidden details and valuable insights about the game's plot, missions, characters, and weapons.
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Label Content="Online Customization" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <Button Template="{DynamicResource ButtonGoOnlineTemplate}" Height="300" Width="300" Name="GotoOnline" Command="{Binding OpenViewOnlineCommand}" Cursor="Hand">
+                        <Button.Background>
+                            <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/OIG2_2.jpeg"/>
+                        </Button.Background>
+                        
+                        
+                    </Button>
+                    <StackPanel Margin="0,30" Orientation="Vertical">
+                        <TextBlock  FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center">
+                            Customize your spartan
+                        </TextBlock>
+                        <TextBlock  FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap">
+                            Immerse yourself in the Halo Infinite universe by customizing your Spartan. Tailor your armor, weapons, and skills to create a unique warrior ready for battle.
+                        </TextBlock>
+                        
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
+                    <Border Width="100" Height="100"
+                                IsHitTestVisible="True"
+                                Cursor="Hand">
+                        <Border.Background>
+                            <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/Icon/icons8-youtube-squared-240.png"/>
+                        </Border.Background>
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" 
+                                              Command="{Binding ShowWebPageCommand}"
+                                              CommandParameter="https://www.youtube.com/@FromB1T0Life" />
+                        </Border.InputBindings>
+                        <Path Fill="White" 
+                                      Height="32"
+                                      Width="32"
+                                      Stretch="Uniform"
+                                       />
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</view:View>

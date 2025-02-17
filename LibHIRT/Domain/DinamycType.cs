@@ -2,7 +2,7 @@
 
 namespace LibHIRT.Domain
 {
-    public class DinamycType:IDisposable
+    public class DinamycType : IDisposable
     {
         TagInstance _root;
         ITagParseControl _tagParse;

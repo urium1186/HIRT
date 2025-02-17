@@ -3,7 +3,6 @@ using HaloInfiniteResearchTools.Services.Abstract;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels;
 using HaloInfiniteResearchTools.Views;
-using LibHIRT.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
@@ -56,11 +55,14 @@ namespace HaloInfiniteResearchTools
         {
             services.AddTransient<MessageModal>();
             services.AddTransient<ProgressModal>();
+            services.AddTransient<SpinnerModal>();
+            services.AddTransient<GetImageModal>();
         }
 
         private void ConfigureViews(IServiceCollection services)
         {
             services.AddTransient<MainView>();
+            services.AddTransient<HomeTabView>();
 
 
             services.AddTransient<AboutView>();
@@ -69,6 +71,10 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<RenderModelView>();
             services.AddTransient<StringListResourceView>();
             services.AddTransient<ModelView>();
+            services.AddTransient<WeaponDefinitionView>();
+            services.AddTransient<VehicleDefinitionView>();
+            services.AddTransient<BipedDefinitionView>();
+            services.AddTransient<CharacterDefinitionView>();
             services.AddTransient<ShaderBytecodeView>();
             services.AddTransient<CustomizationGlobalsDefinitionView>();
             services.AddTransient<GenericView>();
@@ -93,6 +99,7 @@ namespace HaloInfiniteResearchTools
         private void ConfigureViewModels(IServiceCollection services)
         {
             services.AddSingleton<MainViewModel>();
+            services.AddSingleton<HomeTabViewModel>();
 
             services.AddTransient<DefaultViewModel>();
             services.AddTransient<AboutViewModel>();
@@ -109,6 +116,10 @@ namespace HaloInfiniteResearchTools
             services.AddTransient<LevelViewModel>();
             services.AddTransient<RenderModelViewModel>();
             services.AddTransient<ModelViewModel>();
+            services.AddTransient<WeaponDefinitionViewModel>();
+            services.AddTransient<VehicleDefinitionViewModel>();
+            services.AddTransient<BipedDefinitionViewModel>();
+            services.AddTransient<CharacterDefinitionViewModel>();
             services.AddTransient<LuaScriptTagDefinitionViewModel>();
             services.AddTransient<ShaderBytecodeViewModel>();
             services.AddTransient<CustomizationGlobalsDefinitionViewModel>();

@@ -79,7 +79,7 @@ namespace LibHIRT.Exporters.Converters
                     elementUV2.Data.Add(new Aspose.ThreeD.Utilities.Vector4(item.Texcoord2.Value.X, item.Texcoord2.Value.Y, 0));
 
             }
-           
+
         }
 
         protected static List<int> AddFace(Mesh mesh, IndexBufferType indexBufferType, List<uint> indices, s_part[] parts)
@@ -119,11 +119,11 @@ namespace LibHIRT.Exporters.Converters
                             else
                             {
                                 material_list.Add(mat_ind);
-                                mat_index = material_list.Count-1;
+                                mat_index = material_list.Count - 1;
                             }
                             _vertexElementMaterial.Indices.Add(mat_index);
-                            
-                            
+
+
                         }
 
                     }
@@ -143,7 +143,7 @@ namespace LibHIRT.Exporters.Converters
                             else
                             {
                                 material_list.Add(mat_ind);
-                                mat_index = material_list.Count-1;
+                                mat_index = material_list.Count - 1;
                             }
                             _vertexElementMaterial.Indices.Add(mat_index);
                         }

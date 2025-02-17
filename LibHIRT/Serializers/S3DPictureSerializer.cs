@@ -3,9 +3,7 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using LibHIRT.TagReader.Headers;
-using System;
 using System.Diagnostics;
-using System.Drawing;
 using static LibHIRT.Assertions;
 using String = System.String;
 
@@ -31,8 +29,9 @@ namespace LibHIRT.Serializers
 
         #region Overrides
 
-        protected override void OnDeserialize(BinaryReader reader, S3DPicture pict) {
-           
+        protected override void OnDeserialize(BinaryReader reader, S3DPicture pict)
+        {
+
         }
 
         protected override void OnDeserialize(TagInstance tagInst, S3DPicture pict)
@@ -50,7 +49,7 @@ namespace LibHIRT.Serializers
             TagInstance bitmap_i = bitmaps[_file.CurrentBitmapIndex];
             TagInstance bitmapRH = null;
             var bitmap_resource_handle = bitmap_i["bitmap resource handle"] as ResourceHandle;
-            
+
             SSpaceFile getChunkFrom = _file as SSpaceFile;
             TagFile toUse = null;
             SSpaceFile temp_file = null;
@@ -59,7 +58,7 @@ namespace LibHIRT.Serializers
             {
                 Debug.Assert(bitmaps.Count >= 1);
                 temp_file = (SSpaceFile)_file.GetResourceAt(_file.CurrentBitmapIndex);
-                if (temp_file==null)
+                if (temp_file == null)
                     throw new IndexOutOfRangeException("Index out of range.");
                 string rh_hash = bitmap_resource_handle.TagDef.E["hash"].ToString();
                 temp_file.GroupRefHash = (_file.TagGroup, rh_hash);
@@ -80,11 +79,12 @@ namespace LibHIRT.Serializers
                     throw new NotImplementedException("Sin implementar, cuando son externos");
 
             }
-            else {
-                Debug.Assert(bitmaps.Count ==1 );
+            else
+            {
+                Debug.Assert(bitmaps.Count == 1);
                 bitmapRH = (TagInstance)bitmap_i.GetObjByPath("bitmap resource handle.[0]");
             }
-                
+
 
             bool canGet2k = false;
             bool haveExtra2kFile = bitmapRH["highResMipCountAndFlags"].AccessValue.ToString() == "1";
@@ -103,7 +103,7 @@ namespace LibHIRT.Serializers
             pict.Type = (string)tv.GetType().GetProperty("Selected").GetValue(tv);
             var bm = bitmap_i["format"];
             string val = (string)bm.GetType().GetProperty("Selected").GetValue(bm);
-            
+
             pict.Format = S3DPictureFormat.UNSET;
             pict.SFormat = val;
             pict.MipMapCount = (sbyte)bitmap_i["mipmap count"].AccessValue;
@@ -144,7 +144,7 @@ namespace LibHIRT.Serializers
                         }*/
                         ISSpaceFile _File = null;
                         _File = getChunkFrom.GetResourceAt(index);
-                       
+
                         //Debug.Assert(canGet2k == false);
                         //ISSpaceFile _File = (_file as SSpaceFile).Resource_list[index]; 
                         // FileDirModel file = HIFileContext.RootDir.GetChildByPath(chunkPath) as FileDirModel;
@@ -167,7 +167,7 @@ namespace LibHIRT.Serializers
                                 else
                                     throw ex;
                             }
-                            
+
                             if (stream != null)
                             {
                                 //Debug.Assert(stream.Length == temp_z);
@@ -191,7 +191,7 @@ namespace LibHIRT.Serializers
                                 full_size_f += (int)temp_z;
                             }
                         }
-                        
+
                     }
                     Array.Reverse<byte[]>(arrays);
                     pict.Data = Utils.Utils.Combine(arrays);

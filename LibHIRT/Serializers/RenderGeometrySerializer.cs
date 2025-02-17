@@ -65,10 +65,12 @@ namespace LibHIRT.Serializers
             return -1;
         }
 
-        public static int GetMaterialIndexByFaceIndex(s_part[] parts, int indexFace) {
+        public static int GetMaterialIndexByFaceIndex(s_part[] parts, int indexFace)
+        {
             foreach (var part in parts)
             {
-                if ((part.IndexStart/3) <= indexFace && indexFace<(part.IndexStart + part.IndexCount) / 3){ 
+                if ((part.IndexStart / 3) <= indexFace && indexFace < (part.IndexStart + part.IndexCount) / 3)
+                {
                     return part.MaterialIndex;
                 }
             }
@@ -186,7 +188,7 @@ namespace LibHIRT.Serializers
                             if (temp_vert_index_block != -1)
                             {
                                 var vertexBuffer = mesh_package.MeshResourceGroups[0].MeshResource[0].PcVertexBuffers[temp_vert_index_block];
-                                
+
                                 if (vertexBuffer.d3dbuffer.D3dBuffer == null)
                                     vertexBuffer.d3dbuffer.D3dBuffer = ReadBufferInChuncks(indices, mesh_package.MeshResourceGroups[0].MeshResource[0], vertexBuffer.offset, vertexBuffer.d3dbuffer.ByteWidth);
                                 vert_buffers[vertexBuffer.usage] = (vertexBuffer, new MemoryStream(vertexBuffer.d3dbuffer.D3dBuffer));
@@ -371,8 +373,8 @@ namespace LibHIRT.Serializers
 
                                         re = (Vector3)FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendWeights0].Item1.format, buffer);
                                         temp.Node_weights.Node_weight[0] = re.X;
-                                        temp.Node_weights.Node_weight[1] =  re.Y;
-                                        temp.Node_weights.Node_weight[2] =  re.Z;
+                                        temp.Node_weights.Node_weight[1] = re.Y;
+                                        temp.Node_weights.Node_weight[2] = re.Z;
                                         //temp.Node_weights.Node_weight[3] = 1;
 
                                         if (obj_mesh.VertType == VertType.dq_skinned)
@@ -394,19 +396,22 @@ namespace LibHIRT.Serializers
                                     if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized || vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real)
                                     {
 
-                                        if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized){
+                                        if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.f_10_10_10_normalized)
+                                        {
                                             re = (Vector3)FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format, buffer);
                                             temp.Node_weights.Node_weight[4] = re.X;
                                             temp.Node_weights.Node_weight[5] = re.Y;
                                             temp.Node_weights.Node_weight[6] = re.Z;
                                             //temp.Node_weights.Node_weight[7] = 1;
-                                            
+
                                         }
-                                        else if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real){
+                                        else if (vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format == PcVertexBuffersFormat.real)
+                                        {
                                             float re_f = (float)FormatReader.Read(vert_buffers[PcVertexBuffersUsage.BlendWeights1].Item1.format, buffer);
                                             temp.Dual_quat_weight = re_f;
                                             Debug.Assert(obj_mesh.VertType == VertType.dq_skinned);
-                                        } else
+                                        }
+                                        else
                                         {
                                             // put breakpoint here?
                                         }

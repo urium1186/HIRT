@@ -180,10 +180,11 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
         private void Model3DViewerControlModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "ListSelectedItem") {
-                if (SelectedMesh!=null)
+            if (e.PropertyName == "ListSelectedItem")
+            {
+                if (SelectedMesh != null)
                     SelectedMesh.PostEffects = null;
-                
+
                 SelectedMesh = (ListSelectedItem.Node as GeometryNode);
                 SelectedMesh.PostEffects = "border";
             }
@@ -383,25 +384,35 @@ namespace HaloInfiniteResearchTools.ControlsModel
 
 
                 //Viewport.Items.Clear();
-                SortingGroupModel3D found= null;
+                SortingGroupModel3D found = null;
                 foreach (var item in Viewport.Items)
                 {
-                    if (item is SortingGroupModel3D) {
+                    if (item is SortingGroupModel3D)
+                    {
                         found = (SortingGroupModel3D)item;
                         break;
                     }
                 }
-                if (found != null) {
+                if (found != null)
+                {
                     found.Children.Clear();
                     found.Children.Add(Model);
                 }
-                
+
                 //Viewport.Items.Add(Model);
             });
 
             await Task.Delay(450).ContinueWith(t =>
             {
                 App.Current.Dispatcher.Invoke(() => Camera.ZoomExtents(Viewport));
+            });
+        }
+
+        public void refreshModel()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                OnPropertyChanged("Model");
             });
         }
         void AddNodeModels(SceneNode node)
@@ -466,16 +477,17 @@ namespace HaloInfiniteResearchTools.ControlsModel
         {
             foreach (var node in Traverse(_nodes))
                 node.IsVisible = true;
-        } 
-        
+        }
+
         private void ShowOnlySelected()
         {
             HideAllNodes();
-            foreach (var node in Traverse(_nodes)) {
+            foreach (var node in Traverse(_nodes))
+            {
                 if (node == ListSelectedItem)
                     node.IsVisible = true;
             }
-                
+
         }
 
         private void HideAllNodes()
@@ -483,13 +495,14 @@ namespace HaloInfiniteResearchTools.ControlsModel
             foreach (var node in Traverse(_nodes))
                 node.IsVisible = false;
         }
-         private void HideOnlySelected()
+        private void HideOnlySelected()
         {
-            foreach (var node in Traverse(_nodes)) {
+            foreach (var node in Traverse(_nodes))
+            {
                 if (node == ListSelectedItem)
                     node.IsVisible = false;
             }
-            
+
         }
 
         private void HideLODNodes()

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.TagReader
+﻿namespace LibHIRT.TagReader
 {
     public class TagLayoutsV2
     {
-        public class C: Template
+        public class C : Template
         {
             public TagElemntTypeV2? T { get; set; } // T = type
 
@@ -26,21 +20,21 @@ namespace LibHIRT.TagReader
             public Dictionary<int, string>? STR { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         }
 
-        public class P: C
-        {   
-            public Dictionary<int, Template>? B { get; set; } = null; 
-            
+        public class P : C
+        {
+            public Dictionary<int, Template>? B { get; set; } = null;
+
         }
 
         public class E : C
         {
-            public Dictionary<int, string>? STR { get; set; } = null; 
+            public Dictionary<int, string>? STR { get; set; } = null;
 
         }
 
         public class F : C
         {
-            public Dictionary<int, string>? STR { get; set; } = null; 
+            public Dictionary<int, string>? STR { get; set; } = null;
 
         }
 

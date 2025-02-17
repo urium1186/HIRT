@@ -13,6 +13,7 @@
     <PackageReference Include="Aspose.3D" Version="23.8.0" />
     <PackageReference Include="Bond.Compiler" Version="10.0.0" />
     <PackageReference Include="Bond.Compiler.CSharp" Version="10.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.28" />
     <PackageReference Include="GlmSharp" Version="0.9.8" />
     <PackageReference Include="Iconic.Zlib.Netstandard" Version="1.0.0" />
     <PackageReference Include="Memory.dll.x64" Version="1.2.24" />

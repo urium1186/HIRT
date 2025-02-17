@@ -1,6 +1,5 @@
 ﻿using LibHIRT.Files;
 using LibHIRT.Files.Base;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;

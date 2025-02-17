@@ -9,10 +9,10 @@ namespace LibHIRT.Exporters
 {
     public static class RenderGeometryExporter
     {
-        
+
         static RenderGeometryExporter()
         {
-            
+
             //_saveOpts.GenerateVertexElementMaterial = true;
             /*
              // Generates the legacy material properties.
@@ -30,7 +30,7 @@ namespace LibHIRT.Exporters
 
         public static bool Export(RenderGeometry renderGeometry, string path, string name, string format = "dae")
         {
-            return Export(renderGeometry, path, name,  null, null, format);
+            return Export(renderGeometry, path, name, null, null, format);
         }
         public static bool Export(RenderGeometry renderGeometry, string path, string name, List<Material> materials, string format = "dae")
         {
@@ -56,8 +56,8 @@ namespace LibHIRT.Exporters
                 scene.RootNode.AddChildNode(temp_convert.BuildFullEntity());
 
                 //boxNode.Material = mat;
-                
-                
+
+
                 SaveOptions _saveOpts = Aspose3DExporter.GetSaveOptions(format);
                 // save 3d scene into STL format
                 string out_path = Path.Combine(path, name, name + _saveOpts.FileFormat.Extension);
@@ -73,10 +73,10 @@ namespace LibHIRT.Exporters
 
         }
 
-        
+
     }
 
-    
+
 
 
 }

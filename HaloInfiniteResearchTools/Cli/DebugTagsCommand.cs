@@ -2,12 +2,10 @@
 using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,7 +13,8 @@ using System.Text;
 
 namespace HaloInfiniteResearchTools.Cli
 {
-    public class ModeuleRefMap {
+    public class ModeuleRefMap
+    {
         SSpaceFile _file;
         int _globalId = -1;
         int _cant1 = -1;
@@ -101,11 +100,11 @@ namespace HaloInfiniteResearchTools.Cli
                 var founds = HIFileContext.Instance.GetFiles(_type_tag);
                 ModuleFile module = ((HIFileContext.Instance.Files.ElementAt(0) as SSpaceFile).Parent as ModuleFile);
                 SSpaceFile aasd = module.Children.ElementAt(0) as SSpaceFile;
-                var stre= aasd.GetMemoryStream_();
-                FileStream fileStream= new FileStream(_outfile.FullName,FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                var stre = aasd.GetMemoryStream_();
+                FileStream fileStream = new FileStream(_outfile.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 byte[] buffer = new byte[stre.Length];
-                stre.Read(buffer,0, (int)stre.Length);
-                
+                stre.Read(buffer, 0, (int)stre.Length);
+
                 fileStream.Write(buffer);
                 fileStream.Flush();
                 fileStream.Close();
@@ -120,12 +119,13 @@ namespace HaloInfiniteResearchTools.Cli
                     {
                         Dictionary<int, List<int>> id_tags = null;
                         List<(int, int, int, SSpaceFile)> id_addres_tags = null;
-                        if (_file.FileMemDescriptor.Resource_count == 0) {
+                        if (_file.FileMemDescriptor.Resource_count == 0)
+                        {
                             CheckFile(_file, out id_tags, out id_addres_tags);
                             CheckFileT0(_file, id_tags, id_addres_tags);
 
                         }
-                            
+
 
                     }
                 }
@@ -140,10 +140,11 @@ namespace HaloInfiniteResearchTools.Cli
 
                 throw ex;
             }
-            
+
 
         }
-        private static void CheckFileT0(SSpaceFile _file, Dictionary<int, List<int>> id_tags, List<(int, int, int, SSpaceFile)> id_addres_tags) {
+        private static void CheckFileT0(SSpaceFile _file, Dictionary<int, List<int>> id_tags, List<(int, int, int, SSpaceFile)> id_addres_tags)
+        {
             var stre = _file.GetStream();
             stre.Seek(0, SeekOrigin.Begin);
             byte[] temp = new byte[4];
@@ -154,7 +155,8 @@ namespace HaloInfiniteResearchTools.Cli
             for (int i = 0; i < id_tags.Values.Count; i++)
             {
                 int len = 0;
-                if (i < id_tags.Count - 1) {
+                if (i < id_tags.Count - 1)
+                {
                     len = id_tags.Values.ElementAt(i + 1)[0] - id_tags.Values.ElementAt(i)[0];
                 }
                 byte[] array = new byte[len];

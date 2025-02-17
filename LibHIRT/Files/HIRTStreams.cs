@@ -118,7 +118,7 @@ namespace LibHIRT.Files
           => new HIRTExtractedFileStream(stream);
 
         public static HIRTStream FromFile(string filePath)
-          => FromStream(File.Open(filePath,FileMode.Open,FileAccess.ReadWrite));
+          => FromStream(File.Open(filePath, FileMode.Open, FileAccess.ReadWrite));
 
         #endregion
 
@@ -311,7 +311,7 @@ namespace LibHIRT.Files
 
         public override void Close()
         {
-            _baseStream.Close();    
+            _baseStream.Close();
             base.Close();
         }
 

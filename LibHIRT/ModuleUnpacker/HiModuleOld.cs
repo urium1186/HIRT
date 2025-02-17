@@ -4,7 +4,6 @@ using Oodle;
 //using OodleSharp;
 using System.Diagnostics;
 using System.Text;
-using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.ModuleUnpacker
 {

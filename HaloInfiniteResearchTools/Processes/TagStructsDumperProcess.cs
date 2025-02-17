@@ -26,14 +26,15 @@ namespace HaloInfiniteResearchTools.Processes
         }
         protected override async Task OnExecuting()
         {
-            if (!string.IsNullOrEmpty( optionsModel.SearchTerm))
+            if (!string.IsNullOrEmpty(optionsModel.SearchTerm))
             {
                 await structsDumper.SearchInMem(optionsModel.SearchTerm);
             }
-            else {
+            else
+            {
                 await structsDumper.Dump();
             }
-            
+
             optionsModel.LastStartAddress = structsDumper.StartAddress;
         }
 

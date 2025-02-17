@@ -1,13 +1,10 @@
-﻿using Aspose.ThreeD.Utilities;
-using HaloInfiniteResearchTools.Common;
+﻿using HaloInfiniteResearchTools.Common;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.UI.Modals;
 using HaloInfiniteResearchTools.ViewModels.Abstract;
-using ImageMagick;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using Microsoft.Extensions.DependencyInjection;
-using OpenSpartan.Grunt.Models.HaloInfinite;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Vim.Math3d;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
@@ -242,7 +238,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     Debug.Assert(count * 4 >= cbufferNames.Count);
 
                     string mod = modCodeHLSL(cbufferNames, gloablCalls, gloablCallsCalls, gloablCallsInst, ModDecompiledStrHLSL);
-                    ModDecompiledStrHLSL = mod; 
+                    ModDecompiledStrHLSL = mod;
                 }
             }
         }
@@ -254,12 +250,12 @@ namespace HaloInfiniteResearchTools.ViewModels
             HashSet<string> repleced = new HashSet<string>();
             HashSet<string> repetidas = new HashSet<string>();
             int repeticiones = 0;
-           
+
             foreach (Match item in gloablCallsInst)
             {
                 if (!repleced.Contains(item.Value))
                 {
-                    modHLSL = repleceMatch(cbufferNames, modHLSL, repleced, item,true);
+                    modHLSL = repleceMatch(cbufferNames, modHLSL, repleced, item, true);
                 }
                 else
                 {
@@ -313,12 +309,13 @@ namespace HaloInfiniteResearchTools.ViewModels
             return modHLSL;
         }
 
-        private static string replaceStric(string value, string to_replace, string str__on) {
+        private static string replaceStric(string value, string to_replace, string str__on)
+        {
             string result = str__on;
             int indexFound = result.IndexOf(value);
-            while (indexFound!=-1)
+            while (indexFound != -1)
             {
-                if (indexFound + value.Length  < result.Length)
+                if (indexFound + value.Length < result.Length)
                 {
                     char nextChar = result[indexFound + value.Length];
                     if (!"0123456789".Contains(nextChar))
@@ -326,15 +323,17 @@ namespace HaloInfiniteResearchTools.ViewModels
                         result = result.Remove(indexFound, value.Length);
                         result = result.Insert(indexFound, to_replace);
                     }
-                    else { 
-                    
+                    else
+                    {
+
                     }
                 }
-                else {
+                else
+                {
                     result.Remove(indexFound, value.Length);
                     result.Insert(indexFound, to_replace);
                 }
-                indexFound = result.IndexOf(value, indexFound+ to_replace.Length);
+                indexFound = result.IndexOf(value, indexFound + to_replace.Length);
             }
             return result;
         }

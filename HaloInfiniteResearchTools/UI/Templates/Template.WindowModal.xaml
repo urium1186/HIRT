@@ -76,7 +76,7 @@
 
                 <!--#region Footer -->
 
-                <Border Background="{DynamicResource Brush.Deep.1.Background.Static}"
+                <Border Background="{DynamicResource Brush.Deep.1.Background.Static}" Visibility="{Binding ShowFooterButtons, RelativeSource={RelativeSource TemplatedParent},  Converter={StaticResource BoolVisibilityConverter}}"
                         BorderBrush="{DynamicResource Brush.Deep.1.Border.Static}"
                         BorderThickness="1"
                         MinHeight="30"

@@ -1,6 +1,4 @@
-﻿using Aspose.ThreeD;
-using GlmSharp;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace LibHIRT.Domain.Geometry
 {

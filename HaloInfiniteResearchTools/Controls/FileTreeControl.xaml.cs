@@ -1,9 +1,5 @@
-﻿using HaloInfiniteResearchTools.Models;
-using HaloInfiniteResearchTools.Views;
-using LibHIRT.Files;
-using LibHIRT.Files.Base;
+﻿using LibHIRT.Files.Base;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -141,15 +137,16 @@ namespace HaloInfiniteResearchTools.Controls
                 e.Handled = true;
 
                 files.Add(file);
-                
+
             }
             else if (item.DataContext is CollectionViewGroup)
             {
-                CollectionViewGroup group= (CollectionViewGroup)item.DataContext;
+                CollectionViewGroup group = (CollectionViewGroup)item.DataContext;
 
                 foreach (var file_in in group.Items)
                 {
-                    if (file_in is IHIRTFile) {
+                    if (file_in is IHIRTFile)
+                    {
                         files.Add((IHIRTFile)file_in);
                     }
                 }
@@ -168,7 +165,7 @@ namespace HaloInfiniteResearchTools.Controls
             {
                 e.Handled = true;
                 FileDoubleClickCommand?.Execute((file, true));
-                
+
             }
         }
 

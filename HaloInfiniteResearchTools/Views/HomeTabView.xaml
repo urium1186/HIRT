@@ -1,0 +1,126 @@
+﻿<view:View x:Class="HaloInfiniteResearchTools.Views.HomeTabView"
+            x:TypeArguments="vm:HomeTabViewModel"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:view="clr-namespace:HaloInfiniteResearchTools.Views"
+      xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      >
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"></RowDefinition>
+            <RowDefinition Height="1.5*"></RowDefinition>
+            <RowDefinition Height="1.5*"></RowDefinition>
+            <RowDefinition Height="1.5*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0">
+            <Label Content="Open Modules Directory" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding OpenModulesDirectoryCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_module.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1">
+            <Label Content="Open Module File" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding OpenModuleFileCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_file.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Grid.Column="2">
+            <Label Content="Clear Filters" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding ClearFiltersCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/Clear_filters.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0">
+            <Label Content="Open Object Customization Globals" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding OpenOcgdCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_ocgd.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1">
+            <Label Content="Filter BipedDefinition bipd" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterBipdCommand}" Cursor="Hand" Click="Button_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_bipd.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel> 
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2">
+            <Label Content="Filter CharacterDefinition char" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterCharCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_levl.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="2" Grid.Column="0">
+            <Label Content="Filter WeaponDefinition weap" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterWeapCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_weap.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1">
+            <Label Content="Filter VehicleDefinition vehi" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterVehiCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_vehicle.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="2" Grid.Column="2">
+            <Label Content="Filter Level Levl" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterLevlCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_file.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="3" Grid.Column="0">
+            <Label Content="Filter Model Definition hlmt" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterHlmtCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_hlmt.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="3" Grid.Column="1">
+            <Label Content="Filter RenderModelDefinition mode" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterModeCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_mode.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="3" Grid.Column="2">
+            <Label Content="Filter StructureBsp sbsp" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <Button Style="{DynamicResource DefaultButtonStyle}" Height="100" Width="100" Command="{Binding FilterSbspCommand}" Cursor="Hand">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/HaloInfiniteResearchTools;component/Resources/images/open_sbsp.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+    </Grid>
+</view:View>

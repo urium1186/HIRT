@@ -7,10 +7,8 @@ using LibHIRT.Common;
 using LibHIRT.Data;
 using LibHIRT.Domain;
 using LibHIRT.Domain.RenderModel;
-using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using LibHIRT.Files.FileTypes;
-using LibHIRT.Serializers;
 using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
@@ -155,7 +153,8 @@ namespace LibHIRT.Processes.OnGeometry
                     var marker_node = new Node($"{group.Name}_{marker.Index}_{marker.RegionIndex}_{marker.PermutationIndex}_{marker.NodeIndex}", parent);
                     //marker_node.Transform = NumericExtensions.TRS(marker.Translation, marker.Rotation, marker.Scale).ToAssimp(); //  new Vector3(1,1,1)
                     marker_node.Transform = NumericExtensions.TRS(marker.Translation, marker.Rotation, new Vector3(1, 1, 1)).ToAssimp(); //  new Vector3(1,1,1)
-                    if (marker.Scale.X != 0.1) { 
+                    if (marker.Scale.X != 0.1)
+                    {
                     }
                     parent.Children.Add(marker_node);
                     _marker_lookup[marker_node.Name] = marker_node;
@@ -401,7 +400,8 @@ namespace LibHIRT.Processes.OnGeometry
             //{
             // we actually have to create a duplicate bones array for each mesh, as they need relative vertex indexes i believe
             Bone[] unique_bones_array = new Bone[indexable_bones.Length];
-            for (int i = 0; i < indexable_bones.Length; i++){
+            for (int i = 0; i < indexable_bones.Length; i++)
+            {
                 Bone duplicated_bone = new Bone();
                 duplicated_bone.Name = indexable_bones[i].Name;
                 duplicated_bone.OffsetMatrix = indexable_bones[i].OffsetMatrix;

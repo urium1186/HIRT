@@ -40,11 +40,12 @@ namespace LibHIRT.Serializers
 
         protected override void OnDeserialize(BinaryReader reader, S3DTemplate template)
         {
-            if (_tagParse == null) {
+            if (_tagParse == null)
+            {
                 _tagParse = new TagParserControlV2("mode", reader.BaseStream);
                 _tagParse.readFile();
             }
-            
+
             ReadGeometryMngProperty(reader, template);
             /*
           ReadSerTplHeader( reader );

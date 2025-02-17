@@ -19,6 +19,13 @@ namespace HaloInfiniteResearchTools.UI.Modals
           typeof(WindowModal),
           new PropertyMetadata());
 
+
+        public static readonly DependencyProperty ShowFooterButtonsProperty = DependencyProperty.RegisterAttached(
+          nameof(ShowFooterButtons),
+          typeof(bool),
+          typeof(WindowModal),
+          new PropertyMetadata(true));
+
         public static readonly DependencyProperty ModalMaxHeightProperty = DependencyProperty.Register(
           nameof(ModalMaxHeight),
           typeof(double),
@@ -53,6 +60,11 @@ namespace HaloInfiniteResearchTools.UI.Modals
 
         #region Properties
 
+        public bool ShowFooterButtons
+        {
+            get => (bool)GetValue(ShowFooterButtonsProperty);
+            set => SetValue(ShowFooterButtonsProperty, value);
+        }
         public ObservableCollection<Button> FooterButtons
         {
             get => (ObservableCollection<Button>)GetValue(FooterButtonsProperty);

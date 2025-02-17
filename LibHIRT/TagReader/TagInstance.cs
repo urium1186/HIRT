@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Text.Json.Serialization;
 using TagStruct = LibHIRT.TagReader.Headers.TagStruct;
 
@@ -17,14 +16,14 @@ namespace LibHIRT.TagReader
         public int f = 0;
         public int r = 0;
     }
-   
+
     public class TagInstance : ITagInstance, INotifyPropertyChanged, IDisposable
     {
 
         protected Template tagDef;
         protected long addressStart;
         protected long offset;
-        protected long inFileOffset=-1;
+        protected long inFileOffset = -1;
         protected HeaderTableEntry? entry = null;
         protected TagStruct? content_entry = null;
 
@@ -81,7 +80,7 @@ namespace LibHIRT.TagReader
 
         protected virtual long GetInFileOffset()
         {
-            return inFileOffset!=-1? inFileOffset:((Content_entry?.Field_data_block?.OffsetPlus ?? 0) + InstanceParentOffset);
+            return inFileOffset != -1 ? inFileOffset : ((Content_entry?.Field_data_block?.OffsetPlus ?? 0) + InstanceParentOffset);
         }
         [JsonInclude]
         public string FieldName { get; set; }
@@ -217,14 +216,17 @@ namespace LibHIRT.TagReader
             get { return stackChange.Count == 0 ? Value : stackChange.Peek(); }
             set
             {
-                if (Value is string) {
+                if (Value is string)
+                {
                     this.value = (T?)value;
-                } else {
+                }
+                else
+                {
                     var stringParseMeth = typeof(T).GetMethod("Parse", new Type[] { typeof(string) });
-                    if (stringParseMeth!=null)
+                    if (stringParseMeth != null)
                         this.value = (T?)stringParseMeth.Invoke(this.value, new object[] { value.ToString() });
                 }
-                
+
                 stackChange.Push(value);
             }
         }
@@ -533,8 +535,23 @@ namespace LibHIRT.TagReader
             //ref_id_center = f.read(4)
             ref_id_center_int = f.ReadInt32();
             //ref_id_center = self.ref_id_center.hex().upper()
-            tag = f.ReadChars(4);
+
+            try
+            {
+                // byte[] chars = f.ReadBytes(4);
+                // tag = Encoding.ASCII.GetChars(chars);
+
+                tag = f.ReadChars(4);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
             tagGroup = new string(tag);
+
             Array.Reverse(tag);// 0x14
             tagGroupRev = new string(tag);
             local_handle = f.ReadInt32();
@@ -732,7 +749,8 @@ namespace LibHIRT.TagReader
                     options.Add(tempEnum.STR[gvsdahb]);
                 }
             }
-            else if (TagDef.GetType() == typeof(TagLayoutsV2.F)) {
+            else if (TagDef.GetType() == typeof(TagLayoutsV2.F))
+            {
                 TagLayoutsV2.F tempEnum = (TagDef as TagLayoutsV2.F);
                 generateBits(addressStart + offset, tempEnum.S, 0, tempEnum.STR, f);
                 foreach (int gvsdahb in tempEnum.STR.Keys)
@@ -953,9 +971,14 @@ namespace LibHIRT.TagReader
             ExeTagInstance();
         }
 
-        public override object AccessValue { get => new { R_value = r_value, G_value = g_value, B_value = b_value }; set { 
+        public override object AccessValue
+        {
+            get => new { R_value = r_value, G_value = g_value, B_value = b_value }; set
+            {
                 var a = value;
-                ; } }
+                ;
+            }
+        }
 
         public float R_value { get => r_value; set => r_value = value; }
         public float B_value { get => b_value; set => b_value = value; }
@@ -992,7 +1015,9 @@ namespace LibHIRT.TagReader
             return BitConverter.GetBytes(a_value).Concat(BitConverter.GetBytes(r_value)).Concat(BitConverter.GetBytes(g_value)).Concat(BitConverter.GetBytes(b_value)).ToArray();
         }
 
-        public override object AccessValue { get => new { A_value = a_value, R_value = r_value, G_value = g_value, B_value = b_value }; set
+        public override object AccessValue
+        {
+            get => new { A_value = a_value, R_value = r_value, G_value = g_value, B_value = b_value }; set
             {
                 var a = value;
                 ;
@@ -1025,10 +1050,14 @@ namespace LibHIRT.TagReader
         {
             return BitConverter.GetBytes(min).Concat(BitConverter.GetBytes(max)).ToArray();
         }
-        public override object AccessValue { get => new { Min = min, Max = max };set {
+        public override object AccessValue
+        {
+            get => new { Min = min, Max = max }; set
+            {
                 var a = value;
                 ;
-            } }
+            }
+        }
     }
     public class Bounds2Byte : AtomicTagInstace
     {
@@ -1299,7 +1328,7 @@ namespace LibHIRT.TagReader
             byteOffset = f.ReadInt32();
             byteLengthCount = f.ReadInt32();
             var size_u = int.Parse(tagDef.E["int3"].ToString());
-           
+
             _f = f;
             ExeTagInstance();
         }
@@ -1336,7 +1365,7 @@ namespace LibHIRT.TagReader
     }
     public class ParentTagInstance : CompoundTagInstance, IDictionary<string, TagInstance>
     {
-        protected Dictionary<string, TagInstance> keyValues=new Dictionary<string, TagInstance>();
+        protected Dictionary<string, TagInstance> keyValues = new Dictionary<string, TagInstance>();
 
         protected string item_name = "";
         protected string item_type = "";
@@ -1354,8 +1383,11 @@ namespace LibHIRT.TagReader
 
         public override List<TagInstance>? Childrens => new List<TagInstance>(Values);
 
-        public override TagInstance this[string path] { get => keyValues[path]; 
-            set => keyValues[path] = value; }
+        public override TagInstance this[string path]
+        {
+            get => keyValues[path];
+            set => keyValues[path] = value;
+        }
 
         TagInstance IDictionary<string, TagInstance>.this[string key] { get => ((IDictionary<string, TagInstance>)keyValues)[key]; set => ((IDictionary<string, TagInstance>)keyValues)[key] = value; }
 
@@ -1779,4 +1811,4 @@ namespace LibHIRT.TagReader
             throw new Exception("REvisar el uso");
         }
     }
-   }
+}

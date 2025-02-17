@@ -28,7 +28,10 @@ namespace HaloInfiniteResearchTools.Models
         }
 
         [DefaultValue(false)]
-        public bool LoadH2ADirectoryOnStartup { get; set; }
+        public bool LoadHIDirectoryOnStartup { get; set; }
+
+        [DefaultValue(true)]
+        public bool LoadSavePathFilesFromDB { get; set; }
 
         public string HIDirectoryPath { get; set; }
 

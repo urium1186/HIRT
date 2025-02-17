@@ -1,9 +1,6 @@
 ﻿using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes
@@ -11,7 +8,7 @@ namespace HaloInfiniteResearchTools.Processes
     class GetAllTagReferenceToProcess : ProcessBase<List<EntryRef>>
     {
         int globalId = -1;
-        List<EntryRef> entryRefs= new List<EntryRef>(); 
+        List<EntryRef> entryRefs = new List<EntryRef>();
 
         public GetAllTagReferenceToProcess(int globalId)
         {

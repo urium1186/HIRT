@@ -56,7 +56,7 @@ namespace HaloInfiniteResearchTools.Processes
                 {
                     if (filePath.TagGroup != "����")
                     {
-                        var temp_file = filePath ;
+                        var temp_file = filePath;
                         string dir_path = _dir_path + "\\" + temp_file.TagGroup + "\\";
                         string path_file = dir_path + Mmr3HashLTU.getMmr3HashFromInt(temp_file.TryGetGlobalId()) + (_advmode ? "_ADV.json" : ".json");
                         if (!Directory.Exists(dir_path))

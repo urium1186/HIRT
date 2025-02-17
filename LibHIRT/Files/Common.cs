@@ -1,25 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Files
+﻿namespace LibHIRT.Files
 {
     internal class Common
     {
         Dictionary<string, (string, string)> ma_guid_ext_resource = new Dictionary<string, (string, string)>();
-        static Common _instance= null;
-        private Common() {
+        static Common _instance = null;
+        private Common()
+        {
             ma_guid_ext_resource["uslg"] = ("51f5b0b22475fcb8", "string_list_resource");
         }
-        public static Common Inst { get {
+        public static Common Inst
+        {
+            get
+            {
                 if (_instance is null)
                     _instance = new Common();
                 return _instance;
-            } }
+            }
+        }
 
-        public Dictionary<string, (string, string)> MA_GUID_EXT_RESOURCE { get => ma_guid_ext_resource;}
+        public Dictionary<string, (string, string)> MA_GUID_EXT_RESOURCE { get => ma_guid_ext_resource; }
         /*{
 '866fe37c76da2aab': ['resource_data'],
 '51f5b0b22475fcb8': ['string_list_resource'],

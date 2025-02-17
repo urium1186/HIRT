@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using Assimp;
 using HaloInfiniteResearchTools.Assimport;
 using HaloInfiniteResearchTools.Common.Extensions;
@@ -11,6 +6,11 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.Processes.OnGeometry
 {
@@ -28,7 +28,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
         private System.Numerics.Matrix4x4 _initialTransform;
 
-        private Dictionary<int, Dictionary<int,int>> uniqueInstanceMesh = new Dictionary<int, Dictionary<int, int>>();
+        private Dictionary<int, Dictionary<int, int>> uniqueInstanceMesh = new Dictionary<int, Dictionary<int, int>>();
 
         #endregion
 
@@ -70,12 +70,13 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
 
 
 
-            _context.Scene.RootNode= nodeRoot;
+            _context.Scene.RootNode = nodeRoot;
             /*Node temp = _context.AddRenderGeometry(_prefixMeshName, _renderGeometry);
             _context.Scene.RootNode = temp;*/
         }
 
-        void AddMeshByRenderInstance(TagInstance root, Node nodeRoot) {
+        void AddMeshByRenderInstance(TagInstance root, Node nodeRoot)
+        {
             ListTagInstance tagBlock = (ListTagInstance)root["instanced geometry instances"];
             if (tagBlock == null) { return; }
             for (int i = 0; (i < tagBlock.Count); i++) // && i<5000
@@ -84,7 +85,8 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             }
         }
 
-        void AddMeshByClusters(TagInstance root, Node nodeRoot) {
+        void AddMeshByClusters(TagInstance root, Node nodeRoot)
+        {
             ListTagInstance clusters = (ListTagInstance)root["clusters"];
             if (clusters == null) { return; }
             ListTagInstance tagBlock = (ListTagInstance)root["instanced geometry instances"];
@@ -103,7 +105,7 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
                     if (instancesDataBlock == null) { continue; }
 
                     SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.Instance.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
-                    if (rtgo_file==null)
+                    if (rtgo_file == null)
                         continue;
 
                     Debug.Assert(!uniqueInstanceMesh.ContainsKey(rtgo_file.FileMemDescriptor.GlobalTagId1));
@@ -126,7 +128,8 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             }
         }
 
-        void AddPerInstanceData(ListTagInstance tagBlock, int i, Node nodeRoot, TagInstance rootRtgo, LibHIRT.Domain.RenderGeometry renderGeometry, SSpaceFile rtgo_file) {
+        void AddPerInstanceData(ListTagInstance tagBlock, int i, Node nodeRoot, TagInstance rootRtgo, LibHIRT.Domain.RenderGeometry renderGeometry, SSpaceFile rtgo_file)
+        {
             /*if (i == 7615 || i == 7617)
             {
 
@@ -152,11 +155,12 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             if (!uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1].ContainsKey(meshIndex))
             {
                 temp = _context.AddRenderGeometry(name, renderGeometry, null, new List<int> { meshIndex }, true);
-                temp.Name= "instance_" + i;
+                temp.Name = "instance_" + i;
                 uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex] = temp.MeshIndices[0];
             }
-            else {
-                temp = new Node("instance_"+i);
+            else
+            {
+                temp = new Node("instance_" + i);
                 temp.MeshIndices.Add(uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex]);
             }
 
@@ -186,12 +190,13 @@ namespace HaloInfiniteResearchTools.Processes.OnGeometry
             scaleG.x = scaleTagG.X;
             scaleG.y = scaleTagG.Y;
             scaleG.z = scaleTagG.Z;
-            
+
             temp.Transform = NumericExtensions.TRS(meshrot_mat_g, traslationG, scaleG).ToAssimp();
             nodeRoot.Children.Add(temp);
         }
 
-        void DoSomething(ListTagInstance tagBlock, int i, Node nodeRoot) {
+        void DoSomething(ListTagInstance tagBlock, int i, Node nodeRoot)
+        {
             TagRef tr_rtgo = tagBlock[i]["Runtime geo mesh reference"] as TagRef;
             if (tr_rtgo == null)
                 return;

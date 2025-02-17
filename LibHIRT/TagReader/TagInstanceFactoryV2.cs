@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.TagReader
+﻿namespace LibHIRT.TagReader
 {
     public static class TagInstanceFactoryV2
     {
@@ -16,7 +10,7 @@ namespace LibHIRT.TagReader
             switch (tagElemntTypeV2)
             {
                 case TagElemntTypeV2.RootTagInstance:
-                    return new RootTagInstance(tagDef, addressStart, offset); 
+                    return new RootTagInstance(tagDef, addressStart, offset);
                 case TagElemntTypeV2.String:
                     return new String(tagDef, addressStart, offset);
                 case TagElemntTypeV2.LongString:
@@ -146,7 +140,7 @@ namespace LibHIRT.TagReader
                     return new Tagblock(tagDef, addressStart, offset);
                 case TagElemntTypeV2.TagReference:
                     return new TagRef(tagDef, addressStart, offset);
-                case TagElemntTypeV2.Data: 
+                case TagElemntTypeV2.Data:
                     return new TagData(tagDef, addressStart, offset);
                 case TagElemntTypeV2.ResourceHandle:
                     return new ResourceHandle(tagDef, addressStart, offset);

@@ -1,20 +1,12 @@
 ﻿using Aspose.ThreeD;
+using Aspose.ThreeD.Entities;
+using Aspose.ThreeD.Shading;
 using LibHIRT.Common;
-using LibHIRT.Files.FileTypes;
 using LibHIRT.Files;
+using LibHIRT.Files.FileTypes;
 using LibHIRT.Serializers;
 using LibHIRT.TagReader;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Aspose.ThreeD.Shading;
-using Aspose.ThreeD.Entities;
-using System.Reflection;
-using GlmSharp;
 
 namespace LibHIRT.Exporters.Converters
 {
@@ -23,20 +15,22 @@ namespace LibHIRT.Exporters.Converters
         private Dictionary<int, Dictionary<int, int>> uniqueInstanceMesh = new Dictionary<int, Dictionary<int, int>>();
         List<Mesh> intsMesh = new List<Mesh>();
         private ScenarioStructureBspFile _scenarioStructure;
-        Dictionary<int,Material> _materials = new Dictionary<int, Material> ();
+        Dictionary<int, Material> _materials = new Dictionary<int, Material>();
 
-        private List<int> instancedId = new List<int> ();
+        private List<int> instancedId = new List<int>();
 
-        public SbspConverter(ScenarioStructureBspFile scenarioStructure) {
-            _scenarioStructure= scenarioStructure;
+        public SbspConverter(ScenarioStructureBspFile scenarioStructure)
+        {
+            _scenarioStructure = scenarioStructure;
         }
 
-        public Node BuildFullEntity() {
+        public Node BuildFullEntity()
+        {
             Node nodeRoot = new Node(_scenarioStructure.FileMemDescriptor.GlobalTagId1.ToString());
 
-           // AddMeshInstanceOnIndex(_scenarioStructure.Deserialized()?.Root, nodeRoot, nodeRoot.Name, 7615);
+            // AddMeshInstanceOnIndex(_scenarioStructure.Deserialized()?.Root, nodeRoot, nodeRoot.Name, 7615);
             //AddMeshInstanceOnIndex(_scenarioStructure.Deserialized()?.Root, nodeRoot, nodeRoot.Name, 7617);
-           AddMeshByClusters(_scenarioStructure.Deserialized()?.Root, nodeRoot, nodeRoot.Name);
+            AddMeshByClusters(_scenarioStructure.Deserialized()?.Root, nodeRoot, nodeRoot.Name);
             return nodeRoot;
         }
 
@@ -96,11 +90,11 @@ namespace LibHIRT.Exporters.Converters
             if (root == null) { return; }
             ListTagInstance tagBlock = (ListTagInstance)root["instanced geometry instances"];
             if (tagBlock == null) { return; }
-                
+
             TagRef tr_rtgo = tagBlock[instance_index]["Runtime geo mesh reference"] as TagRef;
             if (tr_rtgo == null)
                 return;
-                    
+
             SSpaceFile rtgo_file = (SSpaceFile)HIFileContext.Instance.GetFileFrom(tr_rtgo, _scenarioStructure.Parent as ModuleFile);
             if (rtgo_file == null)
                 return;
@@ -115,11 +109,11 @@ namespace LibHIRT.Exporters.Converters
 
             var renderGeometry = RenderGeometrySerializer.Deserialize(null, rtgo_file, (RenderGeometryTag)rootRtgo["render geometry"]);
 
-                    
+
             AddPerInstanceData(tagBlock, instance_index, prefixMeshName, nodeRoot, rootRtgo, renderGeometry, rtgo_file);
         }
 
-        void AddPerInstanceData(ListTagInstance tagBlock, int i,string prefixMeshName, Node nodeRoot, TagInstance rootRtgo, LibHIRT.Domain.RenderGeometry renderGeometry, SSpaceFile rtgo_file)
+        void AddPerInstanceData(ListTagInstance tagBlock, int i, string prefixMeshName, Node nodeRoot, TagInstance rootRtgo, LibHIRT.Domain.RenderGeometry renderGeometry, SSpaceFile rtgo_file)
         {
             TagRef tr_rtgo = tagBlock[i]["Runtime geo mesh reference"] as TagRef;
             if (tr_rtgo == null)
@@ -131,7 +125,8 @@ namespace LibHIRT.Exporters.Converters
             {
 
             }
-            else {
+            else
+            {
                 instancedId.Add(i);
             }
 
@@ -139,7 +134,7 @@ namespace LibHIRT.Exporters.Converters
             int hlod_index = (Int16)tagBlock[i]["hlod index"].AccessValue;
 
             string name = rtgo_file.Name;
-           
+
             //Node temp = new Node(prefixMeshName + rtgo_file.Name + "_" + i);
             Mesh mesh = null;
             if (!uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1].ContainsKey(meshIndex))
@@ -150,15 +145,15 @@ namespace LibHIRT.Exporters.Converters
                 {
                     intsMesh.Add(mesh);
                 }
-                    //_context.AddRenderGeometry(_prefixMeshName + rtgo_file.Name + "_" + i, renderGeometry, null, new List<int> { meshIndex }, true);
-                uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex] = intsMesh.Count-1;
+                //_context.AddRenderGeometry(_prefixMeshName + rtgo_file.Name + "_" + i, renderGeometry, null, new List<int> { meshIndex }, true);
+                uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex] = intsMesh.Count - 1;
             }
             else
             {
                 mesh = (intsMesh[uniqueInstanceMesh[rtgo_file.FileMemDescriptor.GlobalTagId1][meshIndex]]);
             }
-           
-            Node nodeFix = nodeRoot.CreateChildNode("instance_"+ i.ToString(),mesh);
+
+            Node nodeFix = nodeRoot.CreateChildNode("instance_" + i.ToString(), mesh);
             TagInstance material_override_data = tagBlock[i]["material override data"];
             if (material_override_data != null)
             {
@@ -170,7 +165,8 @@ namespace LibHIRT.Exporters.Converters
                     TagRef material = (item["material"] as TagRef);
                     int global_id = material == null ? -1 : material.Ref_id_int;
                     string mat_name = material == null ? "default-1" : material.Ref_id;
-                    if (!_materials.ContainsKey(global_id)) {
+                    if (!_materials.ContainsKey(global_id))
+                    {
                         PbrMaterial mat = new PbrMaterial();
 
                         mat.Name = mat_name;
@@ -209,7 +205,7 @@ namespace LibHIRT.Exporters.Converters
             //var quater = GlmSharp.quat.FromMat3(meshrot_mat_g);
             var scaleTagG = (Point3D)tagBlock[i]["scale"];
 
-            GlmSharp.vec3 scaleG = new (1);
+            GlmSharp.vec3 scaleG = new(1);
             scaleG.x = scaleTagG.X;
             scaleG.y = scaleTagG.Y;
             scaleG.z = scaleTagG.Z;

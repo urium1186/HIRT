@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using WpfHexaEditor.Core.MethodExtention;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace HaloInfiniteResearchTools.Processes
 {
@@ -68,7 +66,7 @@ namespace HaloInfiniteResearchTools.Processes
             [MarshalAs(UnmanagedType.IUnknown)] out object ppv
         );
 
-        
+
         public static string DisassembleDXBC(string filePath)
         {
             Guid clsid = new Guid("..."); // Reemplaza con el GUID de la clase específica que deseas crear
@@ -271,7 +269,7 @@ namespace HaloInfiniteResearchTools.Processes
                         Process process_dxil_extract = new Process();
                         process_dxil_extract.StartInfo.FileName = filePath_dxil_extract;
 
-                        process_dxil_extract.StartInfo.Arguments =  tempFilename+ filePath_dxil_extract_args; // Note the /c command (*)
+                        process_dxil_extract.StartInfo.Arguments = tempFilename + filePath_dxil_extract_args; // Note the /c command (*)
                         process_dxil_extract.StartInfo.UseShellExecute = false;
                         process_dxil_extract.StartInfo.RedirectStandardOutput = true;
                         process_dxil_extract.StartInfo.RedirectStandardError = true;
@@ -289,7 +287,7 @@ namespace HaloInfiniteResearchTools.Processes
                         out_dxil = output_dxil;
                         DecompiledDxil = err_dxil + output_dxil;
                         Console.WriteLine(output_dxil);
-                        
+
                         process_dxil_extract.WaitForExit();
 
                     }
@@ -311,12 +309,14 @@ namespace HaloInfiniteResearchTools.Processes
                         out_glsl = output_dxil;
                         Console.WriteLine(output_dxil);
                         err_dxil = process_dxil.StandardError.ReadToEnd();
-                        if (!string.IsNullOrEmpty(err_dxil)) {
-                            if (err_dxil.IndexOf("Exception")!=-1 || err_dxil.IndexOf("Error") != -1) {
+                        if (!string.IsNullOrEmpty(err_dxil))
+                        {
+                            if (err_dxil.IndexOf("Exception") != -1 || err_dxil.IndexOf("Error") != -1)
+                            {
                                 StatusList.AddError("error on dxil", err_dxil);
                             }
                         }
-                            
+
                         Console.WriteLine(err_dxil);
                         process_dxil.WaitForExit();
 
@@ -345,14 +345,15 @@ namespace HaloInfiniteResearchTools.Processes
                         process_dxil_2.Start();
                         //* Read the output (or the error)
                         string output_dxil = process_dxil_2.StandardOutput.ReadToEnd();
-                        if (!string.IsNullOrEmpty(output_dxil)) {
+                        if (!string.IsNullOrEmpty(output_dxil))
+                        {
                             DecompiledStrSPV = output_dxil;
                             Console.WriteLine(output_dxil);
                         }
 
-                        
+
                         err_dxil = process_dxil_2.StandardError.ReadToEnd();
-                            
+
                         Console.WriteLine(err_dxil);
                         if (!string.IsNullOrEmpty(err_dxil))
                             StatusList.AddError("error on dxil2", err_dxil);
@@ -405,14 +406,16 @@ namespace HaloInfiniteResearchTools.Processes
                         DecompiledStrHLSL = output_spirv;
                         Console.WriteLine(output_spirv);
                         string err_spirv = process_spirv.StandardError.ReadToEnd();
-                        if (!string.IsNullOrEmpty(err_spirv) && err_spirv != output_spirv) {
+                        if (!string.IsNullOrEmpty(err_spirv) && err_spirv != output_spirv)
+                        {
                             DecompiledStrHLSL = err_spirv + output_spirv;
-                            if (err_spirv.IndexOf("Exception") != -1) {
+                            if (err_spirv.IndexOf("Exception") != -1)
+                            {
                                 StatusList.AddError("error on spirv", err_spirv);
                             }
-                            
+
                         }
-                            
+
                         Console.WriteLine(err_spirv);
                         process_spirv.WaitForExit();
 
@@ -420,7 +423,7 @@ namespace HaloInfiniteResearchTools.Processes
 
                     DecompiledStrGLSL = out_glsl;
 
-                    
+
                     if (File.Exists(tempFilename))
                         File.Delete(tempFilename);
                     if (File.Exists(tempFilename_spv))

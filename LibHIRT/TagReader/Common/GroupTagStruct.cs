@@ -1,6 +1,4 @@
-﻿using LibHIRT.TagReader.Headers;
-
-namespace LibHIRT.TagReader.Common
+﻿namespace LibHIRT.TagReader.Common
 {
 
     public class GroupTagStruct

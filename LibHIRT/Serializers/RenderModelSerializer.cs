@@ -2,6 +2,7 @@
 using LibHIRT.Domain.RenderModel;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
+using System.Diagnostics;
 
 namespace LibHIRT.Serializers
 {
@@ -63,7 +64,7 @@ namespace LibHIRT.Serializers
 
         protected override void OnDeserialize(TagInstance tagInstance, RenderModelDefinition obj)
         {
-            rootTagInst = (RootTagInstance)tagInstance;  
+            rootTagInst = (RootTagInstance)tagInstance;
             obj.TagInstance = rootTagInst;
             ReadRenderModelDefinition(obj);
         }
@@ -216,6 +217,7 @@ namespace LibHIRT.Serializers
                 Y = 1,
                 Z = 1,
             };
+            Debug.WriteLine($"reading bone i:{0} name: {bone.Name} rot: {rts} q_rot: {bone.Rotation}");
 
             bone.DistanceFromParent = trsFP.Value;
         }

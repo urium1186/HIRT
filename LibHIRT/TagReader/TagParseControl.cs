@@ -6,8 +6,8 @@ using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.TagReader
 {
-    
-    public class TagParseControl: ITagParseControl
+
+    public class TagParseControl : ITagParseControl
     {
         public event OnInstanceEventHandler OnInstanceFullLoad;
         public event EventHandler<ITagInstance> OnInstanceLoadEvent;
@@ -29,7 +29,7 @@ namespace LibHIRT.TagReader
         public TagFile? TagFile { get => _tagFile; set => _tagFile = value; }
         public Stream MemoStream { get; private set; }
 
-        public Template TagTemplate => _tagLayout!=null && _tagLayout.Count!=0?_tagLayout[0]:null;
+        public Template TagTemplate => _tagLayout != null && _tagLayout.Count != 0 ? _tagLayout[0] : null;
 
         public TagParseControlFiltter ParseControlFiltter { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -40,7 +40,7 @@ namespace LibHIRT.TagReader
             _tagLayout = tagLayout;
             _f = f;
         }
-        
+
         #region On Disk
         public void readFile(Dictionary<int, Template?>? tagLayout, TagFile tagFile)
         {
@@ -124,11 +124,12 @@ namespace LibHIRT.TagReader
         {
             _rootTagInst.ReadIn();
         }
-        string invertHex(string ex) {
+        string invertHex(string ex)
+        {
             string inverted = "";
-            for (int i = ex.Length-2; i >= 0; i-=2)
+            for (int i = ex.Length - 2; i >= 0; i -= 2)
             {
-                inverted+=(ex.Substring(i, 2));
+                inverted += (ex.Substring(i, 2));
             }
             return inverted;
         }
@@ -139,7 +140,8 @@ namespace LibHIRT.TagReader
             {
             }
             instance_parent.Content_entry.Field_name = instance_parent.TagDef.N;
-            if (instance_parent is RootTagInstance) {
+            if (instance_parent is RootTagInstance)
+            {
                 if (instance_parent.TagDef.E != null && instance_parent.TagDef.E.ContainsKey("hashTR0"))
                 {
                     Debug.Assert(invertHex(_tagFile.TagHeader.TagFileHeaderInst.TypeHashStr) == instance_parent.TagDef.E["hashTR0"].ToString());

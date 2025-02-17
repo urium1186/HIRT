@@ -176,7 +176,7 @@ namespace HaloInfiniteResearchTools.Controls
         {
             ResourceHandle resourceHandle = (ResourceHandle)((sender as Button)?.DataContext);
             if (resourceHandle != null && resourceHandle.IsExternal)
-                ResourceGenOpenCommand?.Execute(resourceHandle); 
+                ResourceGenOpenCommand?.Execute(resourceHandle);
         }
     }
 }

@@ -6,14 +6,15 @@
             xmlns:views="clr-namespace:HaloInfiniteResearchTools.Views"
             xmlns:m="clr-namespace:HaloInfiniteResearchTools.Models"
             xmlns:vm="clr-namespace:HaloInfiniteResearchTools.ViewModels"
+            xmlns:vmo="clr-namespace:HaloInfiniteResearchTools.ViewModels.Online"
             xmlns:controls="clr-namespace:HaloInfiniteResearchTools.Controls"
             mc:Ignorable="d" 
-            d:DesignHeight="450" d:DesignWidth="800"
+            d:DesignHeight="720" d:DesignWidth="1280"
             UseLayoutRounding="True"
             RenderOptions.BitmapScalingMode="NearestNeighbor"
             SnapsToDevicePixels="True"
             RenderOptions.ClearTypeHint="Enabled">
-    <Grid>
+    <Grid Background="{DynamicResource Brush.Deep.2.Background.Static}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -29,7 +30,15 @@
                           Command="{Binding OpenFromRuntimeCommand}" />
                 <MenuItem Header="Reset"
                           Command="{Binding ResetSessionCommand}" />
-                
+
+            </MenuItem>
+            <MenuItem Header="Views">
+                <MenuItem Header="Grettings"
+                          Command="{Binding OpenViewSaludosCommand}" />
+                <MenuItem Header="Online"
+                          Command="{Binding OpenViewOnlineCommand}" />
+                <MenuItem Header="Ripping"
+                          Command="{Binding OpenViewRippingCommand}" />
             </MenuItem>
             <MenuItem Header="Tools">
                 <MenuItem Header="Tag Template Dumper" Command="{Binding TagStructsDumperCommand}" />
@@ -59,10 +68,27 @@
                           CommandParameter="{x:Type views:AboutView}" />
             </MenuItem>
         </Menu>
-
-        <Grid Grid.Row="1">
+        <ContentControl Grid.Row="1" Visibility="{Binding ShowSaludos, Converter={StaticResource BoolVisibilityConverter}}" Name="Saludos" Content="{Binding SaludosViewModelP}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:SaludosViewModel}">
+                    <views:SaludosView></views:SaludosView>
+                </DataTemplate>
+            </ContentControl.Resources>
+                
+            
+            <!--<views:SaludosView></views:SaludosView>-->
+        </ContentControl>
+        <ContentControl Grid.Row="1" Visibility="{Binding ShowOnline, Converter={StaticResource BoolVisibilityConverter}}" Name="Online" Content="{Binding CustomOnlineViewModel}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vmo:CustomOnlineViewModel}">
+                    <views:CustomOnlineView></views:CustomOnlineView>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+        <Grid Grid.Row="1" Visibility="{Binding ShowRiping, Converter={StaticResource BoolVisibilityConverter}}" Name="Riping">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250" MaxWidth="400" MinWidth="150" />
+                <ColumnDefinition Width="61.621" MaxWidth="400" />
+                <ColumnDefinition Width="188.379"/>
                 <ColumnDefinition Width="2" />
                 <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
@@ -70,12 +96,12 @@
             <controls:FileTreeControl Grid.Column="0"
                                       FileDoubleClickCommand="{Binding OpenFileTabCommand}"
                                       FileTreeExportJsonCommand="{Binding FileTreeExportJsonCommand}"
-                                      FileTreeExportRecursiveJsonCommand="{Binding FileTreeExportRecursiveJsonCommand}"
+                                      FileTreeExportRecursiveJsonCommand="{Binding FileTreeExportRecursiveJsonCommand}" Grid.ColumnSpan="2"
                                       />
 
-            <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch" />
+            <GridSplitter Grid.Column="2" Width="2" HorizontalAlignment="Stretch" />
 
-            <TabControl Grid.Column="2"
+            <TabControl Grid.Column="3"
                         DataContext="{Binding TabContext}"
                         ItemsSource="{Binding Tabs}"
                         SelectedItem="{Binding CurrentTab}">
@@ -104,30 +130,30 @@
                                     <MouseBinding Command="{Binding CloseCommand}" Gesture="MiddleClick" />
                                 </DockPanel.InputBindings>
 
-                                
-                                    <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" />
-                                    <Button DockPanel.Dock="Right"
+
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" />
+                                <Button DockPanel.Dock="Right"
                                     HorizontalAlignment="Right"
                                     HorizontalContentAlignment="Right"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     Command="{Binding CloseCommand}" >
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="Transparent" HorizontalAlignment="Right">
-                                                    <Path Data="M0,0 L6,6 M6,0 L0,6" StrokeThickness="2" VerticalAlignment="Center" Margin="5,2,0,0" Stroke="{TemplateBinding Foreground}" />
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.Static}"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsMouseOver" Value="False">
-                                                        <Setter Property="Foreground" Value="{DynamicResource TreeViewItem.MouseOver.Border}"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="Transparent" HorizontalAlignment="Right">
+                                                <Path Data="M0,0 L6,6 M6,0 L0,6" StrokeThickness="2" VerticalAlignment="Center" Margin="5,2,0,0" Stroke="{TemplateBinding Foreground}" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.Static}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="False">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TreeViewItem.MouseOver.Border}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
                             </DockPanel>
                         </Border>
                     </DataTemplate>

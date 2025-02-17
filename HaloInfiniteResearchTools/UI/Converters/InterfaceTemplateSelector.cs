@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace HaloInfiniteResearchTools.UI.Converters
 {
     /// <summary>
-     /// Provides a data template selector which honors data templates targeting interfaces implemented by the
-     /// data context.
-     /// </summary>
+    /// Provides a data template selector which honors data templates targeting interfaces implemented by the
+    /// data context.
+    /// </summary>
     public sealed class InterfaceTemplateSelector : DataTemplateSelector
     {
         /// <inheritdoc/>

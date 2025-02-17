@@ -11,7 +11,7 @@ namespace LibHIRT.TagReader.Headers
         DataReferenceTable dataReferenceTable = new DataReferenceTable();
         TagReferenceFixUpTable tagReferenceFixUpTable = new TagReferenceFixUpTable();
         ZoneSet zoneSet = new ZoneSet();
-        public List<object> Infos { get => new List<object> { tagHeader, tagDependencyTable, dataBlockTableField, tagStructTable , dataReferenceTable , tagReferenceFixUpTable }; }
+        public List<object> Infos { get => new List<object> { tagHeader, tagDependencyTable, dataBlockTableField, tagStructTable, dataReferenceTable, tagReferenceFixUpTable }; }
         public TagHeader TagHeader { get => tagHeader; set => tagHeader = value; }
         public TagStructTable TagStructTable { get => tagStructTable; set => tagStructTable = value; }
         public DataBlockTable DataBlockTableField { get => dataBlockTableField; set => dataBlockTableField = value; }
@@ -58,7 +58,7 @@ namespace LibHIRT.TagReader.Headers
 
                     tagStructTable.Data_block_table = dataBlockTableField;
                     var entry = tagStructTable.readTableItem(f, tagHeader, 0);
-                    if (entry!=null)
+                    if (entry != null)
                         return BitConverter.ToInt32(entry.Bin_datas[0].ToArray(), 8);
                 }
             }
@@ -76,7 +76,7 @@ namespace LibHIRT.TagReader.Headers
 
         public void Dispose()
         {
-           
+
         }
     }
 }

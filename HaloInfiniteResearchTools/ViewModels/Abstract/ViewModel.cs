@@ -150,9 +150,9 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         #region Modal Methods
 
-        protected async Task RunProcess(IProcess process)
+        protected async Task RunProcess(IProcess process, bool useSpinner = false)
         {
-            var modal = ServiceProvider.GetService<ProgressModal>();
+            BoundModal<ProgressViewModel> modal = useSpinner ? ServiceProvider.GetService<SpinnerModal>() : ServiceProvider.GetService<ProgressModal>();
             modal.DataContext = process;
 
             using (modal)
@@ -251,7 +251,6 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             var modal = new ViewHostWindowModal(view);
             modal.DataContext = view.DataContext;
-
             if (configureViewModel != null)
                 configureViewModel(view.DataContext);
 
@@ -265,6 +264,29 @@ namespace HaloInfiniteResearchTools.ViewModels
         protected ProgressViewModel ShowProgress()
         {
             var modal = ServiceProvider.GetService<ProgressModal>();
+            var progress = modal.ViewModel;
+
+            async void OnProgressDisposing(object sender, EventArgs e)
+            {
+                progress.Disposing -= OnProgressDisposing;
+
+                await modal.Hide();
+                IsBusy = false;
+                Modals.Remove(modal);
+            }
+
+            progress.Disposing += OnProgressDisposing;
+
+            Modals.Add(modal);
+            modal.Show();
+            IsBusy = true;
+
+            return progress;
+        }
+
+        protected ProgressViewModel ShowSpinner()
+        {
+            var modal = ServiceProvider.GetService<SpinnerModal>();
             var progress = modal.ViewModel;
 
             async void OnProgressDisposing(object sender, EventArgs e)

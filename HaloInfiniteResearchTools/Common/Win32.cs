@@ -1,5 +1,8 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace HaloInfiniteResearchTools.Common
 {
@@ -15,6 +18,9 @@ namespace HaloInfiniteResearchTools.Common
 
         [DllImport("user32.dll")]
         private static extern int SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         public static bool IsKeyPressed(WinKeys key)
           => (GetAsyncKeyState((int)key) & 32768) != 0;
@@ -33,7 +39,28 @@ namespace HaloInfiniteResearchTools.Common
         public static int SetCursorPosition(System.Windows.Point point)
           => SetCursorPos((int)point.X, (int)point.Y);
 
+        public static void SwitchToApp(string appName)
+        {
+            // Encuentra la aplicación
+            Process[] processes = Process.GetProcessesByName(appName);
+            if (processes.Length == 0) return;  // No se encontró la aplicación
+
+            // Activa la aplicación
+            Process app = processes[0];
+            IntPtr handle = app.MainWindowHandle;
+            SetForegroundWindow(handle);
+
+            // Envía Ctrl + Tab
+            SendKeys.SendWait("^{TAB}");
+        }
+
     }
+
+
+
+
+    // Importa la función SetForegroundWindow de user32.dll
+
 
     public enum WinKeys : int
     {

@@ -1,7 +1,7 @@
 ﻿using LibHIRT.Utils;
 using System.Diagnostics;
-using static LibHIRT.TagReader.TagLayouts;
 using System.Xml;
+using static LibHIRT.TagReader.TagLayouts;
 
 namespace LibHIRT.TagReader
 {

@@ -66,12 +66,12 @@ namespace HaloInfiniteResearchTools.Cli
                 )));
         }
 
-        private async void ExportToHandler(FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format,  bool v, InvocationContext ctx)
+        private async void ExportToHandler(FileInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format, bool v, InvocationContext ctx)
         {
             _infile = infile;
             _outfile = outfile;
             _format = format;
-            
+
             _tif = bool.Parse(tif);
 
             if (!deploy_dir.Exists || deploy_dir.Extension != ".module")
@@ -85,12 +85,12 @@ namespace HaloInfiniteResearchTools.Cli
             await process.Execute();
             Console.WriteLine("Tags listed to");
         }
-        private async void ExportToHandler(DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format,bool v, InvocationContext ctx)
+        private async void ExportToHandler(DirectoryInfo deploy_dir, string infile, string tif, DirectoryInfo? outfile, string format, bool v, InvocationContext ctx)
         {
             _infile = infile;
             _outfile = outfile;
             _format = format;
-            
+
             _tif = bool.Parse(tif);
             int id = _tif ? int.Parse(infile) : Mmr3HashLTU.fromStrHash(infile);
             var process = new SearchFileByIdProcess(EntryPoint.ServiceProvider, id, false, deploy_dir.FullName);
@@ -193,7 +193,7 @@ namespace HaloInfiniteResearchTools.Cli
                 // initialize PBR material object
                 using (var list = (e as Tagblock))
                 {
-                    int i = 1; 
+                    int i = 1;
                     foreach (var item in list)
                     {
                         PbrMaterial mat = new PbrMaterial();
@@ -208,7 +208,7 @@ namespace HaloInfiniteResearchTools.Cli
 
                         mat.RoughnessFactor = 0.9;
 
-                        mat.Albedo = new Aspose.ThreeD.Utilities.Vector3(255/i, 255 / i%2, 0 );
+                        mat.Albedo = new Aspose.ThreeD.Utilities.Vector3(255 / i, 255 / i % 2, 0);
 
                         _materialList.Add(mat);
                         i++;

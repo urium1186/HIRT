@@ -6,4 +6,8 @@ namespace LibHIRT.Files.Base
     {
         RenderModelFile GetRenderModel();
     }
+    public interface HasModel
+    {
+        ModelFile GetModel();
+    }
 }

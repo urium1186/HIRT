@@ -14,7 +14,8 @@ namespace LibHIRT.Grunt
                 new EmptyDateStringToNullJsonConverter(),
                 new OnlineUriReferenceConverter(),
                 new AcknowledgementTypeConverter(),
-                new XmlDurationToTimeSpanJsonConverter()
+                new XmlDurationToTimeSpanJsonConverter(),
+                new SkipNodeConverter()
             }
         };
 

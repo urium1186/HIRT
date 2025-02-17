@@ -2,10 +2,10 @@
 using HaloInfiniteResearchTools.Models;
 using HaloInfiniteResearchTools.Processes;
 using HaloInfiniteResearchTools.Services;
+using HaloInfiniteResearchTools.ViewModels.Online;
 using HaloInfiniteResearchTools.Views;
 using LibHIRT.Files;
 using LibHIRT.Files.Base;
-using LibHIRT.TagReader.RuntimeViewer;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,12 @@ using System.Windows.Threading;
 
 namespace HaloInfiniteResearchTools.ViewModels
 {
+    public enum MainSubView
+    {
+        Saludos,
+        Online,
+        Riping
+    }
     public class MainViewModel : ViewModel
     {
         private FileContextModel _fileContext;
@@ -41,16 +47,28 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         public ICommand BulkExportModelsCommand { get; }
         public ICommand BulkExportTexturesCommand { get; }
+        public ICommand OpenViewSaludosCommand { get; }
+        public ICommand OpenViewOnlineCommand { get; }
+        public ICommand OpenViewRippingCommand { get; }
 
+        public bool ShowSaludos { get { return currentVIew == MainSubView.Saludos; } }
+        public bool ShowOnline { get { return currentVIew == MainSubView.Online; } }
+        public bool ShowRiping { get { return currentVIew == MainSubView.Riping; } }
+
+        MainSubView currentVIew = MainSubView.Saludos;
 
         public MainViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _fileContext = new FileContextModel();
-
+            currentVIew = MainSubView.Saludos;
             _tabService = serviceProvider.GetService<ITabService>();
-            TabContext = _tabService.TabContext;
-            
-            OpenFileTabCommand = new AsyncCommand<(IHIRTFile,bool)>(OpenFileTab);
+            TabContext = _tabService?.TabContext;
+            SaludosViewModelP = new SaludosViewModel(serviceProvider);
+            SaludosViewModelP.onChangeView += SaludosViewModelP_onChangeView;
+
+            CustomOnlineViewModel = new CustomOnlineViewModel(serviceProvider);
+
+            OpenFileTabCommand = new AsyncCommand<(IHIRTFile, bool)>(OpenFileTab);
 
             OpenFileCommand = new AsyncCommand(OpenFile);
             FileTreeExportJsonCommand = new AsyncCommand<List<IHIRTFile>>(FileTreeExportJson);
@@ -63,26 +81,50 @@ namespace HaloInfiniteResearchTools.ViewModels
             TagStructsLoadAllCommand = new AsyncCommand(TagStructsLoadAll);
             BinaryExplorerCommand = new AsyncCommand(BinaryExplorer);
             ToolsCommand = new AsyncCommand(Tools);
-            
+
             ResetSessionCommand = new Command(ResetSession);
 
             BulkExportModelsCommand = new AsyncCommand(BulkExportModels);
             BulkExportTexturesCommand = new AsyncCommand(BulkExportTextures);
 
+            OpenViewSaludosCommand = new Command(OpenViewSaludos);
+            OpenViewRippingCommand = new Command(OpenViewRipping);
+            OpenViewOnlineCommand = new Command(OpenViewOnline);
+
             App.Current.DispatcherUnhandledException += OnUnhandledExceptionRaised;
+        }
+
+        private void SaludosViewModelP_onChangeView(object? sender, MainSubView e)
+        {
+            changeCurrentView(e);
+        }
+
+        private void OpenViewOnline()
+        {
+            changeCurrentView(MainSubView.Online);
+        }
+
+        private void OpenViewRipping()
+        {
+            changeCurrentView(MainSubView.Riping);
+        }
+
+        private void OpenViewSaludos()
+        {
+            changeCurrentView(MainSubView.Saludos);
         }
 
         private void ResetSession()
         {
             _tabService.CloseAllTab();
-            
-            if (FileContext != null )
+
+            if (FileContext != null)
             {
                 _fileContext.reset();
             }
             Process currentProcess = Process.GetCurrentProcess();
             currentProcess.Dispose();
-            
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -112,19 +154,24 @@ namespace HaloInfiniteResearchTools.ViewModels
         public FileContextModel FileContext { get => _fileContext; }
 
         public TabContextModel TabContext { get; }
+        public SaludosViewModel SaludosViewModelP { get; }
+        public CustomOnlineViewModel CustomOnlineViewModel { get; }
 
         #region Overrides
 
         protected override async Task OnInitializing()
         {
             var prefs = GetPreferences();
-            //FileContext.HiContext.TagTemplatePath = prefs.TagStructsDumperOptions.XmlOutputPath;
-            if (prefs.LoadH2ADirectoryOnStartup)
+            UpdateHIRTContexConfigsFromPreference();
+            _tabService.createHomeTab();
+            if (prefs.LoadHIDirectoryOnStartup)
             {
                 if (Directory.Exists(prefs.HIDirectoryPath))
                 {
+                    currentVIew = MainSubView.Riping;
                     var process = new OpenFilesProcess(null, prefs.HIDirectoryPath);
                     process.Completed += OpenFilesProcess_Completed;
+                    changeCurrentView(MainSubView.Riping);
                     await RunProcess(process);
                 }
             }
@@ -138,6 +185,14 @@ namespace HaloInfiniteResearchTools.ViewModels
 
             //FileContext.SearchTermChangedCommand.Execute("C9CD0000_52681");
             //FileContext.SearchTermChangedCommand.Execute("");
+        }
+
+        private void changeCurrentView(MainSubView subView)
+        {
+            this.currentVIew = subView;
+            OnPropertyChanged("ShowSaludos");
+            OnPropertyChanged("ShowOnline");
+            OnPropertyChanged("ShowRiping");
         }
 
         #endregion
@@ -154,7 +209,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 return;
 
             var process = new OpenFilesProcess(null, filePaths);
-
+            changeCurrentView(MainSubView.Riping);
             process.Completed += OpenFilesProcess_Completed;
             await RunProcess(process);
         }
@@ -181,7 +236,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                 return;
 
             var process = new OpenFilesProcess(null, directoryPath);
-
+            changeCurrentView(MainSubView.Riping);
             process.Completed += OpenFilesProcess_Completed;
             await RunProcess(process);
         }
@@ -189,7 +244,7 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private async Task OpenFileTab((IHIRTFile, bool) fileP)
         {
-            if (fileP.Item1!=null)
+            if (fileP.Item1 != null)
             {
                 var file = fileP.Item1;
                 if (!_tabService.CreateTabForFile(file, out _, fileP.Item2))
@@ -202,7 +257,7 @@ namespace HaloInfiniteResearchTools.ViewModels
                     return;
                 }
             }
-           
+
             /*var entry = new List<FileModel>();
             entry.Add(fileModel);
             var process = new OpenModuleEntryFileProcess(entry);
@@ -214,8 +269,35 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         private async Task EditPreferences()
         {
-            await ShowViewModal<PreferencesView>();
-            await SavePreferences();
+            var result = await ShowViewModal<PreferencesView>();
+            if (result != null && result is HaloInfiniteResearchTools.Models.PreferencesModel)
+            {
+                UpdateHIRTContexConfigsFromPreference();
+                await SavePreferences();
+            }
+
+        }
+
+        private void UpdateHIRTContexConfigsFromPreference()
+        {
+            try
+            {
+                foreach (var item in GetPreferences().TagReaderOptionsModel.Paths)
+                {
+                    if (item.Active)
+                    {
+                        HIFileContext.Instance.TagTemplatePath = item.Path;
+                        break;
+                    }
+                }
+                HIFileContext.Instance.ConfigHIRT.LoadSaveFilesPath = GetPreferences().LoadSavePathFilesFromDB;
+            }
+            catch (Exception exp)
+            {
+
+
+            }
+
         }
 
         private async Task BinaryExplorer()
@@ -234,8 +316,9 @@ namespace HaloInfiniteResearchTools.ViewModels
             });
         }
 
-        private async Task TagStructsLoadAll() {
-            
+        private async Task TagStructsLoadAll()
+        {
+
             var process = new TagStructsLoadAllProcess();
             await RunProcess(process);
 
@@ -249,8 +332,9 @@ namespace HaloInfiniteResearchTools.ViewModels
             });
             if (!(result is TagStructsDumperOptionsModel options))
                 return;
-            this.FileContext.HiContext.TagTemplatePath = options.OutputPath;
             GetPreferences().TagReaderOptionsModel.XmlOutputPath = options.OutputPath;
+            UpdateHIRTContexConfigsFromPreference();
+
 
             await SavePreferences();
             var exportProcess = new TagStructsDumperProcess(options);
@@ -258,8 +342,10 @@ namespace HaloInfiniteResearchTools.ViewModels
             if (exportProcess.OptionsModel.LastStartAddress != GetPreferences().TagStructsDumperOptions.LastStartAddress)
             {
                 GetPreferences().TagStructsDumperOptions.LastStartAddress = exportProcess.OptionsModel.LastStartAddress;
+                UpdateHIRTContexConfigsFromPreference();
                 await SavePreferences();
             }
+
         }
 
 

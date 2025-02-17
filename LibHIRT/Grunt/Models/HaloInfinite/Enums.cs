@@ -1,11 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Grunt.Models.HaloInfinite
+﻿namespace LibHIRT.Grunt.Models.HaloInfinite
 {
+    public enum StoreId
+    {
+        all,
+        customizationoffers,
+        main,
+        boosts,
+        events,
+        hcs,
+        softcurrencyoffers,
+        operationrewardlevels,
+        operations,
+        xpgrants
+    }
+
     public enum ItemType
     {
         All,

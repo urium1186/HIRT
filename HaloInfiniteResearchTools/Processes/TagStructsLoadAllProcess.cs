@@ -15,20 +15,21 @@ namespace HaloInfiniteResearchTools.Processes
         protected override async Task OnExecuting()
         {
             string tempDirPath = Directory.GetCurrentDirectory() + "\\TagReader\\Tags\\";
-            if (Directory.Exists(TagXmlParse.TagsPath)) {
+            if (Directory.Exists(TagXmlParse.TagsPath))
+            {
                 tempDirPath = TagXmlParse.TagsPath + "\\";
                 TagXmlParseV2.TagsPath = TagXmlParse.TagsPath;
 
             }
-                
+
             DirectoryInfo d = new DirectoryInfo(tempDirPath);
-             tags = new List<string>();
+            tags = new List<string>();
             FileInfo[] _filePaths = d.GetFiles("*.xml");
             Status = _filePaths.Length > 1 ? "Opening Files" : "Opening File";
             UnitName = _filePaths.Length > 1 ? "files opened" : "file opened";
             TotalUnits = _filePaths.Length;
             IsIndeterminate = _filePaths.Length == 1;
-            
+
             var objLock = new object();
             Parallel.ForEach(_filePaths, file =>
             {
@@ -42,10 +43,11 @@ namespace HaloInfiniteResearchTools.Processes
                         tags.Add(file.Name);
                         StatusList.AddMessage(fileName, "Correct tag template.");
                     }
-                    else {
+                    else
+                    {
                         StatusList.AddWarning(fileName, "No correct tag template.");
                     }
-                        
+
                 }
                 catch (Exception ex)
                 {

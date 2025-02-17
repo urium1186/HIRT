@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace LibHIRT.Files.FileTypes
 {
 
-    public class IncrEntry {
+    public class IncrEntry
+    {
         public uint IntValue { get; set; }
         public uint Index { get; set; }
         public string IntValueStr { get => $"{Index} - {IntValue}"; }
@@ -21,8 +21,8 @@ namespace LibHIRT.Files.FileTypes
     public class ModuleIncrFile : SSpaceFile
     {
         int count = 0;
-        ConcurrentQueue<IncrEntry> _entries=new ConcurrentQueue<IncrEntry>();
-        
+        ConcurrentQueue<IncrEntry> _entries = new ConcurrentQueue<IncrEntry>();
+
         public ModuleIncrFile(string name, ISSpaceFile parent = null) : base(name, parent)
         {
 
@@ -39,27 +39,27 @@ namespace LibHIRT.Files.FileTypes
             {
                 InitReaderFromMemStream();
             }
-            
+
             Reader.BaseStream.Seek(0, SeekOrigin.Begin);
-            count = (int)(Reader.BaseStream.Length/4);
+            count = (int)(Reader.BaseStream.Length / 4);
             _entries.Clear();
             uint init = 0;
             for (uint i = 0; i < count; i++)
             {
                 try
                 {
-                    uint val =  Reader.ReadUInt32();
+                    uint val = Reader.ReadUInt32();
                     Debug.Assert(val > init);
                     init = val;
-                    _entries.Enqueue(new IncrEntry { IntValue = val, Index = i});
-                    
+                    _entries.Enqueue(new IncrEntry { IntValue = val, Index = i });
+
                 }
                 catch (Exception ex)
                 {
 
                     throw ex;
                 }
-                
+
             }
 
         }

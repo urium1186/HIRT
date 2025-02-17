@@ -20,7 +20,7 @@ namespace HaloInfiniteResearchTools.Models
                     LastStartAddressS = "-1",
                     IsSearch = false,
                     SearchTerm = "",
-                    GameLocation= "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\HaloInfinite.exe"
+                    GameLocation = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Halo Infinite\\HaloInfinite.exe"
                 };
             }
         }

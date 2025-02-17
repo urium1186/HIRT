@@ -31,7 +31,7 @@ namespace LibHIRT.TagReader.Headers
         List<DataReference> l_function = new List<DataReference>();
         List<TagReferenceFixup> l_tag_ref = new List<TagReferenceFixup>();
         int parent_entry_index = -1;
-        
+
         List<List<byte>> bin_datas = new List<List<byte>>();
         List<string> bin_datas_hex = new List<string>();
         string type_ = "Tagblock";
@@ -159,7 +159,7 @@ namespace LibHIRT.TagReader.Headers
                 {
                     BaseStream.Seek(pos_on_init, SeekOrigin.Begin);
                     if (info.n_childs != 0)
-                        Debug.WriteLine( "Posible error de interpretacion de Datos, ya q son externos, solo pasa en los terminados con *?");
+                        Debug.WriteLine("Posible error de interpretacion de Datos, ya q son externos, solo pasa en los terminados con *?");
                     //throw new Exception("Error de interpretacion de Datos, ya q son externos");
                     if (unknown_property_bool_0_1 == 0)
                     {
@@ -290,7 +290,7 @@ namespace LibHIRT.TagReader.Headers
                 {
                     entry.Bin_datas_hex.Add(BitConverter.ToString(item.ToArray()).Replace("-", ""));
                 }
-                
+
                 entries.Add(entry);
                 if (OnReadEntryEvent != null)
                     OnReadEntryEvent.Invoke(this, entry);
@@ -307,7 +307,7 @@ namespace LibHIRT.TagReader.Headers
             {
                 TagStruct entry = new TagStruct(f);
                 entry.ReadIn();
-                
+
 
                 if (header.TagFileHeaderInst.DataBlockCount > entry.Field_data_block_index && entry.Field_data_block_index > -1)
                 {

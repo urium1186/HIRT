@@ -210,7 +210,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     hooked = false;
                     loadedTags = false;
                 }
-                if (M.mProc.Process.Handle == IntPtr.Zero || loadedTags == false) // || processSelector.selected == false
+                if (M?.mProc?.Process?.Handle == IntPtr.Zero || loadedTags == false) // || processSelector.selected == false
                 {
                     // Could not find the process
                     //hook_text.Text = "Cant find HaloInfinite.exe";
@@ -409,9 +409,10 @@ namespace LibHIRT.TagReader.RuntimeViewer
                         return;
                     }
                     int a = M.ReadByte((tagAddress).ToString("X"));
-                    int minusOne = M.ReadInt((tagAddress+48).ToString("X"));
+                    int minusOne = M.ReadInt((tagAddress + 48).ToString("X"));
                     //Debug.Assert(minusOne == -1);
-                    if (a == 255) { 
+                    if (a == 255)
+                    {
                     }
                     byte[] test = (M.ReadBytes((tagAddress + 4).ToString("X"), 4));
 
@@ -421,7 +422,7 @@ namespace LibHIRT.TagReader.RuntimeViewer
                     currentTag.ObjectIdStr = BitConverter.ToString(test).Replace("-", string.Empty);
                     currentTag.TagGroupMem = read_tag_group(M.ReadLong((tagAddress + 0x8).ToString("X")));
                     currentTag.TagData = M.ReadLong((tagAddress + 0x10).ToString("X"));
-                    currentTag.ResourceData = M.ReadLong((tagAddress + 0x10+8).ToString("X"));
+                    currentTag.ResourceData = M.ReadLong((tagAddress + 0x10 + 8).ToString("X"));
                     currentTag.TagFullName = convert_ID_to_tag_name(currentTag.ObjectIdStr).Trim();
                     currentTag.TagFile = currentTag.TagFullName.Split('\\').Last().Trim();
                     currentTag.M = M;

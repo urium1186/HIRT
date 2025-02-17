@@ -5,18 +5,20 @@ namespace LibHIRT.TagReader
 
     public delegate void OnInstanceEventHandler(object sender, EventArgs e);
 
-    public interface ITagParseControl:IDisposable { 
+    public interface ITagParseControl : IDisposable
+    {
         public CompoundTagInstance RootTagInst { get; }
-        public Template TagTemplate { get;}
+        public Template TagTemplate { get; }
 
         public event EventHandler<ITagInstance> OnInstanceLoadEvent;
 
         TagFile TagFile { get; }
-        public TagParseControlFiltter ParseControlFiltter { get ; set ; }
+        public TagParseControlFiltter ParseControlFiltter { get; set; }
         public void readFile();
     }
 
-    public interface Template {
+    public interface Template
+    {
         public Dictionary<string, object>? E { get; set; }
         /// <summary>
         /// Length of the tagblock
@@ -33,7 +35,8 @@ namespace LibHIRT.TagReader
 
     }
 
-    public interface GetFormString {
+    public interface GetFormString
+    {
         public object Parse(string s);
     }
     public interface ITagInstance : IDisposable
@@ -184,7 +187,7 @@ namespace LibHIRT.TagReader
     }
     public static class TagCommon
     {
-        public static Dictionary<TagElemntTypeV2,int> GROUP_LENGTHS = new()
+        public static Dictionary<TagElemntTypeV2, int> GROUP_LENGTHS = new()
             {
                 { TagElemntTypeV2.Undefined ,0 }, // _field_string
                 { TagElemntTypeV2.RootTagInstance ,0 }, // _field_string
@@ -260,7 +263,7 @@ namespace LibHIRT.TagReader
 
 				{ TagElemntTypeV2.DataPath  , 256 },// revisar original 4 --- data path
 				{ TagElemntTypeV2.Unmapped45  , 16 },
-				{ TagElemntTypeV2.NotFound69  , 0 },
+                { TagElemntTypeV2.NotFound69  , 0 },
             };
         public static Dictionary<string, int> group_lengths_dict = new()
             {
@@ -355,16 +358,17 @@ namespace LibHIRT.TagReader
                     result[0] = item.Value;
                     return result;
                 }
-                if (item.Value is TagLayoutsV2.P) {
+                if (item.Value is TagLayoutsV2.P)
+                {
                     TagLayoutsV2.P ly = (item.Value as TagLayoutsV2.P);
                     if (ly.B != null && ly.B.Count != 0)
-                {
+                    {
                         result = getSubTaglayoutFrom(ly.B, hash);
                         if (result != null)
                             return result;
                     }
                 }
-                  
+
 
             }
             return null;

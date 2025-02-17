@@ -1,5 +1,4 @@
 ﻿using OpenSpartan.Grunt.Models.HaloInfinite;
-using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

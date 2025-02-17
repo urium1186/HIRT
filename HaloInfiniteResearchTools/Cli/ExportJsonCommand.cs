@@ -2,7 +2,6 @@
 using HaloInfiniteResearchTools.Processes;
 using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;

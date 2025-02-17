@@ -1,6 +1,5 @@
 ﻿using LibHIRT.Files;
 using LibHIRT.Files.Base;
-using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using System;
 using System.Collections.Concurrent;
@@ -58,7 +57,7 @@ namespace HaloInfiniteResearchTools.Processes
 
                     if (!File.Exists(path_file))
                     {
-                        await ExportFileToJson(_file,path_file);
+                        await ExportFileToJson(_file, path_file);
 
                     }
 
@@ -141,17 +140,17 @@ namespace HaloInfiniteResearchTools.Processes
                         {
                             IHIRTFile file = null;
                             file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_int);
+                            if (file == null)
+                            {
+                                file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_center_int);
                                 if (file == null)
                                 {
-                                    file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_center_int);
-                                    if (file == null)
-                                    {
-                                        file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_sub_int);
-                                    }
-
+                                    file = HIFileContext.Instance.GetFile((int)tagRef.Ref_id_sub_int);
                                 }
 
-                            
+                            }
+
+
                             if (file != null)
                             {
                                 await ExportFileToJson(file, path_file);

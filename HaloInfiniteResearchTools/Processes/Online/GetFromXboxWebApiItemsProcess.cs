@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using File = System.IO.File;
 
-namespace HaloInfiniteResearchTools.Processes
+namespace HaloInfiniteResearchTools.Processes.Online
 {
 
     public class GetFromXboxWebApiItemsProcess : ProcessBase
@@ -58,9 +58,9 @@ namespace HaloInfiniteResearchTools.Processes
                     inventoryDefinition = (InventoryDefinition)JsonSerializer.Deserialize(fileName, typeof(InventoryDefinition));
                     Status = "loaded customization catalog from disk...";
                 }
-                
-                
-                var list =  getItempOfType(this.itemType);
+
+
+                var list = getItempOfType(this.itemType);
 
 
                 Status = list.Count > 1 ? "Opening Files" : "Opening File";
@@ -71,7 +71,7 @@ namespace HaloInfiniteResearchTools.Processes
                 var objLock = new object();
                 ParallelOptions parallelOptions = new ParallelOptions();
                 parallelOptions.MaxDegreeOfParallelism = Environment.ProcessorCount * 4;
-                await Parallel.ForEachAsync(list, parallelOptions, async (item, token )=>
+                await Parallel.ForEachAsync(list, parallelOptions, async (item, token) =>
                 {
                     try
                     {
@@ -137,7 +137,7 @@ namespace HaloInfiniteResearchTools.Processes
             }
             bool retry = true;
             int max_retry = 3;
-            while (max_retry!=0)
+            while (max_retry != 0)
             {
                 try
                 {
@@ -157,12 +157,12 @@ namespace HaloInfiniteResearchTools.Processes
                     max_retry--;
                     if (max_retry == 0)
                     {
-                        throw ex; 
+                        throw ex;
                     }
-                    
+
                 }
             }
-            
+
             return false;
         }
 

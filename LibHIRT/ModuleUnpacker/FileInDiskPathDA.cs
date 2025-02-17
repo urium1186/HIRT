@@ -1,11 +1,6 @@
 ﻿using LibHIRT.DAO;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.ModuleUnpacker
 {
@@ -13,10 +8,15 @@ namespace LibHIRT.ModuleUnpacker
     {
         static private SQLiteConnection connectionDb = null;
 
-        public static SQLiteConnection ConnectionDb { get { 
-                if (connectionDb==null)
+        public static SQLiteConnection ConnectionDb
+        {
+            get
+            {
+                if (connectionDb == null)
                     connectionDb = SQLiteDriver.CreateConnection();
-                ; return connectionDb; } }
+                ; return connectionDb;
+            }
+        }
 
         private static object locker = new object();
 
@@ -24,7 +24,8 @@ namespace LibHIRT.ModuleUnpacker
         {
             var result = true;
 
-            lock (locker) {
+            lock (locker)
+            {
                 try
                 {
                     if (ConnectionDb.State != ConnectionState.Open)
@@ -40,7 +41,7 @@ namespace LibHIRT.ModuleUnpacker
                 }
             }
 
-            
+
             return result;
         }
 
@@ -59,7 +60,7 @@ namespace LibHIRT.ModuleUnpacker
                 result = false;
             }
 
-            
+
             return result;
         }
         static public bool getFromDbInDiskPath(int module_id, out List<Dictionary<string, object>> salida)
@@ -86,8 +87,57 @@ namespace LibHIRT.ModuleUnpacker
 
             return result;
         }
-        
-        static public bool getFromDbInDiskPath( int file_id, int module_id,out List<Dictionary<string, object>>  salida, string path_string = "")
+        static public bool GetInDiskPathFileId(int file_id, out List<Dictionary<string, object>> salida)
+        {
+            var result = true;
+            lock (locker)
+            {
+                try
+                {
+                    if (ConnectionDb.State != ConnectionState.Open)
+                    {
+                        ConnectionDb.Open();
+                    }
+                    salida = SQLiteDriver.GetInDiskPathFileId(ConnectionDb, file_id);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                }
+                catch (Exception ex)
+                {
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                    result = false;
+                    salida = null;
+                }
+            }
+
+            return result;
+        }
+
+        static public bool GetInDiskPath(out List<Dictionary<string, object>> salida)
+        {
+            var result = true;
+            lock (locker)
+            {
+                try
+                {
+                    if (ConnectionDb.State != ConnectionState.Open)
+                    {
+                        ConnectionDb.Open();
+                    }
+                    salida = SQLiteDriver.GetInDiskPath(ConnectionDb);
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                }
+                catch (Exception ex)
+                {
+                    //SQLiteDriver.RemoveConnection(ConnectionDb);
+                    result = false;
+                    salida = null;
+                }
+            }
+
+            return result;
+        }
+
+        static public bool getFromDbInDiskPath(int file_id, int module_id, out List<Dictionary<string, object>> salida, string path_string = "")
         {
             var result = true;
             lock (locker)
@@ -108,7 +158,7 @@ namespace LibHIRT.ModuleUnpacker
                     salida = null;
                 }
             }
-            
+
             return result;
         }
 

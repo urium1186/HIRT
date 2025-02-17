@@ -22,14 +22,14 @@
                     <GroupBox.Header>
                         <DockPanel>
                             <Label DockPanel.Dock="Left"
-                                   Content="Default Halo Infinite Directory" />
+                                   Content="Default Halo Infinite deploy directory" />
                             <CheckBox DockPanel.Dock="Right"
                                       Content="Load on Startup"
                                       FlowDirection="RightToLeft"
-                                      IsChecked="{Binding Preferences.LoadH2ADirectoryOnStartup}" />
+                                      IsChecked="{Binding Preferences.LoadHIDirectoryOnStartup}" />
                         </DockPanel>
                     </GroupBox.Header>
-                    <controls:FileBrowserBox Path="{Binding Preferences.H2ADirectoryPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <controls:FileBrowserBox Path="{Binding Preferences.HIDirectoryPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      DialogPathType="Directory"  />
                 </GroupBox>
 
@@ -38,6 +38,14 @@
                   Margin="5,5,5,0">
                     <controls:FileBrowserBox Path="{Binding Preferences.DefaultExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      DialogPathType="Directory"  />
+                </GroupBox>
+                <GroupBox Header="General Setting" 
+                          Grid.Row="2"
+                            Margin="5,5,5,0">
+                    <CheckBox DockPanel.Dock="Left" Width="220px"
+                                      Content="Load and/or Save PathFile sFrom DB"
+                                      FlowDirection="LeftToRight"
+                                      IsChecked="{Binding Preferences.LoadSavePathFilesFromDB}" HorizontalAlignment="Left" />
                 </GroupBox>
             </StackPanel>
         </TabItem>

@@ -1,5 +1,4 @@
-﻿using Aspose.ThreeD.Utilities;
-using Assimp;
+﻿using Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using SharpDX;
 using System;
@@ -51,7 +50,7 @@ namespace HaloInfiniteResearchTools.Common.Extensions
               );
         }
 
-       
+
         public static SharpDX.Matrix ToSharpDX(this System.Numerics.Matrix4x4 m, bool transpose = true)
         {
             if (transpose)
@@ -92,7 +91,7 @@ namespace HaloInfiniteResearchTools.Common.Extensions
             else
                 return new Assimp.Vector3D(v.X, v.Y, v.Z);
         }
-         public static Assimp.Vector3D ToAssimp3D(this System.Numerics.Vector3 v, bool traspose = true)
+        public static Assimp.Vector3D ToAssimp3D(this System.Numerics.Vector3 v, bool traspose = true)
         {
             if (traspose)
                 return new Assimp.Vector3D(-v.X, v.Z, v.Y);

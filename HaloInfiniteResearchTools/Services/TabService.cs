@@ -113,6 +113,26 @@ namespace HaloInfiniteResearchTools.Services
             }
         }
 
+        public bool createHomeTab()
+        {
+            try
+            {
+                var viewModel = (IViewModel)Activator.CreateInstance(typeof(HomeTabViewModel), new object[] { _serviceProvider });
+                viewModel.Initialize();
+
+                var view = _viewService.GetView(viewModel);
+                ITab tab = new Tab("Home tab", view);
+
+                _tabContext.AddTab(tab);
+                return true;
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
+
         public bool CreateTabForFile(TagStructMemFile file, out ITab tab, bool forceGeneric = false)
         {
             return createTabFileMem(file, out tab);
@@ -150,17 +170,17 @@ namespace HaloInfiniteResearchTools.Services
 
         public void CloseAllTab()
         {
-            
+
             try
             {
                 int count = _tabContext.Tabs.Count;
                 for (int i = 0; i < count; i++)
                 {
-                    if (_tabContext.Tabs.Count>0)
+                    if (_tabContext.Tabs.Count > 0)
                         _tabContext.Tabs.Last().Close();
 
                 }
-                
+
             }
             catch (Exception e)
             {

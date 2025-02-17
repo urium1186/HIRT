@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace HaloInfiniteResearchTools.Processes
+namespace HaloInfiniteResearchTools.Processes.Online
 {
 
     public class GetArmorCoresFromJsonProcess : ProcessBase<List<ArmorCore>>

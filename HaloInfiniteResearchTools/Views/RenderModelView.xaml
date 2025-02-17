@@ -32,6 +32,8 @@
             <MenuItem Header="File">
                 <MenuItem Header="Export" Command="{Binding ExportModelCommand}" />
                 <MenuItem Header="Import kit" Command="{Binding ImportKitCommand}"/>
+                <MenuItem Header="Import store offer kit" Command="{Binding ImportStoreOfferKitCommand}"/>
+                <MenuItem Header="Refresh" Command="{Binding RefreshModelCommand}"/>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Use Flycam" IsCheckable="True" IsChecked="{Binding UseFlycam}" />

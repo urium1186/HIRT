@@ -6,12 +6,11 @@ using LibHIRT.TagReader;
 using LibHIRT.TagReader.RuntimeViewer;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Data.Entity.Infrastructure;
 using System.Data.SQLite;
 
 namespace LibHIRT.Files
 {
-    
+
     public class HIFileContext : IHIFileContext
     {
         #region Events
@@ -44,17 +43,19 @@ namespace LibHIRT.Files
 
         private ConnectXboxServicesResult _connectXbox = null;
 
+        private readonly ConfigHIRT configHIRT = new ConfigHIRT();
 
         private readonly object _collectionLock;
         ObservableCollection<IHIRTFile> _files;
 
         //private ConcurrentDictionary<int, IHIRTFile> _fileLookup;
+
         private ConcurrentBag<int> _filesModuleGlobalIdLockUp;
-        private RuntimeTagLoader _runtimeTagLoader = new RuntimeTagLoader();
+        private RuntimeTagLoader _runtimeTagLoader = null;
         private SQLiteConnection connectionDb;
         private bool disposedValue;
 
-        
+
         #endregion
 
         #region Properties
@@ -73,8 +74,19 @@ namespace LibHIRT.Files
         }
 
         public bool RuntimeLoadCompleted { get; protected set; }
-        public RuntimeTagLoader RuntimeTagLoader { get => _runtimeTagLoader; }
-        
+        public RuntimeTagLoader RuntimeTagLoader
+        {
+            get
+            {
+                if (_runtimeTagLoader == null)
+                {
+                    _runtimeTagLoader = new RuntimeTagLoader();
+                    _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
+                }
+                return _runtimeTagLoader;
+            }
+        }
+
 
         #endregion
 
@@ -87,7 +99,6 @@ namespace LibHIRT.Files
             _fileAddQueue = new ConcurrentQueue<IHIRTFile>();
             _fileRemoveQueue = new ConcurrentQueue<IHIRTFile>();
             _filesModuleGlobalIdLockUp = new ConcurrentBag<int>();
-            _runtimeTagLoader.Completed += _runtimeTagLoader_Completed;
             _collectionLock = new object();
             _files = new ObservableCollection<IHIRTFile>();
             //InitializeThreadSynchronization(_files, _collectionLock);
@@ -96,20 +107,27 @@ namespace LibHIRT.Files
             //SQLiteDriver.ReadData(connectionDb);
         }
 
-        public void Init() {
+        public void Init()
+        {
             InitializeThreadSynchronizationEvent?.Invoke(this, (Files, _collectionLock));
         }
-        public static HIFileContext Instance { get { 
+        public static HIFileContext Instance
+        {
+            get
+            {
                 if (_instance == null)
                     _instance = new HIFileContext();
                 return _instance;
-            } }
+            }
+        }
 
         public ConnectXboxServicesResult ConnectXbox { get => _connectXbox; set => _connectXbox = value; }
 
+        public ConfigHIRT ConfigHIRT => configHIRT;
+
         private void _runtimeTagLoader_Completed(object? sender, EventArgs e)
         {
-            
+
             var list = RuntimeTagLoader.TagsList.Values.ToList();
             //list.Sort((x, y) => x.TagGroup.CompareTo(y.TagGroup));
             foreach (var item in list)
@@ -142,7 +160,8 @@ namespace LibHIRT.Files
 
             lock (_collectionLock)
             {
-                while (_fileAddQueue.TryDequeue(out var fileToAdd)) {
+                while (_fileAddQueue.TryDequeue(out var fileToAdd))
+                {
                     /*int id = fileToAdd.TryGetGlobalId();
                     if (id == -1)
                     {
@@ -156,7 +175,8 @@ namespace LibHIRT.Files
                 }
 
 
-                while (_fileRemoveQueue.TryDequeue(out var fileToRemove)) {
+                while (_fileRemoveQueue.TryDequeue(out var fileToRemove))
+                {
                     _files.Remove(fileToRemove);
                     FileRemoved?.Invoke(this, fileToRemove);
                     /*int id = fileToRemove.TryGetGlobalId();
@@ -169,7 +189,7 @@ namespace LibHIRT.Files
                         FileRemoved?.Invoke(this, fileToRemove);
                     } */
                 }
-                    
+
             }
 
             if (_fileAddQueue.Count > 0 || _fileRemoveQueue.Count > 0)
@@ -226,23 +246,25 @@ namespace LibHIRT.Files
         public bool AddFile(IHIRTFile file)
         {
             _fileAddQueue.Enqueue(file);
-            
+
             bool filesAdded = false;
-           
+
             SSpaceFile temp = file as ModuleFile;
 
             if (temp != null)
             {
-                if (!_filesModuleGlobalIdLockUp.Contains(temp.TryGetGlobalId())) {
+                if (!_filesModuleGlobalIdLockUp.Contains(temp.TryGetGlobalId()))
+                {
                     _filesModuleGlobalIdLockUp.Add(temp.TryGetGlobalId());
                     filesAdded = true;
                 }
-                
+
                 else
                 {
                 }
             }
-            if (file is SSpaceFile) {
+            if (file is SSpaceFile)
+            {
                 foreach (var childFile in (file as SSpaceFile).Children)
                 {
                     filesAdded |= AddFile(childFile);
@@ -252,7 +274,7 @@ namespace LibHIRT.Files
             _throttler.Execute();
             return filesAdded;
         }
-      
+
         public IHIRTFile GetFile(int global_id)
         {
             foreach (var item in _files)
@@ -352,17 +374,19 @@ namespace LibHIRT.Files
             return false;
         }
 
-        public  async Task<bool> OpenFromRuntime(string filePath)
+        public async Task<bool> OpenFromRuntime(string filePath)
         {
             RuntimeLoadCompleted = false;
             bool result = await _runtimeTagLoader.HookAndLoad();
             return true;
         }
 
-        public List<EntryRef> getAllTagReferenceTo(int globalid) { 
+        public List<EntryRef> getAllTagReferenceTo(int globalid)
+        {
             List<EntryRef> result = new List<EntryRef>();
             IEnumerable<ModuleIndexFile> indexRef = GetFiles<ModuleIndexFile>();
-            foreach (ModuleIndexFile file in indexRef) {
+            foreach (ModuleIndexFile file in indexRef)
+            {
                 result.AddRange(file.getAllRefTo(globalid));
             }
             return result;
@@ -438,7 +462,7 @@ namespace LibHIRT.Files
                 _files[item].reset();
             } */
             _filesModuleGlobalIdLockUp.Clear();
-            
+
             foreach (var item in _files)
             {
                 item.reset();
@@ -452,7 +476,7 @@ namespace LibHIRT.Files
             {
                 if (disposing)
                 {
-                    if (connectionDb!=null)
+                    if (connectionDb != null)
                         connectionDb.Dispose();
                     foreach (var item in _files)
                     {
@@ -463,10 +487,10 @@ namespace LibHIRT.Files
                     _filesModuleGlobalIdLockUp.Clear();
 
                 }
-                
+
                 this._fileLock.Dispose();
-                
-                
+
+
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 disposedValue = true;
@@ -484,7 +508,7 @@ namespace LibHIRT.Files
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
-           // GC.SuppressFinalize(this);
+            // GC.SuppressFinalize(this);
         }
 
         #endregion

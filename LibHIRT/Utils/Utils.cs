@@ -1,4 +1,6 @@
-﻿namespace LibHIRT.Utils
+﻿using System.IO.Compression;
+
+namespace LibHIRT.Utils
 {
     public static class Utils
     {
@@ -50,9 +52,54 @@
                 Directory.CreateDirectory(directory_path);
             return directory_path;
         }
+        public static string GetResourcesAppPath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
+        }
         public static string GetPreferencesPath()
         {
             return Path.Combine(GetUserAppPath(), "HIRT.prefs");
+        }
+
+        public static string GetUserDbPath()
+        {
+            return Path.Combine(GetUserAppPath(), "user.db");
+        }
+
+        public static string GetUserDefaultXmlFolderPath()
+        {
+            string directory_path = Path.Combine(GetUserAppPath(), "xml_tags");
+            if (!Directory.Exists(directory_path))
+                Directory.CreateDirectory(directory_path);
+            return directory_path;
+        }
+        public static bool DirectorioEstaVacio(string directorio)
+        {
+            return !Directory.EnumerateFileSystemEntries(directorio).Any();
+        }
+        public static string GetUserXboxTokenPath()
+        {
+            string p_path = Path.Combine(GetUserAppPath(), "xboxservice", "tokens.json");
+            string full_path = Path.GetFullPath(p_path);
+            Directory.CreateDirectory(Path.GetDirectoryName(full_path));
+            if (Directory.Exists(Path.GetDirectoryName(full_path)))
+                return p_path;
+            return "";
+        }
+
+        public static void DescomprimirArchivoZip(string archivoZip, string carpetaDestino)
+        {
+            // Asegurarse de que la carpeta de destino exista
+            if (!Directory.Exists(carpetaDestino))
+            {
+                Directory.CreateDirectory(carpetaDestino);
+            }
+            if (!File.Exists(archivoZip))
+                return;
+            // Descomprimir el archivo ZIP
+            ZipFile.ExtractToDirectory(archivoZip, carpetaDestino);
+
+            Console.WriteLine("Descompresión completada.");
         }
     }
 }

@@ -28,8 +28,9 @@ namespace LibHIRT.Serializers
         #region Abstract Methods
 
         protected abstract void OnDeserialize(BinaryReader reader, T obj);
-        protected virtual void OnDeserialize(TagInstance tagInstance, T obj) { 
-        
+        protected virtual void OnDeserialize(TagInstance tagInstance, T obj)
+        {
+
         }
 
         #endregion

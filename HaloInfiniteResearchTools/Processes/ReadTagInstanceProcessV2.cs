@@ -1,8 +1,6 @@
 ﻿using LibHIRT.Files;
 using LibHIRT.Files.Base;
 using LibHIRT.TagReader;
-using LibHIRT.TagReader.Common;
-using LibHIRT.TagReader.RuntimeViewer;
 using System;
 using System.Threading.Tasks;
 
@@ -35,14 +33,15 @@ namespace HaloInfiniteResearchTools.Processes
                 }
                 tagParse = file.Deserialized(forceReload: forceReload, _onDeserialized: OnInstanceLoadEvent).TagParse;
             }
-            else if (_file is TagStructMemFile)  {
-                TagStructMemFile _fileMem = (TagStructMemFile)_file;
+            else if (_file is LibHIRT.TagReader.RuntimeViewer.TagStructMemFile)
+            {
+                LibHIRT.TagReader.RuntimeViewer.TagStructMemFile _fileMem = (LibHIRT.TagReader.RuntimeViewer.TagStructMemFile)_file;
                 if (HIFileContext.Instance.RuntimeTagLoader.checkLoadTagInstance(_fileMem.ObjectId))
                 {
                     tagParse = new TagParseControlMem(_fileMem.TagGroup, _fileMem.M);
                     (tagParse as TagParseControlMem).Address = _fileMem.TagData;
                     tagParse.readFile();
-                    
+
                 }
             }
 

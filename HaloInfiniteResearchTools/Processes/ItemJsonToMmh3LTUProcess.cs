@@ -2,7 +2,6 @@
 using LibHIRT.TagReader;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -71,7 +70,7 @@ namespace HaloInfiniteResearchTools.Processes
                 var fileName = Path.GetFileName(filePath);
                 var fi = new FileInfo(filePath);
 
-                
+
                 Status = "Procesando ...";
 
                 try
@@ -80,13 +79,13 @@ namespace HaloInfiniteResearchTools.Processes
                     var documento = JsonDocument.Parse(jsonString_temp);
                     var valor = documento.RootElement.GetProperty("CommonData").GetProperty("AltName").GetProperty("value").GetString(); //JsonSerializer.Deserialize(jsonString_temp, ret_type, serializerOptions);
 
-                    
+
                     if (Mmr3HashLTU.AddUniqueStrValue(valor))
                     {
                         if (!_dbModify)
                             _dbModify = true;
                     }
-                                
+
 
                 }
                 catch (Exception ex)

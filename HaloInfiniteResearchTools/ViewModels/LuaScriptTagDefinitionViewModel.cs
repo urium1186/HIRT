@@ -5,9 +5,6 @@ using LibHIRT.Files;
 using LibHIRT.Files.FileTypes;
 using LibHIRT.TagReader;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloInfiniteResearchTools.ViewModels
@@ -22,13 +19,14 @@ namespace HaloInfiniteResearchTools.ViewModels
 
         protected override Task OnInitializing()
         {
-            if (File is SSpaceFile) { 
+            if (File is SSpaceFile)
+            {
                 SSpaceFile temp = (SSpaceFile)File;
                 var root = temp.Deserialized()?.Root;
                 if (root != null)
                 {
                     TagData data = root["luaFileData"] as TagData;
-                    if (data != null && data.ByteLengthCount!=0)
+                    if (data != null && data.ByteLengthCount != 0)
                     {
                         HksDisassembler hksDisassembler = new HksDisassembler(data.ReadBuffer());
                         LuaCode = hksDisassembler.Disassemble();

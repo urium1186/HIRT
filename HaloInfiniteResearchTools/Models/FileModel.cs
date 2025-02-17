@@ -1,10 +1,9 @@
-﻿using LibHIRT.Files;
-using LibHIRT.Files.Base;
+﻿using LibHIRT.Files.Base;
 using System;
 
 namespace HaloInfiniteResearchTools.Models
 {
-    public interface IFileModel: IDisposable
+    public interface IFileModel : IDisposable
     {
     }
     public class FileModel : IFileModel

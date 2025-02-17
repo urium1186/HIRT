@@ -1,5 +1,4 @@
 ﻿using HaloInfiniteResearchTools.ViewModels;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace HaloInfiniteResearchTools.Views

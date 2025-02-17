@@ -90,7 +90,8 @@ else if (dotProduct < 0)
             return result;
         }
 
-        public static Aspose.ThreeD.Utilities.Matrix4 From(this Matrix4x4 mat, bool transpose = true) {
+        public static Aspose.ThreeD.Utilities.Matrix4 From(this Matrix4x4 mat, bool transpose = true)
+        {
             if (transpose)
                 mat = System.Numerics.Matrix4x4.Transpose(mat);
             return new Aspose.ThreeD.Utilities.Matrix4(
@@ -108,15 +109,15 @@ else if (dotProduct < 0)
         }
         public static double to_positive_angle180(double angle)
         {
-           return (angle > 180) ? angle - 360 : (angle < -180) ? angle + 360 : angle;
+            return (angle > 180) ? angle - 360 : (angle < -180) ? angle + 360 : angle;
         }
 
         public static Aspose.ThreeD.Utilities.Vector3 ToPositiveAngle(this Aspose.ThreeD.Utilities.Vector3 angles)
         {
-            var x= to_positive_angle180(angles.x.to_positive_angle());
-            var y= to_positive_angle180(angles.y.to_positive_angle());
-            var z= to_positive_angle180(angles.z.to_positive_angle());
-            return new Aspose.ThreeD.Utilities.Vector3(x,y,z);
+            var x = to_positive_angle180(angles.x.to_positive_angle());
+            var y = to_positive_angle180(angles.y.to_positive_angle());
+            var z = to_positive_angle180(angles.z.to_positive_angle());
+            return new Aspose.ThreeD.Utilities.Vector3(x, y, z);
         }
         public static Aspose.ThreeD.Utilities.Matrix4 CoordinateToXNZY(this Aspose.ThreeD.Utilities.Matrix4 matrix)
         {

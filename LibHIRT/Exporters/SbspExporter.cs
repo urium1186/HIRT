@@ -1,17 +1,8 @@
 ﻿using Aspose.ThreeD;
-using Aspose.ThreeD.Deformers;
-using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Formats;
-using Aspose.ThreeD.Shading;
-using LibHIRT.Domain;
 using LibHIRT.Exporters.Converters;
 using LibHIRT.Exporters.Utils;
 using LibHIRT.Files.FileTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibHIRT.Exporters
 {
@@ -43,7 +34,7 @@ namespace LibHIRT.Exporters
 
                 scene.AssetInfo.CoordinatedSystem = CoordinatedSystem.RightHanded;
 
-                
+
 
                 // create a box to which the material will be applied
                 SbspConverter temp_convert = new SbspConverter(file);
@@ -52,7 +43,7 @@ namespace LibHIRT.Exporters
                 scene.RootNode.AddChildNode(temp_convert.BuildFullEntity());
                 //temp_convert.BuildFullEntity(scene.RootNode);
                 //temp_convert.BuildFullEntity();
-                
+
                 //PolygonModifier.Scale(scene, new Aspose.ThreeD.Utilities.Vector3(0.01));
                 CoordinateSystemTools.ChangeCoordenate(scene.RootNode);
                 SaveOptions _saveOpts = Aspose3DExporter.GetSaveOptions();
@@ -63,7 +54,7 @@ namespace LibHIRT.Exporters
                 //UsdSaveOptions _saveOpts = new UsdSaveOptions();
                 // save 3d scene into STL format
                 //string out_path = Path.Combine(path, name, name + @".fbx");
-                string out_path = Path.Combine(path, name, name + _saveOpts.FileFormat.Extension); 
+                string out_path = Path.Combine(path, name, name + _saveOpts.FileFormat.Extension);
                 Directory.CreateDirectory(Path.GetDirectoryName(out_path));
                 scene.Save(out_path, _saveOpts);
                 return true;

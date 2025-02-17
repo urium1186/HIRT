@@ -71,7 +71,7 @@ namespace LibHIRT.TagReader
                 result = false;
             }
             SQLiteDriver.RemoveConnection(connectionDb);
-            
+
             return result;
         }
 

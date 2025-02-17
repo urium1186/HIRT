@@ -117,5 +117,46 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="DataGridCores" TargetType="DataGrid">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="HeadersVisibility" Value="None"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="RowHeaderStyle">
+            <Setter.Value>
+                <!-- Estilo para las celdas -->
+                <Style TargetType="{x:Type DataGridRowHeader}">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="RowStyle">
+            <Setter.Value>
+                <!-- Estilo para las celdas -->
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <!-- Fondo del DataGrid -->
+        <Setter Property="CellStyle">
+            <Setter.Value>
+                <!-- Estilo para las celdas -->
+                <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ColumnHeaderStyle">
+            <Setter.Value>
+                <!-- Estilo para los encabezados de columnas -->
+                
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

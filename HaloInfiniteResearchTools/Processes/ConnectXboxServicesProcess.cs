@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +18,7 @@ using System.Web;
 
 namespace HaloInfiniteResearchTools.Processes
 {
-    
+
     public class ConnectXboxServicesProcess : ProcessBase<ConnectXboxServicesResult>
     {
         HttpListener _httpListener = new HttpListener();
@@ -53,7 +54,7 @@ namespace HaloInfiniteResearchTools.Processes
             }
             catch (Exception ex)
             {
-                if (_responseThread.IsAlive)
+                if (_responseThread != null && _responseThread.IsAlive)
                 {
                     do_not_stop_listener = false;
                 }
@@ -64,18 +65,32 @@ namespace HaloInfiniteResearchTools.Processes
 
         private void StarServerLocalHost()
         {
-            LogWriter.LogWrite("Starting server...");
-            _httpListener.Prefixes.Add("http://localhost:8080/"); // add prefix "http://localhost:8080/"
-            _httpListener.Start(); // start server (Run application as Administrator!)
-            LogWriter.LogWrite("Server started.");
-            if (_responseThread == null)
-                _responseThread = new Thread(ResponseThread);
-            if (_responseThread.IsAlive)
+            if (!IsPortInUse(9090))
             {
-                do_not_stop_listener = false;
+                LogWriter.LogWrite("Starting server...");
+                _httpListener.Prefixes.Add("http://localhost:9090/"); // add prefix "http://localhost:9090/"
+                if (!_httpListener.IsListening)
+                    try
+                    {
+                        _httpListener.Start(); // start server (Run application as Administrator!)
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ex;
+                    }
+
+                LogWriter.LogWrite("Server started.");
+                if (_responseThread == null)
+                    _responseThread = new Thread(ResponseThread);
+                if (_responseThread.IsAlive)
+                {
+                    do_not_stop_listener = false;
+                }
+                _stateLookup["do_not_stop_listener"] = true;
+                _responseThread.Start(); // start the response
             }
-            _stateLookup["do_not_stop_listener"] = true;
-            _responseThread.Start(); // start the response
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -93,13 +108,13 @@ namespace HaloInfiniteResearchTools.Processes
             var haloTicket = new XboxTicket();
             var extendedTicket = new XboxTicket();
             var haloToken = new SpartanToken();
-
-            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Resources\\xboxservice\\tokens.json"))
+            string pathToketn = Utils.GetUserXboxTokenPath();
+            if (System.IO.File.Exists(pathToketn))
             {
                 LogWriter.LogWrite("Trying to use local tokens...");
 
                 // If a local token file exists, load the file.
-                currentOAuthToken = ConfigurationReader.ReadConfiguration<OAuthToken>(AppDomain.CurrentDomain.BaseDirectory + "Resources\\xboxservice\\tokens.json");
+                currentOAuthToken = ConfigurationReader.ReadConfiguration<OAuthToken>(pathToketn);
             }
             else
             {
@@ -152,7 +167,8 @@ namespace HaloInfiniteResearchTools.Processes
             {
                 extendedTicket = await manager.RequestXstsToken(ticket.Token, false);
             }).GetAwaiter().GetResult();
-            if (haloTicket is null) {
+            if (haloTicket is null)
+            {
                 if (_responseThread != null && _responseThread.IsAlive)
                 {
                     do_not_stop_listener = false;
@@ -230,6 +246,21 @@ namespace HaloInfiniteResearchTools.Processes
             */
         }
 
+        public bool IsPortInUse(int port)
+        {
+            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+
+            foreach (TcpConnectionInformation tcpConnInfo in tcpConnInfoArray)
+            {
+                if (tcpConnInfo.LocalEndPoint.Port == port)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         void ResponseThread()
         {
             while (_stateLookup.ContainsKey("do_not_stop_listener") && _stateLookup["do_not_stop_listener"])
@@ -248,8 +279,8 @@ namespace HaloInfiniteResearchTools.Processes
 
                     _stateLookup["do_not_stop"] = false;
 
-                    byte[] _responseArray = Encoding.UTF8.GetBytes("<html><head><title>Localhost server -- port 5000</title></head>" +
-                    "<body>Welcome to the <strong>Localhost server</strong> -- <em>port 5000!</em></body></html>"); // get the bytes to response
+                    byte[] _responseArray = Encoding.UTF8.GetBytes("<html><head><title>HIRT Localhost server -- port 9090</title></head>" +
+                    "<body>HIRT Login Response Handled on <strong>Localhost server</strong> -- <em>port 9090!</em>. <strong>You have been authenticated. Please return to the HIRT application.</strong></body></html>"); // get the bytes to response
                     context.Response.OutputStream.Write(_responseArray, 0, _responseArray.Length); // write bytes to the output stream
                     context.Response.KeepAlive = false; // set the KeepAlive bool to false
                     context.Response.Close(); // close the connection
@@ -312,7 +343,8 @@ namespace HaloInfiniteResearchTools.Processes
                 currentOAuthToken = await manager.RequestOAuthToken(clientConfig.ClientId, code, clientConfig.RedirectUrl, clientConfig.ClientSecret);
                 if (currentOAuthToken != null)
                 {
-                    var storeTokenResult = StoreTokens(currentOAuthToken, AppDomain.CurrentDomain.BaseDirectory + "Resources\\xboxservice\\tokens.json");
+                    string pathToketn = Utils.GetUserXboxTokenPath();
+                    var storeTokenResult = StoreTokens(currentOAuthToken, pathToketn);
                     if (storeTokenResult)
                     {
                         LogWriter.LogWrite("Stored the tokens locally.");

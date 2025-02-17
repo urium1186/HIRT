@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibHIRT.Files.FileTypes
+﻿namespace LibHIRT.Files.FileTypes
 {
     [FileTagGroup("jssc")]
     [FileSignature("756E3837385A6921")]

@@ -1,5 +1,6 @@
 ﻿using LibHIRT.Grunt.Converters;
 using LibHIRT.Grunt.Extensions;
+using LibHIRT.Grunt.Models.HaloInfinite;
 using LibHIRT.Grunt.Util;
 using OpenSpartan.Grunt.Core;
 using OpenSpartan.Grunt.Models;
@@ -7,6 +8,7 @@ using OpenSpartan.Grunt.Models.HaloInfinite;
 using OpenSpartan.Grunt.Util;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -27,6 +29,8 @@ namespace LibHIRT.Grunt
                 new XmlDurationToTimeSpanJsonConverter()
             }
         };
+
+        public JsonSerializerOptions SerializerOptions => serializerOptions;
 
         public HaloInfiniteClientFix(string spartanToken, string xuid = "", string clearanceToken = "")
         {
@@ -68,6 +72,40 @@ namespace LibHIRT.Grunt
             defaultInterpolatedStringHandler.Append(flightId);
             return await haloInfiniteClient.ExecuteAPIRequestFix<InGameItem>(defaultInterpolatedStringHandler.ToString(), HttpMethod.Get, useSpartanToken: true, useClearance: true, GlobalConstants.HALO_WAYPOINT_USER_AGENT);
         }
+
+
+        //
+        // Summary:
+        //     Gets a specific item from the Game CMS, such as armor emplems, weapon cores,
+        //     vehicle cores, and others.
+        //
+        // Parameters:
+        //   itemPath:
+        //     Path to the item to be obtained. Example is "/inventory/armor/emblems/013-001-363f4a25.json".
+        //
+        //   flightId:
+        //     Unique ID for the currently active flight.
+        //
+        // Returns:
+        //     If successful, an instance of InGameItem. Otherwise, null.
+        //
+        // Remarks:
+        //     For example, you may find that you can get the data about an armor emblem with
+        //     the path "/inventory/armor/emblems/013-001-363f4a25.json".
+        public async Task<HaloApiResultContainer<string, HaloApiErrorContainer>> GameCmsGetItemJsonStringFix(string itemPath, string flightId)
+        {
+            HaloInfiniteClientFix haloInfiniteClient = this;
+            StringBuilder defaultInterpolatedStringHandler = new StringBuilder();
+            defaultInterpolatedStringHandler.Append("https://");
+            defaultInterpolatedStringHandler.Append(HaloCoreEndpoints.GameCmsOrigin);
+            defaultInterpolatedStringHandler.Append(".");
+            defaultInterpolatedStringHandler.Append(HaloCoreEndpoints.ServiceDomain);
+            defaultInterpolatedStringHandler.Append("/hi/Progression/file/");
+            defaultInterpolatedStringHandler.Append(itemPath);
+            defaultInterpolatedStringHandler.Append("?flight=");
+            defaultInterpolatedStringHandler.Append(flightId);
+            return await haloInfiniteClient.ExecuteAPIRequestFix<string>(defaultInterpolatedStringHandler.ToString(), HttpMethod.Get, useSpartanToken: true, useClearance: true, GlobalConstants.HALO_WAYPOINT_USER_AGENT);
+        }
         public async Task<HaloApiResultContainer<ArmorTheme, HaloApiErrorContainer>> GameCmsGetArmorTheme(string itemPath, string flightId)
         {
             HaloInfiniteClientFix haloInfiniteClient = this;
@@ -81,6 +119,63 @@ namespace LibHIRT.Grunt
             defaultInterpolatedStringHandler.Append("?flight=");
             defaultInterpolatedStringHandler.Append(flightId);
             return await haloInfiniteClient.ExecuteAPIRequestFix<ArmorTheme>(defaultInterpolatedStringHandler.ToString(), HttpMethod.Get, useSpartanToken: true, useClearance: true, GlobalConstants.HALO_WAYPOINT_USER_AGENT);
+        }
+
+        //
+        // Summary:
+        //     Gets information about a specific armor core a player owns.
+        //
+        // Parameters:
+        //   player:
+        //     The unique player XUID, in the format "xuid(XUID_VALUE)".
+        //
+        //   coreId:
+        //     The unique identifier for an armor core. An example value is "017-001-eag-c13d0b38".
+        //
+        // Returns:
+        //     If successful, returns an instance of ArmorCore containing customization information.
+        //     Otherwise, returns null.
+        public Task<HaloApiResultContainer<ArmorCore, HaloApiErrorContainer>> EconomyArmorCoreCustomization(string player, string coreId, string content)
+        {
+            HaloInfiniteClient haloInfiniteClient = this;
+            DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(43, 4);
+            defaultInterpolatedStringHandler.AppendLiteral("https://");
+            defaultInterpolatedStringHandler.AppendFormatted(HaloCoreEndpoints.EconomyOrigin);
+            defaultInterpolatedStringHandler.AppendLiteral(".");
+            defaultInterpolatedStringHandler.AppendFormatted(HaloCoreEndpoints.ServiceDomain);
+            defaultInterpolatedStringHandler.AppendLiteral("/hi/players/");
+            defaultInterpolatedStringHandler.AppendFormatted(player);
+            defaultInterpolatedStringHandler.AppendLiteral("/customization/armors/");
+            defaultInterpolatedStringHandler.AppendFormatted(coreId);
+            return haloInfiniteClient.ExecuteAPIRequest<ArmorCore>(defaultInterpolatedStringHandler.ToStringAndClear(), HttpMethod.Put, useSpartanToken: true, useClearance: true, GlobalConstants.HALO_WAYPOINT_USER_AGENT, content);
+        }
+
+        /*
+        * customizationoffers
+        * main
+        * boosts
+        * events
+        * hcs
+        * softcurrencyoffers
+        * operationrewardlevels
+        * operations
+        * xpgrants
+        */
+        public async Task<HaloApiResultContainer<string, HaloApiErrorContainer>> GameCmsGetStoreBy(string player, StoreId storeId = StoreId.main)
+        {
+            HaloInfiniteClientFix haloInfiniteClient = this;
+            StringBuilder defaultInterpolatedStringHandler = new StringBuilder();
+
+            //DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(40, 3);
+            defaultInterpolatedStringHandler.Append("https://");
+            defaultInterpolatedStringHandler.Append(HaloCoreEndpoints.EconomyOrigin);
+            defaultInterpolatedStringHandler.Append(".");
+            defaultInterpolatedStringHandler.Append(HaloCoreEndpoints.ServiceDomain);
+            defaultInterpolatedStringHandler.Append("/hi/players/xuid(");
+            defaultInterpolatedStringHandler.Append(player);
+            defaultInterpolatedStringHandler.Append(")/stores/");
+            defaultInterpolatedStringHandler.Append(storeId.ToString());
+            return await haloInfiniteClient.ExecuteAPIRequestFix<string>(defaultInterpolatedStringHandler.ToString(), HttpMethod.Get, useSpartanToken: true, useClearance: true, GlobalConstants.HALO_WAYPOINT_USER_AGENT);
         }
 
         public async Task<HaloApiResultContainer<T, HaloApiErrorContainer>> ExecuteAPIRequestFix<T>(string endpoint, HttpMethod method, bool useSpartanToken, bool useClearance, string userAgent, string content = "", ApiContentType contentType = ApiContentType.Json)
